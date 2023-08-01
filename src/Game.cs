@@ -1,6 +1,7 @@
 using System;
+using System.Linq;
+using System.Drawing;
 using System.Collections.Generic;
-using System.IO;
 
 using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
@@ -24,85 +25,16 @@ public class Game
             }
         );
 
-        float[] _vertices =
-        {
-            -0.5f, -0.5f, 0.0f, 
-             0.5f, -0.5f, 0.0f, 
-             0.0f,  0.5f, 0.0f,
-            -1f, -0.6f, 0.0f, 
-             0.6f, -0.6f, 0.0f, 
-             0.0f,  -1f, 0.0f
-        };
-        int _vertexBufferObject = 0;
-        int _vertexArrayObject = 0;
-        int Handle = 0;
+        Graphics g = null;
 
         main.Load += delegate
         {
-            GL.ClearColor(0f, 0f, 0f, 1.0f);
+            g = new Graphics();
+        };
 
-            _vertexBufferObject = GL.GenBuffer();
-            GL.BindBuffer(
-                BufferTarget.ArrayBuffer, 
-                _vertexBufferObject
-            );
-            GL.BufferData(
-                BufferTarget.ArrayBuffer,
-                _vertices.Length * sizeof(float), 
-                _vertices, 
-                BufferUsageHint.StaticDraw
-            );
-
-            _vertexArrayObject = GL.GenVertexArray();
-            GL.BindVertexArray(_vertexArrayObject);
-
-            GL.VertexAttribPointer(0, 3, 
-                VertexAttribPointerType.Float, 
-                false, 
-                3 * sizeof(float), 
-                0
-            );
-            GL.EnableVertexAttribArray(0);
-            
-            var shaderSource = 
-            """
-            #version 330 core
-            layout (location = 0) in vec3 aPosition;
-
-            void main()
-            {
-                gl_Position = vec4(aPosition, 1.0);
-            }
-            """;
-            var vertexShader = GL.CreateShader(ShaderType.VertexShader);
-            GL.ShaderSource(vertexShader, shaderSource);
-            GL.CompileShader(vertexShader);
-            
-            shaderSource = 
-            """
-            #version 330 core
-            out vec4 FragColor;
-
-            uniform  vec4 ourColor;
-
-            void main()
-            {
-                FragColor = ourColor;
-            } 
-            """;
-            var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-            GL.ShaderSource(fragmentShader, shaderSource);
-            GL.CompileShader(fragmentShader);
-
-            Handle = GL.CreateProgram();
-            GL.AttachShader(Handle, vertexShader);
-            GL.AttachShader(Handle, fragmentShader);
-            GL.LinkProgram(Handle);
-
-            GL.DetachShader(Handle, vertexShader);
-            GL.DetachShader(Handle, fragmentShader);
-            GL.DeleteShader(fragmentShader);
-            GL.DeleteShader(vertexShader);
+        main.Unload += delegate
+        {
+            g.Dispose();
         };
 
         DateTime dt = DateTime.Now;
@@ -110,6 +42,9 @@ public class Game
         int N = 1000;
         Queue<DateTime> queue = new Queue<DateTime>();
         DateTime older = DateTime.Now;
+
+        float x = 0;
+        float y = 0;
 
         main.RenderFrame += e =>
         {
@@ -125,18 +60,23 @@ public class Game
                 Console.WriteLine($"{(int)fps} fps");
             }
 
-
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-
-            GL.UseProgram(Handle);
+            g.Clear(Color.Black);
             
-            double timeValue = (DateTime.Now - dt).TotalSeconds;
-            float greenValue = (float)Math.Sin(timeValue) / 2.0f + 0.5f;
-            int vertexColorLocation = GL.GetUniformLocation(Handle, "ourColor");
-            GL.Uniform4(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+            g.FillPolygon(
+                Color.Orange,
+                new PointF(x - .1f, y - .1f),
+                new PointF(x + .1f, y - .1f),
+                new PointF(x + .1f, y + .1f),
+                new PointF(x - .1f, y + .1f)
+            );
 
-            GL.BindVertexArray(_vertexArrayObject);
-            GL.DrawArrays(PrimitiveType.Triangles, 0, 6);
+            g.DrawPolygon(
+                Color.LightBlue,
+                new PointF(x - .1f, y - .1f),
+                new PointF(x + .1f, y - .1f),
+                new PointF(x + .1f, y + .1f),
+                new PointF(x - .1f, y + .1f)
+            );
 
             main.SwapBuffers();
         };
@@ -147,17 +87,6 @@ public class Game
             {
                 main.Close();
             }
-        };
-
-        main.Unload += delegate
-        {
-            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-            GL.BindVertexArray(0);
-            GL.UseProgram(0);
-
-            GL.DeleteBuffer(_vertexBufferObject);
-            GL.DeleteVertexArray(_vertexArrayObject);
-            GL.DeleteProgram(Handle);
         };
 
         main.Run();
