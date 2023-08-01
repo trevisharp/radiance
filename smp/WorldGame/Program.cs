@@ -1,3 +1,6 @@
 ﻿using static System.Console;
 
-WriteLine("Hello, World!");
+using WorldEngine;
+
+Game game = new Game();
+game.Open();
