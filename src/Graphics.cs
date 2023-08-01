@@ -13,45 +13,23 @@ namespace WorldEngine;
 
 public class Graphics : IDisposable
 {
+    private static int bufferObject = int.MinValue;
+
+    public static Graphics New()
+        => new Graphics();
+    
     private int program = 0;
-    private int _vertexArrayObject = 0;
-    private int _vertexBufferObject = 0;
+    private int vertexObject = 0;
     private bool disposed = false;
+    private string vertexShaderSource = string.Empty;
+    private string fragmentShaderSource = string.Empty;
 
-    public Graphics()
+    private Graphics(
+        string vertexShaderSource = null,
+        string fragmentShaderSource = null
+    )
     {
-        load();
-    }
-
-    public void Dispose()
-    {
-        if (disposed)
-            return;
-        disposed = true;
-
-        unload();
-    }
-
-    private void load()
-    {
-        _vertexBufferObject = GL.GenBuffer();
-        GL.BindBuffer(
-            BufferTarget.ArrayBuffer, 
-            _vertexBufferObject
-        );
-
-        _vertexArrayObject = GL.GenVertexArray();
-        GL.BindVertexArray(_vertexArrayObject);
-
-        GL.VertexAttribPointer(0, 3,
-            VertexAttribPointerType.Float, 
-            false, 
-            3 * sizeof(float), 
-            0
-        );
-        GL.EnableVertexAttribArray(0);
-        
-        var shaderSource = 
+        this.vertexShaderSource = vertexShaderSource ??
         """
         #version 330 core
         layout (location = 0) in vec3 aPosition;
@@ -61,11 +39,8 @@ public class Graphics : IDisposable
             gl_Position = vec4(aPosition, 1.0);
         }
         """;
-        var vertexShader = GL.CreateShader(ShaderType.VertexShader);
-        GL.ShaderSource(vertexShader, shaderSource);
-        GL.CompileShader(vertexShader);
-        
-        shaderSource = 
+
+        this.fragmentShaderSource = fragmentShaderSource ??
         """
         #version 330 core
         out vec4 FragColor;
@@ -76,8 +51,45 @@ public class Graphics : IDisposable
             FragColor = ourColor;
         } 
         """;
+
+        load();
+    }
+
+    static Graphics()
+    { 
+        bufferObject = GL.GenBuffer();
+        GL.BindBuffer(
+            BufferTarget.ArrayBuffer, 
+            bufferObject
+        );
+    }
+
+    public void Dispose()
+    {
+        if (disposed)
+            return;
+        disposed = true;
+
+        unload();
+    }
+    
+    private void load()
+    {
+        vertexObject = GL.GenVertexArray();
+        GL.BindVertexArray(vertexObject);
+
+        GL.VertexAttribPointer(0, 3,
+            VertexAttribPointerType.Float, 
+            false, 3 * sizeof(float), 0
+        );
+        GL.EnableVertexAttribArray(0);
+        
+        var vertexShader = GL.CreateShader(ShaderType.VertexShader);
+        GL.ShaderSource(vertexShader, vertexShaderSource);
+        GL.CompileShader(vertexShader);
+        
         var fragmentShader = GL.CreateShader(ShaderType.FragmentShader);
-        GL.ShaderSource(fragmentShader, shaderSource);
+        GL.ShaderSource(fragmentShader, fragmentShaderSource);
         GL.CompileShader(fragmentShader);
 
         program = GL.CreateProgram();
@@ -97,8 +109,8 @@ public class Graphics : IDisposable
         GL.BindVertexArray(0);
         GL.UseProgram(0);
 
-        GL.DeleteBuffer(_vertexBufferObject);
-        GL.DeleteVertexArray(_vertexArrayObject);
+        GL.DeleteBuffer(bufferObject);
+        GL.DeleteVertexArray(vertexObject);
         GL.DeleteProgram(program);
     }
 
@@ -141,8 +153,8 @@ public class Graphics : IDisposable
         var colorCode = GL.GetUniformLocation(program, "ourColor");
         GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
 
-        GL.BindVertexArray(_vertexArrayObject);
-        GL.DrawArrays(PrimitiveType.TriangleStrip, 0, 3 * pts.Length);
+        GL.BindVertexArray(vertexObject);
+        GL.DrawArrays(PrimitiveType.TriangleStrip, 0, pts.Length + 1);
     }
     
     public void DrawPolygon(Color color, params PointF[] pts)
@@ -155,8 +167,6 @@ public class Graphics : IDisposable
             {
                 pt.X, pt.Y, 0
             };
-        
-        var first = query.FirstOrDefault();
 
         var vertices = 
             query
@@ -172,7 +182,7 @@ public class Graphics : IDisposable
         var colorCode = GL.GetUniformLocation(program, "ourColor");
         GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
 
-        GL.BindVertexArray(_vertexArrayObject);
-        GL.DrawArrays(PrimitiveType.LineStrip, 0, 3 * pts.Length);
+        GL.BindVertexArray(vertexObject);
+        GL.DrawArrays(PrimitiveType.LineLoop, 0, pts.Length);
     }
 }

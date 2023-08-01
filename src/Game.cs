@@ -26,10 +26,24 @@ public class Game
         );
 
         Graphics g = null;
+        Graphics g2 = null;
+
+        DateTime dt = DateTime.Now;
+
+        int N = 1000;
+        Queue<DateTime> queue = new Queue<DateTime>();
+        DateTime newer = DateTime.Now;
+        DateTime older = DateTime.Now;
+
+        float x = 0;
+        float y = 0;
+        float sx = .1f;
+        float sy = .1f;
 
         main.Load += delegate
         {
-            g = new Graphics();
+            g = Graphics.New();
+            g2 = Graphics.New();
         };
 
         main.Unload += delegate
@@ -37,32 +51,35 @@ public class Game
             g.Dispose();
         };
 
-        DateTime dt = DateTime.Now;
-
-        int N = 1000;
-        Queue<DateTime> queue = new Queue<DateTime>();
-        DateTime older = DateTime.Now;
-
-        float x = 0;
-        float y = 0;
-
         main.RenderFrame += e =>
         {
-            var newer = DateTime.Now;
+            newer = DateTime.Now;
             queue.Enqueue(newer);
 
             if (queue.Count > N - 1)
             {
                 older = queue.Dequeue();
-
                 var delta = newer - older;
-                var fps = N / delta.TotalSeconds;
-                Console.WriteLine($"{(int)fps} fps");
+                var fps = (int)(N / delta.TotalSeconds);
+                Console.WriteLine($"fps: {fps}");
+
+                x += sx / fps;
+                y += sy / fps;
+
+                if (x < -.9f)
+                    sx = .1f;
+                else if (x > .9f)
+                    sx = -.1f;
+
+                if (y < -.9f)
+                    sy = .1f;
+                else if (y > .9f)
+                    sy = -.1f;
             }
 
             g.Clear(Color.Black);
             
-            g.FillPolygon(
+            g2.FillPolygon(
                 Color.Orange,
                 new PointF(x - .1f, y - .1f),
                 new PointF(x + .1f, y - .1f),
