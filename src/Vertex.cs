@@ -1,4 +1,4 @@
-namespace WorldEngine;
+namespace SharpGL;
 
 /// <summary>
 /// Represents a tridimensional point with axes x, y and z.
@@ -37,6 +37,9 @@ public record Vertex(float x, float y, float z)
         
     public static implicit operator Vertex((float x, float y, float z) tuple)
         => new (tuple.x, tuple.y, tuple.z);
+        
+    public static implicit operator Vertex((float x, float y) tuple)
+        => new (tuple.x, tuple.y, 0);
     
     public static readonly Vertex Origin;
     static Vertex()

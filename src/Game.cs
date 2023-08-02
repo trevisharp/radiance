@@ -10,7 +10,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace WorldEngine;
+namespace SharpGL;
 
 public class Game
 {
@@ -26,7 +26,6 @@ public class Game
         );
 
         Graphics g = null;
-        Graphics g2 = null;
 
         DateTime dt = DateTime.Now;
 
@@ -43,7 +42,6 @@ public class Game
         main.Load += delegate
         {
             g = Graphics.New();
-            g2 = Graphics.New();
         };
 
         main.Unload += delegate
@@ -79,20 +77,20 @@ public class Game
 
             g.Clear(Color.Black);
             
-            g2.FillPolygon(
+            g.FillPolygon(
                 Color.Orange,
-                new PointF(x - .1f, y - .1f),
-                new PointF(x + .1f, y - .1f),
-                new PointF(x + .1f, y + .1f),
-                new PointF(x - .1f, y + .1f)
+                (x - .1f, y - .1f),
+                (x + .1f, y - .1f),
+                (x + .1f, y + .1f),
+                (x - .1f, y + .1f)
             );
 
             g.DrawPolygon(
                 Color.LightBlue,
-                new PointF(x - .1f, y - .1f),
-                new PointF(x + .1f, y - .1f),
-                new PointF(x + .1f, y + .1f),
-                new PointF(x - .1f, y + .1f)
+                (x - .1f, y - .1f),
+                (x + .1f, y - .1f),
+                (x + .1f, y + .1f),
+                (x - .1f, y + .1f)
             );
 
             main.SwapBuffers();

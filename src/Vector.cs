@@ -1,4 +1,4 @@
-namespace WorldEngine;
+namespace SharpGL;
 
 /// <summary>
 /// Represents a tridimensional vector with axes x, y and z.

@@ -9,7 +9,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace WorldEngine;
+namespace SharpGL;
 
 public class Graphics : IDisposable
 {
@@ -72,7 +72,7 @@ public class Graphics : IDisposable
 
         unload();
     }
-    
+
     private void load()
     {
         vertexObject = GL.GenVertexArray();
@@ -125,7 +125,7 @@ public class Graphics : IDisposable
         GL.Clear(ClearBufferMask.ColorBufferBit);
     }
 
-    public void FillPolygon(Color color, params PointF[] pts)
+    public void FillPolygon(Color color, params Vertex[] pts)
     {
         GL.UseProgram(program);
         
@@ -133,7 +133,7 @@ public class Graphics : IDisposable
             from pt in pts
             select new float[]
             {
-                pt.X, pt.Y, 0
+                pt.x, pt.y, pt.z
             };
         
         var first = query.FirstOrDefault();
@@ -157,7 +157,7 @@ public class Graphics : IDisposable
         GL.DrawArrays(PrimitiveType.TriangleStrip, 0, pts.Length + 1);
     }
     
-    public void DrawPolygon(Color color, params PointF[] pts)
+    public void DrawPolygon(Color color, params Vertex[] pts)
     {
         GL.UseProgram(program);
 
@@ -165,7 +165,7 @@ public class Graphics : IDisposable
             from pt in pts
             select new float[]
             {
-                pt.X, pt.Y, 0
+                pt.x, pt.y, pt.z
             };
 
         var vertices = 
