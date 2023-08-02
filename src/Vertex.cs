@@ -1,4 +1,4 @@
-namespace SharpGL;
+namespace Duck;
 
 /// <summary>
 /// Represents a tridimensional point with axes x, y and z.
@@ -40,6 +40,9 @@ public record Vertex(float x, float y, float z)
         
     public static implicit operator Vertex((float x, float y) tuple)
         => new (tuple.x, tuple.y, 0);
+        
+    public static implicit operator Vertex(Vector v)
+        => new (v.x, v.y, v.z);
     
     public static readonly Vertex Origin;
     static Vertex()

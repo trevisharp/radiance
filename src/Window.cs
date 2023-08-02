@@ -10,13 +10,15 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace SharpGL;
+namespace Duck;
 
-public class Window
+public static class Window
 {
-    public void Open()
+    private static GameWindow win;
+
+    public static void Open()
     {
-        using var main = new GameWindow(
+        win = new GameWindow(
             GameWindowSettings.Default,
             new NativeWindowSettings()
             {
@@ -25,85 +27,60 @@ public class Window
             }
         );
 
-        Graphics g = null;
-
-        DateTime dt = DateTime.Now;
-
-        int N = 1000;
-        Queue<DateTime> queue = new Queue<DateTime>();
-        DateTime newer = DateTime.Now;
-        DateTime older = DateTime.Now;
-
-        float x = 0;
-        float y = 0;
-        float sx = .1f;
-        float sy = .1f;
-
-        main.Load += delegate
+        win.Load += delegate
         {
-            g = Graphics.New();
-        };
-
-        main.Unload += delegate
-        {
-            g.Dispose();
-        };
-
-        main.RenderFrame += e =>
-        {
-            newer = DateTime.Now;
-            queue.Enqueue(newer);
-
-            if (queue.Count > N - 1)
-            {
-                older = queue.Dequeue();
-                var delta = newer - older;
-                var fps = (int)(N / delta.TotalSeconds);
-                Console.WriteLine($"fps: {fps}");
-
-                x += sx / fps;
-                y += sy / fps;
-
-                if (x < -.9f)
-                    sx = .1f;
-                else if (x > .9f)
-                    sx = -.1f;
-
-                if (y < -.9f)
-                    sy = .1f;
-                else if (y > .9f)
-                    sy = -.1f;
-            }
-
-            g.Clear(Color.Black);
+            if (OnLoad is null)
+                return;
             
-            g.FillPolygon(
-                Color.Orange,
-                (x - .1f, y - .1f),
-                (x + .1f, y - .1f),
-                (x + .1f, y + .1f),
-                (x - .1f, y + .1f)
-            );
-
-            g.DrawPolygon(
-                Color.LightBlue,
-                (x - .1f, y - .1f),
-                (x + .1f, y - .1f),
-                (x + .1f, y + .1f),
-                (x - .1f, y + .1f)
-            );
-
-            main.SwapBuffers();
+            OnLoad();
         };
 
-        main.UpdateFrame += e =>
+        win.Unload += delegate
         {
-            if (main.KeyboardState.IsKeyDown(Keys.Escape))
-            {
-                main.Close();
-            }
+            if (OnUnload is null)
+                return;
+            
+            OnUnload();
         };
 
-        main.Run();
+        win.RenderFrame += e =>
+        {
+            if (OnRender is not null)
+                OnRender();
+
+            win.SwapBuffers();
+        };
+
+        win.UpdateFrame += e =>
+        {
+            if (OnFrame is null)
+                return;
+            
+            OnFrame();
+        };
+
+        win.KeyDown += e =>
+        {
+            if (OnKeyDown is null)
+                return;
+
+            Input input = (Input)e.Key;
+            OnKeyDown(input);
+        };
+
+        win.Run();
     }
+
+    public static void Close()
+    {
+        win.Close();
+        win.Dispose();
+    }
+
+    public static event Action OnRender;
+    public static event Action OnLoad;
+    public static event Action OnUnload;
+    public static event Action OnFrame;
+    public static event Action<Input> OnKeyDown;
+    public static event Action<Input> OnKeyUp;
 }

@@ -1,4 +1,4 @@
-namespace SharpGL;
+namespace Duck;
 
 /// <summary>
 /// Represents a tridimensional vector with axes x, y and z.
@@ -46,9 +46,33 @@ public record Vector(float x, float y, float z)
         u.z * v.x - u.x * v.z,
         u.x * v.y - u.y * v.x
     );
+
+    public static Vector operator +(Vector v, (float x, float y, float z) u)
+        => new (v.x + u.x, v.y + u.y, v.z + u.z);
     
-    public static implicit operator Vector((float x, float y, float z) tuple)
-        => new (tuple.x, tuple.y, tuple.z);
+    public static Vector operator -(Vector v, (float x, float y, float z) u)
+        => new (v.x - u.x, v.y - u.y, v.z - u.z);
+
+    public static Vector operator +((float x, float y, float z) v, Vector u)
+        => new (v.x + u.x, v.y + u.y, v.z + u.z);
+    
+    public static Vector operator -((float x, float y, float z) v, Vector u)
+        => new (v.x - u.x, v.y - u.y, v.z - u.z);
+
+    public static Vector operator +(Vector v, (float x, float y) u)
+        => new (v.x + u.x, v.y + u.y, v.z);
+    
+    public static Vector operator -(Vector v, (float x, float y) u)
+        => new (v.x - u.x, v.y - u.y, v.z);
+
+    public static Vector operator +((float x, float y) v, Vector u)
+        => new (v.x + u.x, v.y + u.y, + u.z);
+    
+    public static Vector operator -((float x, float y) v, Vector u)
+        => new (v.x - u.x, v.y - u.y, - u.z);
+    
+    public static implicit operator Vector((float x, float y) tuple)
+        => new (tuple.x, tuple.y, 0);
     
     public static readonly Vector Empty;
     public static readonly Vector i;
