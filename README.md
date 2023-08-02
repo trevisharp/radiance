@@ -1,14 +1,20 @@
 # Duck
 
-##### Not is the most fast.
-##### Not is the most beautiful.
-##### Not is the most easy. 
-##### But is a bit fast, beautiful and easy.
+Not is the most fast.
+
+Not is the most beautiful.
+
+Not is the most easy.
+
+But is a bit fast, beautiful and easy.
 
 A library based on OpenTK which is based on OpenGL.
+
 Duck has a API similar to System.Drawing.Graphics.
 
-# Drawing simple 2D objects
+# Tutorials and Examples
+
+## Drawing simple 2D objects
 
 ```cs
 using System.Drawing;
@@ -71,3 +77,20 @@ Window.OnKeyDown += e =>
 
 Window.Open();
 ```
+
+# Versions
+
+### Duck v0.2.0 (coming soon)
+
+### Duck v0.1.0
+
+ - ![](https://img.shields.io/badge/new-green) Window Class
+    - Open and Close Methods
+    - Events
+ - ![](https://img.shields.io/badge/new-green) Input Enum
+ - ![](https://img.shields.io/badge/new-green) Vector Record
+ - ![](https://img.shields.io/badge/new-green) Vertex Record
+ - ![](https://img.shields.io/badge/new-green) Graphics Class
+    - Clear Method
+    - DrawPolygon Method
+    - FillPolygon Method
