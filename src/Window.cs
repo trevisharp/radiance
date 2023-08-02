@@ -1,21 +1,23 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    02/08/2023
+ */
 using System;
-using System.Linq;
-using System.Drawing;
-using System.Collections.Generic;
 
-using OpenTK.Graphics;
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Duck;
 
+/// <summary>
+/// Represents the main windows that applications run
+/// </summary>
 public static class Window
 {
     private static GameWindow win;
 
+    /// <summary>
+    /// Open main application window
+    /// </summary>
     public static void Open()
     {
         win = new GameWindow(
@@ -80,12 +82,15 @@ public static class Window
         win.Run();
     }
 
+    /// <summary>
+    /// Close main application window
+    /// </summary>
     public static void Close()
     {
         win.Close();
         win.Dispose();
     }
-
+    
     public static event Action OnRender;
     public static event Action OnLoad;
     public static event Action OnUnload;

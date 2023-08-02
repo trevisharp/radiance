@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    02/08/2023
+ */
 using System;
 using System.Drawing;
 using System.Linq;
@@ -11,6 +14,9 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace Duck;
 
+/// <summary>
+/// Provide access to a OpenGL simplifications based on OpenTK library.
+/// </summary>
 public class Graphics : IDisposable
 {
     private static int bufferObject = int.MinValue;
