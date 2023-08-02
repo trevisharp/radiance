@@ -12,7 +12,7 @@ using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace SharpGL;
 
-public class Game
+public class Window
 {
     public void Open()
     {

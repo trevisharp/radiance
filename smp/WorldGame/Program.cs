@@ -1,6 +1,6 @@
 ﻿using static System.Console;
 
-using WorldEngine;
+using SharpGL;
 
-Game game = new Game();
-game.Open();
+var win = new Window();
+win.Open();
