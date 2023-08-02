@@ -23,14 +23,23 @@ public class Graphics : IDisposable
 
     public static Graphics New()
         => new Graphics();
+        
+    public static Graphics New(int widht, int height)
+        => new Graphics(widht, height);
     
     private int program = 0;
     private int vertexObject = 0;
     private bool disposed = false;
+
     private string vertexShaderSource = string.Empty;
     private string fragmentShaderSource = string.Empty;
 
+    private int width = 0;
+    private int height = 0;
+
     private Graphics(
+        int width = 800,
+        int height = 640,
         string vertexShaderSource = null,
         string fragmentShaderSource = null
     )
@@ -57,6 +66,9 @@ public class Graphics : IDisposable
             FragColor = ourColor;
         } 
         """;
+
+        this.width = width;
+        this.height = height;
 
         load();
     }
@@ -181,21 +193,23 @@ public class Graphics : IDisposable
         for (int i = 0; i < pts.Length; i++, index += 3)
         {
             var pt = pts[i];
-
-            vertices[index + 0] = pt.x;
-            vertices[index + 1] = pt.y;
-            vertices[index + 2] = pt.z;
+            transformBasedOnWindowSize(pt, vertices, index);
         }
         
         if (!loop)
             return vertices;
+
         
         var first = pts[0];
-
-        vertices[index + 0] = first.x;
-        vertices[index + 1] = first.y;
-        vertices[index + 2] = first.z;
+        transformBasedOnWindowSize(first, vertices, index);
 
         return vertices;
+    }
+
+    private void transformBasedOnWindowSize(Vertex pt, float[] data, int offset)
+    {
+        data[offset + 0] = 2 * (pt.x / width) - 1;
+        data[offset + 1] = 2 * (pt.y / height) - 1;
+        data[offset + 2] = pt.z;
     }
 }

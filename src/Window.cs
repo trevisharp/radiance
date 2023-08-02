@@ -14,6 +14,18 @@ namespace Duck;
 public static class Window
 {
     private static GameWindow win;
+    private static int width = 0;
+    private static int height = 0;
+
+    /// <summary>
+    /// The width of the screen
+    /// </summary>
+    public static int Width => width;
+
+    /// <summary>
+    /// The height of the screen
+    /// </summary>
+    public static int Height => height;
 
     /// <summary>
     /// Open main application window
@@ -34,6 +46,7 @@ public static class Window
             if (OnLoad is null)
                 return;
             
+            updateSize(win);
             OnLoad();
         };
 
@@ -97,4 +110,15 @@ public static class Window
     public static event Action OnFrame;
     public static event Action<Input> OnKeyDown;
     public static event Action<Input> OnKeyUp;
+
+    private static void updateSize(GameWindow win)
+    {
+        if (win is null)
+            return;
+        
+        var size = (System.Drawing.Size)win.Size;
+
+        width = size.Width;
+        height = size.Height;
+    }
 }
