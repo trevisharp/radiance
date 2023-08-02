@@ -1,31 +1,12 @@
-﻿using System;
-using System.Collections.Generic;
-using System.Drawing;
+﻿using System.Drawing;
 
 using Duck;
-using static Duck.Vector;
 
 Graphics g = null;
-
-DateTime dt = DateTime.Now;
-
-int N = 1000;
-Queue<DateTime> queue = new Queue<DateTime>();
-DateTime newer = DateTime.Now;
-DateTime older = DateTime.Now;
-
-float x = 0;
-float y = 0;
-float baseSpeed = 100;
-float sx = baseSpeed;
-float sy = baseSpeed;
 
 Window.OnLoad += delegate
 {
     g = Graphics.New(Window.Width, Window.Height);
-
-    x = Window.Width / 2 - 25;
-    y = Window.Height / 2 - 25;
 };
 
 Window.OnUnload += delegate
@@ -35,46 +16,37 @@ Window.OnUnload += delegate
 
 Window.OnRender += delegate
 {
-    newer = DateTime.Now;
-    queue.Enqueue(newer);
+    var size = 50;
+    var i = Vector.i; // x-axis vector
+    var j = Vector.j; // y-axis vector
 
-    if (queue.Count > N - 1)
-    {
-        older = queue.Dequeue();
-        var delta = newer - older;
-        var fps = (int)(N / delta.TotalSeconds);
-        Console.WriteLine($"fps: {fps}");
+    var center = ((Window.Width - size) / 2, (Window.Height - size) / 2);
 
-        x += sx / fps;
-        y += sy / fps;
-
-        if (x < 50)
-            sx = baseSpeed;
-        else if (x > Window.Width - 50)
-            sx = -baseSpeed;
-
-        if (y < 50)
-            sy = baseSpeed;
-        else if (y > Window.Height - 50)
-            sy = -baseSpeed;
-    }
-
-    g.Clear(Color.Black);
+    // using vetorial algebra to build a centralized square
+    var topLeftPt  = center + size * (-i -j);
+    var topRightPt = center + size * (+i -j);
+    var botRightPt = center + size * (+i +j);
+    var botLeftPt  = center + size * (-i +j);
     
+    // clear scream
+    g.Clear(Color.White);
+    
+    // filling square
     g.FillPolygon(
-        Color.Orange,
-        (x, y) + 50 * (- i - j),
-        (x, y) + 50 * (+ i - j),
-        (x, y) + 50 * (+ i + j),
-        (x, y) + 50 * (- i + j)
+        Color.Blue,
+        topLeftPt,
+        topRightPt,
+        botRightPt,
+        botLeftPt
     );
 
+    // drawing border of square
     g.DrawPolygon(
-        Color.LightBlue,
-        (x, y) + 50 * (- i - j),
-        (x, y) + 50 * (+ i - j),
-        (x, y) + 50 * (+ i + j),
-        (x, y) + 50 * (- i + j)
+        Color.Black,
+        topLeftPt,
+        topRightPt,
+        botRightPt,
+        botLeftPt
     );
 };
 
