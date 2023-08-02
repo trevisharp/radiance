@@ -72,7 +72,7 @@ public static class Window
 
         win.KeyUp += e =>
         {
-            if (OnKeyDown is null)
+            if (OnKeyUp is null)
                 return;
 
             Input input = (Input)e.Key;
