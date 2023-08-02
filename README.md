@@ -77,6 +77,8 @@ Window.OnKeyDown += e =>
 
 Window.Open();
 ```
+Result:
+![result](./smp/RectSample/result.jpg)
 
 # Versions
 
