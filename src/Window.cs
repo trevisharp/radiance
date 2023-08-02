@@ -68,6 +68,15 @@ public static class Window
             OnKeyDown(input);
         };
 
+        win.KeyUp += e =>
+        {
+            if (OnKeyDown is null)
+                return;
+
+            Input input = (Input)e.Key;
+            OnKeyUp(input);
+        };
+
         win.Run();
     }
 
