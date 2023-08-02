@@ -134,21 +134,8 @@ public class Graphics : IDisposable
     public void FillPolygon(Color color, params Vertex[] pts)
     {
         GL.UseProgram(program);
-        
-        var query =
-            from pt in pts
-            select new float[]
-            {
-                pt.x, pt.y, pt.z
-            };
-        
-        var first = query.FirstOrDefault();
 
-        var vertices = 
-            query
-            .Append(first)
-            .SelectMany(x => x)
-            .ToArray();
+        float[] vertices = toArr(pts, true);
         
         GL.BufferData(
             BufferTarget.ArrayBuffer,
@@ -167,17 +154,7 @@ public class Graphics : IDisposable
     {
         GL.UseProgram(program);
 
-        var query =
-            from pt in pts
-            select new float[]
-            {
-                pt.x, pt.y, pt.z
-            };
-
-        var vertices = 
-            query
-            .SelectMany(x => x)
-            .ToArray();
+        float[] vertices = toArr(pts, false);
         
         GL.BufferData(
             BufferTarget.ArrayBuffer,
@@ -190,5 +167,35 @@ public class Graphics : IDisposable
 
         GL.BindVertexArray(vertexObject);
         GL.DrawArrays(PrimitiveType.LineLoop, 0, pts.Length);
+    }
+
+    private float[] toArr(Vertex[] pts, bool loop)
+    {
+        if (pts is null)
+            return new float[0];
+
+        int size = 3 * pts.Length + (loop ? 3 : 0);
+        float[] vertices = new float[size];
+
+        int index = 0;
+        for (int i = 0; i < pts.Length; i++, index += 3)
+        {
+            var pt = pts[i];
+
+            vertices[index + 0] = pt.x;
+            vertices[index + 1] = pt.y;
+            vertices[index + 2] = pt.z;
+        }
+        
+        if (!loop)
+            return vertices;
+        
+        var first = pts[0];
+
+        vertices[index + 0] = first.x;
+        vertices[index + 1] = first.y;
+        vertices[index + 2] = first.z;
+
+        return vertices;
     }
 }
