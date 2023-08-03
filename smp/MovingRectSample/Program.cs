@@ -2,8 +2,8 @@
 using System.Collections.Generic;
 using System.Drawing;
 
-using Duck;
-using static Duck.Vector;
+using DuckGL;
+using static DuckGL.Vector;
 
 Graphics g = null;
 

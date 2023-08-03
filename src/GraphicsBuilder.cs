@@ -1,7 +1,7 @@
 using System;
 using System.Linq.Expressions;
 
-namespace Duck;
+namespace DuckGL;
 
 public class GraphicsBuilder
 {
@@ -34,12 +34,12 @@ public class GraphicsBuilder
         return this;
     }
 
-    public GraphicsBuilder SetVertexShader(Expression<Action> exp)
+    public GraphicsBuilder SetVertexShader(Action<ShaderContext> exp)
     {
         throw new NotImplementedException();
     }
 
-    public GraphicsBuilder SeFragmentShader(Expression<Action> exp)
+    public GraphicsBuilder SetFragmentShader(Action<ShaderContext> exp)
     {
         throw new NotImplementedException();
     }

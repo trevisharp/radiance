@@ -12,7 +12,7 @@ using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 using OpenTK.Windowing.GraphicsLibraryFramework;
 
-namespace Duck;
+namespace DuckGL;
 
 /// <summary>
 /// Provide access to a OpenGL simplifications based on OpenTK library.

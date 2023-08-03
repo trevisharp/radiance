@@ -6,7 +6,7 @@ using System;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
-namespace Duck;
+namespace DuckGL;
 
 /// <summary>
 /// Represents the main windows that applications run
@@ -120,5 +120,10 @@ public static class Window
 
         width = size.Width;
         height = size.Height;
+    }
+
+    private static void test()
+    {
+        GraphicsBuilder gb = new GraphicsBuilder();
     }
 }

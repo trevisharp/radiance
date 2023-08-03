@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    02/08/2023
  */
-namespace Duck;
+namespace DuckGL;
 
 /// <summary>
 /// Represents a tridimensional point with axes x, y and z.
