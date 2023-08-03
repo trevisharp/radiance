@@ -1,6 +1,6 @@
 namespace DuckGL.ShaderSupport;
 
-public class ShaderType
+public abstract class ShaderType
 {
-    
+
 }

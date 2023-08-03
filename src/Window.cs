@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/08/2023
+ * Date:    03/08/2023
  */
 using System;
 
@@ -103,6 +103,22 @@ public static class Window
         win.Close();
         win.Dispose();
     }
+
+    /// <summary>
+    /// Create a Builder from Graphics object to configurate the drawing in main screen.
+    /// </summary>
+    public static GraphicsBuilder CreateGraphics()
+    {
+        if (width == -1 && height == -1)
+            throw new Exception("Graphics need be created after Window opening.");
+
+        var gb = new GraphicsBuilder();
+
+        gb.SetWidth(width);
+        gb.SetHeight(height);
+
+        return gb;
+    }
     
     public static event Action OnRender;
     public static event Action OnLoad;
@@ -110,19 +126,6 @@ public static class Window
     public static event Action OnFrame;
     public static event Action<Input> OnKeyDown;
     public static event Action<Input> OnKeyUp;
-
-    public static GraphicsBuilder CreateGraphics()
-    {
-        var gb = new GraphicsBuilder();
-
-        if (width == -1 && height == -1)
-            throw new Exception("Graphics need be created after Window opening.");
-
-        gb.SetWidth(width);
-        gb.SetHeight(height);
-
-        return gb;
-    }
 
     private static void updateSize(GameWindow win)
     {

@@ -1,2 +1,21 @@
-﻿// See https://aka.ms/new-console-template for more information
-Console.WriteLine("Hello, World!");
+﻿using DuckGL;
+using static DuckGL.Shaders;
+
+Graphics g = null;
+
+Window.OnLoad += delegate
+{
+    g = Window
+        .CreateGraphics()
+        .SetVertexShader(() =>
+        {
+
+        })
+        .SetFragmentShader(() =>
+        {
+            
+        })
+        .Build();
+};
+
+Window.Open();
