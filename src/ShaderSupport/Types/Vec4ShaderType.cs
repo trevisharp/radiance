@@ -3,7 +3,7 @@
  */
 namespace DuckGL.ShaderSupport.Types;
 
-public class Vec3ShaderType : ShaderType
+public class Vec4ShaderType : ShaderType
 {
 
 }
