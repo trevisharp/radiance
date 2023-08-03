@@ -14,8 +14,8 @@ namespace DuckGL;
 public static class Window
 {
     private static GameWindow win;
-    private static int width = 0;
-    private static int height = 0;
+    private static int width = -1;
+    private static int height = -1;
 
     /// <summary>
     /// The width of the screen
@@ -111,6 +111,19 @@ public static class Window
     public static event Action<Input> OnKeyDown;
     public static event Action<Input> OnKeyUp;
 
+    public static GraphicsBuilder CreateGraphics()
+    {
+        var gb = new GraphicsBuilder();
+
+        if (width == -1 && height == -1)
+            throw new Exception("Graphics need be created after Window opening.");
+
+        gb.SetWidth(width);
+        gb.SetHeight(height);
+
+        return gb;
+    }
+
     private static void updateSize(GameWindow win)
     {
         if (win is null)
@@ -120,10 +133,5 @@ public static class Window
 
         width = size.Width;
         height = size.Height;
-    }
-
-    private static void test()
-    {
-        GraphicsBuilder gb = new GraphicsBuilder();
     }
 }
