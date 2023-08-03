@@ -9,11 +9,14 @@ Window.OnLoad += delegate
         .CreateGraphics()
         .SetVertexShader(() =>
         {
+            version("330 core");
+            layout(0, vec3, out var pos);
+            layout(1, vec3, out var color);
 
         })
         .SetFragmentShader(() =>
         {
-            
+
         })
         .Build();
 };
