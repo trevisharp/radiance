@@ -12,6 +12,7 @@ public class ShaderContext
     public List<(int pos, ShaderType type)> Layout { get; set; } = new();
 
     public List<ShaderObject> InVariables { get; set; } = new();
+
     public List<ShaderObject> Unifroms { get; set; } = new();
 
     public List<(ShaderObject, ShaderObject)> OutVariables { get; set; } = new();   

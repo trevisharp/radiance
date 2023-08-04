@@ -121,7 +121,7 @@ public static class Shaders
     )
     {
         if (type != data.Type)
-            throw new Exceptioon(
+            throw new Exception(
                 "Invalid set of out variable with diferent type."
             );
 
@@ -176,12 +176,12 @@ public static class Shaders
 
     public static void uniform(ShaderType type, out ShaderObject obj)
     {
-        int index = ctx.Unifroms.Count;
+        int index = ctx.Value.Unifroms.Count;
         obj = new ShaderObject(
             type,
             $"uniform{index}"
         );
 
-        ctx.Unifroms.Add(obj);
+        ctx.Value.Unifroms.Add(obj);
     }
 }

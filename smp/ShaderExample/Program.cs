@@ -19,7 +19,7 @@ Window.OnLoad += delegate
         .SetFragmentShader(() =>
         {
             version("330 core");
-            var vertexColor = inVar(vec4, "vertexColor");
+            var vertexColor = inVar(vec3, "vertexColor");
 
             gl_FragColor = vec(vertexColor, 1.0f);
         })

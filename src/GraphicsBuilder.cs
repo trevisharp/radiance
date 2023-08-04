@@ -1,10 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/08/2023
+ * Date:    04/08/2023
  */
 using System;
-using System.Linq.Expressions;
 
 namespace DuckGL;
+
+using ShaderSupport;
 
 /// <summary>
 /// A Builder to configurate the Graphics object to drawing in main screen with OpenGL.
@@ -57,7 +58,14 @@ public class GraphicsBuilder
     /// </summary>
     public GraphicsBuilder SetVertexShader(Action value)
     {
-        throw new NotImplementedException();
+        Shaders.ResetContext();
+        value();
+        var ctx = Shaders.GetContext();
+
+        var shader = ShaderConverter.ToShader(ctx);
+        SetVertexShader(shader);
+
+        return this;
     }
 
     /// <summary>
@@ -65,7 +73,14 @@ public class GraphicsBuilder
     /// </summary>
     public GraphicsBuilder SetFragmentShader(Action value)
     {
-        throw new NotImplementedException();
+        Shaders.ResetContext();
+        value();
+        var ctx = Shaders.GetContext();
+
+        var shader = ShaderConverter.ToShader(ctx);
+        SetFragmentShader(shader);
+
+        return this;
     }
 
     /// <summary>
@@ -73,6 +88,9 @@ public class GraphicsBuilder
     /// </summary>
     public Graphics Build()
     {
+        System.Console.WriteLine(vertexShader);   
+        System.Console.WriteLine();   
+        System.Console.WriteLine(fragmentShader);   
         throw new NotImplementedException();
     }
 }
