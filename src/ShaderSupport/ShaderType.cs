@@ -8,7 +8,8 @@ namespace DuckGL.ShaderSupport;
 /// </summary>
 public enum ShaderType
 {
-    Vec2,
-    Vec3,
-    Vec4
+    Float = 1,
+    Vec2 = 2,
+    Vec3 = 3,
+    Vec4 = 4,
 }

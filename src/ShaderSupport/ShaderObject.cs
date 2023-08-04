@@ -3,6 +3,8 @@
  */
 namespace DuckGL.ShaderSupport;
 
+using Objects;
+
 /// <summary>
 /// Represents any data in a shader implementation.
 /// </summary>
@@ -22,4 +24,25 @@ public class ShaderObject
     public string Name { get; private set; }
     public ShaderType Type { get; private set; }
     public string Expression { get; private set; }
+
+    public string Value =>
+        Name ?? Expression ?? "0";
+    
+    public static implicit operator ShaderObject(float value)
+        => new FloatShaderObject(
+            null,
+            value.ToString()
+        );
+        
+    public static implicit operator ShaderObject(double value)
+        => new FloatShaderObject(
+            null,
+            value.ToString()
+        );
+        
+    public static implicit operator ShaderObject(int value)
+        => new FloatShaderObject(
+            null,
+            value.ToString()
+        );
 }

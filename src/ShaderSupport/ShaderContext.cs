@@ -7,6 +7,7 @@ namespace DuckGL.ShaderSupport;
 
 public class ShaderContext
 {
-    private string version = "330 core";
+    public string Version { get; set; } = "330 core";
 
+    public List<(int pos, ShaderType type)> Layout { get; set; } = new();
 }

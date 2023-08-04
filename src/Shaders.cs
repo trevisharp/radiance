@@ -2,6 +2,7 @@
  * Date:    03/08/2023
  */
 using System;
+using System.Linq;
 using System.Threading;
 
 namespace DuckGL;
@@ -25,6 +26,12 @@ public static class Shaders
     internal static ShaderContext GetContext()
         => ctx.Value;
     
+    public static ShaderType single
+        => ShaderType.Float;
+
+    public static ShaderType vec2
+        => ShaderType.Vec2;
+
     public static ShaderType vec3
         => ShaderType.Vec3;
     
@@ -32,44 +39,79 @@ public static class Shaders
         => ShaderType.Vec4;
 
     public static ShaderObject vec(
-        ShaderObject var,
-        float f
+        params ShaderObject[] objs
     )
     {
-        var data = var.Name ?? var.Expression;
-
-        switch (var.Type)
+        int vecGrade = 0;
+        for (int i = 0; i < objs.Length; i++)
         {
-            case ShaderType.Vec2:
-                return new Vec3ShaderObject(
-                    null,
-                    $"vec3({data}, {f})"
-                );
-            
-            case ShaderType.Vec3:
-                return new Vec4ShaderObject(
-                    null,
-                    $"vec4({data}, {f})"
-                );
-            
-            default:
-                throw new Exception($"'{data}' is invalid to use in vec");
+            var obj = objs[i];
+            vecGrade += (int)obj.Type;
         }
+        if (vecGrade < 2 || vecGrade > 4)
+            throw new Exception("A vec need have a dimension number betwen 2 and 4.");
+        
+        var exp = $"vec{vecGrade}(";
+        for (int i = 0; i < objs.Length; i++)
+        {
+            var obj = objs[i];
+            exp += obj.Value;
+            exp += i < objs.Length - 1 ? "," : ")";
+        }
+
+        return new ShaderObject(
+            (ShaderType)vecGrade,
+            null,
+            exp
+        );
     }
 
+    private static string[] validVersions = {
+        "110", "120", "130", "140", "150",
+        "330", 
+        "400", "410", "420", "430", "440", "450"
+    };
     public static void version(string version)
     {
+        var parts = version.Split(" ");
 
+        if (parts.Length == 0)
+            throw new Exception("Invalid empty version.");
+        
+        var number = parts[0];
+        if (!validVersions.Contains(number))
+        {
+            string error = "Invalid version of GLSL.\n\tValid versions: ";
+            foreach (var valVer in validVersions)
+                error += valVer + ", ";
+            throw new Exception(error);
+        }
+
+        var profile =
+            parts.Length > 1 ?
+            parts[1] :
+            "core";
+        if (profile != "core" && profile != "compatibility")
+        {
+            throw new Exception($"Invalid profile {profile}");
+        }
+
+        if (parts.Length > 2)
+            throw new Exception("Invalid long version.");
+
+        ctx.Value.Version = version;
     }
 
     public static void layout(
         int pos,
         ShaderType type,
-        out ShaderObject variable)
+        out ShaderObject obj)
     {
-        variable = new ShaderObject(
-            type
+        obj = new ShaderObject(
+            type,
+            $"data{pos}"
         );
+        ctx.Value.Layout.Add((pos, type));
     }
 
     public static void outVar(
@@ -92,8 +134,8 @@ public static class Shaders
 
         return obj;
     }
-    public static Vec4ShaderObject gl_Position { get; set; }
-    public static Vec4ShaderObject gl_FragColor { get; set; }
+    public static ShaderObject gl_Position { get; set; }
+    public static ShaderObject gl_FragColor { get; set; }
 
     public static void uniform(ShaderType type, out ShaderObject obj)
     {
