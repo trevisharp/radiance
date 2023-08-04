@@ -1,9 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/08/2023
+ * Date:    04/08/2023
  */
 namespace DuckGL.ShaderSupport;
 
-public abstract class ShaderType
+/// <summary>
+/// Represents a valid type in shader implementation.
+/// </summary>
+public enum ShaderType
 {
-
+    Vec2,
+    Vec3,
+    Vec4
 }

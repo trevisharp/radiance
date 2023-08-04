@@ -4,14 +4,14 @@
 namespace DuckGL.ShaderSupport.Objects;
 
 /// <summary>
-/// Represent a Vec3 data in shader implementation.
+/// Represent a Vec2 data in shader implementation.
 /// </summary>
-public class Vec3ShaderObject : ShaderObject
+public class Vec2ShaderObject : ShaderObject
 {
-    public Vec3ShaderObject(
+    public Vec2ShaderObject(
         string name = null,
         string exp = null
-    ) : base(ShaderType.Vec3, name, exp)
+    ) : base(ShaderType.Vec2, name, exp)
     {
         
     }   
