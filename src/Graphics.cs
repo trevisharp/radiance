@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/08/2023
+ * Date:    04/08/2023
  */
 using System;
 using System.Drawing;
@@ -20,12 +20,6 @@ namespace DuckGL;
 public class Graphics : IDisposable
 {
     private static int bufferObject = int.MinValue;
-
-    public static Graphics New()
-        => new Graphics();
-        
-    public static Graphics New(int widht, int height)
-        => new Graphics(widht, height);
     
     private int program = 0;
     private int vertexObject = 0;
@@ -37,38 +31,23 @@ public class Graphics : IDisposable
     private int width = 0;
     private int height = 0;
 
-    private Graphics(
-        int width = 800,
-        int height = 640,
-        string vertexShaderSource = null,
-        string fragmentShaderSource = null
+    private int[] layoutInfo;
+
+    internal Graphics(
+        int width,
+        int height,
+        string vertexShaderSource,
+        string fragmentShaderSource,
+        int[] layoutInfo
     )
     {
-        this.vertexShaderSource = vertexShaderSource ??
-        """
-        #version 330 core
-        layout (location = 0) in vec3 aPosition;
-
-        void main()
-        {
-            gl_Position = vec4(aPosition, 1.0);
-        }
-        """;
-
-        this.fragmentShaderSource = fragmentShaderSource ??
-        """
-        #version 330 core
-        out vec4 FragColor;
-        uniform  vec4 ourColor;
-
-        void main()
-        {
-            FragColor = ourColor;
-        } 
-        """;
+        this.vertexShaderSource = vertexShaderSource;
+        this.fragmentShaderSource = fragmentShaderSource;
 
         this.width = width;
         this.height = height;
+
+        this.layoutInfo = layoutInfo;
 
         load();
     }

@@ -26,4 +26,20 @@ Window.OnLoad += delegate
         .Build();
 };
 
+Window.OnRender += delegate
+{
+    // g.FillPolygon();
+};
+
+Window.OnKeyDown += e =>
+{
+    if (e == Input.Escape)
+        Window.Close();
+};
+
+Window.OnUnload += delegate
+{
+    g.Dispose();
+};
+
 Window.Open();

@@ -21,6 +21,29 @@ public static class Shaders
         ctx = new ThreadLocal<ShaderContext>(
             () => new ShaderContext()
         );
+
+        defaultVertex =
+        """
+        #version 330 core
+        layout (location = 0) in vec3 aPosition;
+
+        void main()
+        {
+            gl_Position = vec4(aPosition, 1.0);
+        }
+        """;
+
+        defaultFragment =
+        """
+        #version 330 core
+        out vec4 FragColor;
+        uniform  vec4 ourColor;
+
+        void main()
+        {
+            FragColor = ourColor;
+        } 
+        """;
     }
 
     internal static void ResetContext()
@@ -29,6 +52,10 @@ public static class Shaders
     internal static ShaderContext GetContext()
         => ctx.Value;
     
+    public static readonly string defaultVertex;
+
+    public static readonly string defaultFragment;
+
     public static ShaderType single
         => ShaderType.Float;
 

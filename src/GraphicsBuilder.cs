@@ -12,6 +12,9 @@ using ShaderSupport;
 /// </summary>
 public class GraphicsBuilder
 {
+    private ShaderContext vertexContext = null;
+    private ShaderContext fragmentContext = null;
+    private int[] layout = null;
     private string vertexShader = string.Empty;
     private string fragmentShader = string.Empty;
     private int width = -1;
@@ -60,9 +63,9 @@ public class GraphicsBuilder
     {
         Shaders.ResetContext();
         value();
-        var ctx = Shaders.GetContext();
+        vertexContext = Shaders.GetContext();
 
-        var shader = ShaderConverter.ToShader(ctx);
+        var shader = ShaderConverter.ToShader(vertexContext);
         SetVertexShader(shader);
 
         return this;
@@ -75,11 +78,20 @@ public class GraphicsBuilder
     {
         Shaders.ResetContext();
         value();
-        var ctx = Shaders.GetContext();
+        fragmentContext = Shaders.GetContext();
 
-        var shader = ShaderConverter.ToShader(ctx);
+        var shader = ShaderConverter.ToShader(fragmentContext);
         SetFragmentShader(shader);
 
+        return this;
+    }
+
+    /// <summary>
+    /// Set layout information.
+    /// </summary>
+    public GraphicsBuilder SetLayout(params int[] layout)
+    {
+        this.layout = layout;
         return this;
     }
 
@@ -88,9 +100,20 @@ public class GraphicsBuilder
     /// </summary>
     public Graphics Build()
     {
-        System.Console.WriteLine(vertexShader);   
-        System.Console.WriteLine();   
-        System.Console.WriteLine(fragmentShader);   
-        throw new NotImplementedException();
+        if (vertexContext is null && layout is null)
+            layout = new int[] { 3 };
+        else if (layout is null)
+            layout = 
+                vertexContext.Layout
+                .Select(x => (int)x.Type)
+                .ToArray();
+
+        return new Graphics(
+            width,
+            height,
+            vertexShader,
+            fragmentShader,
+            layout
+        )
     }
 }
