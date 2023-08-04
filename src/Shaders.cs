@@ -10,6 +10,9 @@ namespace DuckGL;
 using ShaderSupport;
 using ShaderSupport.Objects;
 
+/// <summary>
+/// A facede with all utils to program a shader.
+/// </summary>
 public static class Shaders
 {
     static ThreadLocal<ShaderContext> ctx;
@@ -148,29 +151,27 @@ public static class Shaders
         return obj;
     }
     
-    private static ShaderObject gl_position = null;
     public static ShaderObject gl_Position
     {
-        get => gl_position;
+        get => ctx.Value.Position;
         set
         {
             if (value.Type != ShaderType.Vec4)
                 throw new Exception("Invalid type for gl_Position");
             
-            gl_position = value;
+            ctx.Value.Position = value;
         }
     }
 
-    public static ShaderObject gl_fragColor = null;
     public static ShaderObject gl_FragColor
         {
-        get => gl_fragColor;
+        get => ctx.Value.FragColor;
         set
         {
             if (value.Type != ShaderType.Vec4)
                 throw new Exception("Invalid type for gl_FragColor");
             
-            gl_fragColor = value;
+            ctx.Value.FragColor = value;
         }
     }
 
