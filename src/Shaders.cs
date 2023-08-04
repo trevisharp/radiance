@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/08/2023
+ * Date:    04/08/2023
  */
 using System;
 using System.Linq;
@@ -117,10 +117,20 @@ public static class Shaders
     public static void outVar(
         ShaderType type,
         string name, 
-        ShaderObject obj
+        ShaderObject data
     )
     {
+        if (type != data.Type)
+            throw new Exceptioon(
+                "Invalid set of out variable with diferent type."
+            );
 
+        var obj = new ShaderObject(
+            type,
+            name
+        );
+
+        ctx.Value.OutVariables.Add((obj, data));
     }
 
     public static ShaderObject inVar(
@@ -129,18 +139,49 @@ public static class Shaders
     )
     {
         var obj = new ShaderObject(
-            type
+            type,
+            name
         );
+
+        ctx.Value.InVariables.Add(obj);
 
         return obj;
     }
-    public static ShaderObject gl_Position { get; set; }
-    public static ShaderObject gl_FragColor { get; set; }
+    
+    private static ShaderObject gl_position = null;
+    public static ShaderObject gl_Position
+    {
+        get => gl_position;
+        set
+        {
+            if (value.Type != ShaderType.Vec4)
+                throw new Exception("Invalid type for gl_Position");
+            
+            gl_position = value;
+        }
+    }
+
+    public static ShaderObject gl_fragColor = null;
+    public static ShaderObject gl_FragColor
+        {
+        get => gl_fragColor;
+        set
+        {
+            if (value.Type != ShaderType.Vec4)
+                throw new Exception("Invalid type for gl_FragColor");
+            
+            gl_fragColor = value;
+        }
+    }
 
     public static void uniform(ShaderType type, out ShaderObject obj)
     {
+        int index = ctx.Unifroms.Count;
         obj = new ShaderObject(
-            type
+            type,
+            $"uniform{index}"
         );
+
+        ctx.Unifroms.Add(obj);
     }
 }

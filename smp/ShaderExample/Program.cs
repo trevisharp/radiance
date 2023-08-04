@@ -14,7 +14,7 @@ Window.OnLoad += delegate
             layout(1, vec3, out var color);
 
             gl_Position = vec(pos, 1.0f);
-            outVar(vec4, "vertexColor", color);
+            outVar(vec3, "vertexColor", color);
         })
         .SetFragmentShader(() =>
         {
