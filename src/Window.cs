@@ -1,7 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/08/2023
+ * Date:    04/08/2023
  */
 using System;
+using System.Collections.Generic;
 
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -13,6 +14,7 @@ namespace DuckGL;
 /// </summary>
 public static class Window
 {
+    private List<GraphicsBuilder> builders = new();
     private static GameWindow win;
     private static int width = -1;
     private static int height = -1;
@@ -56,6 +58,7 @@ public static class Window
                 return;
             
             OnUnload();
+            disposeGraphics();
         };
 
         win.RenderFrame += e =>
@@ -117,6 +120,8 @@ public static class Window
         gb.SetWidth(width);
         gb.SetHeight(height);
 
+        builders.Add(gb);
+
         return gb;
     }
     
@@ -126,6 +131,18 @@ public static class Window
     public static event Action OnFrame;
     public static event Action<Input> OnKeyDown;
     public static event Action<Input> OnKeyUp;
+
+    private static void disposeGraphics()
+    {
+        foreach (var builder in builders)
+        {
+            var product = builder.Product;
+            if (product is null)
+                continue;
+            
+            product.Dispose();
+        }
+    }
 
     private static void updateSize(GameWindow win)
     {

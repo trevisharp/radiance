@@ -6,7 +6,7 @@ Graphics g = null;
 
 Window.OnLoad += delegate
 {
-    g = Graphics.New(Window.Width, Window.Height);
+    g = Window.CreateGraphics();
 };
 
 Window.OnUnload += delegate

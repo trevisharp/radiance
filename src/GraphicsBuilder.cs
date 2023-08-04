@@ -2,6 +2,7 @@
  * Date:    04/08/2023
  */
 using System;
+using System.Linq;
 
 namespace DuckGL;
 
@@ -12,11 +13,13 @@ using ShaderSupport;
 /// </summary>
 public class GraphicsBuilder
 {
+    internal Graphics Product { get; set; }
+
     private ShaderContext vertexContext = null;
     private ShaderContext fragmentContext = null;
     private int[] layout = null;
-    private string vertexShader = string.Empty;
-    private string fragmentShader = string.Empty;
+    private string vertexShader = null;
+    private string fragmentShader = null;
     private int width = -1;
     private int height = -1;
 
@@ -105,15 +108,26 @@ public class GraphicsBuilder
         else if (layout is null)
             layout = 
                 vertexContext.Layout
-                .Select(x => (int)x.Type)
+                .Select(x => (int)x.type)
                 .ToArray();
+            
+        vertexShader ??= Shaders.defaultVertex;
+        fragmentShader ??= Shaders.defaultFragment;
 
-        return new Graphics(
+        Console.WriteLine(vertexShader);
+        Console.WriteLine(fragmentShader);
+
+        Product = new Graphics(
             width,
             height,
             vertexShader,
             fragmentShader,
             layout
-        )
+        );
+
+        return Product;
     }
+
+    public static implicit operator Graphics(GraphicsBuilder builder)
+        => builder.Build();
 }
