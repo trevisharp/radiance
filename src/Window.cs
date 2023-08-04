@@ -14,7 +14,7 @@ namespace DuckGL;
 /// </summary>
 public static class Window
 {
-    private List<GraphicsBuilder> builders = new();
+    private static List<GraphicsBuilder> builders = new();
     private static GameWindow win;
     private static int width = -1;
     private static int height = -1;
@@ -105,6 +105,18 @@ public static class Window
     {
         win.Close();
         win.Dispose();
+    }
+
+    /// <summary>
+    /// Set inputs to close the application
+    /// </summary>
+    public static void CloseOn(Input input)
+    {
+        OnKeyDown += e =>
+        {
+            if (e == input)
+                Close();
+        };
     }
 
     /// <summary>

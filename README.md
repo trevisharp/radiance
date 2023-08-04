@@ -19,18 +19,13 @@ Duck has a API similar to System.Drawing.Graphics.
 ```cs
 using System.Drawing;
 
-using Duck;
+using DuckGL;
 
 Graphics g = null;
 
 Window.OnLoad += delegate
 {
     g = Window.CreateGraphics();
-};
-
-Window.OnUnload += delegate
-{
-    g.Dispose();
 };
 
 Window.OnRender += delegate
@@ -69,11 +64,7 @@ Window.OnRender += delegate
     );
 };
 
-Window.OnKeyDown += e =>
-{
-    if (e == Input.Escape)
-        Window.Close();
-};
+Window.CloseOn(Input.Escape);
 
 Window.Open();
 ```
