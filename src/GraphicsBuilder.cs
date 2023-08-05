@@ -113,10 +113,7 @@ public class GraphicsBuilder
             
         vertexShader ??= Shaders.defaultVertex;
         fragmentShader ??= Shaders.defaultFragment;
-
-        Console.WriteLine(vertexShader);
-        Console.WriteLine(fragmentShader);
-
+        
         Product = new Graphics(
             width,
             height,

@@ -13,7 +13,7 @@ Window.OnLoad += delegate
             layout(0, vec3, out var pos);
             layout(1, vec3, out var color);
 
-            gl_Position = vec(pos, 1.0f);
+            gl_Position = vec(pos, 1.0);
             outVar(vec3, "vertexColor", color);
         })
         .SetFragmentShader(() =>
@@ -21,9 +21,8 @@ Window.OnLoad += delegate
             version("330 core");
             var vertexColor = inVar(vec3, "vertexColor");
 
-            gl_FragColor = vec(vertexColor, 1.0f);
-        })
-        .Build();
+            gl_FragColor = vec(vertexColor, 1.0);
+        });
 };
 
 Window.OnRender += delegate

@@ -34,7 +34,7 @@ Window.OnRender += delegate
     var i = Vector.i; // x-axis vector
     var j = Vector.j; // y-axis vector
 
-    var center = ((Window.Width - size) / 2, (Window.Height - size) / 2);
+    var center = (Window.Width / 2, Window.Height / 2);
 
     // using vetorial algebra to build a centralized square
     var topLeftPt  = center + size * (-i -j);
@@ -70,6 +70,8 @@ Window.Open();
 ```
 Result:
 ![result](./smp/RectSample/result.jpg)
+
+## Program Shaders in C#
 
 # Versions
 
