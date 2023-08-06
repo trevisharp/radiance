@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/08/2023
+ * Date:    06/08/2023
  */
 namespace DuckGL.ShaderSupport;
 
@@ -45,4 +45,31 @@ public class ShaderObject
             null,
             value.ToString()
         );
+    
+    public ShaderObject x
+    {
+        get => new ShaderObject(
+            ShaderType.Float,
+            null,
+            $"({Value}).x"
+        );
+    }
+    
+    public ShaderObject y
+    {
+        get => new ShaderObject(
+            ShaderType.Float,
+            null,
+            $"({Value}).y"
+        );
+    }
+    
+    public ShaderObject z
+    {
+        get => new ShaderObject(
+            ShaderType.Float,
+            null,
+            $"({Value}).z"
+        );
+    }
 }
