@@ -75,11 +75,21 @@ public class Graphics : IDisposable
         vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);
 
-        GL.VertexAttribPointer(0, 3,
-            VertexAttribPointerType.Float, 
-            false, 3 * sizeof(float), 0
-        );
-        GL.EnableVertexAttribArray(0);
+        int stride = layoutInfo.Sum();
+        int offset = 0;
+        for (int i = 0; i < layoutInfo.Length; i++)
+        {
+            GL.VertexAttribPointer(i,
+                layoutInfo[i],
+                VertexAttribPointerType.Float, 
+                false, 
+                stride * sizeof(float),
+                offset * sizeof(float)
+            );
+            GL.EnableVertexAttribArray(i);
+
+            offset += layoutInfo[i];
+        }
         
         var vertexShader = GL.CreateShader(ShaderType.VertexShader);
         GL.ShaderSource(vertexShader, vertexShaderSource);
@@ -134,6 +144,7 @@ public class Graphics : IDisposable
             vertices, 
             BufferUsageHint.DynamicDraw
         );
+        
         var colorCode = GL.GetUniformLocation(program, "uniform0");
         GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
 
@@ -153,11 +164,110 @@ public class Graphics : IDisposable
             vertices, 
             BufferUsageHint.DynamicDraw
         );
+        
         var colorCode = GL.GetUniformLocation(program, "uniform0");
         GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
 
         GL.BindVertexArray(vertexObject);
         GL.DrawArrays(PrimitiveType.LineLoop, 0, pts.Length);
+    }
+
+    public void FillPolygon(params Vertex[] pts)
+    {
+        GL.UseProgram(program);
+
+        float[] vertices = toArr(pts, true);
+        
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            vertices.Length * sizeof(float), 
+            vertices, 
+            BufferUsageHint.DynamicDraw
+        );
+
+        GL.BindVertexArray(vertexObject);
+        GL.DrawArrays(PrimitiveType.TriangleStrip, 0, pts.Length + 1);
+    }
+    
+    public void DrawPolygon(params Vertex[] pts)
+    {
+        GL.UseProgram(program);
+
+        float[] vertices = toArr(pts, false);
+        
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            vertices.Length * sizeof(float), 
+            vertices, 
+            BufferUsageHint.DynamicDraw
+        );
+
+        GL.BindVertexArray(vertexObject);
+        GL.DrawArrays(PrimitiveType.LineLoop, 0, pts.Length);
+    }
+
+    public void FillPolygon(params ColoredVertex[] pts)
+    {
+        GL.UseProgram(program);
+
+        float[] vertices = toArr(pts, true);
+        
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            vertices.Length * sizeof(float), 
+            vertices, 
+            BufferUsageHint.DynamicDraw
+        );
+
+        GL.BindVertexArray(vertexObject);
+        GL.DrawArrays(PrimitiveType.TriangleFan, 0, pts.Length + 1);
+    }
+    
+    public void DrawPolygon(params ColoredVertex[] pts)
+    {
+        GL.UseProgram(program);
+
+        float[] vertices = toArr(pts, false);
+        
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            vertices.Length * sizeof(float), 
+            vertices, 
+            BufferUsageHint.DynamicDraw
+        );
+
+        GL.BindVertexArray(vertexObject);
+        GL.DrawArrays(PrimitiveType.LineLoop, 0, pts.Length);
+    }
+
+    private float[] toArr(ColoredVertex[] pts, bool loop)
+    {
+        if (pts is null)
+            return new float[0];
+
+        int size = 7 * pts.Length + (loop ? 7 : 0);
+        float[] vertices = new float[size];
+
+        int offset = 0;
+        for (int i = 0; i < pts.Length; i++, offset += 7)
+        {
+            var pt = pts[i];
+            transformBasedOnWindowSize(pt, vertices, offset);
+
+            var color = pt.Color;
+            transformColor(color, vertices, offset + 3);
+        }
+        
+        if (!loop)
+            return vertices;
+        
+        var first = pts[0];
+        transformBasedOnWindowSize(first, vertices, offset);
+
+        var firstColor = first.Color;
+        transformColor(firstColor, vertices, offset + 3);
+
+        return vertices;
     }
 
     private float[] toArr(Vertex[] pts, bool loop)
@@ -168,11 +278,11 @@ public class Graphics : IDisposable
         int size = 3 * pts.Length + (loop ? 3 : 0);
         float[] vertices = new float[size];
 
-        int index = 0;
-        for (int i = 0; i < pts.Length; i++, index += 3)
+        int offset = 0;
+        for (int i = 0; i < pts.Length; i++, offset += 3)
         {
             var pt = pts[i];
-            transformBasedOnWindowSize(pt, vertices, index);
+            transformBasedOnWindowSize(pt, vertices, offset);
         }
         
         if (!loop)
@@ -180,15 +290,23 @@ public class Graphics : IDisposable
 
         
         var first = pts[0];
-        transformBasedOnWindowSize(first, vertices, index);
+        transformBasedOnWindowSize(first, vertices, offset);
 
         return vertices;
+    }
+
+    private void transformColor(Color color, float[] data, int offset)
+    {
+        data[offset + 0] = color.R / 255f;
+        data[offset + 1] = color.G / 255f;
+        data[offset + 2] = color.B / 255f;
+        data[offset + 3] = color.A / 255f;
     }
 
     private void transformBasedOnWindowSize(Vertex pt, float[] data, int offset)
     {
         data[offset + 0] = 2 * (pt.x / width) - 1;
-        data[offset + 1] = 2 * (pt.y / height) - 1;
+        data[offset + 1] = 1 - 2 * (pt.y / height);
         data[offset + 2] = pt.z;
     }
 }

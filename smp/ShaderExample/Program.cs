@@ -9,25 +9,33 @@ Window.OnLoad += delegate
         .CreateGraphics()
         .SetVertexShader(() =>
         {
-            version("330 core");
             layout(0, vec3, out var pos);
-            layout(1, vec3, out var color);
+            layout(1, vec4, out var color);
 
             gl_Position = vec(pos, 1.0);
-            outVar(vec3, "vertexColor", color);
+            outVar(vec4, "vertexColor", color);
         })
         .SetFragmentShader(() =>
         {
-            version("330 core");
-            var vertexColor = inVar(vec3, "vertexColor");
+            inVar(vec4, "vertexColor", out var vertexColor);
 
-            gl_FragColor = vec(vertexColor, 1.0);
+            gl_FragColor = vertexColor;
         });
 };
 
 Window.OnRender += delegate
 {
-    // g.FillPolygon();
+    var red = Color.Red;
+    var green = Color.Green;
+    var w = Window.Width;
+    var h = Window.Height;
+
+    g.FillPolygon(
+        (0, 0, 0, red),
+        (w, 0, 0, green),
+        (w, h, 0, red),
+        (0, h, 0, green)
+    );
 };
 
 Window.CloseOn(Input.Escape);

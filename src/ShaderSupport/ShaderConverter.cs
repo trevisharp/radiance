@@ -22,7 +22,7 @@ public static class ShaderConverter
             int p = layout.pos;
             string type = typeToString(layout.type);
             sb.AppendLine(
-                $"layout (location = {p}) in {type} data{p}"
+                $"layout (location = {p}) in {type} data{p};"
             );
         }
 

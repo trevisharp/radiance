@@ -24,11 +24,11 @@ public static class Shaders
         defaultVertex =
         """
         #version 330 core
-        layout (location = 0) in vec3 pos;
+        layout (location = 0) in vec3 data0;
 
         void main()
         {
-            gl_Position = vec4(pos, 1.0);
+            gl_Position = vec4(data0, 1.0);
         }
         """;
 
@@ -36,12 +36,13 @@ public static class Shaders
         """
         #version 330 core
         out vec4 FragColor;
+
         uniform vec4 uniform0;
 
         void main()
         {
             FragColor = uniform0;
-        } 
+        }
         """;
     }
 
@@ -162,19 +163,18 @@ public static class Shaders
         ctx.Value.OutVariables.Add((obj, data));
     }
 
-    public static ShaderObject inVar(
+    public static void inVar(
         ShaderType type,
-        string name
+        string name,
+        out ShaderObject obj
     )
     {
-        var obj = new ShaderObject(
+        obj = new ShaderObject(
             type,
             name
         );
 
         ctx.Value.InVariables.Add(obj);
-
-        return obj;
     }
     
     public static ShaderObject gl_Position

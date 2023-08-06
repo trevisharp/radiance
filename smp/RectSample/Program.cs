@@ -1,10 +1,22 @@
 ﻿using DuckGL;
+using static DuckGL.Shaders;
 
 Graphics g = null;
 
 Window.OnLoad += delegate
 {
-    g = Window.CreateGraphics();
+    g = Window
+    .CreateGraphics()
+    .SetVertexShader(() =>
+    {
+        layout(0, vec3, out var pos);
+        gl_Position = vec(pos, 1.0);
+    })
+    .SetFragmentShader(() =>
+    {
+        uniform(vec4, out var color);
+        gl_FragColor = color;
+    });
 };
 
 Window.OnRender += delegate
