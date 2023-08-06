@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/08/2023
+ * Date:    06/08/2023
  */
 using System;
 using System.Linq;
@@ -8,7 +8,6 @@ using System.Threading;
 namespace DuckGL;
 
 using ShaderSupport;
-using ShaderSupport.Objects;
 
 /// <summary>
 /// A facede with all utils to program a shader.
@@ -25,11 +24,11 @@ public static class Shaders
         defaultVertex =
         """
         #version 330 core
-        layout (location = 0) in vec3 aPosition;
+        layout (location = 0) in vec3 pos;
 
         void main()
         {
-            gl_Position = vec4(aPosition, 1.0);
+            gl_Position = vec4(pos, 1.0);
         }
         """;
 
@@ -37,11 +36,11 @@ public static class Shaders
         """
         #version 330 core
         out vec4 FragColor;
-        uniform  vec4 ourColor;
+        uniform vec4 uniform0;
 
         void main()
         {
-            FragColor = ourColor;
+            FragColor = uniform0;
         } 
         """;
     }

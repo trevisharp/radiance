@@ -1,7 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/08/2023
+ * Date:    06/08/2023
  */
-using System.Text;
 using System.Collections.Generic;
 
 namespace DuckGL.ShaderSupport;

@@ -17,8 +17,6 @@ Duck has a API similar to System.Drawing.Graphics.
 ## Drawing simple 2D objects
 
 ```cs
-using System.Drawing;
-
 using DuckGL;
 
 Graphics g = null;

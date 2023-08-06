@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/08/2023
+ * Date:    06/08/2023
  */
 using System;
 using System.Drawing;
@@ -134,7 +134,7 @@ public class Graphics : IDisposable
             vertices, 
             BufferUsageHint.DynamicDraw
         );
-        var colorCode = GL.GetUniformLocation(program, "ourColor");
+        var colorCode = GL.GetUniformLocation(program, "uniform0");
         GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
 
         GL.BindVertexArray(vertexObject);
@@ -153,7 +153,7 @@ public class Graphics : IDisposable
             vertices, 
             BufferUsageHint.DynamicDraw
         );
-        var colorCode = GL.GetUniformLocation(program, "ourColor");
+        var colorCode = GL.GetUniformLocation(program, "uniform0");
         GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
 
         GL.BindVertexArray(vertexObject);

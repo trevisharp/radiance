@@ -1,6 +1,4 @@
-﻿using System.Drawing;
-
-using DuckGL;
+﻿using DuckGL;
 
 Graphics g = null;
 
