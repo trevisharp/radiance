@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/08/2023
  */
+using System;
+
 namespace DuckGL.ShaderSupport;
 
 using Objects;
@@ -70,6 +72,114 @@ public class ShaderObject
             ShaderType.Float,
             null,
             $"({Value}).z"
+        );
+    }
+
+    public static ShaderObject operator <(ShaderObject a, ShaderObject b)
+    {
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} < {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator >(ShaderObject a, ShaderObject b)
+    {
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} > {b.Value}"
+        );
+    }
+    
+    public static ShaderObject operator <=(ShaderObject a, ShaderObject b)
+    {
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} <= {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator >=(ShaderObject a, ShaderObject b)
+    {
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} >= {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator +(ShaderObject a, ShaderObject b)
+    {
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} + {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator -(ShaderObject a, ShaderObject b)
+    {
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} - {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator *(ShaderObject a, ShaderObject b)
+    {
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} * {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator /(ShaderObject a, ShaderObject b)
+    {
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} / {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator &(ShaderObject a, ShaderObject b)
+    {
+        if (a.Type != ShaderType.Bool && b.Type != ShaderType.Bool)
+            throw new Exception("Both sides of & operator need be bool type.");
+        
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} && {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator |(ShaderObject a, ShaderObject b)
+    {
+        if (a.Type != ShaderType.Bool | b.Type != ShaderType.Bool)
+            throw new Exception("Both sides of | operator need be bool type.");
+        
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"{a.Value} | {b.Value}"
+        );
+    }
+
+    public static ShaderObject operator !(ShaderObject a)
+    {
+        if (a.Type != ShaderType.Bool)
+            throw new Exception("! operator only can be applied in bool type.");
+        
+        return new ShaderObject(
+            ShaderType.Bool,
+            null,
+            $"!{a.Value}"
         );
     }
 }

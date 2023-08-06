@@ -306,7 +306,7 @@ public static class Shaders
 
         ctx.Value.Unifroms.Add(obj);
     }
-
+    
     private static ShaderObject func(
         ShaderType returnType,
         string name,
