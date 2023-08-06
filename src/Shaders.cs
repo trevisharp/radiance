@@ -177,6 +177,101 @@ public static class Shaders
         ctx.Value.InVariables.Add(obj);
     }
     
+    public static ShaderObject cos(ShaderObject angle)
+        => func(ShaderType.Float, "cos", (angle, ShaderType.Float));
+
+    public static ShaderObject sin(ShaderObject angle)
+        => func(ShaderType.Float, "sin", (angle, ShaderType.Float));
+
+    public static ShaderObject tan(ShaderObject angle)
+        => func(ShaderType.Float, "tan", (angle, ShaderType.Float));
+
+    public static ShaderObject exp(ShaderObject angle)
+        => func(ShaderType.Float, "exp", (angle, ShaderType.Float));
+
+    public static ShaderObject exp2(ShaderObject angle)
+        => func(ShaderType.Float, "exp2", (angle, ShaderType.Float));
+
+    public static ShaderObject log(ShaderObject angle)
+        => func(ShaderType.Float, "log", (angle, ShaderType.Float));
+
+    public static ShaderObject log2(ShaderObject angle)
+        => func(ShaderType.Float, "log2", (angle, ShaderType.Float));
+
+    public static ShaderObject smoothstep(
+        ShaderObject edge0,
+        ShaderObject edge1,
+        ShaderObject x
+    ) => func(ShaderType.Float, "smoothstep", 
+        (edge0, ShaderType.Float),
+        (edge1, ShaderType.Float),
+        (x, ShaderType.Float)
+    );
+
+    public static ShaderObject smootherstep(
+        ShaderObject edge0,
+        ShaderObject edge1,
+        ShaderObject x
+    ) => func(ShaderType.Float, "smootherstep", 
+        (edge0, ShaderType.Float),
+        (edge1, ShaderType.Float),
+        (x, ShaderType.Float)
+    );
+
+    public static ShaderObject length(ShaderObject vec) 
+        => func(ShaderType.Float, "length", 
+        (vec, ShaderType.Vec2 | ShaderType.Vec3)
+    );
+
+    public static ShaderObject distance(ShaderObject p0, ShaderObject p1) 
+        => func(ShaderType.Float, "distance", 
+        (p0, ShaderType.Vec2 | ShaderType.Vec3),
+        (p1, ShaderType.Vec2 | ShaderType.Vec3)
+    );
+
+    public static ShaderObject dot(ShaderObject v0, ShaderObject v1) 
+        => func(ShaderType.Float, "dot", 
+        (v0, ShaderType.Vec2 | ShaderType.Vec3),
+        (v1, ShaderType.Vec2 | ShaderType.Vec3)
+    );
+
+    public static ShaderObject cross(ShaderObject v0, ShaderObject v1) 
+        => func(ShaderType.Vec3, "cross", 
+        (v0, ShaderType.Vec3),
+        (v1, ShaderType.Vec3)
+    );
+    
+    public static ShaderObject round(ShaderObject angle)
+        => func(ShaderType.Float, "round", (angle, ShaderType.Float));
+
+    public static ShaderObject floor(ShaderObject angle)
+        => func(ShaderType.Float, "floor", (angle, ShaderType.Float));
+
+    public static ShaderObject ceil(ShaderObject angle)
+        => func(ShaderType.Float, "ceil", (angle, ShaderType.Float));
+
+    public static ShaderObject trunc(ShaderObject angle)
+        => func(ShaderType.Float, "trunc", (angle, ShaderType.Float));
+
+    public static ShaderObject max(ShaderObject x, ShaderObject y)
+        => func(ShaderType.Float, "max", 
+            (x, ShaderType.Float),
+            (y, ShaderType.Float)
+        );
+    
+    public static ShaderObject min(ShaderObject x, ShaderObject y)
+        => func(ShaderType.Float, "min", 
+            (x, ShaderType.Float),
+            (y, ShaderType.Float)
+        );
+    
+    public static ShaderObject mix(ShaderObject x, ShaderObject y, ShaderObject a)
+        => func(x.Type, "mix", 
+            (x, ShaderType.Vec),
+            (y, ShaderType.Vec),
+            (a, ShaderType.Float)
+        );
+
     public static ShaderObject gl_Position
     {
         get => ctx.Value.Position;
@@ -210,5 +305,51 @@ public static class Shaders
         );
 
         ctx.Value.Unifroms.Add(obj);
+    }
+
+    private static ShaderObject func(
+        ShaderType returnType,
+        string name,
+        params (ShaderObject input, ShaderType expectedType)[] inputs
+    )
+    {
+        foreach (var input in inputs)
+            validateInput(input.input, input.expectedType, name);
+        
+        return buildObject(name, returnType, 
+            inputs.Select(x => x.input).ToArray()
+        );
+    }
+    
+    private static void validateInput(
+        ShaderObject input,
+        ShaderType expectedType,
+        string funcName
+    )
+    {
+        if (input is null)
+            throw new Exception($"The input of {funcName} function cannot be null.");
+
+        if ((input.Type & expectedType) == ShaderType.None)
+            throw new Exception($"{funcName} function only accepts {expectedType} values.");
+    }
+
+    private static ShaderObject buildObject(
+        string funcName,
+        ShaderType returnType,
+        params ShaderObject[] inputs
+    )
+    {
+        var exp = $"{funcName}(";
+        for (int i = 0; i < inputs.Length - 1; i++)
+            exp += inputs[i].Value + ", ";
+        if (inputs.Length > 0)
+            exp += inputs[^1].Value + ")";
+
+        return new ShaderObject(
+            returnType,
+            null,
+            exp
+        );
     }
 }

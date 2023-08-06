@@ -131,11 +131,65 @@ Window.Open();
 Result:
 ![result](./smp/ShaderExample/result.jpg)
 
-## Multi Programs/Shaders in a single App
+## Use GLSL functions
+
+```cs
+using System;
+using DuckGL;
+using static DuckGL.Shaders;
+
+Graphics g = null;
+DateTime start = DateTime.Now;
+
+Window.OnLoad += delegate
+{
+    g = Window
+        .CreateGraphics()
+        .SetVertexShader(() =>
+        {
+            layout(0, vec3, out var pos);
+            gl_Position = vec(pos, 1.0);
+        })
+        .SetFragmentShader(() =>
+        {
+            uniform(single, out var time);
+
+            var red = vec(1.0, 0.0, 0.0);
+            var blue = vec(0.0, 0.0, 1.0);
+
+            var timeData = sin(time);
+            var interpolation = smoothstep(-1, 1, timeData);
+
+            gl_FragColor = vec(mix(red, blue, interpolation), 1.0);
+        });
+};
+
+Window.OnRender += delegate
+{
+    var time = (DateTime.Now - start).TotalSeconds;
+    
+    var w = Window.Width;
+    var h = Window.Height;
+
+    g.FillPolygon(
+        time,
+        (0, 0, 0),
+        (w, 0, 0),
+        (w, h, 0),
+        (0, h, 0)
+    );
+};
+
+Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
 
 # Versions
 
-### Duck v0.2.0
+### DuckGL v0.3.0 (coming soon)
+
+### DuckGL v0.2.0
 
  - ![](https://img.shields.io/badge/updated-green) Graphics Class
  - ![](https://img.shields.io/badge/new-green) GraphicsBuilder Class
@@ -148,7 +202,7 @@ Result:
     - ![](https://img.shields.io/badge/new-green) ShaderObject Class
     - ![](https://img.shields.io/badge/new-green) ShaderType Enum
 
-### Duck v0.1.0
+### DuckGL v0.1.0
 
  - ![](https://img.shields.io/badge/new-green) Window Class
     - Open and Close Methods

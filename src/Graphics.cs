@@ -2,15 +2,9 @@
  * Date:    06/08/2023
  */
 using System;
-using System.Drawing;
 using System.Linq;
 
-using OpenTK.Graphics;
 using OpenTK.Graphics.OpenGL4;
-using OpenTK.Mathematics;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-using OpenTK.Windowing.GraphicsLibraryFramework;
 
 namespace DuckGL;
 
@@ -123,6 +117,8 @@ public class Graphics : IDisposable
 
     public void Clear(Color color)
     {
+        GL.UseProgram(program);
+
         GL.ClearColor(
             color.R / 255f,
             color.G / 255f,
@@ -132,44 +128,56 @@ public class Graphics : IDisposable
         GL.Clear(ClearBufferMask.ColorBufferBit);
     }
 
-    public void FillPolygon(Color color, params Vertex[] pts)
+    public void SetUniform(int index, Color color)
     {
         GL.UseProgram(program);
 
-        float[] vertices = toArr(pts, true);
-        
-        GL.BufferData(
-            BufferTarget.ArrayBuffer,
-            vertices.Length * sizeof(float), 
-            vertices, 
-            BufferUsageHint.DynamicDraw
-        );
-        
-        var colorCode = GL.GetUniformLocation(program, "uniform0");
+        var colorCode = GL.GetUniformLocation(program, $"uniform{index}");
         GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
+    }
 
-        GL.BindVertexArray(vertexObject);
-        GL.DrawArrays(PrimitiveType.TriangleStrip, 0, pts.Length + 1);
+    public void SetUniform(int index, float value)
+    {
+        GL.UseProgram(program);
+
+        var colorCode = GL.GetUniformLocation(program, $"uniform{index}");
+        GL.Uniform1(colorCode, value);
+    }
+
+    public void FillPolygon(double value, params Vertex[] pts)
+    {
+        SetUniform(0, (float)value);
+        FillPolygon(pts);
+    }
+    
+    public void DrawPolygon(double value, params Vertex[] pts)
+    {
+        SetUniform(0, (float)value);
+        DrawPolygon(pts);
+    }
+
+    public void FillPolygon(float value, params Vertex[] pts)
+    {
+        SetUniform(0, value);
+        FillPolygon(pts);
+    }
+    
+    public void DrawPolygon(float value, params Vertex[] pts)
+    {
+        SetUniform(0, value);
+        DrawPolygon(pts);
+    }
+    
+    public void FillPolygon(Color color, params Vertex[] pts)
+    {   
+        SetUniform(0, color);
+        FillPolygon(pts);
     }
     
     public void DrawPolygon(Color color, params Vertex[] pts)
     {
-        GL.UseProgram(program);
-
-        float[] vertices = toArr(pts, false);
-        
-        GL.BufferData(
-            BufferTarget.ArrayBuffer,
-            vertices.Length * sizeof(float), 
-            vertices, 
-            BufferUsageHint.DynamicDraw
-        );
-        
-        var colorCode = GL.GetUniformLocation(program, "uniform0");
-        GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
-
-        GL.BindVertexArray(vertexObject);
-        GL.DrawArrays(PrimitiveType.LineLoop, 0, pts.Length);
+        SetUniform(0, color); 
+        DrawPolygon(pts);
     }
 
     public void FillPolygon(params Vertex[] pts)
