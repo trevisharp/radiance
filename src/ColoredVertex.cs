@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/08/2023
  */
-namespace DuckGL;
+namespace Radiance;
 
 /// <summary>
 /// /// Represents a tridimensional point with axes x, y and z and a color.

@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    02/08/2023
  */
-namespace DuckGL;
+namespace Radiance;
 
 /// <summary>
 /// Represents a input from hardware.

@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace DuckGL.ShaderSupport;
+namespace Radiance.ShaderSupport;
 
 using Objects;
 

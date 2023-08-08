@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/08/2023
  */
-namespace DuckGL.ShaderSupport;
+namespace Radiance.ShaderSupport;
 
 /// <summary>
 /// Represents a valid type in shader implementation.

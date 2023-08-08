@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
-namespace DuckGL;
+namespace Radiance;
 
 /// <summary>
 /// Represents the main windows that applications run

@@ -5,7 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 
-namespace DuckGL.ShaderSupport;
+namespace Radiance.ShaderSupport;
 
 /// <summary>
 /// A Helper to convert a ShaderContext a string GLSL code.

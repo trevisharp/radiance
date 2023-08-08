@@ -1,5 +1,5 @@
-﻿using DuckGL;
-using static DuckGL.Shaders;
+﻿using Radiance;
+using static Radiance.Shaders;
 
 Graphics g = null;
 

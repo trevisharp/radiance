@@ -4,7 +4,7 @@
 using System;
 using System.Linq;
 
-namespace DuckGL;
+namespace Radiance;
 
 using ShaderSupport;
 

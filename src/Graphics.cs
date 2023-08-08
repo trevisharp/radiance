@@ -6,7 +6,7 @@ using System.Linq;
 
 using OpenTK.Graphics.OpenGL4;
 
-namespace DuckGL;
+namespace Radiance;
 
 /// <summary>
 /// Provide access to a OpenGL simplifications based on OpenTK library.

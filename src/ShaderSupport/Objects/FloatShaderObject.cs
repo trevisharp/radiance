@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    04/08/2023
  */
-namespace DuckGL.ShaderSupport.Objects;
+namespace Radiance.ShaderSupport.Objects;
 
 /// <summary>
 /// Represent a Float data in shader implementation.

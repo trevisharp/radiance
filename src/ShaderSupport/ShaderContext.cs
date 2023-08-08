@@ -3,7 +3,7 @@
  */
 using System.Collections.Generic;
 
-namespace DuckGL.ShaderSupport;
+namespace Radiance.ShaderSupport;
 
 /// <summary>
 /// Define a context to store shader code informations and declarations.
