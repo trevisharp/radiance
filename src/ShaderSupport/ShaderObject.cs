@@ -23,7 +23,9 @@ public class ShaderObject
         this.Expression = exp;
     }
 
-    public string Name { get; private set; }
+    // TODO: Consider create a list of objects used
+    //       To create ins and uniforms (Auto variables)
+    public string Name { get; private set; } // TODO: Consider removing
     public ShaderType Type { get; private set; }
     public string Expression { get; private set; }
 
@@ -134,7 +136,7 @@ public class ShaderObject
         return new ShaderObject(
             ShaderType.Bool,
             null,
-            $"{a.Value} * {b.Value}"
+            $"({a.Value}) * ({b.Value})"
         );
     }
 
@@ -143,7 +145,7 @@ public class ShaderObject
         return new ShaderObject(
             ShaderType.Bool,
             null,
-            $"{a.Value} / {b.Value}"
+            $"({a.Value}) / ({b.Value})"
         );
     }
 

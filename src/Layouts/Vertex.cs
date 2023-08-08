@@ -1,12 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    02/08/2023
  */
-namespace Radiance;
+namespace Radiance.Layouts;
+
+using Core;
 
 /// <summary>
 /// Represents a tridimensional point with axes x, y and z.
 /// </summary>
-public record Vertex(float x, float y, float z)
+public record Vertex(float x, float y, float z) : ILayout
 {
     public Vertex Translate(float x, float y, float z)
         => new (this.x + x, this.y + y, this.z + z);
