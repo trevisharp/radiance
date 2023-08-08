@@ -14,6 +14,22 @@ Duck has a API similar to System.Drawing.Graphics.
 
 # Tutorials and Examples
 
+## Create a Fullscreen window for your apps
+
+```cs
+using DuckGL;
+
+Window.OnKeyDown += key =>
+{
+    if (key == Input.Escape)
+        Window.Close();
+}
+// Or use:
+// Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
+
 ## Create Shaders with C#
 
 ```cs
