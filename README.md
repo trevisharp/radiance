@@ -1,23 +1,13 @@
-# DuckGL
+# Radiance
 
-Not is the most fast.
-
-Not is the most beautiful.
-
-Not is the most easy.
-
-But is a bit fast, beautiful and easy.
-
-A library based on OpenTK which is based on OpenGL.
-
-Duck has a API similar to System.Drawing.Graphics.
+A library based on OpenTK which is based on OpenGL to program Shaders in C#.
 
 # Tutorials and Examples
 
 ## Create a Fullscreen window for your apps
 
 ```cs
-using DuckGL;
+using Radiance;
 
 Window.OnKeyDown += key =>
 {
@@ -33,8 +23,8 @@ Window.Open();
 ## Create Shaders with C#
 
 ```cs
-using DuckGL;
-using static DuckGL.Shaders;
+using Radiance;
+using static Radiance.Shaders;
 
 Graphics g = null;
 
@@ -97,11 +87,11 @@ Window.Open();
 Result:
 ![result](./smp/RectSample/result.jpg)
 
-## Control layout and use DuckGL data types like ColoredVertice
+## Control layout and use Radiance data types like ColoredVertice
 
 ```cs
-using DuckGL;
-using static DuckGL.Shaders;
+using Radiance;
+using static Radiance.Shaders;
 
 Graphics g = null;
 
@@ -151,8 +141,8 @@ Result:
 
 ```cs
 using System;
-using DuckGL;
-using static DuckGL.Shaders;
+using Radiance;
+using static Radiance.Shaders;
 
 Graphics g = null;
 DateTime start = DateTime.Now;
@@ -203,9 +193,9 @@ Window.Open();
 
 # Versions
 
-### DuckGL v0.3.0 (coming soon)
+### Radiance v1.0.0 (coming soon)
 
-### DuckGL v0.2.0
+### Radiance v0.2.0
 
  - ![](https://img.shields.io/badge/updated-green) Graphics Class
  - ![](https://img.shields.io/badge/new-green) GraphicsBuilder Class
@@ -218,7 +208,7 @@ Window.Open();
     - ![](https://img.shields.io/badge/new-green) ShaderObject Class
     - ![](https://img.shields.io/badge/new-green) ShaderType Enum
 
-### DuckGL v0.1.0
+### Radiance v0.1.0
 
  - ![](https://img.shields.io/badge/new-green) Window Class
     - Open and Close Methods

@@ -1,4 +1,4 @@
-$csproj = gc .\Stately.csproj
+$csproj = gc .\Radiance.csproj
 $versionText = $csproj | % {
     if ($_.Contains("PackageVersion"))
     {
@@ -29,10 +29,10 @@ for ($i = 0; $i -lt $versionText.Length; $i++)
 }
 
 dotnet pack -c Release
-$file = ".\bin\Release\StatelyLib." + $version + ".nupkg"
-cp $file StatelyLib.nupkg
+$file = ".\bin\Release\Radiance." + $version + ".nupkg"
+cp $file Radiance.nupkg
 
 $key = gc .\.env
 
-dotnet nuget push StatelyLib.nupkg --api-key $key --source https://api.nuget.org/v3/index.json
-rm .\StatelyLib.nupkg
+dotnet nuget push Radiance.nupkg --api-key $key --source https://api.nuget.org/v3/index.json
+rm .\Radiance.nupkg
