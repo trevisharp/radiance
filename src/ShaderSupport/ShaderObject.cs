@@ -10,7 +10,7 @@ namespace Radiance.ShaderSupport;
 /// </summary>
 public class ShaderObject
 {
-    public virtual IEnumerable<ShaderObject> Dependecies { get; set; }
+    public virtual IEnumerable<ShaderDependence> Dependecies { get; set; }
     public virtual ShaderType Type { get; set; }
     public virtual string Expression { get; set; }
 

@@ -15,18 +15,18 @@ public class Vec2ShaderObject : ShaderObject
     public Vec2ShaderObject()
     {
         this.Expression = "(0.0, 0.0)";
-        this.Dependecies = new ShaderObject[0];
+        this.Dependecies = new ShaderDependence[0];
         this.Type = ShaderType.Vec2;
     }
 
-    public Vec2ShaderObject(string value, params ShaderObject[] dependecies)
+    public Vec2ShaderObject(string value, params ShaderDependence[] dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;
         this.Type = ShaderType.Vec2;
     }
 
-    public Vec2ShaderObject(string value, IEnumerable<ShaderObject> dependecies)
+    public Vec2ShaderObject(string value, IEnumerable<ShaderDependence> dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;
@@ -80,5 +80,11 @@ public class Vec2ShaderObject : ShaderObject
     }
 
     public static implicit operator Vec2ShaderObject((float x, float y) tuple)
-        => new Vec2ShaderObject($"Vec2({tuple.x}, {tuple.y})");
+        => new Vec2ShaderObject($"vec2({tuple.x}, {tuple.y})");
+
+    public static implicit operator Vec2ShaderObject((FloatShaderObject x, FloatShaderObject y) tuple)
+        => new Vec2ShaderObject(
+            $"vec2({tuple.x.Expression}, {tuple.y.Expression})",
+            tuple.x.Dependecies.Concat(tuple.y.Dependecies)
+        );
 }

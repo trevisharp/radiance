@@ -15,18 +15,18 @@ public class Vec3ShaderObject : ShaderObject
     public Vec3ShaderObject()
     {
         this.Expression = "(0.0, 0.0, 0.0)";
-        this.Dependecies = new ShaderObject[0];
+        this.Dependecies = new ShaderDependence[0];
         this.Type = ShaderType.Vec3;
     }
 
-    public Vec3ShaderObject(string value, params ShaderObject[] dependecies)
+    public Vec3ShaderObject(string value, params ShaderDependence[] dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;
         this.Type = ShaderType.Vec3;
     }
 
-    public Vec3ShaderObject(string value, IEnumerable<ShaderObject> dependecies)
+    public Vec3ShaderObject(string value, IEnumerable<ShaderDependence> dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;
@@ -89,4 +89,22 @@ public class Vec3ShaderObject : ShaderObject
 
     public static implicit operator Vec3ShaderObject((float x, float y, float z) tuple)
         => new Vec3ShaderObject($"vec3({tuple.x}, {tuple.y}, {tuple.z})");
+
+    public static implicit operator Vec3ShaderObject((FloatShaderObject x, FloatShaderObject y, FloatShaderObject z) tuple)
+        => new Vec3ShaderObject(
+            $"vec3({tuple.x.Expression}, {tuple.y.Expression}, {tuple.z.Expression})",
+            tuple.x.Dependecies.Concat(tuple.y.Dependecies).Concat(tuple.z.Dependecies)
+        );
+        
+    public static implicit operator Vec3ShaderObject((Vec2ShaderObject xy, FloatShaderObject z) tuple)
+        => new Vec3ShaderObject(
+            $"vec3({tuple.xy.Expression}, {tuple.z.Expression})",
+            tuple.xy.Dependecies.Concat(tuple.z.Dependecies)
+        );
+        
+    public static implicit operator Vec3ShaderObject((FloatShaderObject x, Vec2ShaderObject yz) tuple)
+        => new Vec3ShaderObject(
+            $"vec3({tuple.x.Expression}, {tuple.yz.Expression})",
+            tuple.x.Dependecies.Concat(tuple.yz.Dependecies)
+        );
 }

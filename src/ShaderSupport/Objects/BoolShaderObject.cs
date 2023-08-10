@@ -14,18 +14,18 @@ public class BoolShaderObject : ShaderObject
     public BoolShaderObject()
     {
         this.Expression = "false";
-        this.Dependecies = new ShaderObject[0];
+        this.Dependecies = new ShaderDependence[0];
         this.Type = ShaderType.Bool;
     }
 
-    public BoolShaderObject(string value, params ShaderObject[] dependecies)
+    public BoolShaderObject(string value, params ShaderDependence[] dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;
         this.Type = ShaderType.Bool;
     }
 
-    public BoolShaderObject(string value, IEnumerable<ShaderObject> dependecies)
+    public BoolShaderObject(string value, IEnumerable<ShaderDependence> dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;
