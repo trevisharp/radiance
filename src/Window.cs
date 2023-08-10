@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/08/2023
+ * Date:    10/08/2023
  */
 using System;
 using System.Collections.Generic;
@@ -122,7 +122,7 @@ public static class Window
     /// <summary>
     /// Create a Builder from Graphics object to configurate the drawing in main screen.
     /// </summary>
-    public static GraphicsBuilder CreateGraphics()
+    public static Graphics CreateGraphics()
     {
         if (width == -1 && height == -1)
             throw new Exception("Graphics need be created after Window opening.");

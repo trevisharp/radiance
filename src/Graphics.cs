@@ -29,20 +29,12 @@ public class Graphics : IDisposable
 
     internal Graphics(
         int width,
-        int height,
-        string vertexShaderSource,
-        string fragmentShaderSource,
-        int[] layoutInfo
+        int height
     )
     {
-        this.vertexShaderSource = vertexShaderSource;
-        this.fragmentShaderSource = fragmentShaderSource;
-
         this.width = width;
         this.height = height;
-
-        this.layoutInfo = layoutInfo;
-
+        
         load();
     }
 
