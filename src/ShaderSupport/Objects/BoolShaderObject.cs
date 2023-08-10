@@ -30,6 +30,9 @@ public class BoolShaderObject : ShaderObject
 
     public static BoolShaderObject operator |(BoolShaderObject a, BoolShaderObject b)
         => new BoolShaderObject($"{a.Expression} || {b.Expression}", a.Dependecies.Concat(b.Dependecies));
+    
+    public static BoolShaderObject operator !(BoolShaderObject a)
+        => new BoolShaderObject($"!({a.Expression})", a.Dependecies);
 
     public static implicit operator BoolShaderObject(bool value)
         => new BoolShaderObject($"{value}");

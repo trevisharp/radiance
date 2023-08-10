@@ -34,6 +34,54 @@ public class FloatShaderObject : ShaderObject
     public static implicit operator FloatShaderObject(int value)
         => new (value.ToString());
     
+    public static BoolShaderObject operator ==(FloatShaderObject a, FloatShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) == ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
+        );
+    }
+    
+    public static BoolShaderObject operator !=(FloatShaderObject a, FloatShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) != ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
+        );
+    }
+
+    public static BoolShaderObject operator <(FloatShaderObject a, FloatShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) < ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
+        );
+    }
+
+    public static BoolShaderObject operator >(FloatShaderObject a, FloatShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) > ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
+        );
+    }
+    
+    public static BoolShaderObject operator <=(FloatShaderObject a, FloatShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) <= ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
+        );
+    }
+
+    public static BoolShaderObject operator >=(FloatShaderObject a, FloatShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) >= ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
+        );
+    }
+
     public static FloatShaderObject operator +(FloatShaderObject x, FloatShaderObject y)
     {
         var dependecies = x.Dependecies.Concat(y.Dependecies);

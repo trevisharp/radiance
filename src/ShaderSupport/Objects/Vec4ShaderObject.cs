@@ -3,6 +3,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Radiance.ShaderSupport.Objects;
 
@@ -68,6 +69,22 @@ public class Vec4ShaderObject : ShaderObject
         get => new FloatShaderObject(
             $"({Expression}).w",
             this.Dependecies
+        );
+    }
+    
+    public static BoolShaderObject operator ==(Vec4ShaderObject a, Vec4ShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) == ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
+        );
+    }
+    
+    public static BoolShaderObject operator !=(Vec4ShaderObject a, Vec4ShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) != ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
         );
     }
 

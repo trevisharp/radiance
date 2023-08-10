@@ -2,6 +2,7 @@
  * Date:    10/08/2023
  */
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Radiance.ShaderSupport.Objects;
@@ -60,6 +61,22 @@ public class Vec3ShaderObject : ShaderObject
         get => new FloatShaderObject(
             $"({Expression}).z",
             this.Dependecies
+        );
+    }
+
+    public static BoolShaderObject operator ==(Vec3ShaderObject a, Vec3ShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) == ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
+        );
+    }
+    
+    public static BoolShaderObject operator !=(Vec3ShaderObject a, Vec3ShaderObject b)
+    {
+        return new BoolShaderObject(
+            $"({a.Expression}) != ({b.Expression})",
+            a.Dependecies.Concat(b.Dependecies)
         );
     }
 
