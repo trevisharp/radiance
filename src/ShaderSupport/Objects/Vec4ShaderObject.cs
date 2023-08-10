@@ -1,6 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/08/2023
+ * Date:    10/08/2023
  */
+using System;
+using System.Collections.Generic;
+
 namespace Radiance.ShaderSupport.Objects;
 
 /// <summary>
@@ -8,11 +11,66 @@ namespace Radiance.ShaderSupport.Objects;
 /// </summary>
 public class Vec4ShaderObject : ShaderObject
 {
-    public Vec4ShaderObject(
-        string name = null,
-        string exp = null
-    ) : base(ShaderType.Vec4, name, exp)
+    public Vec4ShaderObject(string value, params ShaderObject[] dependecies)
     {
-
+        this.Expression = value;
+        this.Dependecies = dependecies;
+        this.Type = ShaderType.Vec4;
     }
+
+    public Vec4ShaderObject(string value, IEnumerable<ShaderObject> dependecies)
+    {
+        this.Expression = value;
+        this.Dependecies = dependecies;
+        this.Type = ShaderType.Vec4;
+    }
+
+    public FloatShaderObject this[int index]
+    {
+        get
+        {
+            if (index < 0 || index > 3)
+                throw new Exception("Um vec4 só pode ser acesso dos indidices 0 a 3");
+
+            return new FloatShaderObject(
+                $"({Expression})[{index}]",
+                this.Dependecies
+            );
+        }
+    }
+
+    public FloatShaderObject x
+    {
+        get => new FloatShaderObject(
+            $"({Expression}).x",
+            this.Dependecies
+        );
+    }
+    
+    public FloatShaderObject y
+    {
+        get => new FloatShaderObject(
+            $"({Expression}).y",
+            this.Dependecies
+        );
+    }
+    
+    public FloatShaderObject z
+    {
+        get => new FloatShaderObject(
+            $"({Expression}).z",
+            this.Dependecies
+        );
+    }
+
+    public FloatShaderObject w
+    {
+        get => new FloatShaderObject(
+            $"({Expression}).w",
+            this.Dependecies
+        );
+    }
+
+    public static implicit operator Vec4ShaderObject((float x, float y, float z, float w) tuple)
+        => new Vec4ShaderObject($"vec3({tuple.x}, {tuple.y}, {tuple.z}, {tuple.w})");
 }
