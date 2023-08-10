@@ -11,6 +11,13 @@ namespace Radiance.ShaderSupport.Objects;
 /// </summary>
 public class BoolShaderObject : ShaderObject
 {
+    public BoolShaderObject()
+    {
+        this.Expression = "false";
+        this.Dependecies = new ShaderObject[0];
+        this.Type = ShaderType.Bool;
+    }
+
     public BoolShaderObject(string value, params ShaderObject[] dependecies)
     {
         this.Expression = value;

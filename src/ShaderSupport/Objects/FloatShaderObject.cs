@@ -11,6 +11,13 @@ namespace Radiance.ShaderSupport.Objects;
 /// </summary>
 public class FloatShaderObject : ShaderObject
 {
+    public FloatShaderObject()
+    {
+        this.Expression = "0.0";
+        this.Dependecies = new ShaderObject[0];
+        this.Type = ShaderType.Float;
+    }
+
     public FloatShaderObject(string value, params ShaderObject[] dependecies)
     {
         this.Expression = value;

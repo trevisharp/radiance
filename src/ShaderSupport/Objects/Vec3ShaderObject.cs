@@ -12,6 +12,13 @@ namespace Radiance.ShaderSupport.Objects;
 /// </summary>
 public class Vec3ShaderObject : ShaderObject
 {
+    public Vec3ShaderObject()
+    {
+        this.Expression = "(0.0, 0.0, 0.0)";
+        this.Dependecies = new ShaderObject[0];
+        this.Type = ShaderType.Vec3;
+    }
+
     public Vec3ShaderObject(string value, params ShaderObject[] dependecies)
     {
         this.Expression = value;
