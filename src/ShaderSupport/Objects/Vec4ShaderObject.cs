@@ -95,6 +95,87 @@ public class Vec4ShaderObject : ShaderObject
         );
     }
 
+    public static Vec4ShaderObject operator +(Vec4ShaderObject v, Vec4ShaderObject u)
+        => new Vec4ShaderObject(
+            $"({v}) + ({u})",
+            v.Dependecies.Concat(u.Dependecies)
+        );
+    
+    public static Vec4ShaderObject operator -(Vec4ShaderObject v, Vec4ShaderObject u)
+        => new Vec4ShaderObject(
+            $"({v}) - ({u})",
+            v.Dependecies.Concat(u.Dependecies)
+        );
+    
+    public static FloatShaderObject operator *(Vec4ShaderObject v, Vec4ShaderObject u)
+        => new FloatShaderObject(
+            $"({v}) * ({u})",
+            v.Dependecies.Concat(u.Dependecies)
+        );
+
+    public static Vec4ShaderObject operator *(Vec4ShaderObject v, FloatShaderObject a)
+    {
+        var dependecies = v.Dependecies.Concat(a.Dependecies);
+        return new ($"({a}) * ({v})", dependecies);
+    }
+
+    public static Vec4ShaderObject operator *(FloatShaderObject a, Vec4ShaderObject v)
+    {
+        var dependecies = v.Dependecies.Concat(a.Dependecies);
+        return new ($"({a}) * ({v})", dependecies);
+    }
+
+    public static Vec4ShaderObject operator /(Vec4ShaderObject v, FloatShaderObject a)
+    {
+        var dependecies = v.Dependecies.Concat(a.Dependecies);
+        return new ($"({v}) / ({a})", dependecies);
+    }
+    
+    public static Vec4ShaderObject operator +(Vec4ShaderObject v, 
+        (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
+    {
+        Vec4ShaderObject u = tuple;
+        return v + u;
+    }
+
+    public static Vec4ShaderObject operator +(
+        (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple, 
+        Vec4ShaderObject v)
+    {
+        Vec4ShaderObject u = tuple;
+        return v + u;
+    }
+    
+    public static Vec4ShaderObject operator -(Vec4ShaderObject v,
+        (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
+    {
+        Vec4ShaderObject u = tuple;
+        return v - u;
+    }
+
+    public static Vec4ShaderObject operator -(
+        (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple, 
+        Vec4ShaderObject v)
+    {
+        Vec4ShaderObject u = tuple;
+        return v - u;
+    }
+    
+    public static FloatShaderObject operator *(Vec4ShaderObject v, 
+        (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
+    {
+        Vec4ShaderObject u = tuple;
+        return v * u;
+    }
+
+    public static FloatShaderObject operator *(
+        (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple,
+        Vec4ShaderObject v)
+    {
+        Vec4ShaderObject u = tuple;
+        return v * u;
+    }
+
     public static implicit operator Vec4ShaderObject((float x, float y, float z, float w) tuple)
         => new Vec4ShaderObject($"vec4({tuple.x}, {tuple.y}, {tuple.z}, {tuple.w})");
 
@@ -143,12 +224,12 @@ public class Vec4ShaderObject : ShaderObject
     public static Vec4ShaderObject operator +(Vec4ShaderObject x)
     {
         var dependecies = x.Dependecies;
-        return new ($"+{x}", dependecies);
+        return new ($"+({x})", dependecies);
     }
     
     public static Vec4ShaderObject operator -(Vec4ShaderObject x)
     {
         var dependecies = x.Dependecies;
-        return new ($"-{x}", dependecies);
+        return new ($"-({x})", dependecies);
     }
 }

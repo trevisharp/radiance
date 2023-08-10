@@ -5,27 +5,13 @@ Graphics g = null;
 
 Window.OnLoad += delegate
 {
-    g = Window
-    .CreateGraphics()
-    .SetVertexShader(() =>
-    {
-        layout(0, vec3, out var pos);
-        gl_Position = vec(pos, 1.0);
-    })
-    .SetFragmentShader(() =>
-    {
-        uniform(vec4, out var color);
-        gl_FragColor = color;
-    });
+    g = Window.CreateGraphics();
 };
 
 Window.OnRender += delegate
 {
-    var size = 50;
-    var i = Vector.i; // x-axis vector
-    var j = Vector.j; // y-axis vector
-
-    var center = (Window.Width / 2, Window.Height / 2);
+    var size = 50 + 20 * cos(t);
+    var center = (width / 2, height / 2, 0);
 
     // using vetorial algebra to build a centralized square
     var topLeftPt  = center + size * (-i -j);
@@ -37,7 +23,7 @@ Window.OnRender += delegate
     g.Clear(Color.White);
     
     // filling square
-    g.FillPolygon(
+    g.Fill(
         Color.Blue,
         topLeftPt,
         topRightPt,
@@ -46,7 +32,7 @@ Window.OnRender += delegate
     );
 
     // drawing border of square
-    g.DrawPolygon(
+    g.Draw(
         Color.Black,
         topLeftPt,
         topRightPt,

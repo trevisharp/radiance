@@ -92,36 +92,36 @@ public class FloatShaderObject : ShaderObject
     public static FloatShaderObject operator +(FloatShaderObject x, FloatShaderObject y)
     {
         var dependecies = x.Dependecies.Concat(y.Dependecies);
-        return new ($"{x} + {y}", dependecies);
+        return new ($"({x}) + ({y})", dependecies);
     }
     
     public static FloatShaderObject operator -(FloatShaderObject x, FloatShaderObject y)
     {
         var dependecies = x.Dependecies.Concat(y.Dependecies);
-        return new ($"{x} - {y}", dependecies);
+        return new ($"({x}) - ({y})", dependecies);
     }
     
     public static FloatShaderObject operator *(FloatShaderObject x, FloatShaderObject y)
     {
         var dependecies = x.Dependecies.Concat(y.Dependecies);
-        return new ($"{x} * {y}", dependecies);
+        return new ($"({x}) * ({y})", dependecies);
     }
     
     public static FloatShaderObject operator /(FloatShaderObject x, FloatShaderObject y)
     {
         var dependecies = x.Dependecies.Concat(y.Dependecies);
-        return new ($"{x} / {y}", dependecies);
+        return new ($"({x}) / ({y})", dependecies);
     }
 
     public static FloatShaderObject operator +(FloatShaderObject x)
     {
         var dependecies = x.Dependecies;
-        return new ($"+{x}", dependecies);
+        return new ($"+({x})", dependecies);
     }
     
     public static FloatShaderObject operator -(FloatShaderObject x)
     {
         var dependecies = x.Dependecies;
-        return new ($"-{x}", dependecies);
+        return new ($"-({x})", dependecies);
     }
 }

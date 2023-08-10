@@ -21,4 +21,7 @@ public class ShaderObject
     public static implicit operator ShaderObject((float x, float y) value) => value;
     public static implicit operator ShaderObject((float x, float y, float z) value) => value;
     public static implicit operator ShaderObject((float x, float y, float z, float w) value) => value;
+
+    public override string ToString()
+        => Expression;
 }

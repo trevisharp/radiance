@@ -1,355 +1,219 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/08/2023
+ * Date:    10/08/2023
  */
-using System;
+using System.Text;
 using System.Linq;
-using System.Threading;
 
 namespace Radiance;
 
 using ShaderSupport;
+using ShaderSupport.Objects;
+using ShaderSupport.Dependencies;
 
 /// <summary>
 /// A facede with all utils to program a shader.
 /// </summary>
 public static class Shaders
 {
-    static ThreadLocal<ShaderContext> ctx;
-    static Shaders()
-    {
-        ctx = new ThreadLocal<ShaderContext>(
-            () => new ShaderContext()
-        );
-
-        defaultVertex =
-        """
-        #version 330 core
-        layout (location = 0) in vec3 data0;
-
-        void main()
-        {
-            gl_Position = vec4(data0, 1.0);
-        }
-        """;
-
-        defaultFragment =
-        """
-        #version 330 core
-        out vec4 FragColor;
-
-        uniform vec4 uniform0;
-
-        void main()
-        {
-            FragColor = uniform0;
-        }
-        """;
-    }
-
-    internal static void ResetContext()
-        => ctx.Value = new ShaderContext();
-
-    internal static ShaderContext GetContext()
-        => ctx.Value;
+    private readonly static TimeShaderInput _t = new();
+    private readonly static XAxisShaderVariable _i = new(); 
+    private readonly static YAxisShaderVariable _j = new(); 
+    private readonly static ZAxisShaderVariable _k = new();
+    private readonly static WidthWindowShaderInput _width = new();
+    private readonly static HeightWindowShaderInput _height = new();
     
-    public static readonly string defaultVertex;
+    public static FloatShaderObject t => new(_t.Name, _t);
+    public static Vec3ShaderObject i => new(_i.Name, _i); 
+    public static Vec3ShaderObject j => new(_j.Name, _j); 
+    public static Vec3ShaderObject k => new(_k.Name, _k);
+    public static FloatShaderObject width => new(_width.Name, _width);
+    public static FloatShaderObject height => new(_height.Name, _height);
 
-    public static readonly string defaultFragment;
+    public static FloatShaderObject cos(FloatShaderObject angle)
+        => floatFunc("cos", angle);
 
-    public static ShaderType single
-        => ShaderType.Float;
+    public static FloatShaderObject cos(ShaderDependence angle)
+    {
+        return new FloatShaderObject($"cos({angle})", angle);
+    }
 
-    public static ShaderType vec2
-        => ShaderType.Vec2;
+    public static FloatShaderObject sin(FloatShaderObject angle)
+        => floatFunc("sin", angle);
 
-    public static ShaderType vec3
-        => ShaderType.Vec3;
+    public static FloatShaderObject tan(FloatShaderObject angle)
+        => floatFunc("tan", angle);
+
+    public static FloatShaderObject exp(FloatShaderObject angle)
+        => floatFunc("exp", angle);
+
+    public static FloatShaderObject exp2(FloatShaderObject angle)
+        => floatFunc("exp2", angle);
+
+    public static FloatShaderObject log(FloatShaderObject angle)
+        => floatFunc("log", angle);
+
+    public static FloatShaderObject log2(FloatShaderObject angle)
+        => floatFunc("log2", angle);
+
+    public static FloatShaderObject smoothstep(
+        FloatShaderObject edge0,
+        FloatShaderObject edge1,
+        FloatShaderObject x
+    )  => operation<FloatShaderObject>("smoothstep", edge0, edge1, x);
+
+    public static FloatShaderObject smootherstep(
+        FloatShaderObject edge0,
+        FloatShaderObject edge1,
+        FloatShaderObject x
+    ) => operation<FloatShaderObject>("smootherstep", edge0, edge1, x);
+
+    public static FloatShaderObject length(Vec2ShaderObject vec) 
+        => func<FloatShaderObject, Vec2ShaderObject>("length", vec);
+
+    public static FloatShaderObject length(Vec3ShaderObject vec) 
+        => func<FloatShaderObject, Vec3ShaderObject>("length", vec);
+
+    public static FloatShaderObject distance(Vec2ShaderObject p0, Vec2ShaderObject p1)
+        => operation<Vec2ShaderObject>("distance", p0, p1);
+
+    public static FloatShaderObject distance(Vec3ShaderObject p0, Vec3ShaderObject p1)
+        => operation<Vec3ShaderObject>("distance", p0, p1);
+
+    public static FloatShaderObject dot(Vec3ShaderObject v0, Vec3ShaderObject v1) 
+        => operation<Vec3ShaderObject>("dot", v0, v1);
+
+    public static FloatShaderObject dot(Vec2ShaderObject v0, Vec2ShaderObject v1)
+        => operation<Vec2ShaderObject>("dot", v0, v1);
+
+    public static Vec3ShaderObject cross(Vec3ShaderObject v0, Vec3ShaderObject v1) 
+        => func<Vec3ShaderObject, Vec3ShaderObject, Vec3ShaderObject>("cross", v0, v1);
     
-    public static ShaderType vec4
-        => ShaderType.Vec4;
+    public static FloatShaderObject round(FloatShaderObject angle)
+        => floatFunc("round", angle);
 
-    public static ShaderObject vec(
-        params ShaderObject[] objs
-    )
-    {
-        int vecGrade = 0;
-        for (int i = 0; i < objs.Length; i++)
-        {
-            var obj = objs[i];
-            vecGrade += (int)obj.Type;
-        }
-        if (vecGrade < 2 || vecGrade > 4)
-            throw new Exception("A vec need have a dimension number betwen 2 and 4.");
-        
-        var exp = $"vec{vecGrade}(";
-        for (int i = 0; i < objs.Length; i++)
-        {
-            var obj = objs[i];
-            exp += obj.Value;
-            exp += i < objs.Length - 1 ? "," : ")";
-        }
+    public static FloatShaderObject floor(FloatShaderObject angle)
+        => floatFunc("floor", angle);
 
-        return new ShaderObject(
-            (ShaderType)vecGrade,
-            null,
-            exp
-        );
-    }
+    public static FloatShaderObject ceil(FloatShaderObject angle)
+        => floatFunc("ceil", angle);
 
-    private static string[] validVersions = {
-        "110", "120", "130", "140", "150",
-        "330", 
-        "400", "410", "420", "430", "440", "450"
-    };
-    public static void version(string version)
-    {
-        var parts = version.Split(" ");
+    public static FloatShaderObject trunc(FloatShaderObject angle)
+        => floatFunc("trunc", angle);
 
-        if (parts.Length == 0)
-            throw new Exception("Invalid empty version.");
-        
-        var number = parts[0];
-        if (!validVersions.Contains(number))
-        {
-            string error = "Invalid version of GLSL.\n\tValid versions: ";
-            foreach (var valVer in validVersions)
-                error += valVer + ", ";
-            throw new Exception(error);
-        }
+    public static FloatShaderObject max(FloatShaderObject x, FloatShaderObject y)
+        => func<
+            FloatShaderObject,
+            FloatShaderObject,
+            FloatShaderObject
+            >("max", x, y);
+    
+    public static FloatShaderObject min(FloatShaderObject x, FloatShaderObject y)
+        => func<
+            FloatShaderObject,
+            FloatShaderObject,
+            FloatShaderObject
+            >("min", x, y);
+    
+    public static T mix<T>(T x, T y, FloatShaderObject a) 
+        where T : ShaderObject, new()
+        => func<T, T, T, FloatShaderObject>("mix", x, y, a);
 
-        var profile =
-            parts.Length > 1 ?
-            parts[1] :
-            "core";
-        if (profile != "core" && profile != "compatibility")
-        {
-            throw new Exception($"Invalid profile {profile}");
-        }
+    private static FloatShaderObject operation<T>(string name, T obj1, T obj2)
+        where T : ShaderObject
+        => func<FloatShaderObject, T, T>(name, obj1, obj2);
 
-        if (parts.Length > 2)
-            throw new Exception("Invalid long version.");
+    private static FloatShaderObject operation<T>(string name, T obj1, T obj2, T obj3)
+        where T : ShaderObject
+        => func<FloatShaderObject, T, T, T>(name, obj1, obj2, obj3);
 
-        ctx.Value.Version = version;
-    }
+    private static FloatShaderObject floatFunc(string name, FloatShaderObject input)
+        => func<FloatShaderObject, FloatShaderObject>(name, input);
 
-    public static void layout(
-        int pos,
-        ShaderType type,
-        out ShaderObject obj)
-    {
-        obj = new ShaderObject(
-            type,
-            $"data{pos}"
-        );
-        ctx.Value.Layout.Add((pos, type));
-    }
-
-    public static void outVar(
-        ShaderType type,
+    private static R func<R, P1>(
         string name, 
-        ShaderObject data
+        P1 obj1
     )
+        where R : ShaderObject, new()
+        where P1 : ShaderObject
     {
-        if (type != data.Type)
-            throw new Exception(
-                "Invalid set of out variable with diferent type."
-            );
+        var result = new R();
 
-        var obj = new ShaderObject(
-            type,
-            name
-        );
-
-        ctx.Value.OutVariables.Add((obj, data));
-    }
-
-    public static void inVar(
-        ShaderType type,
-        string name,
-        out ShaderObject obj
-    )
-    {
-        obj = new ShaderObject(
-            type,
-            name
-        );
-
-        ctx.Value.InVariables.Add(obj);
-    }
-    
-    public static ShaderObject cos(ShaderObject angle)
-        => func(ShaderType.Float, "cos", (angle, ShaderType.Float));
-
-    public static ShaderObject sin(ShaderObject angle)
-        => func(ShaderType.Float, "sin", (angle, ShaderType.Float));
-
-    public static ShaderObject tan(ShaderObject angle)
-        => func(ShaderType.Float, "tan", (angle, ShaderType.Float));
-
-    public static ShaderObject exp(ShaderObject angle)
-        => func(ShaderType.Float, "exp", (angle, ShaderType.Float));
-
-    public static ShaderObject exp2(ShaderObject angle)
-        => func(ShaderType.Float, "exp2", (angle, ShaderType.Float));
-
-    public static ShaderObject log(ShaderObject angle)
-        => func(ShaderType.Float, "log", (angle, ShaderType.Float));
-
-    public static ShaderObject log2(ShaderObject angle)
-        => func(ShaderType.Float, "log2", (angle, ShaderType.Float));
-
-    public static ShaderObject smoothstep(
-        ShaderObject edge0,
-        ShaderObject edge1,
-        ShaderObject x
-    ) => func(ShaderType.Float, "smoothstep", 
-        (edge0, ShaderType.Float),
-        (edge1, ShaderType.Float),
-        (x, ShaderType.Float)
-    );
-
-    public static ShaderObject smootherstep(
-        ShaderObject edge0,
-        ShaderObject edge1,
-        ShaderObject x
-    ) => func(ShaderType.Float, "smootherstep", 
-        (edge0, ShaderType.Float),
-        (edge1, ShaderType.Float),
-        (x, ShaderType.Float)
-    );
-
-    public static ShaderObject length(ShaderObject vec) 
-        => func(ShaderType.Float, "length", 
-        (vec, ShaderType.Vec2 | ShaderType.Vec3)
-    );
-
-    public static ShaderObject distance(ShaderObject p0, ShaderObject p1) 
-        => func(ShaderType.Float, "distance", 
-        (p0, ShaderType.Vec2 | ShaderType.Vec3),
-        (p1, ShaderType.Vec2 | ShaderType.Vec3)
-    );
-
-    public static ShaderObject dot(ShaderObject v0, ShaderObject v1) 
-        => func(ShaderType.Float, "dot", 
-        (v0, ShaderType.Vec2 | ShaderType.Vec3),
-        (v1, ShaderType.Vec2 | ShaderType.Vec3)
-    );
-
-    public static ShaderObject cross(ShaderObject v0, ShaderObject v1) 
-        => func(ShaderType.Vec3, "cross", 
-        (v0, ShaderType.Vec3),
-        (v1, ShaderType.Vec3)
-    );
-    
-    public static ShaderObject round(ShaderObject angle)
-        => func(ShaderType.Float, "round", (angle, ShaderType.Float));
-
-    public static ShaderObject floor(ShaderObject angle)
-        => func(ShaderType.Float, "floor", (angle, ShaderType.Float));
-
-    public static ShaderObject ceil(ShaderObject angle)
-        => func(ShaderType.Float, "ceil", (angle, ShaderType.Float));
-
-    public static ShaderObject trunc(ShaderObject angle)
-        => func(ShaderType.Float, "trunc", (angle, ShaderType.Float));
-
-    public static ShaderObject max(ShaderObject x, ShaderObject y)
-        => func(ShaderType.Float, "max", 
-            (x, ShaderType.Float),
-            (y, ShaderType.Float)
-        );
-    
-    public static ShaderObject min(ShaderObject x, ShaderObject y)
-        => func(ShaderType.Float, "min", 
-            (x, ShaderType.Float),
-            (y, ShaderType.Float)
-        );
-    
-    public static ShaderObject mix(ShaderObject x, ShaderObject y, ShaderObject a)
-        => func(x.Type, "mix", 
-            (x, ShaderType.Vec),
-            (y, ShaderType.Vec),
-            (a, ShaderType.Float)
-        );
-
-    public static ShaderObject gl_Position
-    {
-        get => ctx.Value.Position;
-        set
-        {
-            if (value.Type != ShaderType.Vec4)
-                throw new Exception("Invalid type for gl_Position");
-            
-            ctx.Value.Position = value;
-        }
-    }
-
-    public static ShaderObject gl_FragColor
-        {
-        get => ctx.Value.FragColor;
-        set
-        {
-            if (value.Type != ShaderType.Vec4)
-                throw new Exception("Invalid type for gl_FragColor");
-            
-            ctx.Value.FragColor = value;
-        }
-    }
-
-    public static void uniform(ShaderType type, out ShaderObject obj)
-    {
-        int index = ctx.Value.Unifroms.Count;
-        obj = new ShaderObject(
-            type,
-            $"uniform{index}"
-        );
-
-        ctx.Value.Unifroms.Add(obj);
-    }
-    
-    private static ShaderObject func(
-        ShaderType returnType,
-        string name,
-        params (ShaderObject input, ShaderType expectedType)[] inputs
-    )
-    {
-        foreach (var input in inputs)
-            validateInput(input.input, input.expectedType, name);
+        result.Dependecies = obj1.Dependecies;
         
-        return buildObject(name, returnType, 
-            inputs.Select(x => x.input).ToArray()
-        );
+        result.Expression = 
+            buildObject(name, obj1);
+
+        return result;
     }
-    
-    private static void validateInput(
-        ShaderObject input,
-        ShaderType expectedType,
-        string funcName
+
+    private static R func<R, P1, P2>(
+        string name, 
+        P1 obj1, P2 obj2
     )
+        where R : ShaderObject, new()
+        where P1 : ShaderObject
+        where P2 : ShaderObject
     {
-        if (input is null)
-            throw new Exception($"The input of {funcName} function cannot be null.");
+        var result = new R();
 
-        if ((input.Type & expectedType) == ShaderType.None)
-            throw new Exception($"{funcName} function only accepts {expectedType} values.");
+        result.Dependecies = 
+            obj1.Dependecies
+            .Concat(obj2.Dependecies);
+        
+        result.Expression = 
+            buildObject(name, obj1, obj2);
+
+        return result;
     }
 
-    private static ShaderObject buildObject(
+    private static R func<R, P1, P2, P3>(
+        string name, 
+        P1 obj1, P2 obj2, P3 obj3
+    )
+        where R : ShaderObject, new()
+        where P1 : ShaderObject
+        where P2 : ShaderObject
+        where P3 : ShaderObject
+    {
+        var result = new R();
+
+        result.Dependecies = 
+            obj1.Dependecies
+            .Concat(obj2.Dependecies)
+            .Concat(obj3.Dependecies);
+        
+        result.Expression = 
+            buildObject(name, obj1, obj2, obj3);
+
+        return result;
+    }
+
+    private static string buildObject(
         string funcName,
-        ShaderType returnType,
-        params ShaderObject[] inputs
+        params object[] inputs
     )
     {
-        var exp = $"{funcName}(";
-        for (int i = 0; i < inputs.Length - 1; i++)
-            exp += inputs[i].Value + ", ";
-        if (inputs.Length > 0)
-            exp += inputs[^1].Value + ")";
+        var sb = new StringBuilder();
+        sb.Append($"{funcName}(");
 
-        return new ShaderObject(
-            returnType,
-            null,
-            exp
-        );
+        for (int i = 0; i < inputs.Length - 1; i++)
+        {
+            if (inputs[i] is ShaderObject input)
+                sb.Append(input.Expression);
+            else if (inputs[i] is ShaderDependence dependence)
+                sb.Append(dependence.Name);
+            sb.Append(", ");
+        }
+
+        if (inputs.Length > 0)
+        {
+            if (inputs[^1] is ShaderObject input)
+                sb.Append(input.Expression);
+            else if (inputs[^1] is ShaderDependence dependence)
+                sb.Append(dependence.Name);
+            sb.Append(")");
+        }
+            
+        return sb.ToString();
     }
 }

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/08/2023
+ * Date:    08/08/2023
  */
 namespace Radiance;
 
@@ -8,7 +8,7 @@ namespace Radiance;
 /// </summary>
 public record Vector(float x, float y, float z)
 {
-    public float mod => x * x + y * y + z * z;
+    public float squareMod => x * x + y * y + z * z;
 
     public Vector RotateX(float cosa, float sina)
         => new (x, y * cosa - z * sina, y * sina + z * cosa);
@@ -20,7 +20,7 @@ public record Vector(float x, float y, float z)
         => new (x * cosa - y * sina, y * cosa + x * sina, z);
     
     public override string ToString()
-        => $"P = ({x:N3}, {y:N3}, {z:N3})";
+        => $"v = ({x:N3}, {y:N3}, {z:N3})";
 
     public static Vector operator +(Vector v)
         => new (v.x, v.y, v.z);
