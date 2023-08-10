@@ -87,4 +87,16 @@ public class Vec2ShaderObject : ShaderObject
             $"vec2({tuple.x.Expression}, {tuple.y.Expression})",
             tuple.x.Dependecies.Concat(tuple.y.Dependecies)
         );
+    
+    public static Vec2ShaderObject operator +(Vec2ShaderObject x)
+    {
+        var dependecies = x.Dependecies;
+        return new ($"+{x}", dependecies);
+    }
+    
+    public static Vec2ShaderObject operator -(Vec2ShaderObject x)
+    {
+        var dependecies = x.Dependecies;
+        return new ($"-{x}", dependecies);
+    }
 }

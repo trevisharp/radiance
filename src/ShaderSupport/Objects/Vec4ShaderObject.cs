@@ -139,4 +139,16 @@ public class Vec4ShaderObject : ShaderObject
             $"vec4({tuple.x.Expression}, {tuple.yzw.Expression})",
             tuple.x.Dependecies.Concat(tuple.yzw.Dependecies)
         );
+    
+    public static Vec4ShaderObject operator +(Vec4ShaderObject x)
+    {
+        var dependecies = x.Dependecies;
+        return new ($"+{x}", dependecies);
     }
+    
+    public static Vec4ShaderObject operator -(Vec4ShaderObject x)
+    {
+        var dependecies = x.Dependecies;
+        return new ($"-{x}", dependecies);
+    }
+}

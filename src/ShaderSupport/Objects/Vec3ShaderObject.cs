@@ -107,4 +107,16 @@ public class Vec3ShaderObject : ShaderObject
             $"vec3({tuple.x.Expression}, {tuple.yz.Expression})",
             tuple.x.Dependecies.Concat(tuple.yz.Dependecies)
         );
+    
+    public static Vec3ShaderObject operator +(Vec3ShaderObject x)
+    {
+        var dependecies = x.Dependecies;
+        return new ($"+{x}", dependecies);
+    }
+    
+    public static Vec3ShaderObject operator -(Vec3ShaderObject x)
+    {
+        var dependecies = x.Dependecies;
+        return new ($"-{x}", dependecies);
+    }
 }
