@@ -1,8 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    10/08/2023
+ * Date:    13/08/2023
  */
 using System;
-using System.Collections.Generic;
 
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -14,7 +13,6 @@ namespace Radiance;
 /// </summary>
 public static class Window
 {
-    private static List<GraphicsBuilder> builders = new();
     private static GameWindow win;
     private static int width = -1;
     private static int height = -1;
@@ -58,7 +56,6 @@ public static class Window
                 return;
             
             OnUnload();
-            disposeGraphics();
         };
 
         win.RenderFrame += e =>
@@ -119,42 +116,12 @@ public static class Window
         };
     }
 
-    /// <summary>
-    /// Create a Builder from Graphics object to configurate the drawing in main screen.
-    /// </summary>
-    public static Graphics CreateGraphics()
-    {
-        if (width == -1 && height == -1)
-            throw new Exception("Graphics need be created after Window opening.");
-
-        var gb = new GraphicsBuilder();
-
-        gb.SetWidth(width);
-        gb.SetHeight(height);
-
-        builders.Add(gb);
-
-        return gb;
-    }
-    
     public static event Action OnRender;
     public static event Action OnLoad;
     public static event Action OnUnload;
     public static event Action OnFrame;
     public static event Action<Input> OnKeyDown;
     public static event Action<Input> OnKeyUp;
-
-    private static void disposeGraphics()
-    {
-        foreach (var builder in builders)
-        {
-            var product = builder.Product;
-            if (product is null)
-                continue;
-            
-            product.Dispose();
-        }
-    }
 
     private static void updateSize(GameWindow win)
     {

@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    10/08/2023
+ * Date:    13/08/2023
  */
+using System;
 using System.Text;
 using System.Linq;
 
@@ -10,11 +11,34 @@ using ShaderSupport;
 using ShaderSupport.Objects;
 using ShaderSupport.Dependencies;
 
+using RenderFunctions;
+
 /// <summary>
-/// A facede with all utils to program a shader.
+/// A facede with all utils to use Radiance features.
 /// </summary>
-public static class Shaders
+public static class RadianceUtils
 {
+    public static Action CreateRender(Action<RenderOperations> render)
+    {
+        GenericRenderFunction renderFunction = render;
+        renderFunction.Load();
+        return renderFunction;
+    }
+
+    public static Action<T> CreateRender<T>(Action<RenderOperations, T> render)
+    {
+        GenericRenderFunction<T> renderFunction = render;
+        renderFunction.Load();
+        return renderFunction;
+    }
+
+    public static Action<T1, T2> CreateRender<T1, T2>(Action<RenderOperations, T1, T2> render)
+    {
+        GenericRenderFunction<T1, T2> renderFunction = render;
+        renderFunction.Load();
+        return renderFunction;
+    }
+
     private readonly static TimeShaderInput _t = new();
     private readonly static XAxisShaderVariable _i = new(); 
     private readonly static YAxisShaderVariable _j = new(); 
