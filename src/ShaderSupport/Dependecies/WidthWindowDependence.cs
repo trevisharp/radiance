@@ -17,7 +17,7 @@ public class WidthWindowDependence : ShaderDependence
     }
 
     public override object Value
-        => Window.Width;
+        => (float)Window.Width;
 
     public override string GetHeader(params object[] args)
         => "uniform float width;";

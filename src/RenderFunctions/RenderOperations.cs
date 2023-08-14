@@ -16,11 +16,15 @@ using ShaderSupport;
 using ShaderSupport.Objects;
 using ShaderSupport.Dependencies;
 
+// TODO: Refactor
+
 /// <summary>
 /// Provide render operations to draw data in screen.
 /// </summary>
 public class RenderOperations
 {
+    public bool Verbose { get; set; } = true;
+
     public void Clear(Color color)
     {
         effects += delegate
@@ -37,21 +41,67 @@ public class RenderOperations
 
     public void Fill(
         Func<Vec3ShaderObject, Vec3ShaderObject> vertexShader,
-        Func<Vec4ShaderObject> color,
+        Func<Vec4ShaderObject> fragmentShader,
         params Vector[] data
     )
     {
         if (data.Length == 0)
             return;
+        
+        var gpuBuffer = createBuffer();
 
-        var buffer = new Vec3BufferDependence(
-            data.GetBuffer()
-        );
+        var bufferData = data.GetBuffer();
+        var buffer = new Vec3BufferDependence(bufferData);
+
         var position = new Vec3ShaderObject(data[0].GetName, buffer);
 
-        var vertexObject = vertexShader(position);
-        var vertexTuple = generateVertexShader(vertexObject);
+        var finalVertexObject = vertexShader(position);
+        var vertexTuple = generateVertexShader(finalVertexObject, gpuBuffer);
 
+        if (Verbose)
+            Console.WriteLine(vertexTuple.source);
+
+        var finalFragmentObject = fragmentShader();
+        var fragmentTuple = generateFragmentShader(finalFragmentObject);
+
+        if (Verbose)
+            Console.WriteLine(fragmentTuple.source);
+        
+        effects += delegate
+        {
+            GL.BindBuffer(
+                BufferTarget.ArrayBuffer, 
+                gpuBuffer
+            );
+
+            int vertexObject = GL.GenVertexArray();
+            GL.BindVertexArray(vertexObject);
+
+            GL.VertexAttribPointer(0, 3,
+                VertexAttribPointerType.Float, 
+                false, 
+                3 * sizeof(float),
+                3 * sizeof(float)
+            );
+            GL.EnableVertexAttribArray(0);
+
+            createVertexShader(vertexTuple.source);
+            createFragmentShader(fragmentTuple.source);
+
+            createProgram();
+            GL.UseProgram(program);
+
+            if (vertexTuple.setup is not null)
+                vertexTuple.setup();
+
+            if (fragmentTuple.setup is not null)
+                fragmentTuple.setup();
+
+            GL.DrawArrays(PrimitiveType.TriangleFan, 0, bufferData.Length);
+            
+            GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+            GL.BindVertexArray(0);
+        };
     }
 
     internal void FinishSetup()
@@ -73,11 +123,17 @@ public class RenderOperations
         foreach (var program in programList)
             GL.DeleteProgram(program);
         programList.Clear();
+
+        foreach (var buffer in bufferList)
+            GL.DeleteBuffer(buffer);
+        bufferList.Clear();
     }
 
     private event Action<object[]> effects;
 
     private int activatedProgram = -1;
+
+    private List<int> bufferList = new();
 
     private List<int> programList = new();
     private int program => 
@@ -132,11 +188,23 @@ public class RenderOperations
 
         GL.DeleteShader(fragmentShader);
         GL.DeleteShader(vertexShader);
-
+        
+        if (vertexShaderStack.Count == 0)
+            throw new Exception("The program may contains a Vertex Shader");
         vertexShaderStack.Pop();
+        
+        if (fragmentShaderStack.Count == 0)
+            throw new Exception("The program may contains a Fragment Shader");
         fragmentShaderStack.Pop();
     }
     
+    private int createBuffer()
+    {
+        var bufferObject = GL.GenBuffer();
+        bufferList.Add(bufferObject);
+        return bufferObject;
+    }
+
     private List<ShaderDependence> getDependences(IEnumerable<ShaderObject> objs)
     {
         var dependences = new List<ShaderDependence>();
@@ -153,22 +221,25 @@ public class RenderOperations
         return dependences;
     }
 
-    // TODO: Refactor
-    private (string, Action) generateVertexShader(Vec3ShaderObject vertexObject)
+    private (string source, Action setup) generateVertexShader(
+        Vec3ShaderObject vertexObject,
+        int buffer
+    )
     {
         var sb = new StringBuilder();
         sb.AppendLine("#version 330 core");
         Action setup = null;
 
-        var dependencens = vertexObject.Dependecies.Distinct();
+        var dependencens = vertexObject.Dependecies
+            .Append(RadianceUtils._width)
+            .Append(RadianceUtils._height)
+            .Distinct();
         foreach (var dependence in dependencens)
         {
             switch (dependence.DependenceType)
             {
                 case ShaderDependenceType.Uniform:
-                    sb.AppendLine(
-                        $"uniform {getShaderType(dependence.Type)} {dependence.Name};"
-                    );
+                    sb.AppendLine(dependence.GetHeader());
 
                     setup += delegate
                     {
@@ -177,9 +248,55 @@ public class RenderOperations
                     break;
                 
                 case ShaderDependenceType.CustomData:
-                    sb.AppendLine(
-                        
-                    );
+                    sb.AppendLine(dependence.GetHeader());
+                    float[] data = (float[])dependence.Value;
+
+                    setup += delegate
+                    {        
+                        GL.BufferData(
+                            BufferTarget.ArrayBuffer,
+                            data.Length * sizeof(float), 
+                            data, 
+                            BufferUsageHint.DynamicDraw
+                        );
+                    };
+                    break;
+            }
+        }
+        
+        var exp = vertexObject.Expression;
+
+        sb.AppendLine();
+        sb.AppendLine("void main()");
+        sb.AppendLine("{");
+        if (exp.Contains("position"))
+        {
+            sb.AppendLine($"\tposition.x = 2 * position.x / width - 1;");
+            sb.AppendLine($"\tposition.y = 2 * position.y / height - 1;");
+        }
+        sb.AppendLine($"\tgl_Position = vec4({exp}, 1.0);");
+        sb.AppendLine("}");
+
+        return (sb.ToString(), setup);
+    }
+
+    
+    private (string source, Action setup) generateFragmentShader(
+        Vec4ShaderObject fragmentObject
+    )
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("#version 330 core");
+        Action setup = null;
+
+        var dependencens = fragmentObject.Dependecies
+            .Distinct();
+        foreach (var dependence in dependencens)
+        {
+            switch (dependence.DependenceType)
+            {
+                case ShaderDependenceType.Uniform:
+                    sb.AppendLine(dependence.GetHeader());
 
                     setup += delegate
                     {
@@ -188,6 +305,15 @@ public class RenderOperations
                     break;
             }
         }
+        
+        var exp = fragmentObject.Expression;
+
+        sb.AppendLine();
+        sb.AppendLine("out vec4 outColor;");
+        sb.AppendLine("void main()");
+        sb.AppendLine("{");
+        sb.AppendLine($"\toutColor = {exp};");
+        sb.AppendLine("}");
 
         return (sb.ToString(), setup);
     }
@@ -217,228 +343,4 @@ public class RenderOperations
         var colorCode = GL.GetUniformLocation(activatedProgram, name);
         GL.Uniform1(colorCode, value);
     }
-
-    // private static int bufferObject = int.MinValue;
-    
-    // private int program = 0;
-    // private int vertexObject = 0;
-    // private bool disposed = false;
-
-
-    // private int[] layoutInfo;
-
-    // static RenderOperations()
-    // { 
-    //     bufferObject = GL.GenBuffer();
-    //     GL.BindBuffer(
-    //         BufferTarget.ArrayBuffer, 
-    //         bufferObject
-    //     );
-    // }
-
-
-    // private void load()
-    // {
-    //     vertexObject = GL.GenVertexArray();
-    //     GL.BindVertexArray(vertexObject);
-
-    //     int stride = layoutInfo.Sum();
-    //     int offset = 0;
-    //     for (int i = 0; i < layoutInfo.Length; i++)
-    //     {
-    //         GL.VertexAttribPointer(i,
-    //             layoutInfo[i],
-    //             VertexAttribPointerType.Float, 
-    //             false, 
-    //             stride * sizeof(float),
-    //             offset * sizeof(float)
-    //         );
-    //         GL.EnableVertexAttribArray(i);
-
-    //         offset += layoutInfo[i];
-    //     }
-    // }
-
-    // private void unload()
-    // { 
-    //     GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
-    //     GL.BindVertexArray(0);
-
-    //     GL.DeleteBuffer(bufferObject);
-    //     GL.DeleteVertexArray(vertexObject);
-    // }
-
-    // public void FillPolygon(double value, params Vertex[] pts)
-    // {
-    //     SetUniform(0, (float)value);
-    //     FillPolygon(pts);
-    // }
-    
-    // public void DrawPolygon(double value, params Vertex[] pts)
-    // {
-    //     SetUniform(0, (float)value);
-    //     DrawPolygon(pts);
-    // }
-
-    // public void FillPolygon(float value, params Vertex[] pts)
-    // {
-    //     SetUniform(0, value);
-    //     FillPolygon(pts);
-    // }
-    
-    // public void DrawPolygon(float value, params Vertex[] pts)
-    // {
-    //     SetUniform(0, value);
-    //     DrawPolygon(pts);
-    // }
-    
-    // public void FillPolygon(Color color, params Vertex[] pts)
-    // {   
-    //     SetUniform(0, color);
-    //     FillPolygon(pts);
-    // }
-    
-    // public void DrawPolygon(Color color, params Vertex[] pts)
-    // {
-    //     SetUniform(0, color); 
-    //     DrawPolygon(pts);
-    // }
-
-    // public void FillPolygon(params Vertex[] pts)
-    // {
-    //     GL.UseProgram(program);
-
-    //     float[] vertices = toArr(pts, true);
-        
-    //     GL.BufferData(
-    //         BufferTarget.ArrayBuffer,
-    //         vertices.Length * sizeof(float), 
-    //         vertices, 
-    //         BufferUsageHint.DynamicDraw
-    //     );
-
-    //     GL.BindVertexArray(vertexObject);
-    //     GL.DrawArrays(PrimitiveType.TriangleStrip, 0, pts.Length + 1);
-    // }
-    
-    // public void DrawPolygon(params Vertex[] pts)
-    // {
-    //     GL.UseProgram(program);
-
-    //     float[] vertices = toArr(pts, false);
-        
-    //     GL.BufferData(
-    //         BufferTarget.ArrayBuffer,
-    //         vertices.Length * sizeof(float), 
-    //         vertices, 
-    //         BufferUsageHint.DynamicDraw
-    //     );
-
-    //     GL.BindVertexArray(vertexObject);
-    //     GL.DrawArrays(PrimitiveType.LineLoop, 0, pts.Length);
-    // }
-
-    // public void FillPolygon(params ColoredVertex[] pts)
-    // {
-    //     GL.UseProgram(program);
-
-    //     float[] vertices = toArr(pts, true);
-        
-    //     GL.BufferData(
-    //         BufferTarget.ArrayBuffer,
-    //         vertices.Length * sizeof(float), 
-    //         vertices, 
-    //         BufferUsageHint.DynamicDraw
-    //     );
-
-    //     GL.BindVertexArray(vertexObject);
-    //     GL.DrawArrays(PrimitiveType.TriangleFan, 0, pts.Length + 1);
-    // }
-    
-    // public void DrawPolygon(params ColoredVertex[] pts)
-    // {
-    //     GL.UseProgram(program);
-
-    //     float[] vertices = toArr(pts, false);
-        
-    //     GL.BufferData(
-    //         BufferTarget.ArrayBuffer,
-    //         vertices.Length * sizeof(float), 
-    //         vertices, 
-    //         BufferUsageHint.DynamicDraw
-    //     );
-
-    //     GL.BindVertexArray(vertexObject);
-    //     GL.DrawArrays(PrimitiveType.LineLoop, 0, pts.Length);
-    // }
-
-    // private float[] toArr(ColoredVertex[] pts, bool loop)
-    // {
-    //     if (pts is null)
-    //         return new float[0];
-
-    //     int size = 7 * pts.Length + (loop ? 7 : 0);
-    //     float[] vertices = new float[size];
-
-    //     int offset = 0;
-    //     for (int i = 0; i < pts.Length; i++, offset += 7)
-    //     {
-    //         var pt = pts[i];
-    //         transformBasedOnWindowSize(pt, vertices, offset);
-
-    //         var color = pt.Color;
-    //         transformColor(color, vertices, offset + 3);
-    //     }
-        
-    //     if (!loop)
-    //         return vertices;
-        
-    //     var first = pts[0];
-    //     transformBasedOnWindowSize(first, vertices, offset);
-
-    //     var firstColor = first.Color;
-    //     transformColor(firstColor, vertices, offset + 3);
-
-    //     return vertices;
-    // }
-
-    // private float[] toArr(Vertex[] pts, bool loop)
-    // {
-    //     if (pts is null)
-    //         return new float[0];
-
-    //     int size = 3 * pts.Length + (loop ? 3 : 0);
-    //     float[] vertices = new float[size];
-
-    //     int offset = 0;
-    //     for (int i = 0; i < pts.Length; i++, offset += 3)
-    //     {
-    //         var pt = pts[i];
-    //         transformBasedOnWindowSize(pt, vertices, offset);
-    //     }
-        
-    //     if (!loop)
-    //         return vertices;
-
-        
-    //     var first = pts[0];
-    //     transformBasedOnWindowSize(first, vertices, offset);
-
-    //     return vertices;
-    // }
-
-    // private void transformColor(Color color, float[] data, int offset)
-    // {
-    //     data[offset + 0] = color.R / 255f;
-    //     data[offset + 1] = color.G / 255f;
-    //     data[offset + 2] = color.B / 255f;
-    //     data[offset + 3] = color.A / 255f;
-    // }
-
-    // private void transformBasedOnWindowSize(Vertex pt, float[] data, int offset)
-    // {
-    //     data[offset + 0] = 2 * (pt.x / width) - 1;
-    //     data[offset + 1] = 1 - 2 * (pt.y / height);
-    //     data[offset + 2] = pt.z;
-    // }
 }

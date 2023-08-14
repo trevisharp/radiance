@@ -17,7 +17,7 @@ public class HeightWindowDependence : ShaderDependence
     }
 
     public override object Value
-        => Window.Height;
+        => (float)Window.Height;
 
     public override string GetHeader(params object[] args)
         => "uniform float height;";

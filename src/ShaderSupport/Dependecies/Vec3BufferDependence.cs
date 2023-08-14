@@ -23,5 +23,5 @@ public class Vec3BufferDependence : ShaderDependence
         => this.data;
 
     public override string GetHeader(params object[] args)
-        => $"layout(location = {args[0]}) in vec3 position;";
+        => $"layout(location = 0) in vec3 position;";
 }

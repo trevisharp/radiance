@@ -41,9 +41,9 @@ public static class RadianceUtils
         return renderFunction;
     }
 
-    private readonly static TimeShaderInput _t = new();
-    private readonly static WidthWindowDependence _width = new();
-    private readonly static HeightWindowDependence _height = new();
+    internal readonly static TimeShaderInput _t = new();
+    internal readonly static WidthWindowDependence _width = new();
+    internal readonly static HeightWindowDependence _height = new();
     
     public static FloatShaderObject t => new(_t.Name, _t);
     public static Vector i => new(1, 0, 0); 
