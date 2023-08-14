@@ -46,10 +46,14 @@ public static class Window
 
         win.Load += delegate
         {
+            updateSize(win);
+            initializated = true;
+            foreach (var render in renders)
+                mapRender(render);
+            renders.Clear();
+            
             if (OnLoad is null)
                 return;
-            
-            updateSize(win);
             OnLoad();
         };
 
@@ -121,20 +125,19 @@ public static class Window
 
     private static event Action onRender;
     private static Dictionary<Action<RenderOperations>, Action> renderMap = new();
+
+    private static bool initializated = false;
+    private static List<Action<RenderOperations>> renders = new();
     public static event Action<RenderOperations> OnRender
     {
         add
         {
             if (value is null)
                 return;
-            
-            GenericRenderFunction renderFunction = value;
-            renderFunction.Load();
 
-            Action mappedAction = renderFunction;
-            renderMap.Add(value, mappedAction);
-
-            onRender += mappedAction;
+            if (initializated)
+                mapRender(value);
+            else renders.Add(value);
         }
         remove
         {
@@ -146,6 +149,16 @@ public static class Window
 
             renderMap.Remove(value);
         }
+    }
+    private static void mapRender(Action<RenderOperations> value)
+    {
+        GenericRenderFunction renderFunction = value;
+        renderFunction.Load();
+
+        Action mappedAction = renderFunction;
+        renderMap.Add(value, mappedAction);
+
+        onRender += mappedAction;
     }
     
     public static event Action OnLoad;
