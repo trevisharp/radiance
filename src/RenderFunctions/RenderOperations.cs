@@ -23,7 +23,7 @@ using ShaderSupport.Dependencies;
 /// </summary>
 public class RenderOperations
 {
-    public bool Verbose { get; set; } = true;
+    public bool Verbose { get; set; } = false;
 
     public RenderOperations()
     {
