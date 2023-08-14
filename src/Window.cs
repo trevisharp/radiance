@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/08/2023
+ * Date:    13/08/2023
  */
 using System;
 using System.Collections.Generic;
@@ -9,12 +9,13 @@ using OpenTK.Windowing.Desktop;
 
 namespace Radiance;
 
+using RenderFunctions;
+
 /// <summary>
 /// Represents the main windows that applications run
 /// </summary>
 public static class Window
 {
-    private static List<GraphicsBuilder> builders = new();
     private static GameWindow win;
     private static int width = -1;
     private static int height = -1;
@@ -45,10 +46,14 @@ public static class Window
 
         win.Load += delegate
         {
+            updateSize(win);
+            initializated = true;
+            foreach (var render in renders)
+                mapRender(render);
+            renders.Clear();
+            
             if (OnLoad is null)
                 return;
-            
-            updateSize(win);
             OnLoad();
         };
 
@@ -58,13 +63,12 @@ public static class Window
                 return;
             
             OnUnload();
-            disposeGraphics();
         };
 
         win.RenderFrame += e =>
         {
-            if (OnRender is not null)
-                OnRender();
+            if (onRender is not null)
+                onRender();
 
             win.SwapBuffers();
         };
@@ -119,42 +123,49 @@ public static class Window
         };
     }
 
-    /// <summary>
-    /// Create a Builder from Graphics object to configurate the drawing in main screen.
-    /// </summary>
-    public static GraphicsBuilder CreateGraphics()
+    private static event Action onRender;
+    private static Dictionary<Action<RenderOperations>, Action> renderMap = new();
+
+    private static bool initializated = false;
+    private static List<Action<RenderOperations>> renders = new();
+    public static event Action<RenderOperations> OnRender
     {
-        if (width == -1 && height == -1)
-            throw new Exception("Graphics need be created after Window opening.");
+        add
+        {
+            if (value is null)
+                return;
 
-        var gb = new GraphicsBuilder();
+            if (initializated)
+                mapRender(value);
+            else renders.Add(value);
+        }
+        remove
+        {
+            if (!renderMap.ContainsKey(value))
+                return;
+            
+            var mappedAction = renderMap[value];
+            onRender -= mappedAction;
 
-        gb.SetWidth(width);
-        gb.SetHeight(height);
+            renderMap.Remove(value);
+        }
+    }
+    private static void mapRender(Action<RenderOperations> value)
+    {
+        GenericRenderFunction renderFunction = value;
+        renderFunction.Load();
 
-        builders.Add(gb);
+        Action mappedAction = renderFunction;
+        renderMap.Add(value, mappedAction);
 
-        return gb;
+        onRender += mappedAction;
     }
     
-    public static event Action OnRender;
     public static event Action OnLoad;
     public static event Action OnUnload;
     public static event Action OnFrame;
     public static event Action<Input> OnKeyDown;
     public static event Action<Input> OnKeyUp;
-
-    private static void disposeGraphics()
-    {
-        foreach (var builder in builders)
-        {
-            var product = builder.Product;
-            if (product is null)
-                continue;
-            
-            product.Dispose();
-        }
-    }
 
     private static void updateSize(GameWindow win)
     {

@@ -1,57 +1,33 @@
 ﻿using Radiance;
-using static Radiance.Shaders;
+using Radiance.Data;
+using static Radiance.RadianceUtils;
 
-Graphics g = null;
-
-Window.OnLoad += delegate
+Window.OnRender += r =>
 {
-    g = Window
-    .CreateGraphics()
-    .SetVertexShader(() =>
-    {
-        layout(0, vec3, out var pos);
-        gl_Position = vec(pos, 1.0);
-    })
-    .SetFragmentShader(() =>
-    {
-        uniform(vec4, out var color);
-        gl_FragColor = color;
-    });
-};
+    var size = 50 + 20 * cos(5 * t);
+    var center = (width / 2, height / 2, 0);
 
-Window.OnRender += delegate
-{
-    var size = 50;
-    var i = Vector.i; // x-axis vector
-    var j = Vector.j; // y-axis vector
-
-    var center = (Window.Width / 2, Window.Height / 2);
-
-    // using vetorial algebra to build a centralized square
-    var topLeftPt  = center + size * (-i -j);
-    var topRightPt = center + size * (+i -j);
-    var botRightPt = center + size * (+i +j);
-    var botLeftPt  = center + size * (-i +j);
+    r.Clear(Color.White);
     
-    // clear scream
-    g.Clear(Color.White);
-    
-    // filling square
-    g.FillPolygon(
-        Color.Blue,
-        topLeftPt,
-        topRightPt,
-        botRightPt,
-        botLeftPt
+    r.Fill(
+        v => center + size * v,
+        () => Color.Blue,
+        (-1, -1, 0),
+        (+1, -1, 0),
+        (-1, +1, 0),
+
+        (+1, +1, 0),
+        (+1, -1, 0),
+        (-1, +1, 0)
     );
 
-    // drawing border of square
-    g.DrawPolygon(
-        Color.Black,
-        topLeftPt,
-        topRightPt,
-        botRightPt,
-        botLeftPt
+    r.Draw(
+        v => center + size * v,
+        () => Color.Red,
+        (-1, -1, 0),
+        (+1, -1, 0),
+        (+1, +1, 0),
+        (-1, +1, 0)
     );
 };
 
