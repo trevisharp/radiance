@@ -16,7 +16,7 @@ public class Vec3BufferDependence : ShaderDependence
 
         this.Name = "position";
         this.Type = ShaderType.Vec3;
-        this.DependenceType = ShaderDependenceType.Uniform;
+        this.DependenceType = ShaderDependenceType.CustomData;
     }
 
     public override object Value

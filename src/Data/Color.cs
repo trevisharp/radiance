@@ -25,6 +25,6 @@ public record Color(byte A, byte R, byte G, byte B)
 
     public static implicit operator Vec4ShaderObject(Color color)
         => new Vec4ShaderObject(
-            $"({color.R / 255f}, {color.G / 255f}, {color.B / 255f}, {color.A / 255f})"
+            $"vec4({color.R / 255f}, {color.G / 255f}, {color.B / 255f}, {color.A / 255f})"
         );
 }

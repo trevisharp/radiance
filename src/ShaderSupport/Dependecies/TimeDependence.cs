@@ -25,5 +25,5 @@ public class TimeShaderInput : ShaderDependence
         => (float)(DateTime.Now - start).TotalSeconds;
 
     public override string GetHeader(params object[] args)
-        => "uniform float t";
+        => "uniform float t;";
 }

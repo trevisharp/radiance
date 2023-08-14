@@ -3,9 +3,6 @@
  */
 namespace Radiance.Data;
 
-using ShaderSupport.Objects;
-using ShaderSupport.Dependencies;
-
 public class Vector : Data
 {
     public Vector(float x, float y, float z)
