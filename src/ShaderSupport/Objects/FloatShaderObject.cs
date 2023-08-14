@@ -1,6 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    10/08/2023
  */
+#pragma warning disable CS0660
+#pragma warning disable CS0661
+
 using System.Linq;
 using System.Collections.Generic; 
 

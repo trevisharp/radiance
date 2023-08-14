@@ -9,7 +9,7 @@ namespace Radiance.ShaderSupport.Dependencies;
 /// Represents a input for shaders of the time 
 /// passed since the creation of this input in seconds.
 /// </summary>
-public class TimeShaderInput : ShaderInput
+public class TimeShaderInput : ShaderDependence
 {
     DateTime start;
 
@@ -23,4 +23,7 @@ public class TimeShaderInput : ShaderInput
 
     public override object Value
         => (float)(DateTime.Now - start).TotalSeconds;
+
+    public override string GetHeader(params object[] args)
+        => "uniform float t";
 }

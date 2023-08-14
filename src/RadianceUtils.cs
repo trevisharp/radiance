@@ -7,6 +7,8 @@ using System.Linq;
 
 namespace Radiance;
 
+using Data;
+
 using ShaderSupport;
 using ShaderSupport.Objects;
 using ShaderSupport.Dependencies;
@@ -40,16 +42,13 @@ public static class RadianceUtils
     }
 
     private readonly static TimeShaderInput _t = new();
-    private readonly static XAxisShaderVariable _i = new(); 
-    private readonly static YAxisShaderVariable _j = new(); 
-    private readonly static ZAxisShaderVariable _k = new();
-    private readonly static WidthWindowShaderInput _width = new();
-    private readonly static HeightWindowShaderInput _height = new();
+    private readonly static WidthWindowDependence _width = new();
+    private readonly static HeightWindowDependence _height = new();
     
     public static FloatShaderObject t => new(_t.Name, _t);
-    public static Vec3ShaderObject i => new(_i.Name, _i); 
-    public static Vec3ShaderObject j => new(_j.Name, _j); 
-    public static Vec3ShaderObject k => new(_k.Name, _k);
+    public static Vector i => new(1, 0, 0); 
+    public static Vector j => new(0, 1, 0); 
+    public static Vector k => new(0, 0, 1);
     public static FloatShaderObject width => new(_width.Name, _width);
     public static FloatShaderObject height => new(_height.Name, _height);
 

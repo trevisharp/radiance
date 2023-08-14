@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/08/2023
+ * Date:    14/08/2023
  */
 namespace Radiance.ShaderSupport;
 
@@ -13,6 +13,9 @@ public enum ShaderType : byte
     Vec2 = 2,
     Vec3 = 3,
     Vec4 = 4,
+
+    Collection = 128,
+    CollectionVec3 = Collection | Vec3,
 
     Bool = 255,
 

@@ -1,7 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/08/2023
+ * Date:    14/08/2023
  */
-namespace Radiance;
+namespace Radiance.Data;
+
+using ShaderSupport.Objects;
 
 /// <summary>
 /// Represents a ARGB Color
@@ -20,4 +22,9 @@ public record Color(byte A, byte R, byte G, byte B)
     public static readonly Color Yellow = new Color(255, 255, 255, 0);
     public static readonly Color Magenta = new Color(255, 255, 0, 255);
     public static readonly Color Cyan = new Color(255, 0, 255, 255);
+
+    public static implicit operator Vec4ShaderObject(Color color)
+        => new Vec4ShaderObject(
+            $"({color.R / 255f}, {color.G / 255f}, {color.B / 255f}, {color.A / 255f})"
+        );
 }

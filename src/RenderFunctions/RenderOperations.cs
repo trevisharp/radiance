@@ -2,19 +2,221 @@
  * Date:    06/08/2023
  */
 using System;
+using System.Text;
 using System.Linq;
+using System.Collections.Generic;
 
 using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance.RenderFunctions;
+
+using Data;
+
+using ShaderSupport;
+using ShaderSupport.Objects;
+using ShaderSupport.Dependencies;
 
 /// <summary>
 /// Provide render operations to draw data in screen.
 /// </summary>
 public class RenderOperations
 {
-    public string VertexShader { get; set; }
-    public string FragmentShader { get; set; }
+    public void Clear(Color color)
+    {
+        effects += delegate
+        {
+            GL.ClearColor(
+                color.R / 255f,
+                color.G / 255f,
+                color.B / 255f,
+                color.A / 255f
+            );
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+        };
+    }
+
+    public void Fill(
+        Func<Vec3ShaderObject, Vec3ShaderObject> vertexShader,
+        Func<Vec4ShaderObject> color,
+        params Vector[] data
+    )
+    {
+        if (data.Length == 0)
+            return;
+
+        var buffer = new Vec3BufferDependence(
+            data.GetBuffer()
+        );
+        var position = new Vec3ShaderObject(data[0].GetName, buffer);
+
+        var vertexObject = vertexShader(position);
+        var vertexTuple = generateVertexShader(vertexObject);
+
+    }
+
+    internal void FinishSetup()
+    {
+
+    }
+
+    internal void Render(params object[] parameters)
+    {
+        if (effects is null)
+            return;
+        
+        effects(parameters);
+    }
+
+    internal void Unload()
+    {
+        GL.UseProgram(0);
+        foreach (var program in programList)
+            GL.DeleteProgram(program);
+        programList.Clear();
+    }
+
+    private event Action<object[]> effects;
+
+    private int activatedProgram = -1;
+
+    private List<int> programList = new();
+    private int program => 
+        programList.Count == 0 ? -1 :
+        programList[programList.Count - 1];
+    
+    private Stack<int> vertexShaderStack = new();
+    private int vertexShader =>
+        vertexShaderStack.Count == 0 ? -1 :
+        vertexShaderStack.Peek();
+    
+    private Stack<int> fragmentShaderStack = new();
+    private int fragmentShader =>
+        fragmentShaderStack.Count == 0 ? -1 :
+        fragmentShaderStack.Peek();
+
+    private void createVertexShader(string source)
+    {
+        vertexShaderStack.Push(
+            GL.CreateShader(
+                OpenTK.Graphics.OpenGL4.ShaderType.VertexShader
+            )
+        );
+        GL.ShaderSource(vertexShader, source);
+        GL.CompileShader(vertexShader);
+    }
+    
+    private void createFragmentShader(string source)
+    {
+        fragmentShaderStack.Push(
+            GL.CreateShader(
+                OpenTK.Graphics.OpenGL4.ShaderType.FragmentShader
+            )
+        );
+        GL.ShaderSource(fragmentShader, source);
+        GL.CompileShader(fragmentShader);
+    }
+
+    private void createProgram()
+    {
+        this.programList.Add(
+            GL.CreateProgram()
+        );
+
+        GL.AttachShader(program, vertexShader);
+        GL.AttachShader(program, fragmentShader);
+        
+        GL.LinkProgram(program);
+
+        GL.DetachShader(program, vertexShader);
+        GL.DetachShader(program, fragmentShader);
+
+        GL.DeleteShader(fragmentShader);
+        GL.DeleteShader(vertexShader);
+
+        vertexShaderStack.Pop();
+        fragmentShaderStack.Pop();
+    }
+    
+    private List<ShaderDependence> getDependences(IEnumerable<ShaderObject> objs)
+    {
+        var dependences = new List<ShaderDependence>();
+        foreach (var obj in objs)
+        {
+            foreach (var dependence in obj.Dependecies)
+            {
+                if (dependences.Contains(dependence))
+                    continue;
+                
+                dependences.Add(dependence);
+            }
+        }
+        return dependences;
+    }
+
+    // TODO: Refactor
+    private (string, Action) generateVertexShader(Vec3ShaderObject vertexObject)
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine("#version 330 core");
+        Action setup = null;
+
+        var dependencens = vertexObject.Dependecies.Distinct();
+        foreach (var dependence in dependencens)
+        {
+            switch (dependence.DependenceType)
+            {
+                case ShaderDependenceType.Uniform:
+                    sb.AppendLine(
+                        $"uniform {getShaderType(dependence.Type)} {dependence.Name};"
+                    );
+
+                    setup += delegate
+                    {
+                        setUniform(dependence.Name, dependence.Value, dependence.Type);
+                    };
+                    break;
+                
+                case ShaderDependenceType.CustomData:
+                    sb.AppendLine(
+                        
+                    );
+
+                    setup += delegate
+                    {
+                        setUniform(dependence.Name, dependence.Value, dependence.Type);
+                    };
+                    break;
+            }
+        }
+
+        return (sb.ToString(), setup);
+    }
+
+    private string getShaderType(ShaderType type)
+        => type switch
+        {
+            ShaderType.Float => "float",
+            ShaderType.Vec4 => "vec4",
+            ShaderType.Vec3 => "vec3",
+            ShaderType.Vec2 => "vec2",
+            _ => "unknow"
+        };
+    
+    private void setUniform(string name, object value, ShaderType type)
+    {
+        switch (type)
+        {
+            case ShaderType.Float:
+                setUniformFloat(name, (float)value);
+                break;
+        }
+    }
+
+    private void setUniformFloat(string name, float value)
+    {
+        var colorCode = GL.GetUniformLocation(activatedProgram, name);
+        GL.Uniform1(colorCode, value);
+    }
 
     // private static int bufferObject = int.MinValue;
     
@@ -34,16 +236,6 @@ public class RenderOperations
     //     );
     // }
 
-    // public void Clear(Color color)
-    // {
-    //     GL.ClearColor(
-    //         color.R / 255f,
-    //         color.G / 255f,
-    //         color.B / 255f,
-    //         color.A / 255f
-    //     );
-    //     GL.Clear(ClearBufferMask.ColorBufferBit);
-    // }
 
     // private void load()
     // {
@@ -74,22 +266,6 @@ public class RenderOperations
 
     //     GL.DeleteBuffer(bufferObject);
     //     GL.DeleteVertexArray(vertexObject);
-    // }
-
-    // public void SetUniform(int index, Color color)
-    // {
-    //     GL.UseProgram(program);
-
-    //     var colorCode = GL.GetUniformLocation(program, $"uniform{index}");
-    //     GL.Uniform4(colorCode, color.R / 255f, color.G / 255f, color.B / 255f, 1.0f);
-    // }
-
-    // public void SetUniform(int index, float value)
-    // {
-    //     GL.UseProgram(program);
-
-    //     var colorCode = GL.GetUniformLocation(program, $"uniform{index}");
-    //     GL.Uniform1(colorCode, value);
     // }
 
     // public void FillPolygon(double value, params Vertex[] pts)

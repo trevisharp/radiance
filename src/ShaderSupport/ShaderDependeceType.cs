@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    10/08/2023
+ * Date:    14/08/2023
  */
 namespace Radiance.ShaderSupport;
 
@@ -11,4 +11,5 @@ public enum ShaderDependenceType
     None = 0,
     Uniform = 1,
     Variable = 2,
+    CustomData = 4,
 }

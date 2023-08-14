@@ -7,15 +7,18 @@ namespace Radiance.ShaderSupport.Dependencies;
 /// Represents a input for the width of
 /// screen used in shader implementation.
 /// </summary>
-public class WidthWindowShaderInput : ShaderInput
+public class HeightWindowDependence : ShaderDependence
 {
-    public WidthWindowShaderInput()
+    public HeightWindowDependence()
     {
-        this.Name = "width";
+        this.Name = "height";
         this.Type = ShaderType.Float;
         this.DependenceType = ShaderDependenceType.Uniform;
     }
 
     public override object Value
-        => Window.Width;
+        => Window.Height;
+
+    public override string GetHeader(params object[] args)
+        => "uniform float height;";
 }

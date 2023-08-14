@@ -2,11 +2,14 @@
  * Date:    13/08/2023
  */
 using System;
+using System.Collections.Generic;
 
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
 namespace Radiance;
+
+using RenderFunctions;
 
 /// <summary>
 /// Represents the main windows that applications run
@@ -60,8 +63,8 @@ public static class Window
 
         win.RenderFrame += e =>
         {
-            if (OnRender is not null)
-                OnRender();
+            if (onRender is not null)
+                onRender();
 
             win.SwapBuffers();
         };
@@ -116,7 +119,35 @@ public static class Window
         };
     }
 
-    public static event Action OnRender;
+    private static event Action onRender;
+    private static Dictionary<Action<RenderOperations>, Action> renderMap = new();
+    public static event Action<RenderOperations> OnRender
+    {
+        add
+        {
+            if (value is null)
+                return;
+            
+            GenericRenderFunction renderFunction = value;
+            renderFunction.Load();
+
+            Action mappedAction = renderFunction;
+            renderMap.Add(value, mappedAction);
+
+            onRender += mappedAction;
+        }
+        remove
+        {
+            if (!renderMap.ContainsKey(value))
+                return;
+            
+            var mappedAction = renderMap[value];
+            onRender -= mappedAction;
+
+            renderMap.Remove(value);
+        }
+    }
+    
     public static event Action OnLoad;
     public static event Action OnUnload;
     public static event Action OnFrame;
