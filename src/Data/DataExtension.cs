@@ -1,21 +1,30 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/08/2023
+ * Date:    15/08/2023
  */
 namespace Radiance.Data;
 
+using System;
+using ShaderSupport.Objects;
+
+/// <summary>
+/// Extension class of util operations with Data.
+/// </summary>
 public static class DataExtension
 {
-    public static float[] GetBuffer(this Data[] data)
+    public static float[] GetBuffer(this Data data)
     {
-        if (data.Length == 0)
-            return new float[0];
-        
-        float[] buffer = new float[data[0].Size * data.Length];
+        float[] buffer = new float[data.Size];
 
-        int indexoff = 0;
-        foreach (var value in data)
-            indexoff = value.SetData(buffer, indexoff);
+        data.SetData(buffer, 0);
         
         return buffer;
     }
+
+    // public static Vectors transform(
+    //     this Vectors data, 
+    //     Func<Vec3ShaderObject, Vec3ShaderObject> transformation
+    // )
+    // {
+
+    // }
 }

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/08/2023
+ * Date:    15/08/2023
  */
 using System;
 using System.Text;
@@ -43,24 +43,18 @@ public class RenderOperations
                 color.B / 255f,
                 color.A / 255f
             );
-            GL.Clear(ClearBufferMask.ColorBufferBit);
         };
     }
 
     public void Fill(
         Func<Vec3ShaderObject, Vec3ShaderObject> vertexShader,
         Func<Vec4ShaderObject> fragmentShader,
-        params Vector[] data
+        Data data
     )
     {
-        if (data.Length == 0)
-            return;
-        var first = data[0];
-        
         var gpuBuffer = createBuffer();
 
-        var bufferData = data.GetBuffer();
-        var buffer = new Vec3BufferDependence(bufferData);
+        var buffer = data.ToDependence;
         
         int vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);
@@ -75,7 +69,7 @@ public class RenderOperations
 
         int program = createProgram();
 
-        var position = new Vec3ShaderObject(first.GetName, buffer);
+        var position = new Vec3ShaderObject(data.GetName, buffer);
 
         var finalVertexObject = vertexShader(position);
         var vertexTuple = generateVertexShader(finalVertexObject, gpuBuffer, program);
@@ -112,7 +106,7 @@ public class RenderOperations
 
             GL.DrawArrays(
                 PrimitiveType.Triangles,
-                0, bufferData.Length / first.Size
+                0, data.Elements
             );
         };
     }
@@ -120,17 +114,12 @@ public class RenderOperations
     public void Draw(
         Func<Vec3ShaderObject, Vec3ShaderObject> vertexShader,
         Func<Vec4ShaderObject> fragmentShader,
-        params Vector[] data
+        Data data
     )
     {
-        if (data.Length == 0)
-            return;
-        var first = data[0];
-        
         var gpuBuffer = createBuffer();
 
-        var bufferData = data.GetBuffer();
-        var buffer = new Vec3BufferDependence(bufferData);
+        var buffer = data.ToDependence;
         
         int vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);
@@ -145,7 +134,7 @@ public class RenderOperations
 
         int program = createProgram();
 
-        var position = new Vec3ShaderObject(first.GetName, buffer);
+        var position = new Vec3ShaderObject(data.GetName, buffer);
 
         var finalVertexObject = vertexShader(position);
         var vertexTuple = generateVertexShader(finalVertexObject, gpuBuffer, program);
@@ -182,7 +171,7 @@ public class RenderOperations
 
             GL.DrawArrays(
                 PrimitiveType.LineLoop,
-                0, bufferData.Length / first.Size
+                0, data.Elements
             );
         };
     }

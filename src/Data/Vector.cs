@@ -1,7 +1,10 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/08/2023
+ * Date:    15/08/2023
  */
 namespace Radiance.Data;
+
+using ShaderSupport;
+using ShaderSupport.Dependencies;
 
 public class Vector : Data
 {
@@ -41,6 +44,7 @@ public class Vector : Data
         => new Vector(v.x / a, v.y / a, v.z / a);
     
     public override int Size => 3;
+    
     public override int SetData(float[] arr, int indexoff)
     {
         arr[indexoff] = this.x;
@@ -49,7 +53,22 @@ public class Vector : Data
 
         return indexoff + 3;
     }
-    public override string GetLayout => 
+    
+    public override string GetLayoutDeclaration => 
         $"layout(location = 0) in vec3 position;";
+    
     public override string GetName => "position";
+    
+    public override ShaderDependence ToDependence
+    {
+        get
+        {
+            var bufferDependence = new Vec3BufferDependence(
+                this.GetBuffer()
+            );
+            return bufferDependence;
+        }
+    }
+    
+    public override int Elements => 1;
 }
