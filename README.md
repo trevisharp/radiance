@@ -2,7 +2,7 @@
 
 A library based on OpenTK which is based on OpenGL to program Shaders in C#.
 
-# How to use install
+# How to use
 
 ```bash
 dotnet new console # Create project
@@ -118,4 +118,17 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Methods FillTriangles and Draw (Line Loop) in render functions.
  - ![](https://img.shields.io/badge/new-green) Many functions of GLSL like cos, sin distance, round, smoothstep and others...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
-- ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
+ - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
+
+# Next Features
+
+- Possibility to use global variables on Render
+- Fill function on RenderOperations that triangularize polygons automatically
+- More Data Types with more structure and data
+- Transformations
+- Textures
+- Mouse interoperability
+- Improve use of OpenGL resources and reutilizations
+- Improve use of data turning into a mutable data and avoid regenerating buffer if the data not change
+- Add Conditional Rendering
+- Create a documentation with details of implementations and tutorials to expand abstraction
