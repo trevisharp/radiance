@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/08/2023
+ * Date:    15/08/2023
  */
-namespace Radiance.Data;
+namespace Radiance;
 
 using ShaderSupport.Objects;
 

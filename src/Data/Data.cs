@@ -4,6 +4,7 @@
 namespace Radiance.Data;
 
 using ShaderSupport;
+using ShaderSupport.Objects;
 
 /// <summary>
 /// A base class to all data layouts.
@@ -17,7 +18,9 @@ public abstract class Data<D, T>
 
     public abstract D ToDependence { get; }
     public virtual T ToObject => ToDependence;
-    
+
+    public virtual Vec4ShaderObject DataColor => Color.White;
+
     public abstract int SetData(float[] arr, int indexoff);
     public float[] GetBuffer()
     {

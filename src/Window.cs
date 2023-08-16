@@ -1,11 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    13/08/2023
+ * Date:    15/08/2023
  */
 using System;
 using System.Collections.Generic;
 
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance;
 
@@ -33,16 +34,24 @@ public static class Window
     /// <summary>
     /// Open main application window
     /// </summary>
-    public static void Open()
+    public static void Open(bool fullscreen = true)
     {
         win = new GameWindow(
             GameWindowSettings.Default,
             new NativeWindowSettings()
             {
                 Size = (800, 600),
-                WindowState = WindowState.Fullscreen
+                WindowState = 
+                    fullscreen ?
+                    WindowState.Fullscreen :
+                    WindowState.Normal
             }
         );
+
+        win.Resize += delegate
+        {
+            updateSize(win);
+        };
 
         win.Load += delegate
         {
@@ -176,5 +185,6 @@ public static class Window
 
         width = size.Width;
         height = size.Height;
+        GL.Viewport(0, 0, width, height);
     }
 }

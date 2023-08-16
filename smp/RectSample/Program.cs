@@ -1,16 +1,22 @@
 ﻿using Radiance;
-using Radiance.Data;
 using static Radiance.RadianceUtils;
 
-Vectors regionA = new() {
+var region = vecs(
     (-1, -1, 0),
     (+1, -1, 0),
     (-1, +1, 0),
 
     (+1, +1, 0),
     (+1, -1, 0),
-    (-1, +1, 0),
-};
+    (-1, +1, 0)
+);
+
+var border = vecs(
+    (-1, -1, 0),
+    (+1, -1, 0),
+    (+1, +1, 0),
+    (-1, +1, 0)
+);
 
 Window.OnRender += r =>
 {
@@ -19,24 +25,15 @@ Window.OnRender += r =>
 
     r.Clear(Color.White);
     
-    Vectors regionB = new() {
-        (-1, -1, 0),
-        (+1, -1, 0),
-        (+1, +1, 0),
-        (-1, +1, 0)
-    };
-    
-    r.Fill(
-        () => Color.Blue,
-        regionA
-            .transform(v => center + size * v)
+    r.FillTriangles(region
+        .transform(v => center + size * v)
+        .colorize(cos(t) + 1, sin(t) + 1, 0, 1)
     );
 
-    // r.Draw(
-    //     v => center + size * v,
-    //     () => Color.Red,
-    //     regionB
-    // );
+    r.Draw(border
+        .transform(v => center + size * v)
+        .colorize(Color.Black)
+    );
 };
 
 Window.CloseOn(Input.Escape);

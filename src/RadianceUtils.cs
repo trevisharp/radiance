@@ -1,7 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    15/08/2023
  */
-using System;
 using System.Text;
 using System.Linq;
 
@@ -13,13 +12,21 @@ using ShaderSupport;
 using ShaderSupport.Objects;
 using ShaderSupport.Dependencies;
 
-using RenderFunctions;
-
 /// <summary>
 /// A facede with all utils to use Radiance features.
 /// </summary>
 public static class RadianceUtils
 {
+    public static Vectors vecs(params Vector[] vectors)
+    {
+        var result = new Vectors();
+
+        foreach (var v in vectors)
+            result.Add(v);
+        
+        return result;
+    }
+
     public static Vector i => new(1, 0, 0); 
     public static Vector j => new(0, 1, 0);
     public static Vector k => new(0, 0, 1);
@@ -35,11 +42,6 @@ public static class RadianceUtils
 
     public static FloatShaderObject cos(FloatShaderObject angle)
         => floatFunc("cos", angle);
-
-    public static FloatShaderObject cos(ShaderDependence angle)
-    {
-        return new FloatShaderObject($"cos({angle})", angle);
-    }
 
     public static FloatShaderObject sin(FloatShaderObject angle)
         => floatFunc("sin", angle);

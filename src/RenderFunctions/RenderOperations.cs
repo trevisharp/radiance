@@ -14,9 +14,6 @@ using Data;
 
 using ShaderSupport;
 using ShaderSupport.Objects;
-using ShaderSupport.Dependencies;
-
-// TODO: Refactor
 
 /// <summary>
 /// Provide render operations to draw data in screen.
@@ -24,6 +21,7 @@ using ShaderSupport.Dependencies;
 public class RenderOperations
 {
     public bool Verbose { get; set; } = false;
+    public string VersionText { get; set; } = "330 core";
 
     public RenderOperations()
     {
@@ -46,35 +44,33 @@ public class RenderOperations
         };
     }
 
-    public void Fill<D>(
-        Func<Vec4ShaderObject> fragmentShader,
+    public void FillTriangles<D>(
+        Data<D, Vec3ShaderObject> data
+    ) 
+        where D : ShaderDependence<Vec3ShaderObject>
+        => baseDraw(PrimitiveType.Triangles, data);
+        
+    public void Draw<D>(
+        Data<D, Vec3ShaderObject> data
+    ) 
+        where D : ShaderDependence<Vec3ShaderObject>
+        => baseDraw(PrimitiveType.LineLoop, data);
+
+    private void baseDraw<D>(
+        PrimitiveType type,
         Data<D, Vec3ShaderObject> data
     ) 
         where D : ShaderDependence<Vec3ShaderObject>
     {
         var gpuBuffer = createBuffer();
-        
-        int vertexObject = GL.GenVertexArray();
-        GL.BindVertexArray(vertexObject);
-
-        GL.VertexAttribPointer(0, 3,
-            VertexAttribPointerType.Float, 
-            false, 
-            3 * sizeof(float),
-            0
-        );
-        GL.EnableVertexAttribArray(0);
-
+        int vertexArray = createVertexArray();
         int program = createProgram();
 
-        var vertexTuple = generateVertexShader(data.ToObject, gpuBuffer, program);
-
+        var vertexTuple = generateVertexShader(data.ToObject, program);
         if (Verbose)
             Console.WriteLine(vertexTuple.source);
 
-        var finalFragmentObject = fragmentShader();
-        var fragmentTuple = generateFragmentShader(finalFragmentObject, program);
-
+        var fragmentTuple = generateFragmentShader(data.DataColor, program);
         if (Verbose)
             Console.WriteLine(fragmentTuple.source);
 
@@ -87,7 +83,7 @@ public class RenderOperations
         effects += delegate
         {
             GL.UseProgram(program);
-            GL.BindVertexArray(vertexObject);
+            GL.BindVertexArray(vertexArray);
 
             GL.BindBuffer(
                 BufferTarget.ArrayBuffer, 
@@ -101,21 +97,17 @@ public class RenderOperations
                 fragmentTuple.setup();
 
             GL.DrawArrays(
-                PrimitiveType.Triangles,
+                type,
                 0, data.Elements
             );
         };
 
         unloadEffects += delegate
         {
-            GL.DeleteVertexArray(vertexObject);
+            GL.DeleteVertexArray(vertexArray);
         };
     }
 
-    internal void FinishSetup()
-    {
-
-    }
 
     internal void Render(params object[] parameters)
     {
@@ -256,13 +248,9 @@ public class RenderOperations
     }
 
     private (string source, Action setup) generateVertexShader(
-        Vec3ShaderObject vertexObject,
-        int buffer,
-        int program
-    )
+        Vec3ShaderObject vertexObject, int program)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine("#version 330 core");
+        var sb = getCodeBuilder();
         Action setup = null;
 
         var dependencens = vertexObject.Dependecies
@@ -304,7 +292,7 @@ public class RenderOperations
         sb.AppendLine();
         sb.AppendLine("void main()");
         sb.AppendLine("{");
-        sb.AppendLine($"vec3 finalPosition = {exp};");
+        sb.AppendLine($"\tvec3 finalPosition = {exp};");
         sb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
         sb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
         sb.AppendLine("}");
@@ -314,12 +302,9 @@ public class RenderOperations
 
     
     private (string source, Action setup) generateFragmentShader(
-        Vec4ShaderObject fragmentObject,
-        int program
-    )
+        Vec4ShaderObject fragmentObject, int program)
     {
-        var sb = new StringBuilder();
-        sb.AppendLine("#version 330 core");
+        var sb = getCodeBuilder();
         Action setup = null;
 
         var dependencens = fragmentObject.Dependecies
@@ -351,6 +336,13 @@ public class RenderOperations
         return (sb.ToString(), setup);
     }
 
+    private StringBuilder getCodeBuilder()
+    {
+        var sb = new StringBuilder();
+        sb.AppendLine($"#version {VersionText}");
+        return sb;
+    }
+
     private string getShaderType(ShaderType type)
         => type switch
         {
@@ -375,5 +367,21 @@ public class RenderOperations
     {
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform1(code, value);
+    }
+
+    private int createVertexArray()
+    {
+        int vertexObject = GL.GenVertexArray();
+        GL.BindVertexArray(vertexObject);
+
+        GL.VertexAttribPointer(0, 3,
+            VertexAttribPointerType.Float, 
+            false, 
+            3 * sizeof(float),
+            0
+        );
+        GL.EnableVertexAttribArray(0);
+
+        return vertexObject;
     }
 }
