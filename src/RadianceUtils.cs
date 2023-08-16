@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    13/08/2023
+ * Date:    15/08/2023
  */
 using System;
 using System.Text;
@@ -20,37 +20,18 @@ using RenderFunctions;
 /// </summary>
 public static class RadianceUtils
 {
-    public static Action CreateRender(Action<RenderOperations> render)
-    {
-        GenericRenderFunction renderFunction = render;
-        renderFunction.Load();
-        return renderFunction;
-    }
-
-    public static Action<T> CreateRender<T>(Action<RenderOperations, T> render)
-    {
-        GenericRenderFunction<T> renderFunction = render;
-        renderFunction.Load();
-        return renderFunction;
-    }
-
-    public static Action<T1, T2> CreateRender<T1, T2>(Action<RenderOperations, T1, T2> render)
-    {
-        GenericRenderFunction<T1, T2> renderFunction = render;
-        renderFunction.Load();
-        return renderFunction;
-    }
+    public static Vector i => new(1, 0, 0); 
+    public static Vector j => new(0, 1, 0);
+    public static Vector k => new(0, 0, 1);
 
     internal readonly static TimeShaderInput _t = new();
+    public static FloatShaderObject t => _t;
+
     internal readonly static WidthWindowDependence _width = new();
-    internal readonly static HeightWindowDependence _height = new();
+    public static FloatShaderObject width => _width;
     
-    public static FloatShaderObject t => new(_t.Name, _t);
-    public static Vector i => new(1, 0, 0); 
-    public static Vector j => new(0, 1, 0); 
-    public static Vector k => new(0, 0, 1);
-    public static FloatShaderObject width => new(_width.Name, _width);
-    public static FloatShaderObject height => new(_height.Name, _height);
+    internal readonly static HeightWindowDependence _height = new();
+    public static FloatShaderObject height => _height;
 
     public static FloatShaderObject cos(FloatShaderObject angle)
         => floatFunc("cos", angle);

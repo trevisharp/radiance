@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    15/08/2023
  */
+using System;
+
 namespace Radiance.Data;
 
 using ShaderSupport;
@@ -10,13 +12,13 @@ using ShaderSupport;
 /// </summary>
 public static class DataExtension
 {
-
-
-    // public static Vectors transform(
-    //     this Vectors data, 
-    //     Func<Vec3ShaderObject, Vec3ShaderObject> transformation
-    // )
-    // {
-
-    // }
+    public static Data<D, T> transform<D, T>(
+        this Data<D, T> data,
+        Func<T, T> transformation
+    )
+        where D : ShaderDependence<T>
+        where T : ShaderObject, new()
+        => new TransformedData<D, T>(data, transformation);
+    
+    
 }

@@ -7,11 +7,12 @@ using System.Collections.Generic;
 namespace Radiance.Data;
 
 using ShaderSupport.Dependencies;
+using ShaderSupport.Objects;
 
 /// <summary>
 /// Represents a group of Vectors.
 /// </summary>
-public class Vectors : Data<Vec3BufferDependence>, ICollection<Vector>
+public class Vectors : Data<PositionBufferDependence, Vec3ShaderObject>, ICollection<Vector>
 {
     #region ICollection Members
 
@@ -53,11 +54,11 @@ public class Vectors : Data<Vec3BufferDependence>, ICollection<Vector>
 
     public override int Size => 3 * this.vectors.Count;
 
-    public override Vec3BufferDependence ToDependence
+    public override PositionBufferDependence ToDependence
     {
         get
         {
-            var bufferDependence = new Vec3BufferDependence(
+            var bufferDependence = new PositionBufferDependence(
                 this.GetBuffer()
             );
             return bufferDependence;

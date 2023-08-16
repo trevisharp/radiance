@@ -8,7 +8,7 @@ using Objects;
 /// <summary>
 /// Represents a dependece of a position buffer data.
 /// </summary>
-public class PositionBufferDependence : ShaderDependence<FloatShaderObject>
+public class PositionBufferDependence : ShaderDependence<Vec3ShaderObject>
 {
     private float[] data;
 

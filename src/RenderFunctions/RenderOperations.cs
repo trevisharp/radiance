@@ -47,14 +47,12 @@ public class RenderOperations
     }
 
     public void Fill<D>(
-        Func<Vec3ShaderObject, Vec3ShaderObject> vertexShader,
         Func<Vec4ShaderObject> fragmentShader,
-        Data<D> data
-    ) where D : ShaderDependence
+        Data<D, Vec3ShaderObject> data
+    ) 
+        where D : ShaderDependence<Vec3ShaderObject>
     {
         var gpuBuffer = createBuffer();
-
-        var buffer = data.ToDependence;
         
         int vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);
@@ -69,10 +67,7 @@ public class RenderOperations
 
         int program = createProgram();
 
-        var position = new Vec3ShaderObject(buffer.Name, buffer);
-
-        var finalVertexObject = vertexShader(position);
-        var vertexTuple = generateVertexShader(finalVertexObject, gpuBuffer, program);
+        var vertexTuple = generateVertexShader(data.ToObject, gpuBuffer, program);
 
         if (Verbose)
             Console.WriteLine(vertexTuple.source);
@@ -110,6 +105,11 @@ public class RenderOperations
                 0, data.Elements
             );
         };
+
+        unloadEffects += delegate
+        {
+            GL.DeleteVertexArray(vertexObject);
+        };
     }
 
     internal void FinishSetup()
@@ -139,9 +139,12 @@ public class RenderOperations
         foreach (var shaderKey in shaderMap)
             GL.DeleteShader(shaderKey.Value);
         shaderMap.Clear();
+
+        unloadEffects();
     }
 
     private event Action<object[]> effects;
+    private event Action unloadEffects;
 
     private List<int> bufferList = new();
 
@@ -275,7 +278,7 @@ public class RenderOperations
 
                     setup += delegate
                     {
-                        setUniform(program, dependence.Name, dependence.Value, dependence.Type);
+                        setUniform(program, dependence);
                     };
                     break;
                 
@@ -330,7 +333,7 @@ public class RenderOperations
 
                     setup += delegate
                     {
-                        setUniform(program, dependence.Name, dependence.Value, dependence.Type);
+                        setUniform(program, dependence);
                     };
                     break;
             }
@@ -358,12 +361,12 @@ public class RenderOperations
             _ => "unknow"
         };
     
-    private void setUniform(int program, string name, object value, ShaderType type)
+    private void setUniform(int program, ShaderDependence dependence)
     {
-        switch (type)
+        switch (dependence)
         {
-            case ShaderType.Float:
-                setUniformFloat(program, name, (float)value);
+            case ShaderDependence<FloatShaderObject>:
+                setUniformFloat(program, dependence.Name, (float)dependence.Value);
                 break;
         }
     }

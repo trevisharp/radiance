@@ -3,10 +3,10 @@
  */
 namespace Radiance.Data;
 
-using ShaderSupport;
 using ShaderSupport.Dependencies;
+using ShaderSupport.Objects;
 
-public class Vector : Data<Vec3BufferDependence>
+public class Vector : Data<PositionBufferDependence, Vec3ShaderObject>
 {
     public Vector(float x, float y, float z)
     {
@@ -56,11 +56,11 @@ public class Vector : Data<Vec3BufferDependence>
         return indexoff + 3;
     }
         
-    public override Vec3BufferDependence ToDependence
+    public override PositionBufferDependence ToDependence
     {
         get
         {
-            var bufferDependence = new Vec3BufferDependence(
+            var bufferDependence = new PositionBufferDependence(
                 this.GetBuffer()
             );
             return bufferDependence;

@@ -8,12 +8,15 @@ using ShaderSupport;
 /// <summary>
 /// A base class to all data layouts.
 /// </summary>
-public abstract class Data<D>
-    where D : ShaderDependence
+public abstract class Data<D, T>
+    where D : ShaderDependence<T>
+    where T : ShaderObject, new()
 {
     public abstract int Size { get; }
     public abstract int Elements { get; }
+
     public abstract D ToDependence { get; }
+    public virtual T ToObject => ToDependence;
     
     public abstract int SetData(float[] arr, int indexoff);
     public float[] GetBuffer()
@@ -25,6 +28,6 @@ public abstract class Data<D>
         return buffer;
     }
 
-    public static implicit operator D(Data<D> data)
+    public static implicit operator D(Data<D, T> data)
         => data.ToDependence;
 }
