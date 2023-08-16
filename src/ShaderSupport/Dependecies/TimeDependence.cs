@@ -1,15 +1,17 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    10/08/2023
+ * Date:    15/08/2023
  */
 using System;
 
 namespace Radiance.ShaderSupport.Dependencies;
 
+using Objects;
+
 /// <summary>
 /// Represents a input for shaders of the time 
 /// passed since the creation of this input in seconds.
 /// </summary>
-public class TimeShaderInput : ShaderDependence
+public class TimeShaderInput : ShaderDependence<FloatShaderObject>
 {
     DateTime start;
 
@@ -17,13 +19,12 @@ public class TimeShaderInput : ShaderDependence
     {
         this.start = DateTime.Now;
         this.Name = "t";
-        this.Type = ShaderType.Float;
         this.DependenceType = ShaderDependenceType.Uniform;
     }
 
     public override object Value
         => (float)(DateTime.Now - start).TotalSeconds;
 
-    public override string GetHeader(params object[] args)
+    public override string GetHeader()
         => "uniform float t;";
 }

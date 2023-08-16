@@ -1,14 +1,15 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/08/2023
+ * Date:    15/08/2023
  */
 namespace Radiance.ShaderSupport.Dependencies;
 
+using Objects;
 using Data;
 
 /// <summary>
 /// Represents a dependence of a input color
 /// </summary>
-public class ColorDependee : ShaderDependence
+public class ColorDependee : ShaderDependence<Vec4ShaderObject>
 {
     private Color color;
 
@@ -16,13 +17,12 @@ public class ColorDependee : ShaderDependence
     {
         this.color = color;
         this.Name = "color";
-        this.Type = ShaderType.Vec4;
         this.DependenceType = ShaderDependenceType.Uniform;
     }
 
     public override object Value
         => this.color;
 
-    public override string GetHeader(params object[] args)
-        => "uniform vec4 color";
+    public override string GetHeader()
+        => "uniform vec4 color;";
 }
