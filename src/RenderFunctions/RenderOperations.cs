@@ -342,16 +342,6 @@ public class RenderOperations
         sb.AppendLine($"#version {VersionText}");
         return sb;
     }
-
-    private string getShaderType(ShaderType type)
-        => type switch
-        {
-            ShaderType.Float => "float",
-            ShaderType.Vec4 => "vec4",
-            ShaderType.Vec3 => "vec3",
-            ShaderType.Vec2 => "vec2",
-            _ => "unknow"
-        };
     
     private void setUniform(int program, ShaderDependence dependence)
     {
