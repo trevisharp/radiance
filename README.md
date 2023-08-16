@@ -6,7 +6,7 @@ A library based on OpenTK which is based on OpenGL to program Shaders in C#.
 
 ```bash
 dotnet new console # Create project
-dotnet add package radiance #install Radiance
+dotnet add package radiance # Install Radiance
 ```
 
 # Tutorials, Examples and Features
