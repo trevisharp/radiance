@@ -6,7 +6,7 @@ namespace Radiance.Data;
 using ShaderSupport;
 using ShaderSupport.Dependencies;
 
-public class Vector : Data
+public class Vector : Data<Vec3BufferDependence>
 {
     public Vector(float x, float y, float z)
     {
@@ -43,6 +43,8 @@ public class Vector : Data
     public static Vector operator /(Vector v, float a)
         => new Vector(v.x / a, v.y / a, v.z / a);
     
+    #region Data Members
+
     public override int Size => 3;
     
     public override int SetData(float[] arr, int indexoff)
@@ -53,13 +55,8 @@ public class Vector : Data
 
         return indexoff + 3;
     }
-    
-    public override string GetLayoutDeclaration => 
-        $"layout(location = 0) in vec3 position;";
-    
-    public override string GetName => "position";
-    
-    public override ShaderDependence ToDependence
+        
+    public override Vec3BufferDependence ToDependence
     {
         get
         {
@@ -71,4 +68,6 @@ public class Vector : Data
     }
     
     public override int Elements => 1;
+
+    #endregion
 }

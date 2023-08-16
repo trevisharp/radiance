@@ -1,23 +1,30 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    15/08/2023
  */
-using System;
-using System.Collections.Generic;
-
 namespace Radiance.Data;
 
 using ShaderSupport;
-using ShaderSupport.Objects;
 
 /// <summary>
 /// A base class to all data layouts.
 /// </summary>
-public abstract class Data
+public abstract class Data<D>
+    where D : ShaderDependence
 {
-    public abstract int SetData(float[] arr, int indexoff);
     public abstract int Size { get; }
     public abstract int Elements { get; }
-    public abstract string GetLayoutDeclaration { get; }
-    public abstract string GetName { get; }
-    public abstract ShaderDependence ToDependence { get; }
+    public abstract D ToDependence { get; }
+    
+    public abstract int SetData(float[] arr, int indexoff);
+    public float[] GetBuffer()
+    {
+        float[] buffer = new float[this.Size];
+
+        this.SetData(buffer, 0);
+        
+        return buffer;
+    }
+
+    public static implicit operator D(Data<D> data)
+        => data.ToDependence;
 }

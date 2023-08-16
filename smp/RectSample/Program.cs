@@ -4,8 +4,6 @@ using static Radiance.RadianceUtils;
 
 Window.OnRender += r =>
 {
-    r.Verbose = true;
-
     var size = 50 + 20 * cos(5 * t);
     var center = (width / 2, height / 2, 0);
 
@@ -34,11 +32,11 @@ Window.OnRender += r =>
         regionA
     );
 
-    r.Draw(
-        v => center + size * v,
-        () => Color.Red,
-        regionB
-    );
+    // r.Draw(
+    //     v => center + size * v,
+    //     () => Color.Red,
+    //     regionB
+    // );
 };
 
 Window.CloseOn(Input.Escape);

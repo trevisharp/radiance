@@ -46,11 +46,11 @@ public class RenderOperations
         };
     }
 
-    public void Fill(
+    public void Fill<D>(
         Func<Vec3ShaderObject, Vec3ShaderObject> vertexShader,
         Func<Vec4ShaderObject> fragmentShader,
-        Data data
-    )
+        Data<D> data
+    ) where D : ShaderDependence
     {
         var gpuBuffer = createBuffer();
 
@@ -69,7 +69,7 @@ public class RenderOperations
 
         int program = createProgram();
 
-        var position = new Vec3ShaderObject(data.GetName, buffer);
+        var position = new Vec3ShaderObject(buffer.Name, buffer);
 
         var finalVertexObject = vertexShader(position);
         var vertexTuple = generateVertexShader(finalVertexObject, gpuBuffer, program);
@@ -82,11 +82,12 @@ public class RenderOperations
 
         if (Verbose)
             Console.WriteLine(fragmentTuple.source);
-        
-        createVertexShader(vertexTuple.source);
-        createFragmentShader(fragmentTuple.source);
 
-        addShaders(program);
+        addShaders(
+            program,
+            createVertexShader(vertexTuple.source),
+            createFragmentShader(fragmentTuple.source)
+        );
         
         effects += delegate
         {
@@ -111,72 +112,6 @@ public class RenderOperations
         };
     }
 
-    public void Draw(
-        Func<Vec3ShaderObject, Vec3ShaderObject> vertexShader,
-        Func<Vec4ShaderObject> fragmentShader,
-        Data data
-    )
-    {
-        var gpuBuffer = createBuffer();
-
-        var buffer = data.ToDependence;
-        
-        int vertexObject = GL.GenVertexArray();
-        GL.BindVertexArray(vertexObject);
-
-        GL.VertexAttribPointer(0, 3,
-            VertexAttribPointerType.Float, 
-            false, 
-            3 * sizeof(float),
-            0
-        );
-        GL.EnableVertexAttribArray(0);
-
-        int program = createProgram();
-
-        var position = new Vec3ShaderObject(data.GetName, buffer);
-
-        var finalVertexObject = vertexShader(position);
-        var vertexTuple = generateVertexShader(finalVertexObject, gpuBuffer, program);
-
-        if (Verbose)
-            Console.WriteLine(vertexTuple.source);
-
-        var finalFragmentObject = fragmentShader();
-        var fragmentTuple = generateFragmentShader(finalFragmentObject, program);
-
-        if (Verbose)
-            Console.WriteLine(fragmentTuple.source);
-        
-        createVertexShader(vertexTuple.source);
-        createFragmentShader(fragmentTuple.source);
-
-        addShaders(program);
-        
-        effects += delegate
-        {
-            GL.UseProgram(program);
-            GL.BindVertexArray(vertexObject);
-
-            GL.BindBuffer(
-                BufferTarget.ArrayBuffer, 
-                gpuBuffer
-            );
-
-            if (vertexTuple.setup is not null)
-                vertexTuple.setup();
-
-            if (fragmentTuple.setup is not null)
-                fragmentTuple.setup();
-
-            GL.DrawArrays(
-                PrimitiveType.LineLoop,
-                0, data.Elements
-            );
-        };
-    }
-
-
     internal void FinishSetup()
     {
 
@@ -200,6 +135,10 @@ public class RenderOperations
         foreach (var buffer in bufferList)
             GL.DeleteBuffer(buffer);
         bufferList.Clear();
+
+        foreach (var shaderKey in shaderMap)
+            GL.DeleteShader(shaderKey.Value);
+        shaderMap.Clear();
     }
 
     private event Action<object[]> effects;
@@ -207,57 +146,48 @@ public class RenderOperations
     private List<int> bufferList = new();
 
     private List<int> programList = new();
-    
-    private Stack<int> vertexShaderStack = new();
-    private int vertexShader =>
-        vertexShaderStack.Count == 0 ? -1 :
-        vertexShaderStack.Peek();
-    
-    private Stack<int> fragmentShaderStack = new();
-    private int fragmentShader =>
-        fragmentShaderStack.Count == 0 ? -1 :
-        fragmentShaderStack.Peek();
 
-    private void createVertexShader(string source)
+    private Dictionary<int, int> shaderMap = new();
+
+    private int createVertexShader(string source)
     {
-        vertexShaderStack.Push(
-            GL.CreateShader(
-                OpenTK.Graphics.OpenGL4.ShaderType.VertexShader
-            )
+        return createShader(
+            OpenTK.Graphics.OpenGL4.ShaderType.VertexShader,
+            source
         );
-        GL.ShaderSource(vertexShader, source);
-        GL.CompileShader(vertexShader);
-
-        if (!Verbose)
-            return;
-
-        GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out var code);
-        if (code != (int)All.True)
-        {
-            var infoLog = GL.GetShaderInfoLog(vertexShader);
-            throw new Exception($"Error occurred in Shader({vertexShader}) compilation: {infoLog}");
-        }
     }
     
-    private void createFragmentShader(string source)
+    private int createFragmentShader(string source)
     {
-        fragmentShaderStack.Push(
-            GL.CreateShader(
-                OpenTK.Graphics.OpenGL4.ShaderType.FragmentShader
-            )
+        return createShader(
+            OpenTK.Graphics.OpenGL4.ShaderType.FragmentShader,
+            source
         );
-        GL.ShaderSource(fragmentShader, source);
-        GL.CompileShader(fragmentShader);
-        
-        if (!Verbose)
-            return;
+    }
 
-        GL.GetShader(vertexShader, ShaderParameter.CompileStatus, out var code);
+    private int createShader(OpenTK.Graphics.OpenGL4.ShaderType type, string source)
+    {
+        var hash = getHash(source);
+        if (shaderMap.ContainsKey(hash))
+            return shaderMap[hash];
+
+        var shader = GL.CreateShader(type);
+        GL.ShaderSource(shader, source);
+        GL.CompileShader(shader);
+
+        shaderMap.Add(hash, shader);
+
+        if (!Verbose)
+            return shader;
+
+        GL.GetShader(shader, ShaderParameter.CompileStatus, out var code);
         if (code != (int)All.True)
         {
-            var infoLog = GL.GetShaderInfoLog(vertexShader);
-            throw new Exception($"Error occurred in Shader({vertexShader}) compilation: {infoLog}");
+            var infoLog = GL.GetShaderInfoLog(shader);
+            throw new Exception($"Error occurred in Shader({shader}) compilation: {infoLog}");
         }
+
+        return shader;
     }
 
     private int createProgram()
@@ -267,8 +197,19 @@ public class RenderOperations
         return program;
     }
 
-    private void addShaders(int program)
+    private int getHash(string str)
     {
+        int hash = 0;
+        var bytes =  Encoding.UTF8.GetBytes(str);
+
+        for (int i = 0; i < bytes.Length - 1; i++)
+            hash += bytes[i] * bytes[i + 1];
+
+        return hash;
+    }
+
+    private void addShaders(int program, int vertexShader, int fragmentShader)
+    {        
         GL.AttachShader(program, vertexShader);
         GL.AttachShader(program, fragmentShader);
         
@@ -276,17 +217,6 @@ public class RenderOperations
 
         GL.DetachShader(program, vertexShader);
         GL.DetachShader(program, fragmentShader);
-
-        GL.DeleteShader(fragmentShader);
-        GL.DeleteShader(vertexShader);
-        
-        if (vertexShaderStack.Count == 0)
-            throw new Exception("The program may contains a Vertex Shader");
-        vertexShaderStack.Pop();
-        
-        if (fragmentShaderStack.Count == 0)
-            throw new Exception("The program may contains a Fragment Shader");
-        fragmentShaderStack.Pop();
 
         if (!Verbose)
             return;

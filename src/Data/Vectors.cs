@@ -1,18 +1,17 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/08/2023
+ * Date:    15/08/2023
  */
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
 
-using ShaderSupport;
 using ShaderSupport.Dependencies;
 
 /// <summary>
 /// Represents a group of Vectors.
 /// </summary>
-public class Vectors : Data, ICollection<Vector>
+public class Vectors : Data<Vec3BufferDependence>, ICollection<Vector>
 {
     #region ICollection Members
 
@@ -54,12 +53,7 @@ public class Vectors : Data, ICollection<Vector>
 
     public override int Size => 3 * this.vectors.Count;
 
-    public override string GetLayoutDeclaration =>
-        $"layout(location = 0) in vec3 position;";
-
-    public override string GetName => "position";
-
-    public override ShaderDependence ToDependence
+    public override Vec3BufferDependence ToDependence
     {
         get
         {
