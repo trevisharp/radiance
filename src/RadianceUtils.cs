@@ -17,7 +17,7 @@ using ShaderSupport.Dependencies;
 /// </summary>
 public static class RadianceUtils
 {
-    public static Vectors vecs(params Vector[] vectors)
+    public static Vectors data(params Vector[] vectors)
     {
         var result = new Vectors();
 
