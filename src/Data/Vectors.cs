@@ -45,11 +45,10 @@ public class Vectors : Data<PositionBufferDependence, Vec3ShaderObject>, ICollec
 
     #region Data Members
 
-    public override int SetData(float[] arr, int indexoff)
+    public override void SetData(float[] arr, ref int indexoff)
     {
         foreach (var vector in this.vectors)
-            indexoff = vector.SetData(arr, indexoff);
-        return indexoff;
+            vector.SetData(arr, ref indexoff);
     }
 
     public override int Size => 3 * this.vectors.Count;

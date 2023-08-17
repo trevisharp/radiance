@@ -47,25 +47,17 @@ public class Vector : Data<PositionBufferDependence, Vec3ShaderObject>
 
     public override int Size => 3;
     
-    public override int SetData(float[] arr, int indexoff)
+    public override void SetData(float[] arr, ref int indexoff)
     {
         arr[indexoff] = this.x;
         arr[indexoff + 1] = this.y;
         arr[indexoff + 2] = this.z;
 
-        return indexoff + 3;
+        indexoff += 3;
     }
         
     public override PositionBufferDependence ToDependence
-    {
-        get
-        {
-            var bufferDependence = new PositionBufferDependence(
-                this.GetBuffer()
-            );
-            return bufferDependence;
-        }
-    }
+        => new PositionBufferDependence(this.GetBuffer());
     
     public override int Elements => 1;
 

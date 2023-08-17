@@ -13,15 +13,7 @@ public interface IData
 {
     int Size { get; }
     int Elements { get; }
-    int SetData(float[] arr, int indexoff);
-    float[] GetBuffer()
-    {
-        float[] buffer = new float[this.Size];
-
-        this.SetData(buffer, 0);
-        
-        return buffer;
-    }
+    void SetData(float[] arr, ref int indexoff);
     Vec4ShaderObject DataColor { get; }
 }
 
@@ -39,8 +31,17 @@ public abstract class Data<D, T> : IData
     public virtual T ToObject => ToDependence;
 
     public virtual Vec4ShaderObject DataColor => Color.White;
-    public abstract int SetData(float[] arr, int indexoff);
-    
+    public abstract void SetData(float[] arr, ref int indexoff);
+    public float[] GetBuffer()
+    {
+        float[] buffer = new float[this.Size];
+
+        int indexoff = 0;
+        this.SetData(buffer, ref indexoff);
+        
+        return buffer;
+    }
+
     public static implicit operator D(Data<D, T> data)
         => data.ToDependence;
 
@@ -69,7 +70,16 @@ public abstract class Data<D1, D2, T1, T2> : IData
     public virtual T2 ToObject2 => ToDependence2;
 
     public virtual Vec4ShaderObject DataColor => Color.White;
-    public abstract int SetData(float[] arr, int indexoff);
+    public abstract void SetData(float[] arr, ref int indexoff);
+    public float[] GetBuffer()
+    {
+        float[] buffer = new float[this.Size];
+
+        int indexoff = 0;
+        this.SetData(buffer, ref indexoff);
+        
+        return buffer;
+    }
 
 
     public static implicit operator D1(Data<D1, D2, T1, T2> data)
