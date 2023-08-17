@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    17/08/2023
  */
 using System.Text;
 using System.Linq;
@@ -30,6 +30,7 @@ public static class RadianceUtils
     public static Vector i => new(1, 0, 0); 
     public static Vector j => new(0, 1, 0);
     public static Vector k => new(0, 0, 1);
+    public static Vector n => new(0, 0, 0);
 
     internal readonly static TimeShaderInput _t = new();
     public static FloatShaderObject t => _t;
