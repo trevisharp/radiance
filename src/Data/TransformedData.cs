@@ -1,3 +1,6 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    18/08/2023
+ */
 using System;
 
 namespace Radiance.Data;
@@ -29,6 +32,6 @@ public class TransformedData<D, T> : Data<D, T>
     public override int Size => original.Size;
     public override int Elements => original.Elements;
     public override D ToDependence => original.ToDependence;
-    public override int SetData(float[] arr, int indexoff)
-        => original.SetData(arr, indexoff);
+    public override void SetData(float[] arr, ref int indexoff)
+        => original.SetData(arr, ref indexoff);
 }
