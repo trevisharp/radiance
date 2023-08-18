@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    18/08/2023
  */
 namespace Radiance.Data;
 
@@ -43,6 +43,13 @@ public class Vector : Data<PositionBufferDependence, Vec3ShaderObject>
     public static Vector operator /(Vector v, float a)
         => new Vector(v.x / a, v.y / a, v.z / a);
     
+    public static ColoredVector operator |(Vector v, Color c)
+        => new ColoredVector()
+        {
+            Vector = v,
+            Color = c
+        };
+
     #region Data Members
 
     public override int Size => 3;

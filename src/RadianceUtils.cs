@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/08/2023
+ * Date:    18/08/2023
  */
 using System.Text;
 using System.Linq;
@@ -20,6 +20,16 @@ public static class RadianceUtils
     public static Vectors data(params Vector[] vectors)
     {
         var result = new Vectors();
+
+        foreach (var v in vectors)
+            result.Add(v);
+        
+        return result;
+    }
+    
+    public static ColoredVectors data(params ColoredVector[] vectors)
+    {
+        var result = new ColoredVectors();
 
         foreach (var v in vectors)
             result.Add(v);

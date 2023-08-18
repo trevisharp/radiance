@@ -2,13 +2,13 @@
 using static Radiance.RadianceUtils;
 
 var region = data(
-    (0, 0, 0) | (1, 0, 0),
-    (1, 0, 0) | (0, 0, 1),
-    (1, 1, 0) | (1, 0, 0),
+    n | Color.Red,
+    i | Color.Blue,
+    i + j | Color.Red,
 
-    (0, 0, 0) | (1, 0, 0),
-    (0, 1, 0) | (0, 0, 1),
-    (1, 1, 0) | (1, 0, 0)
+    n | Color.Red,
+    j | Color.Blue,
+    i + j | Color.Red
 );
 
 Window.OnRender += r =>
