@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    18/08/2023
  */
 using System;
 
@@ -24,6 +24,19 @@ public static class DataExtension
         where D : ShaderDependence<T>
         where T : ShaderObject, new()
         => new TransformedData<D, T>(data, transformation);
+        
+    /// <summary>
+    /// Transform original data
+    /// </summary>
+    public static Data<D1, D2, T1, T2> transform<D1, D2, T1, T2>(
+        this Data<D1, D2, T1, T2> data,
+        Func<T1, T2, (T1, T2)> transformation
+    )
+        where D1 : ShaderDependence<T1>
+        where D2 : ShaderDependence<T2>
+        where T1 : ShaderObject, new()
+        where T2 : ShaderObject, new()
+        => new TransformedData<D1, D2, T1, T2>(data, transformation);
     
     /// <summary>
     /// Aply color in data
@@ -49,4 +62,18 @@ public static class DataExtension
         where D : ShaderDependence<T>
         where T : ShaderObject, new()
         => new ColoredData<D, T>(data, () => (r, g, b, a));
+    
+    
+    /// <summary>
+    /// Aply color in data
+    /// </summary>
+    public static Data<D1, D2, T1, T2> colorize<D1, D2, T1, T2>(
+        this Data<D1, D2, T1, T2> data,
+        Func<T2, Vec4ShaderObject> color
+    )
+        where D1 : ShaderDependence<T1>
+        where D2 : ShaderDependence<T2>
+        where T1 : ShaderObject, new()
+        where T2 : ShaderObject, new()
+        => new ColoredData<D1, D2, T1, T2>(data, color);
 }
