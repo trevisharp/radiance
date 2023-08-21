@@ -204,7 +204,7 @@ carefoul to avoid unwanted behaviors.
 
 # Next Features
 
-- Possibility to use global variables on Render
+- Possibility to use global variables on Render (in progress)
 - Fill function on RenderOperations that triangularize polygons automatically
 - More Data Types with more structure and data
 - Add matrix Transformations
