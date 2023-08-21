@@ -51,6 +51,8 @@ public static class RadianceUtils
     public static Color cyan => Color.Cyan;
     public static Color magenta => Color.Magenta;
 
+    public static FloatShaderObject single => null;
+
     internal readonly static TimeShaderInput _t = new();
     public static FloatShaderObject t => _t;
 

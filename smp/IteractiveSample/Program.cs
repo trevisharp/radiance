@@ -1,8 +1,8 @@
 ﻿using Radiance;
 using static Radiance.RadianceUtils;
 
-float x = 0;
-float y = 0;
+var x = single;
+var y = single;
 
 var region = data(n, i, i + j, j);
 

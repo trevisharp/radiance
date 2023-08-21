@@ -4,6 +4,7 @@
 using System;
 using System.Text;
 using System.Linq;
+using System.Reflection;
 using System.Collections.Generic;
 
 using OpenTK.Graphics.OpenGL4;
@@ -23,8 +24,9 @@ public class RenderOperations
     public bool Verbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
 
-    public RenderOperations()
+    public RenderOperations(Delegate Function)
     {
+        discoverGlobalVariables(Function);
         effects += delegate
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
@@ -145,6 +147,24 @@ public class RenderOperations
     private List<int> programList = new();
 
     private Dictionary<int, int> shaderMap = new();
+
+    private void discoverGlobalVariables(Delegate Function)
+    {
+        var mainType = Function.Method.DeclaringType;
+        
+        foreach (var field in mainType.GetRuntimeFields())
+        {
+            var type = field.FieldType;
+            if (!type.IsSubclassOf(typeof(ShaderObject)))
+                continue;
+            
+            
+
+            Console.WriteLine(field.Name);
+            Console.WriteLine(field.FieldType);
+            Console.WriteLine(field.GetValue(Function.Target));
+        }
+    }
 
     private int createVertexShader(string source)
     {
