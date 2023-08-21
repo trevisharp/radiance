@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    21/08/2023
  */
 using System.Text;
 using System.Linq;
@@ -17,9 +17,19 @@ using ShaderSupport.Dependencies;
 /// </summary>
 public static class RadianceUtils
 {
-    public static Vectors vecs(params Vector[] vectors)
+    public static Vectors data(params Vector[] vectors)
     {
         var result = new Vectors();
+
+        foreach (var v in vectors)
+            result.Add(v);
+        
+        return result;
+    }
+    
+    public static ColoredVectors data(params ColoredVector[] vectors)
+    {
+        var result = new ColoredVectors();
 
         foreach (var v in vectors)
             result.Add(v);
@@ -30,6 +40,16 @@ public static class RadianceUtils
     public static Vector i => new(1, 0, 0); 
     public static Vector j => new(0, 1, 0);
     public static Vector k => new(0, 0, 1);
+    public static Vector n => new(0, 0, 0);
+
+    public static Color red => Color.Red;
+    public static Color blue => Color.Blue;
+    public static Color green => Color.Green;
+    public static Color yellow => Color.Yellow;
+    public static Color black => Color.Black;
+    public static Color white => Color.White;
+    public static Color cyan => Color.Cyan;
+    public static Color magenta => Color.Magenta;
 
     internal readonly static TimeShaderInput _t = new();
     public static FloatShaderObject t => _t;

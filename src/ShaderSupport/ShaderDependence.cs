@@ -1,6 +1,10 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    15/08/2023
  */
+using System;
+using System.Collections.Generic;
+using System.Diagnostics.CodeAnalysis;
+
 namespace Radiance.ShaderSupport;
 
 /// <summary>
@@ -12,6 +16,9 @@ public abstract class ShaderDependence
     public abstract string GetHeader();
     public string Name { get; set; }
     public ShaderDependenceType DependenceType { get; set; }
+
+    public static ShaderDependenceComparer Comparer
+        => new ShaderDependenceComparer();
 }
 
 public abstract class ShaderDependence<T> : ShaderDependence
@@ -26,4 +33,13 @@ public abstract class ShaderDependence<T> : ShaderDependence
 
         return obj;
     }
+}
+
+public class ShaderDependenceComparer : IEqualityComparer<ShaderDependence>
+{
+    public bool Equals(ShaderDependence x, ShaderDependence y)
+        => x.GetHeader() == y.GetHeader();
+    
+    public int GetHashCode([DisallowNull] ShaderDependence obj)
+        => obj.GetHeader().GetHashCode();
 }

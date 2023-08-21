@@ -7,36 +7,36 @@ using System.Collections.Generic;
 namespace Radiance.Data;
 
 using ShaderSupport;
-using ShaderSupport.Objects;
 using ShaderSupport.Dependencies;
+using ShaderSupport.Objects;
 
 /// <summary>
-/// Represents a group of Vectors.
+/// Represents a group of Colored Vectors.
 /// </summary>
-public class Vectors : IData<Vec3ShaderObject>, ICollection<Vector>
+public class ColoredVectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollection<ColoredVector>
 {
     #region ICollection Members
 
-    private List<Vector> vectors = new List<Vector>();
+    private List<ColoredVector> vectors = new List<ColoredVector>();
     public int Count => vectors.Count;
     public bool IsReadOnly => false;
 
-    public void Add(Vector item)
+    public void Add(ColoredVector item)
         => this.vectors.Add(item);
 
     public void Clear()
         => this.vectors.Clear();
 
-    public bool Contains(Vector item)
+    public bool Contains(ColoredVector item)
         => this.vectors.Contains(item);
 
-    public void CopyTo(Vector[] array, int arrayIndex)
+    public void CopyTo(ColoredVector[] array, int arrayIndex)
         => this.vectors.CopyTo(array, arrayIndex);
 
-    public IEnumerator<Vector> GetEnumerator()
+    public IEnumerator<ColoredVector> GetEnumerator()
         => this.vectors.GetEnumerator();
 
-    public bool Remove(Vector item)
+    public bool Remove(ColoredVector item)
         => this.vectors.Remove(item);
 
     IEnumerator IEnumerable.GetEnumerator()
@@ -46,13 +46,24 @@ public class Vectors : IData<Vec3ShaderObject>, ICollection<Vector>
 
     #region Data Members
 
-    private PositionBufferDependence dep =>
-        new PositionBufferDependence(this.GetBuffer());
+    public Vec3ShaderObject VertexObject => Data1;
 
-    public Vec3ShaderObject VertexObject => dep;
+    public Vec4ShaderObject FragmentObject => Data2;
 
-    public Vec4ShaderObject FragmentObject => Color.White;
+    public IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
+
+    public int Size => 7 * this.vectors.Count;
+
+    public int Elements => this.vectors.Count;
+
+    public IEnumerable<int> Sizes => new int[] { 3, 4 };
+
+    public Vec3ShaderObject Data1
+        => new PositionBufferDependence(this.GetBuffer(), 0);
     
+    public Vec4ShaderObject Data2
+        => new ColorBufferDependence(this.GetBuffer(), 1);
+
     public void SetData(float[] arr, ref int indexoff)
     {
         foreach (var vector in this.vectors)
@@ -68,16 +79,6 @@ public class Vectors : IData<Vec3ShaderObject>, ICollection<Vector>
         
         return buffer;
     }
-
-    public int Size => 3 * this.vectors.Count;
-    
-    public int Elements => this.vectors.Count;
-
-    public IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
-
-    public IEnumerable<int> Sizes => new int[] { 3 };
-
-    public Vec3ShaderObject Data1 => dep;
 
     #endregion
 }

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    21/08/2023
  */
 using System;
 using System.Text;
@@ -36,41 +36,44 @@ public class RenderOperations
         effects += delegate
         {
             GL.ClearColor(
-                color.R / 255f,
-                color.G / 255f,
-                color.B / 255f,
-                color.A / 255f
+                color.R,
+                color.G,
+                color.B,
+                color.A
             );
         };
     }
 
-    public void FillTriangles<D>(
-        Data<D, Vec3ShaderObject> data
-    ) 
-        where D : ShaderDependence<Vec3ShaderObject>
-        => baseDraw(PrimitiveType.Triangles, data);
+    public void FillTriangles(
+        IData data
+    ) => baseDraw(PrimitiveType.Triangles, data);
         
-    public void Draw<D>(
-        Data<D, Vec3ShaderObject> data
-    ) 
-        where D : ShaderDependence<Vec3ShaderObject>
-        => baseDraw(PrimitiveType.LineLoop, data);
+    public void Draw(
+        IData data
+    ) => baseDraw(PrimitiveType.LineLoop, data);
 
-    private void baseDraw<D>(
+    private void baseDraw(
         PrimitiveType type,
-        Data<D, Vec3ShaderObject> data
-    ) 
-        where D : ShaderDependence<Vec3ShaderObject>
+        IData data
+    )
     {
         var gpuBuffer = createBuffer();
-        int vertexArray = createVertexArray();
+        int vertexArray = createVertexArray(data);
         int program = createProgram();
 
-        var vertexTuple = generateVertexShader(data.ToObject, program);
+        var frag = data.FragmentObject.Dependecies;
+        var realOutputs = data.Outputs
+            .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));
+
+        var vertexTuple = generateVertexShader(
+            data.VertexObject, realOutputs, program
+        );
         if (Verbose)
             Console.WriteLine(vertexTuple.source);
 
-        var fragmentTuple = generateFragmentShader(data.DataColor, program);
+        var fragmentTuple = generateFragmentShader(
+            data.FragmentObject, program
+        );
         if (Verbose)
             Console.WriteLine(fragmentTuple.source);
 
@@ -107,7 +110,6 @@ public class RenderOperations
             GL.DeleteVertexArray(vertexArray);
         };
     }
-
 
     internal void Render(params object[] parameters)
     {
@@ -248,15 +250,21 @@ public class RenderOperations
     }
 
     private (string source, Action setup) generateVertexShader(
-        Vec3ShaderObject vertexObject, int program)
+        Vec3ShaderObject vertexObject,
+        IEnumerable<ShaderOutput> outputs,
+        int program)
     {
         var sb = getCodeBuilder();
         Action setup = null;
 
+        var outDeps = outputs
+            .SelectMany(o => o.BaseValue.Dependecies);
+
         var dependencens = vertexObject.Dependecies
             .Append(RadianceUtils._width)
             .Append(RadianceUtils._height)
-            .Distinct();
+            .Concat(outDeps)
+            .Distinct(ShaderDependence.Comparer);
         foreach (var dependence in dependencens)
         {
             switch (dependence.DependenceType)
@@ -286,6 +294,13 @@ public class RenderOperations
                     break;
             }
         }
+
+        foreach (var output in outputs)
+        {
+            var type = output.BaseValue.Type;
+            var name = output.BaseDependence.Name;
+            sb.AppendLine($"out {getShaderTypeName(type)} {name};");
+        }
         
         var exp = vertexObject.Expression;
 
@@ -295,14 +310,22 @@ public class RenderOperations
         sb.AppendLine($"\tvec3 finalPosition = {exp};");
         sb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
         sb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
+
+        foreach (var output in outputs)
+        {
+            var outExp = output.BaseValue.Expression;
+            var name = output.BaseDependence.Name;
+            sb.AppendLine($"\t{name} = {outExp};");
+        }
+
         sb.AppendLine("}");
 
         return (sb.ToString(), setup);
     }
 
-    
     private (string source, Action setup) generateFragmentShader(
-        Vec4ShaderObject fragmentObject, int program)
+        Vec4ShaderObject fragmentObject,
+        int program)
     {
         var sb = getCodeBuilder();
         Action setup = null;
@@ -320,6 +343,10 @@ public class RenderOperations
                     {
                         setUniform(program, dependence);
                     };
+                    break;
+                
+                case ShaderDependenceType.Variable:
+                    sb.Append(dependence.GetHeader());
                     break;
             }
         }
@@ -343,6 +370,17 @@ public class RenderOperations
         return sb;
     }
     
+    private string getShaderTypeName(ShaderType type)
+        => type switch
+        {
+            ShaderType.Float => "float",
+            ShaderType.Vec2 => "vec2",
+            ShaderType.Vec3 => "vec3",
+            ShaderType.Vec4 => "vec4",
+            ShaderType.Bool => "bool",
+            _ => "float"
+        };
+
     private void setUniform(int program, ShaderDependence dependence)
     {
         switch (dependence)
@@ -359,18 +397,24 @@ public class RenderOperations
         GL.Uniform1(code, value);
     }
 
-    private int createVertexArray()
+    private int createVertexArray(IData data)
     {
         int vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);
 
-        GL.VertexAttribPointer(0, 3,
-            VertexAttribPointerType.Float, 
-            false, 
-            3 * sizeof(float),
-            0
-        );
-        GL.EnableVertexAttribArray(0);
+        int total = data.Sizes.Sum();
+        var stride = total * sizeof(float);
+        var type = VertexAttribPointerType.Float;
+
+        int i = 0;
+        int offset = 0;
+        foreach (var size in data.Sizes)
+        {
+            GL.VertexAttribPointer(i, size, type, false, stride, offset);
+            GL.EnableVertexAttribArray(i);
+            offset += size * sizeof(float);
+            i++;
+        }
 
         return vertexObject;
     }

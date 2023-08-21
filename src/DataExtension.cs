@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    21/08/2023
  */
 using System;
 
@@ -17,36 +17,88 @@ public static class DataExtension
     /// <summary>
     /// Transform original data
     /// </summary>
-    public static Data<D, T> transform<D, T>(
-        this Data<D, T> data,
-        Func<T, T> transformation
+    public static IData<D> transform<D>(
+        this IData<D> data,
+        Func<D, Vec3ShaderObject> transformation
     )
-        where D : ShaderDependence<T>
-        where T : ShaderObject, new()
-        => new TransformedData<D, T>(data, transformation);
-    
+        where D : ShaderObject, new()
+        => new VertexTransformedData<D>(data, transformation);
+        
     /// <summary>
-    /// Aply color in data
+    /// Transform original data
     /// </summary>
-    public static Data<D, T> colorize<D, T>(
-        this Data<D, T> data,
-        Vec4ShaderObject color
+    public static IData<D1, D2> transform<D1, D2>(
+        this IData<D1, D2> data,
+        Func<D1, D2, Vec3ShaderObject> transformation
     )
-        where D : ShaderDependence<T>
-        where T : ShaderObject, new()
-        => new ColoredData<D, T>(data, () => color);
-    
+        where D1 : ShaderObject, new()
+        where D2 : ShaderObject, new()
+        => new VertexTransformedData<D1, D2>(data, transformation);
+
     /// <summary>
-    /// Aply color in data
+    /// Apply color in data
     /// </summary>
-    public static Data<D, T> colorize<D, T>(
-        this Data<D, T> data,
+    public static IData<D> colorize<D>(
+        this IData<D> data,
+        Func<D, Vec4ShaderObject> transformation
+    )
+        where D : ShaderObject, new()
+        => new FragmentTransformedData<D>(data, transformation);
+        
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D1, D2> colorize<D1, D2>(
+        this IData<D1, D2> data,
+        Func<D1, D2, Vec4ShaderObject> transformation
+    )
+        where D1 : ShaderObject, new()
+        where D2 : ShaderObject, new()
+        => new FragmentTransformedData<D1, D2>(data, transformation);
+
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D> colorize<D>(
+        this IData<D> data,
+        Color color
+    )
+        where D : ShaderObject, new()
+        => new FragmentTransformedData<D>(data, _ => color);
+        
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D1, D2> colorize<D1, D2>(
+        this IData<D1, D2> data,
+        Color color
+    )
+        where D1 : ShaderObject, new()
+        where D2 : ShaderObject, new()
+        => new FragmentTransformedData<D1, D2>(data, (_, _) => color);
+        
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D> colorize<D>(
+        this IData<D> data,
         FloatShaderObject r,
         FloatShaderObject g,
-        FloatShaderObject b,
-        FloatShaderObject a
+        FloatShaderObject b
     )
-        where D : ShaderDependence<T>
-        where T : ShaderObject, new()
-        => new ColoredData<D, T>(data, () => (r, g, b, a));
+        where D : ShaderObject, new()
+        => new FragmentTransformedData<D>(data, _ => (r, g, b, 1.0));
+        
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D1, D2> colorize<D1, D2>(
+        this IData<D1, D2> data,
+        FloatShaderObject r,
+        FloatShaderObject g,
+        FloatShaderObject b
+    )
+        where D1 : ShaderObject, new()
+        where D2 : ShaderObject, new()
+        => new FragmentTransformedData<D1, D2>(data, (_, _) => (r, g, b, 1.0));
 }

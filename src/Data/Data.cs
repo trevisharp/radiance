@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    21/08/2023
  */
+using System.Collections.Generic;
+
 namespace Radiance.Data;
 
 using ShaderSupport;
@@ -9,28 +11,37 @@ using ShaderSupport.Objects;
 /// <summary>
 /// A base class to all data layouts.
 /// </summary>
-public abstract class Data<D, T>
-    where D : ShaderDependence<T>
-    where T : ShaderObject, new()
+public interface IData
 {
-    public abstract int Size { get; }
-    public abstract int Elements { get; }
+    Vec3ShaderObject VertexObject { get; }
+    Vec4ShaderObject FragmentObject { get; }
+    
+    IEnumerable<ShaderOutput> Outputs { get; } 
 
-    public abstract D ToDependence { get; }
-    public virtual T ToObject => ToDependence;
+    int Size { get;}
+    int Elements { get; }
+    IEnumerable<int> Sizes { get; }
 
-    public virtual Vec4ShaderObject DataColor => Color.White;
+    void SetData(float[] arr, ref int indexoff);
+    float[] GetBuffer();
+}
 
-    public abstract int SetData(float[] arr, int indexoff);
-    public float[] GetBuffer()
-    {
-        float[] buffer = new float[this.Size];
+/// <summary>
+/// A base class to all data layouts.
+/// </summary>
+public interface IData<D> : IData
+    where D : ShaderObject, new()
+{
+    D Data1 { get; }
+}
 
-        this.SetData(buffer, 0);
-        
-        return buffer;
-    }
-
-    public static implicit operator D(Data<D, T> data)
-        => data.ToDependence;
+/// <summary>
+/// A base class to all data layouts.
+/// </summary>
+public interface IData<D1, D2> : IData
+    where D1 : ShaderObject, new()
+    where D2 : ShaderObject, new()
+{
+    D1 Data1 { get; }
+    D2 Data2 { get; }
 }
