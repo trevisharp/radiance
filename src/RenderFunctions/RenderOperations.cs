@@ -36,10 +36,10 @@ public class RenderOperations
         effects += delegate
         {
             GL.ClearColor(
-                color.R / 255f,
-                color.G / 255f,
-                color.B / 255f,
-                color.A / 255f
+                color.R,
+                color.G,
+                color.B,
+                color.A
             );
         };
     }
@@ -61,8 +61,12 @@ public class RenderOperations
         int vertexArray = createVertexArray(data);
         int program = createProgram();
 
+        var frag = data.FragmentObject.Dependecies;
+        var realOutputs = data.Outputs
+            .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));
+
         var vertexTuple = generateVertexShader(
-            data.VertexObject, data.Outputs, program
+            data.VertexObject, realOutputs, program
         );
         if (Verbose)
             Console.WriteLine(vertexTuple.source);
@@ -253,10 +257,14 @@ public class RenderOperations
         var sb = getCodeBuilder();
         Action setup = null;
 
+        var outDeps = outputs
+            .SelectMany(o => o.BaseValue.Dependecies);
+
         var dependencens = vertexObject.Dependecies
             .Append(RadianceUtils._width)
             .Append(RadianceUtils._height)
-            .Distinct();
+            .Concat(outDeps)
+            .Distinct(ShaderDependence.Comparer);
         foreach (var dependence in dependencens)
         {
             switch (dependence.DependenceType)
@@ -335,6 +343,10 @@ public class RenderOperations
                     {
                         setUniform(program, dependence);
                     };
+                    break;
+                
+                case ShaderDependenceType.Variable:
+                    sb.Append(dependence.GetHeader());
                     break;
             }
         }

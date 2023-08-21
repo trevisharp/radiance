@@ -55,4 +55,50 @@ public static class DataExtension
         where D1 : ShaderObject, new()
         where D2 : ShaderObject, new()
         => new FragmentTransformedData<D1, D2>(data, transformation);
+
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D> colorize<D>(
+        this IData<D> data,
+        Color color
+    )
+        where D : ShaderObject, new()
+        => new FragmentTransformedData<D>(data, _ => color);
+        
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D1, D2> colorize<D1, D2>(
+        this IData<D1, D2> data,
+        Color color
+    )
+        where D1 : ShaderObject, new()
+        where D2 : ShaderObject, new()
+        => new FragmentTransformedData<D1, D2>(data, (_, _) => color);
+        
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D> colorize<D>(
+        this IData<D> data,
+        FloatShaderObject r,
+        FloatShaderObject g,
+        FloatShaderObject b
+    )
+        where D : ShaderObject, new()
+        => new FragmentTransformedData<D>(data, _ => (r, g, b, 1.0));
+        
+    /// <summary>
+    /// Apply color in data
+    /// </summary>
+    public static IData<D1, D2> colorize<D1, D2>(
+        this IData<D1, D2> data,
+        FloatShaderObject r,
+        FloatShaderObject g,
+        FloatShaderObject b
+    )
+        where D1 : ShaderObject, new()
+        where D2 : ShaderObject, new()
+        => new FragmentTransformedData<D1, D2>(data, (_, _) => (r, g, b, 1.0));
 }
