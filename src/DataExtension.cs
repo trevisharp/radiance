@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/08/2023
+ * Date:    21/08/2023
  */
 using System;
 
@@ -28,6 +28,17 @@ public static class DataExtension
     /// <summary>
     /// Transform original data
     /// </summary>
+    public static Data<D, T> transform<D, T>(
+        this Data<D, T> data,
+        Func<T, T> transformation
+    )
+        where D : ShaderDependence<T>
+        where T : ShaderObject, new()
+        => new TransformedData<D, T>(data, transformation);
+    
+    /// <summary>
+    /// Transform original data
+    /// </summary>
     public static Data<D1, D2, T1, T2> transform<D1, D2, T1, T2>(
         this Data<D1, D2, T1, T2> data,
         Func<T1, T2, (T1, T2)> transformation
@@ -38,8 +49,17 @@ public static class DataExtension
         where T2 : ShaderObject, new()
         => new TransformedData<D1, D2, T1, T2>(data, transformation);
     
+    public static Data<D, T> var<D, T>(
+        this Data<D, T> data,
+        Func<T, T> transformation
+    )
+        where D : ShaderDependence<T>
+        where T : ShaderObject, new()
+        => new TransformedData<D, T>(data, transformation);
+        
+    
     /// <summary>
-    /// Aply color in data
+    /// Apply color in data
     /// </summary>
     public static Data<D, T> colorize<D, T>(
         this Data<D, T> data,
@@ -50,7 +70,7 @@ public static class DataExtension
         => new ColoredData<D, T>(data, () => color);
     
     /// <summary>
-    /// Aply color in data
+    /// Apply color in data
     /// </summary>
     public static Data<D, T> colorize<D, T>(
         this Data<D, T> data,
@@ -65,9 +85,9 @@ public static class DataExtension
     
     
     /// <summary>
-    /// Aply color in data
+    /// Apply color in data
     /// </summary>
-    public static Data<D1, D2, T1, T2> colorize<D1, D2, T1, T2>(
+    public static Data<D1, T1> colorize<D1, D2, T1, T2>(
         this Data<D1, D2, T1, T2> data,
         Func<T2, Vec4ShaderObject> color
     )

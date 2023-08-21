@@ -2,20 +2,23 @@
 using static Radiance.RadianceUtils;
 
 var region = data(
-    n | Color.Red,
-    i | Color.Blue,
-    i + j | Color.Red,
+    n | magenta,
+    i | cyan,
+    i + j | magenta,
 
-    n | Color.Red,
-    j | Color.Blue,
-    i + j | Color.Red
+    n | magenta,
+    j | cyan,
+    i + j | magenta
 );
 
 Window.OnRender += r =>
-{   
+{
+    r.Verbose = true;
+    
     r.FillTriangles(region
-        .transform((v, u) => ((width * v.x, height * v.y, v.z), u))
-        .colorize(u => (u, 1.0))
+        .transform((v, c) => (width * v.x, height * v.y, v.z))
+        .var((v, c) => c)
+        .colorize(c => (c, 1.0))
     );
 };
 

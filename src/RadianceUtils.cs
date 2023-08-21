@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/08/2023
+ * Date:    21/08/2023
  */
 using System.Text;
 using System.Linq;
@@ -41,6 +41,15 @@ public static class RadianceUtils
     public static Vector j => new(0, 1, 0);
     public static Vector k => new(0, 0, 1);
     public static Vector n => new(0, 0, 0);
+
+    public static Color red => Color.Red;
+    public static Color blue => Color.Blue;
+    public static Color green => Color.Green;
+    public static Color yellow => Color.Yellow;
+    public static Color black => Color.Black;
+    public static Color white => Color.White;
+    public static Color cyan => Color.Cyan;
+    public static Color magenta => Color.Magenta;
 
     internal readonly static TimeShaderInput _t = new();
     public static FloatShaderObject t => _t;

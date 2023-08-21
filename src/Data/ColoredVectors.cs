@@ -1,22 +1,19 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/08/2023
+ * Date:    21/08/2023
  */
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
 
+using ShaderSupport;
 using ShaderSupport.Dependencies;
 using ShaderSupport.Objects;
 
 /// <summary>
 /// Represents a group of Colored Vectors.
 /// </summary>
-public class ColoredVectors : Data
-    <PositionBufferDependence,
-    ColorBufferDependence,
-    Vec3ShaderObject,
-    Vec3ShaderObject>, ICollection<ColoredVector>
+public class ColoredVectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollection<ColoredVector>
 {
     #region ICollection Members
 
@@ -49,22 +46,35 @@ public class ColoredVectors : Data
 
     #region Data Members
 
-    public override void SetData(float[] arr, ref int indexoff)
+    public Vec3ShaderObject VertexObject
+        => new PositionBufferDependence(this.GetBuffer(), 0);
+
+    public Vec4ShaderObject FragmentObject
+        => new ColorBufferDependence(this.GetBuffer(), 1);
+
+    public IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
+
+    public int Size => 7 * this.vectors.Count;
+
+    public int Elements => this.vectors.Count;
+
+    public IEnumerable<int> Sizes => new int[] { 3, 4 };
+
+    public void SetData(float[] arr, ref int indexoff)
     {
         foreach (var vector in this.vectors)
             vector.SetData(arr, ref indexoff);
     }
 
-    public override int Size1 => 3 * this.vectors.Count;
-    public override int Size2 => 3 * this.vectors.Count;
+    public float[] GetBuffer()
+    {
+        float[] buffer = new float[this.Size];
 
-    public override PositionBufferDependence ToDependence1
-        => new PositionBufferDependence(this.GetBuffer());
+        int indexoff = 0;
+        this.SetData(buffer, ref indexoff);
         
-    public override ColorBufferDependence ToDependence2
-        => new ColorBufferDependence(this.GetBuffer());
-    
-    public override int Elements => this.vectors.Count;
+        return buffer;
+    }
 
     #endregion
 }

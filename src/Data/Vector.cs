@@ -1,12 +1,15 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/08/2023
+ * Date:    21/08/2023
  */
+using System.Collections.Generic;
+
 namespace Radiance.Data;
 
+using ShaderSupport;
 using ShaderSupport.Dependencies;
 using ShaderSupport.Objects;
 
-public class Vector : Data<PositionBufferDependence, Vec3ShaderObject>
+public class Vector : IData<Vec3ShaderObject, Vec4ShaderObject>
 {
     public Vector(float x, float y, float z)
     {
@@ -52,21 +55,37 @@ public class Vector : Data<PositionBufferDependence, Vec3ShaderObject>
 
     #region Data Members
 
-    public override int Size => 3;
-    
-    public override void SetData(float[] arr, ref int indexoff)
-    {
-        arr[indexoff] = this.x;
-        arr[indexoff + 1] = this.y;
-        arr[indexoff + 2] = this.z;
+    private PositionBufferDependence dep =>
+        new PositionBufferDependence(this.GetBuffer());
 
+    public Vec3ShaderObject VertexObject => dep;
+
+    public Vec4ShaderObject FragmentObject => Color.White;
+
+    public IEnumerable<ShaderOutput> Outputs
+        => ShaderOutput.Empty;
+
+    public int Size => 3;
+    public int Elements => 1;
+    public IEnumerable<int> Sizes => new int[] { 3 };
+
+    public void SetData(float[] arr, ref int indexoff)
+    {
+        arr[indexoff + 0] = x;
+        arr[indexoff + 1] = y;
+        arr[indexoff + 2] = z;
         indexoff += 3;
     }
-        
-    public override PositionBufferDependence ToDependence
-        => new PositionBufferDependence(this.GetBuffer());
-    
-    public override int Elements => 1;
 
+    public float[] GetBuffer()
+    {
+        float[] buffer = new float[this.Size];
+
+        int indexoff = 0;
+        this.SetData(buffer, ref indexoff);
+        
+        return buffer;
+    }
+    
     #endregion
 }

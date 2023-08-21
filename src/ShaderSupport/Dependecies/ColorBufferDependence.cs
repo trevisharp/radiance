@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/08/2023
+ * Date:    21/08/2023
  */
 namespace Radiance.ShaderSupport.Dependencies;
 
@@ -8,7 +8,7 @@ using Objects;
 /// <summary>
 /// Represents a dependece of a position buffer data.
 /// </summary>
-public class ColorBufferDependence : ShaderDependence<Vec3ShaderObject>
+public class ColorBufferDependence : ShaderDependence<Vec4ShaderObject>
 {
     private float[] data;
     private int position;
@@ -26,5 +26,5 @@ public class ColorBufferDependence : ShaderDependence<Vec3ShaderObject>
         => this.data;
 
     public override string GetHeader()
-        => $"layout(location = {position}) in vec3 color;";
+        => $"layout(location = {position}) in vec4 color;";
 }

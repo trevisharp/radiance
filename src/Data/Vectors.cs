@@ -1,18 +1,19 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    21/08/2023
  */
 using System.Collections;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
 
-using ShaderSupport.Dependencies;
+using ShaderSupport;
 using ShaderSupport.Objects;
+using ShaderSupport.Dependencies;
 
 /// <summary>
 /// Represents a group of Vectors.
 /// </summary>
-public class Vectors : Data<PositionBufferDependence, Vec3ShaderObject>, ICollection<Vector>
+public class Vectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollection<Vector>
 {
     #region ICollection Members
 
@@ -45,26 +46,36 @@ public class Vectors : Data<PositionBufferDependence, Vec3ShaderObject>, ICollec
 
     #region Data Members
 
-    public override void SetData(float[] arr, ref int indexoff)
+    private PositionBufferDependence dep =>
+        new PositionBufferDependence(this.GetBuffer());
+
+    public Vec3ShaderObject VertexObject => dep;
+
+    public Vec4ShaderObject FragmentObject => Color.White;
+    
+    public void SetData(float[] arr, ref int indexoff)
     {
         foreach (var vector in this.vectors)
             vector.SetData(arr, ref indexoff);
     }
 
-    public override int Size => 3 * this.vectors.Count;
-
-    public override PositionBufferDependence ToDependence
+    public float[] GetBuffer()
     {
-        get
-        {
-            var bufferDependence = new PositionBufferDependence(
-                this.GetBuffer()
-            );
-            return bufferDependence;
-        }
+        float[] buffer = new float[this.Size];
+
+        int indexoff = 0;
+        this.SetData(buffer, ref indexoff);
+        
+        return buffer;
     }
+
+    public int Size => 3 * this.vectors.Count;
     
-    public override int Elements => this.vectors.Count;
+    public int Elements => this.vectors.Count;
+
+    public IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
+
+    public IEnumerable<int> Sizes => new int[] { 3 };
 
     #endregion
 }
