@@ -3,8 +3,21 @@
  */
 namespace Radiance.ShaderSupport;
 
+using Dependencies;
+
 public class ShaderOutput
 {
+    public static ShaderOutput Create<T>(T obj)
+        where T : ShaderObject, new()
+    {
+        ShaderOutput output = new ShaderOutput();
+
+        output.Value = obj;
+        output.Dependence = new VariableDependence<T>();
+
+        return output;
+    }
+
     public ShaderObject Value { get; set; }
     public ShaderDependence Dependence { get; set; }
 

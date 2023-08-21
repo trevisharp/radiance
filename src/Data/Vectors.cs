@@ -13,7 +13,7 @@ using ShaderSupport.Dependencies;
 /// <summary>
 /// Represents a group of Vectors.
 /// </summary>
-public class Vectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollection<Vector>
+public class Vectors : IData<Vec3ShaderObject>, ICollection<Vector>
 {
     #region ICollection Members
 
@@ -76,6 +76,8 @@ public class Vectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollection<Ve
     public IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
 
     public IEnumerable<int> Sizes => new int[] { 3 };
+
+    public Vec3ShaderObject Data1 => dep;
 
     #endregion
 }

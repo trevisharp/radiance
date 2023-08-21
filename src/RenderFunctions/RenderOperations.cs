@@ -45,16 +45,16 @@ public class RenderOperations
     }
 
     public void FillTriangles(
-        IData<Vec3ShaderObject, Vec4ShaderObject> data
+        IData data
     ) => baseDraw(PrimitiveType.Triangles, data);
         
     public void Draw(
-        IData<Vec3ShaderObject, Vec4ShaderObject> data
+        IData data
     ) => baseDraw(PrimitiveType.LineLoop, data);
 
     private void baseDraw(
         PrimitiveType type,
-        IData<Vec3ShaderObject, Vec4ShaderObject> data
+        IData data
     )
     {
         var gpuBuffer = createBuffer();
@@ -385,7 +385,7 @@ public class RenderOperations
         GL.Uniform1(code, value);
     }
 
-    private int createVertexArray(IData<Vec3ShaderObject, Vec4ShaderObject> data)
+    private int createVertexArray(IData data)
     {
         int vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);

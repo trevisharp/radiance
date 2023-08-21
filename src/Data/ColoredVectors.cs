@@ -46,11 +46,9 @@ public class ColoredVectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollec
 
     #region Data Members
 
-    public Vec3ShaderObject VertexObject
-        => new PositionBufferDependence(this.GetBuffer(), 0);
+    public Vec3ShaderObject VertexObject => Data1;
 
-    public Vec4ShaderObject FragmentObject
-        => new ColorBufferDependence(this.GetBuffer(), 1);
+    public Vec4ShaderObject FragmentObject => Data2;
 
     public IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
 
@@ -59,6 +57,12 @@ public class ColoredVectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollec
     public int Elements => this.vectors.Count;
 
     public IEnumerable<int> Sizes => new int[] { 3, 4 };
+
+    public Vec3ShaderObject Data1
+        => new PositionBufferDependence(this.GetBuffer(), 0);
+    
+    public Vec4ShaderObject Data2
+        => new ColorBufferDependence(this.GetBuffer(), 1);
 
     public void SetData(float[] arr, ref int indexoff)
     {

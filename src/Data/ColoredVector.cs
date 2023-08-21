@@ -6,19 +6,16 @@ using System.Collections.Generic;
 namespace Radiance.Data;
 
 using ShaderSupport;
-using ShaderSupport.Dependencies;
 using ShaderSupport.Objects;
+using ShaderSupport.Dependencies;
 
 public class ColoredVector : IData<Vec3ShaderObject, Vec4ShaderObject>
 {
     public Vector Vector { get; set; }
     public Color Color { get; set; }
 
-    public Vec3ShaderObject VertexObject
-        => new PositionBufferDependence(this.GetBuffer(), 0);
-
-    public Vec4ShaderObject FragmentObject
-        => new ColorBufferDependence(this.GetBuffer(), 1);
+    public Vec3ShaderObject VertexObject => Data1;
+    public Vec4ShaderObject FragmentObject => Data2;
 
     public IEnumerable<ShaderOutput> Outputs 
         => ShaderOutput.Empty;
@@ -26,6 +23,12 @@ public class ColoredVector : IData<Vec3ShaderObject, Vec4ShaderObject>
     public int Size => 7;
     public int Elements => 1;
     public IEnumerable<int> Sizes => new int[] { 3, 4 };
+
+    public Vec3ShaderObject Data1
+        => new PositionBufferDependence(this.GetBuffer(), 0);
+    
+    public Vec4ShaderObject Data2
+        => new ColorBufferDependence(this.GetBuffer(), 1);
 
     public float[] GetBuffer()
     {

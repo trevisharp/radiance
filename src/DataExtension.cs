@@ -17,83 +17,43 @@ public static class DataExtension
     /// <summary>
     /// Transform original data
     /// </summary>
-    public static Data<D, T> transform<D, T>(
-        this Data<D, T> data,
-        Func<T, T> transformation
+    public static IData<D> transform<D>(
+        this IData<D> data,
+        Func<D, Vec3ShaderObject> transformation
     )
-        where D : ShaderDependence<T>
-        where T : ShaderObject, new()
-        => new TransformedData<D, T>(data, transformation);
+        where D : ShaderObject, new()
+        => new VertexTransformedData<D>(data, transformation);
         
     /// <summary>
     /// Transform original data
     /// </summary>
-    public static Data<D, T> transform<D, T>(
-        this Data<D, T> data,
-        Func<T, T> transformation
+    public static IData<D1, D2> transform<D1, D2>(
+        this IData<D1, D2> data,
+        Func<D1, D2, Vec3ShaderObject> transformation
     )
-        where D : ShaderDependence<T>
-        where T : ShaderObject, new()
-        => new TransformedData<D, T>(data, transformation);
-    
+        where D1 : ShaderObject, new()
+        where D2 : ShaderObject, new()
+        => new VertexTransformedData<D1, D2>(data, transformation);
+
     /// <summary>
-    /// Transform original data
+    /// Apply color in data
     /// </summary>
-    public static Data<D1, D2, T1, T2> transform<D1, D2, T1, T2>(
-        this Data<D1, D2, T1, T2> data,
-        Func<T1, T2, (T1, T2)> transformation
+    public static IData<V, F> colorize<V, F>(
+        this IData<V, F> data,
+        Func<F, F> transformation
     )
-        where D1 : ShaderDependence<T1>
-        where D2 : ShaderDependence<T2>
-        where T1 : ShaderObject, new()
-        where T2 : ShaderObject, new()
-        => new TransformedData<D1, D2, T1, T2>(data, transformation);
-    
-    public static Data<D, T> var<D, T>(
-        this Data<D, T> data,
-        Func<T, T> transformation
-    )
-        where D : ShaderDependence<T>
-        where T : ShaderObject, new()
-        => new TransformedData<D, T>(data, transformation);
-        
+        where V : ShaderObject, new()
+        where F : ShaderObject, new()
+        => new FragmentTransformedData<V, F, F>(data, transformation);
     
     /// <summary>
     /// Apply color in data
     /// </summary>
-    public static Data<D, T> colorize<D, T>(
-        this Data<D, T> data,
-        Vec4ShaderObject color
+    public static IData<V, Vec4ShaderObject> colorize<V, F>(
+        this IData<V, F> data,
+        Color color
     )
-        where D : ShaderDependence<T>
-        where T : ShaderObject, new()
-        => new ColoredData<D, T>(data, () => color);
-    
-    /// <summary>
-    /// Apply color in data
-    /// </summary>
-    public static Data<D, T> colorize<D, T>(
-        this Data<D, T> data,
-        FloatShaderObject r,
-        FloatShaderObject g,
-        FloatShaderObject b,
-        FloatShaderObject a
-    )
-        where D : ShaderDependence<T>
-        where T : ShaderObject, new()
-        => new ColoredData<D, T>(data, () => (r, g, b, a));
-    
-    
-    /// <summary>
-    /// Apply color in data
-    /// </summary>
-    public static Data<D1, T1> colorize<D1, D2, T1, T2>(
-        this Data<D1, D2, T1, T2> data,
-        Func<T2, Vec4ShaderObject> color
-    )
-        where D1 : ShaderDependence<T1>
-        where D2 : ShaderDependence<T2>
-        where T1 : ShaderObject, new()
-        where T2 : ShaderObject, new()
-        => new ColoredData<D1, D2, T1, T2>(data, color);
+        where V : ShaderObject, new()
+        where F : ShaderObject, new()
+        => new FragmentTransformedData<V, F, Vec4ShaderObject>(data, _ => color);
 }

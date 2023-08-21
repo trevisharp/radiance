@@ -9,7 +9,7 @@ using ShaderSupport;
 using ShaderSupport.Dependencies;
 using ShaderSupport.Objects;
 
-public class Vector : IData<Vec3ShaderObject, Vec4ShaderObject>
+public class Vector : IData<Vec3ShaderObject>
 {
     public Vector(float x, float y, float z)
     {
@@ -68,6 +68,8 @@ public class Vector : IData<Vec3ShaderObject, Vec4ShaderObject>
     public int Size => 3;
     public int Elements => 1;
     public IEnumerable<int> Sizes => new int[] { 3 };
+
+    public Vec3ShaderObject Data1 => dep;
 
     public void SetData(float[] arr, ref int indexoff)
     {

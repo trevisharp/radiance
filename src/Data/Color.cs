@@ -16,7 +16,7 @@ using ShaderSupport.Dependencies;
 /// <param name="R">Red value</param>
 /// <param name="G">Green value</param>
 /// /// <param name="B">Blue value</param>
-public class Color : IData<Vec3ShaderObject, Vec4ShaderObject>
+public class Color : IData<Vec4ShaderObject>
 {
     public Color(float a, float r, float g, float b)
     {
@@ -43,6 +43,8 @@ public class Color : IData<Vec3ShaderObject, Vec4ShaderObject>
     public int Size => 4; 
     public int Elements => 1;
     public IEnumerable<int> Sizes => new int[] { 4 };
+
+    public Vec4ShaderObject Data1 => dep;
 
     public static readonly Color White = new Color(1, 1, 1, 1);
     public static readonly Color Black = new Color(1, 0, 0, 0);
