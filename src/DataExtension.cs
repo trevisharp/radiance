@@ -38,22 +38,21 @@ public static class DataExtension
     /// <summary>
     /// Apply color in data
     /// </summary>
-    public static IData<V, F> colorize<V, F>(
-        this IData<V, F> data,
-        Func<F, F> transformation
+    public static IData<D> colorize<D>(
+        this IData<D> data,
+        Func<D, Vec4ShaderObject> transformation
     )
-        where V : ShaderObject, new()
-        where F : ShaderObject, new()
-        => new FragmentTransformedData<V, F, F>(data, transformation);
-    
+        where D : ShaderObject, new()
+        => new FragmentTransformedData<D>(data, transformation);
+        
     /// <summary>
     /// Apply color in data
     /// </summary>
-    public static IData<V, Vec4ShaderObject> colorize<V, F>(
-        this IData<V, F> data,
-        Color color
+    public static IData<D1, D2> colorize<D1, D2>(
+        this IData<D1, D2> data,
+        Func<D1, D2, Vec4ShaderObject> transformation
     )
-        where V : ShaderObject, new()
-        where F : ShaderObject, new()
-        => new FragmentTransformedData<V, F, Vec4ShaderObject>(data, _ => color);
+        where D1 : ShaderObject, new()
+        where D2 : ShaderObject, new()
+        => new FragmentTransformedData<D1, D2>(data, transformation);
 }

@@ -289,8 +289,8 @@ public class RenderOperations
 
         foreach (var output in outputs)
         {
-            var type = output.Value.Type;
-            var name = output.Dependence.Name;
+            var type = output.BaseValue.Type;
+            var name = output.BaseDependence.Name;
             sb.AppendLine($"out {getShaderTypeName(type)} {name};");
         }
         
@@ -305,8 +305,8 @@ public class RenderOperations
 
         foreach (var output in outputs)
         {
-            var outExp = output.Value.Expression;
-            var name = output.Dependence.Name;
+            var outExp = output.BaseValue.Expression;
+            var name = output.BaseDependence.Name;
             sb.AppendLine($"\t{name} = {outExp};");
         }
 

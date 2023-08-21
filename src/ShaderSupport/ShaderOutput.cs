@@ -5,22 +5,38 @@ namespace Radiance.ShaderSupport;
 
 using Dependencies;
 
-public class ShaderOutput
+/// <summary>
+/// Represents a output from Vertex Shader to Fragment Shader
+/// </summary>
+public abstract class ShaderOutput
 {
-    public static ShaderOutput Create<T>(T obj)
-        where T : ShaderObject, new()
+    public static ShaderOutput<T> Create<T>(T obj)
+    where T : ShaderObject, new()
     {
-        ShaderOutput output = new ShaderOutput();
+        var output = new ShaderOutput<T>();
 
         output.Value = obj;
         output.Dependence = new VariableDependence<T>();
 
         return output;
     }
-
-    public ShaderObject Value { get; set; }
-    public ShaderDependence Dependence { get; set; }
+    
+    public abstract ShaderObject BaseValue { get; }
+    public abstract ShaderDependence BaseDependence { get; }
 
     private static ShaderOutput[] empty = new ShaderOutput[0];
-    public static ShaderOutput[] Empty => Empty;
+    public static ShaderOutput[] Empty => empty;
+}
+
+/// <summary>
+/// Represents a output from Vertex Shader to Fragment Shader
+/// </summary>
+public class ShaderOutput<T> : ShaderOutput
+    where T : ShaderObject, new()
+{
+    public T Value { get; set; }
+    public VariableDependence<T> Dependence { get; set; }
+
+    public override ShaderObject BaseValue => Value;
+    public override ShaderDependence BaseDependence => Dependence;
 }
