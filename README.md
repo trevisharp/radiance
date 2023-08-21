@@ -139,6 +139,50 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+# Concepts
+
+### Shaders
+
+A Shader is a basic concept of OpenGL. He is a program that runs in GPU and can process position of
+vertex data and color of the pixels in the screen. Radiance generate Shaders code using a language of
+OpenGL the GLSL. We learn more about Shaders in next concepts.
+
+### Shader Object
+
+The Shader Object do not is a concept that realy need be understanded to use Radiance, but is a good
+concept to understand how the tecnology works. A Shader Object represetns a data that can be exist in
+a Shader implementation. When we sum two Shader Objects doing "a + b" actually we just generating a 
+expression in GLSL that execute in GPU in the future.
+
+### Shader Dependence
+
+When we use some objects that can be change betwen frames we generaly use Shader Dependences. These objects
+are referenced by Shader Objects and can be added in Shaders like a dependence of data in program. For example,
+using "using static Radiance.RadianceUtils" you can use the "t" variable: A Shader Dependence of time. Using in
+yours expressions added a uniform, a input variable, in the shaders. Automatically, the time of application will
+be sent to GPU and used by implementations.
+
+### Shader Outputs
+
+We will always have two shaders is our program: A Vertex Shader, that process positions of data and a Fragment
+Shader, that process the colors of pixels. Therefore, exists a pipeline in OpenGL where we need declare output
+and input betwen these two shaders. Radiance will make this process automatically betwen Shader Outputs object.
+
+### IData
+
+IData is a interface implemented by all data types. These data types have the real data of application and can
+be use like a Shader Object with a dependence. Every data type have a default implementation to Vertex Shader
+and Fragment Shader. Using transform function you can update the Vertex Shader. Using colorize function you
+can update the Fragment Shader.
+
+### Render Functions
+
+Every function added in the OnRender Event do not be caled every frame, actually. In reality, the function will
+be transformed in a new function that transform our code in calls of OpenGL library and Shader pre computated.
+In this way, our function will be executed only one time, in project setup and never execute again. This is
+important to understand that some implementations do not work like expected. We need use render functions with
+carefoul to avoid unwanted behaviors.
+
 # Versions
 
 ### Radiance v1.1.0
@@ -163,10 +207,9 @@ Window.Open();
 - Possibility to use global variables on Render
 - Fill function on RenderOperations that triangularize polygons automatically
 - More Data Types with more structure and data
-- Transformations
-- Textures
+- Add matrix Transformations
+- Add Textures
 - Mouse interoperability
 - Improve use of OpenGL resources and reutilizations
 - Improve use of data turning into a mutable data and avoid regenerating buffer if the data not change
 - Add Conditional Rendering
-- Create a documentation with details of implementations and tutorials to expand abstraction
