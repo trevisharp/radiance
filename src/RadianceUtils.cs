@@ -38,6 +38,8 @@ public static class RadianceUtils
         return result;
     }
 
+    public static float dt => Window.DeltaTime;
+
     public static Vector i => new(1, 0, 0); 
     public static Vector j => new(0, 1, 0);
     public static Vector k => new(0, 0, 1);
@@ -52,7 +54,7 @@ public static class RadianceUtils
     public static Color cyan => Color.Cyan;
     public static Color magenta => Color.Magenta;
 
-    public static GlobalFloatShaderObject single => null;
+    public static GlobalFloatShaderObject globalSingle => null;
 
     internal readonly static TimeShaderInput _t = new();
     public static FloatShaderObject t => _t;

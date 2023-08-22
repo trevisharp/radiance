@@ -11,6 +11,8 @@ dotnet add package radiance # Install Radiance
 
 # Tutorials, Examples and Features
 
+See this examples that contains all Radiance features:
+
 ### Create a window for your apps
 
 ```cs
@@ -139,6 +141,87 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Global variables automatically turned into a uniform
+
+```cs
+using Radiance;
+using static Radiance.RadianceUtils;
+
+// init global variable
+var x = globalSingle;
+var y = globalSingle;
+
+var horMov = 0f;
+var verMov = 0f;
+
+var maxSpeed = 500;
+
+var region = data(n, i, i + j, j);
+
+Window.OnLoad += delegate
+{
+    // Use global variables normally
+    x = Window.Width / 2 - 25;
+    y = Window.Height / 2 - 25;
+};
+
+// Update values of global values out of OnRender
+Window.OnFrame += delegate
+{
+    if (horMov > maxSpeed)
+        horMov = maxSpeed;
+    else if (horMov < -maxSpeed)
+        horMov = -maxSpeed;
+
+    if (verMov > maxSpeed)
+        verMov = maxSpeed;
+    else if (verMov < -maxSpeed)
+        verMov = -maxSpeed;
+    
+    // dt = deltaTime = time between frames
+    // use dt to avoid speed based on fps
+    x += horMov * dt;
+    y += verMov * dt;
+    
+    if (horMov > 0)
+        horMov -= maxSpeed * dt;
+    else if (horMov < 0)
+        horMov += maxSpeed * dt;
+
+    if (verMov > 0)
+        verMov -= maxSpeed * dt;
+    else if (verMov < 0)
+        verMov += maxSpeed * dt;
+};
+
+Window.OnRender += r =>
+{
+    r.Draw(region
+        .transform(v => (v.x * 50 + x, v.y * 50 + y, v.z))
+    );
+};
+
+// Update global variables in others events
+Window.OnKeyDown += input =>
+{
+    if (input == Input.D)
+        horMov = maxSpeed;
+    
+    if (input == Input.A)
+        horMov = -maxSpeed;
+    
+    if (input == Input.W)
+        verMov = maxSpeed;
+
+    if (input == Input.S)
+        verMov = -maxSpeed;
+};
+
+Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
+
 # Concepts
 
 ### Shaders
@@ -185,6 +268,11 @@ carefoul to avoid unwanted behaviors.
 
 # Versions
 
+### Radiance v1.2.0
+
+ - ![](https://img.shields.io/badge/new-green) 'dt' Delta time variable and fps control.
+ - ![](https://img.shields.io/badge/new-green) Global variables system
+
 ### Radiance v1.1.0
 
  - ![](https://img.shields.io/badge/new-green) Colored Vectors data type added.
@@ -204,7 +292,6 @@ carefoul to avoid unwanted behaviors.
 
 # Next Features
 
-- Possibility to use global variables on Render (in progress)
 - Fill function on RenderOperations that triangularize polygons automatically
 - More Data Types with more structure and data
 - Add matrix Transformations

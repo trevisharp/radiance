@@ -1,8 +1,13 @@
 ﻿using Radiance;
 using static Radiance.RadianceUtils;
 
-var x = single;
-var y = single;
+var x = globalSingle;
+var y = globalSingle;
+
+var horMov = 0f;
+var verMov = 0f;
+
+var maxSpeed = 500;
 
 var region = data(n, i, i + j, j);
 
@@ -10,6 +15,32 @@ Window.OnLoad += delegate
 {
     x = Window.Width / 2 - 25;
     y = Window.Height / 2 - 25;
+};
+
+Window.OnFrame += delegate
+{
+    if (horMov > maxSpeed)
+        horMov = maxSpeed;
+    else if (horMov < -maxSpeed)
+        horMov = -maxSpeed;
+
+    if (verMov > maxSpeed)
+        verMov = maxSpeed;
+    else if (verMov < -maxSpeed)
+        verMov = -maxSpeed;
+    
+    x += horMov * dt;
+    y += verMov * dt;
+    
+    if (horMov > 0)
+        horMov -= maxSpeed * dt;
+    else if (horMov < 0)
+        horMov += maxSpeed * dt;
+
+    if (verMov > 0)
+        verMov -= maxSpeed * dt;
+    else if (verMov < 0)
+        verMov += maxSpeed * dt;
 };
 
 Window.OnRender += r =>
@@ -22,16 +53,16 @@ Window.OnRender += r =>
 Window.OnKeyDown += input =>
 {
     if (input == Input.D)
-        x += 5;
+        horMov = maxSpeed;
     
     if (input == Input.A)
-        x -= 5;
+        horMov = -maxSpeed;
     
     if (input == Input.W)
-        y += 5;
+        verMov = maxSpeed;
 
     if (input == Input.S)
-        y -= 5;
+        verMov = -maxSpeed;
 };
 
 Window.CloseOn(Input.Escape);

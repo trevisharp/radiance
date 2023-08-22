@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    22/08/2023
  */
 using System;
 using System.Collections.Generic;
@@ -10,6 +10,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance;
 
+using Internal;
 using RenderFunctions;
 
 /// <summary>
@@ -17,6 +18,7 @@ using RenderFunctions;
 /// </summary>
 public static class Window
 {
+    private static TimeFrameController frameController = new TimeFrameController();
     private static GameWindow win;
     private static int width = -1;
     private static int height = -1;
@@ -84,6 +86,8 @@ public static class Window
 
         win.UpdateFrame += e =>
         {
+            frameController.RegisterFrame();
+
             if (OnFrame is null)
                 return;
             
@@ -170,6 +174,9 @@ public static class Window
         onRender += mappedAction;
     }
     
+    public static float DeltaTime => frameController.DeltaTime;
+    public static float Fps => frameController.Fps;
+
     public static event Action OnLoad;
     public static event Action OnUnload;
     public static event Action OnFrame;
