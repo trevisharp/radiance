@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/08/2023
+ * Date:    21/08/2023
  */
 using System;
 
@@ -28,7 +28,9 @@ public abstract class RenderFunction
         if (this.loaded)
             this.Unload();
 
-        this.op = new RenderOperations();
+        this.op = new RenderOperations(
+            this.Function
+        );
 
         var paramerters = Function.Method.GetParameters();
         object[] fakeInput = new object[paramerters.Length];
