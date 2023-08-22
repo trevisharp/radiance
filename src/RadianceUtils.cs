@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    22/08/2023
  */
 using System.Text;
 using System.Linq;
@@ -11,6 +11,7 @@ using Data;
 using ShaderSupport;
 using ShaderSupport.Objects;
 using ShaderSupport.Dependencies;
+using ShaderSupport.GlobalObjects;
 
 /// <summary>
 /// A facede with all utils to use Radiance features.
@@ -51,7 +52,7 @@ public static class RadianceUtils
     public static Color cyan => Color.Cyan;
     public static Color magenta => Color.Magenta;
 
-    public static FloatShaderObject single => null;
+    public static GlobalFloatShaderObject single => null;
 
     internal readonly static TimeShaderInput _t = new();
     public static FloatShaderObject t => _t;

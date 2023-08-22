@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    22/08/2023
  */
 using System.Reflection;
 
@@ -8,13 +8,14 @@ namespace Radiance.ShaderSupport.Dependencies;
 /// <summary>
 /// Represents a dependece of a position buffer data.
 /// </summary>
-public class GlobalVariableDependence<T> : ShaderDependence<T>
+public class GlobalUniformDependence<T> : ShaderDependence<T>
     where T : ShaderObject, new()
 {
     private string type;
     private FieldInfo field;
     private object baseType;
-    public GlobalVariableDependence(FieldInfo field, object baseType)
+    
+    public GlobalUniformDependence(FieldInfo field, object baseType)
     {
         this.DependenceType = ShaderDependenceType.Uniform;
         this.type = ShaderObject.GetStringName<T>();
@@ -24,7 +25,13 @@ public class GlobalVariableDependence<T> : ShaderDependence<T>
     }
 
     public override object Value
-        => field.GetValue(baseType);
+    {
+        get
+        {
+            var globalObject = field.GetValue(baseType) as GlobalShaderObject;
+            return globalObject.Value;
+        }
+    }
 
     public override string GetHeader()
         => $"uniform {type} {Name};";
