@@ -50,7 +50,7 @@ Window.OnRender += r =>
     );
 };
 
-Window.OnKeyDown += input =>
+Window.OnKeyDown += (input, modifier) =>
 {
     if (input == Input.D)
         horMov = maxSpeed;

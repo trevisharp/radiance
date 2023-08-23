@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/08/2023
+ * Date:    23/08/2023
  */
 using System;
 using System.Collections.Generic;
@@ -50,12 +50,12 @@ public static class Window
             }
         );
 
-        win.Resize += delegate
+        win.Resize += e =>
         {
             updateSize(win);
         };
 
-        win.Load += delegate
+        win.Load += () =>
         {
             updateSize(win);
             initializated = true;
@@ -68,7 +68,7 @@ public static class Window
             OnLoad();
         };
 
-        win.Unload += delegate
+        win.Unload += () =>
         {
             if (OnUnload is null)
                 return;
@@ -100,7 +100,8 @@ public static class Window
                 return;
 
             Input input = (Input)e.Key;
-            OnKeyDown(input);
+            Modifier modifier = (Modifier)e.Modifiers;
+            OnKeyDown(input, modifier);
         };
 
         win.KeyUp += e =>
@@ -109,7 +110,58 @@ public static class Window
                 return;
 
             Input input = (Input)e.Key;
-            OnKeyUp(input);
+            Modifier modifier = (Modifier)e.Modifiers;
+            OnKeyUp(input, modifier);
+        };
+
+        win.MouseDown += e =>
+        {
+            if (OnMouseDown is null)
+                return;
+            
+            MouseButton button = (MouseButton)e.Button;
+            OnMouseDown(button);
+        };
+
+        win.MouseUp += e =>
+        {
+            if (OnMouseUp is null)
+                return;
+            
+            MouseButton button = (MouseButton)e.Button;
+            OnMouseUp(button);
+        };
+
+        win.MouseMove += e =>
+        {
+            if (OnMouseMove is null)
+                return;
+            
+            OnMouseMove((e.X, e.Y));
+        };
+
+        win.MouseWheel += e =>
+        {
+            if (OnMouseWhell is null)
+                return;
+            
+            OnMouseWhell(e.OffsetY);
+        };
+
+        win.MouseEnter += () =>
+        {
+            if (OnMouseEnter is null)
+                return;
+            
+            OnMouseEnter();
+        };
+
+        win.MouseLeave += () =>
+        {
+            if (OnMouseLeave is null)
+                return;
+            
+            OnMouseLeave();
         };
 
         win.Run();
@@ -129,9 +181,9 @@ public static class Window
     /// </summary>
     public static void CloseOn(Input input)
     {
-        OnKeyDown += e =>
+        OnKeyDown += (e, m) =>
         {
-            if (e == input)
+            if (e == input && (m & Modifier.ActiveModifier) == 0)
                 Close();
         };
     }
@@ -180,8 +232,16 @@ public static class Window
     public static event Action OnLoad;
     public static event Action OnUnload;
     public static event Action OnFrame;
-    public static event Action<Input> OnKeyDown;
-    public static event Action<Input> OnKeyUp;
+
+    public static event Action<Input, Modifier> OnKeyDown;
+    public static event Action<Input, Modifier> OnKeyUp;
+
+    public static event Action<(float x, float y)> OnMouseMove;
+    public static event Action<MouseButton> OnMouseDown;
+    public static event Action<MouseButton> OnMouseUp;
+    public static event Action<float> OnMouseWhell;
+    public static event Action OnMouseEnter;
+    public static event Action OnMouseLeave;
 
     private static void updateSize(GameWindow win)
     {
