@@ -21,6 +21,7 @@ Window.OnFrame += () =>
 {
     end.x++;
     end.y++;
+    region.HasChanged();
 };
 
 Window.CloseOn(Input.Escape);

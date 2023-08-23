@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
 using System;
 using System.Collections.Generic;
@@ -24,6 +24,15 @@ public class VertexTransformedData<D> : IData<D>
     {
         this.original = original;
         this.transformation = transformation;
+    }
+
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
     }
 
     public Vec3ShaderObject VertexObject =>
@@ -65,6 +74,15 @@ public class VertexTransformedData<D1, D2> : IData<D1, D2>
     {
         this.original = original;
         this.transformation = transformation;
+    }
+
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
     }
 
     public Vec3ShaderObject VertexObject =>

@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    23/08/2023
  */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -20,6 +21,15 @@ public class ColoredVectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollec
     private List<ColoredVector> vectors = new List<ColoredVector>();
     public int Count => vectors.Count;
     public bool IsReadOnly => false;
+
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
+    }
 
     public void Add(ColoredVector item)
         => this.vectors.Add(item);

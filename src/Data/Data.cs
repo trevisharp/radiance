@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
+using System;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
@@ -24,6 +25,9 @@ public interface IData
 
     void SetData(float[] arr, ref int indexoff);
     float[] GetBuffer();
+
+    event Action OnChange;
+    void HasChanged();
 }
 
 /// <summary>

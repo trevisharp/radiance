@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    23/08/2023
  */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -45,6 +46,15 @@ public class Vectors : IData<Vec3ShaderObject>, ICollection<Vector>
     #endregion
 
     #region Data Members
+    
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
+    }
 
     private PositionBufferDependence dep =>
         new PositionBufferDependence(this);
