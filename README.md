@@ -268,6 +268,12 @@ carefoul to avoid unwanted behaviors.
 
 # Versions
 
+### Radiance v1.3.0 (coming soon)
+
+ - ![](https://img.shields.io/badge/new-green) Fill function on RenderOperations that triangularize polygons automatically.
+ - ![](https://img.shields.io/badge/new-green) Improve use of data turning into a mutable data and avoid regenerating buffer if the data not change.
+ - ![](https://img.shields.io/badge/new-green) Improve use of OpenGL resources and reutilizations.
+
 ### Radiance v1.2.0
 
  - ![](https://img.shields.io/badge/new-green) 'dt' Delta time variable and fps control.
@@ -292,11 +298,7 @@ carefoul to avoid unwanted behaviors.
 
 # Next Features
 
-- Fill function on RenderOperations that triangularize polygons automatically
-- More Data Types with more structure and data
 - Add matrix Transformations
 - Add Textures
 - Mouse interoperability
-- Improve use of OpenGL resources and reutilizations
-- Improve use of data turning into a mutable data and avoid regenerating buffer if the data not change
 - Add Conditional Rendering
