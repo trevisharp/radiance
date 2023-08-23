@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
 using System.Collections.Generic;
 
@@ -34,7 +34,7 @@ public class Color : IData<Vec4ShaderObject>
     public Vec3ShaderObject VertexObject => (0, 0, 0);
 
     public ColorBufferDependence dep => 
-        new ColorBufferDependence(this.GetBuffer());
+        new ColorBufferDependence(this);
     public Vec4ShaderObject FragmentObject => dep;
 
     public IEnumerable<ShaderOutput> Outputs

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
 using System.Collections.Generic;
 
@@ -56,7 +56,7 @@ public class Vector : IData<Vec3ShaderObject>
     #region Data Members
 
     private PositionBufferDependence dep =>
-        new PositionBufferDependence(this.GetBuffer());
+        new PositionBufferDependence(this);
 
     public Vec3ShaderObject VertexObject => dep;
 
