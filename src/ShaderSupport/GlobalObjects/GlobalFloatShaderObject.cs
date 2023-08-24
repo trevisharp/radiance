@@ -35,4 +35,10 @@ public class GlobalFloatShaderObject : GlobalShaderObject<float, FloatShaderObje
     
     public static GlobalFloatShaderObject operator *(float y, GlobalFloatShaderObject x)
         => new ((float)x.Value * y);
+        
+    public static GlobalFloatShaderObject operator /(GlobalFloatShaderObject x, float y)
+        => new ((float)x.Value / y);
+    
+    public static GlobalFloatShaderObject operator /(float y, GlobalFloatShaderObject x)
+        => new (y / (float)x.Value);
 }

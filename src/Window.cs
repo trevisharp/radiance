@@ -137,7 +137,7 @@ public static class Window
             if (OnMouseMove is null)
                 return;
             
-            OnMouseMove((e.X, e.Y));
+            OnMouseMove((e.X, Height - e.Y));
         };
 
         win.MouseWheel += e =>
