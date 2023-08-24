@@ -11,6 +11,6 @@ using Objects;
 /// </summary>
 public class ColorBufferDependence : BufferDependence<Vec4ShaderObject>
 {
-    public ColorBufferDependence(IData data, int position = 1)
+    public ColorBufferDependence(IData data, int position = 0)
         : base("color", data, position) { }
 }

@@ -11,6 +11,6 @@ using Objects;
 /// </summary>
 public class PositionBufferDependence : BufferDependence<Vec3ShaderObject>
 {
-    public PositionBufferDependence(IData data, int position = 1)
+    public PositionBufferDependence(IData data, int position = 0)
         : base("position", data, position) { }
 }

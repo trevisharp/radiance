@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
 using System;
 using System.Text;
@@ -310,15 +310,16 @@ public class RenderOperations
                 
                 case ShaderDependenceType.CustomData:
                     sb.AppendLine(dependence.GetHeader());
-                    float[] data = (float[])dependence.Value;
 
                     setup += delegate
                     {
+                        float[] data = (float[])dependence.Value;
+
                         GL.BufferData(
                             BufferTarget.ArrayBuffer,
                             data.Length * sizeof(float), 
                             data, 
-                            BufferUsageHint.StaticDraw
+                            BufferUsageHint.DynamicDraw
                         );
                     };
                     break;
