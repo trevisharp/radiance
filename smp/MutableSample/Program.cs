@@ -1,11 +1,13 @@
 ﻿using Radiance;
 using static Radiance.RadianceUtils;
 
-var end = i + j; 
+var w = i;
+var h = j;
+var end = i + j;
 
 var region = data(
-    n, i, end,
-    n, j, end
+    n, w, end,
+    n, h, end
 );
 
 Window.OnRender += r =>
@@ -21,6 +23,8 @@ Window.OnFrame += () =>
 {
     end.x++;
     end.y++;
+    w.x++;
+    h.y++;
     region.HasChanged();
 };
 
