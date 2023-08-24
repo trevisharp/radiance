@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
+using System;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
@@ -21,6 +22,15 @@ public class Vector : IData<Vec3ShaderObject>
     public float x { get; set; }
     public float y { get; set; }
     public float z { get; set; }
+
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
+    }
 
     public static implicit operator Vector((float x, float y, float z) data)
         => new Vector(data.x, data.y, data.z);
@@ -56,7 +66,7 @@ public class Vector : IData<Vec3ShaderObject>
     #region Data Members
 
     private PositionBufferDependence dep =>
-        new PositionBufferDependence(this.GetBuffer());
+        new PositionBufferDependence(this);
 
     public Vec3ShaderObject VertexObject => dep;
 

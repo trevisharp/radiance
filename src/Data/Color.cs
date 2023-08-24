@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
+using System;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
@@ -30,11 +31,20 @@ public class Color : IData<Vec4ShaderObject>
     public float R { get; set; }
     public float G { get; set; }
     public float B { get; set; }
+    
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
+    }
 
     public Vec3ShaderObject VertexObject => (0, 0, 0);
 
     public ColorBufferDependence dep => 
-        new ColorBufferDependence(this.GetBuffer());
+        new ColorBufferDependence(this);
     public Vec4ShaderObject FragmentObject => dep;
 
     public IEnumerable<ShaderOutput> Outputs

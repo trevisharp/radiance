@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
+using System;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -20,6 +21,15 @@ public class ColoredVectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollec
     private List<ColoredVector> vectors = new List<ColoredVector>();
     public int Count => vectors.Count;
     public bool IsReadOnly => false;
+
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
+    }
 
     public void Add(ColoredVector item)
         => this.vectors.Add(item);
@@ -59,10 +69,10 @@ public class ColoredVectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollec
     public IEnumerable<int> Sizes => new int[] { 3, 4 };
 
     public Vec3ShaderObject Data1
-        => new PositionBufferDependence(this.GetBuffer(), 0);
+        => new PositionBufferDependence(this, 0);
     
     public Vec4ShaderObject Data2
-        => new ColorBufferDependence(this.GetBuffer(), 1);
+        => new ColorBufferDependence(this, 1);
 
     public void SetData(float[] arr, ref int indexoff)
     {

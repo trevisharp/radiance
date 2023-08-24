@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
 using System;
 using System.Linq;
@@ -28,6 +28,15 @@ public class FragmentTransformedData<D> : IData<D>
         this.original = original;
         this.transformation = transformation;
         this.output = ShaderOutput.Create(original.Data1);
+    }
+
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
     }
 
     public Vec3ShaderObject VertexObject => 
@@ -75,6 +84,15 @@ public class FragmentTransformedData<D1, D2> : IData<D1, D2>
         this.transformation = transformation;
         this.output1 = ShaderOutput.Create(original.Data1);
         this.output2 = ShaderOutput.Create(original.Data2);
+    }
+    
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
     }
 
     public Vec3ShaderObject VertexObject => 

@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
+using System;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
@@ -14,6 +15,15 @@ public class ColoredVector : IData<Vec3ShaderObject, Vec4ShaderObject>
     public Vector Vector { get; set; }
     public Color Color { get; set; }
 
+    public event Action OnChange;
+    public void HasChanged()
+    {
+        if (OnChange is null)
+            return;
+        
+        OnChange();
+    }
+
     public Vec3ShaderObject VertexObject => Data1;
     public Vec4ShaderObject FragmentObject => Data2;
 
@@ -25,10 +35,10 @@ public class ColoredVector : IData<Vec3ShaderObject, Vec4ShaderObject>
     public IEnumerable<int> Sizes => new int[] { 3, 4 };
 
     public Vec3ShaderObject Data1
-        => new PositionBufferDependence(this.GetBuffer(), 0);
+        => new PositionBufferDependence(this, 0);
     
     public Vec4ShaderObject Data2
-        => new ColorBufferDependence(this.GetBuffer(), 1);
+        => new ColorBufferDependence(this, 1);
 
     public float[] GetBuffer()
     {

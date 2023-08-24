@@ -1,30 +1,16 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
 namespace Radiance.ShaderSupport.Dependencies;
 
+using Data;
 using Objects;
 
 /// <summary>
 /// Represents a dependece of a position buffer data.
 /// </summary>
-public class ColorBufferDependence : ShaderDependence<Vec4ShaderObject>
+public class ColorBufferDependence : BufferDependence<Vec4ShaderObject>
 {
-    private float[] data;
-    private int position;
-
-    public ColorBufferDependence(float[] data, int position = 1)
-    {
-        this.data = data;
-        this.position = position;
-
-        this.Name = "color";
-        this.DependenceType = ShaderDependenceType.CustomData;
-    }
-
-    public override object Value
-        => this.data;
-
-    public override string GetHeader()
-        => $"layout(location = {position}) in vec4 color;";
+    public ColorBufferDependence(IData data, int position = 0)
+        : base("color", data, position) { }
 }
