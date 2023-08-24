@@ -1,11 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    23/08/2023
  */
 using System;
 using System.Text;
 using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
+
+using static System.Console;
 
 using OpenTK.Graphics.OpenGL4;
 
@@ -67,22 +69,22 @@ public class RenderOperations
         var realOutputs = data.Outputs
             .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));
 
+        start("Vertex Shader Creation");
         var vertexTuple = generateVertexShader(
             data.VertexObject, realOutputs, program
         );
-        if (Verbose)
-            Console.WriteLine(vertexTuple.source);
+        var verteShader = createVertexShader(vertexTuple.source);
 
+        start("Fragment Shader Creation");
         var fragmentTuple = generateFragmentShader(
             data.FragmentObject, program
         );
-        if (Verbose)
-            Console.WriteLine(fragmentTuple.source);
+        var fragmentShader = createFragmentShader(fragmentTuple.source);
 
         addShaders(
             program,
-            createVertexShader(vertexTuple.source),
-            createFragmentShader(fragmentTuple.source)
+            verteShader,
+            fragmentShader
         );
         
         effects += delegate
@@ -194,26 +196,34 @@ public class RenderOperations
 
     private int createShader(OpenTK.Graphics.OpenGL4.ShaderType type, string source)
     {
+        information("Creating Shader...");
+
         var hash = getHash(source);
+        information($"Hash: {hash}");
+
         if (shaderMap.ContainsKey(hash))
+        {
+            information("Conflit. Reusing other shader!");
             return shaderMap[hash];
+        }
 
         var shader = GL.CreateShader(type);
+        information($"Code: {shader}");
+        information($"Compiling Shader...");
         GL.ShaderSource(shader, source);
         GL.CompileShader(shader);
 
         shaderMap.Add(hash, shader);
 
-        if (!Verbose)
-            return shader;
-
         GL.GetShader(shader, ShaderParameter.CompileStatus, out var code);
         if (code != (int)All.True)
         {
             var infoLog = GL.GetShaderInfoLog(shader);
-            throw new Exception($"Error occurred in Shader({shader}) compilation: {infoLog}");
+            error($"Error occurred in Shader({shader}) compilation: {infoLog}");
+            return -1;
         }
 
+        success("Shader Created!!");
         return shader;
     }
 
@@ -225,18 +235,10 @@ public class RenderOperations
     }
 
     private int getHash(string str)
-    {
-        int hash = 0;
-        var bytes =  Encoding.UTF8.GetBytes(str);
-
-        for (int i = 0; i < bytes.Length - 1; i++)
-            hash += bytes[i] * bytes[i + 1];
-
-        return hash;
-    }
+        => str.GetHashCode();
 
     private void addShaders(int program, int vertexShader, int fragmentShader)
-    {        
+    {
         GL.AttachShader(program, vertexShader);
         GL.AttachShader(program, fragmentShader);
         
@@ -245,14 +247,9 @@ public class RenderOperations
         GL.DetachShader(program, vertexShader);
         GL.DetachShader(program, fragmentShader);
 
-        if (!Verbose)
-            return;
-
         GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
         if (code != (int)All.True)
-        {
-            throw new Exception($"Error occurred Program({program}) linking.");
-        }
+            error($"Error occurred Program({program}) linking.");
     }
     
     private int createBuffer()
@@ -284,6 +281,7 @@ public class RenderOperations
         IEnumerable<ShaderOutput> outputs,
         int program)
     {
+        information($"Generating Shader...");
         var sb = getCodeBuilder();
         Action setup = null;
 
@@ -348,15 +346,22 @@ public class RenderOperations
             sb.AppendLine($"\t{name} = {outExp};");
         }
 
-        sb.AppendLine("}");
+        sb.Append("}");
 
-        return (sb.ToString(), setup);
+        var result = sb.ToString();
+
+        information("Vertex Shader:");
+        code(result);
+
+        return (result, setup);
     }
 
     private (string source, Action setup) generateFragmentShader(
         Vec4ShaderObject fragmentObject,
         int program)
     {
+        information($"Generating Shader...");
+
         var sb = getCodeBuilder();
         Action setup = null;
 
@@ -388,9 +393,14 @@ public class RenderOperations
         sb.AppendLine("void main()");
         sb.AppendLine("{");
         sb.AppendLine($"\toutColor = {exp};");
-        sb.AppendLine("}");
+        sb.Append("}");
 
-        return (sb.ToString(), setup);
+        var result = sb.ToString();
+
+        information("Fragment Shader:");
+        code(result);
+
+        return (result, setup);
     }
 
     private StringBuilder getCodeBuilder()
@@ -447,5 +457,45 @@ public class RenderOperations
         }
 
         return vertexObject;
+    }
+
+    private void error(string message = "")
+        => verbose(message, ConsoleColor.White, ConsoleColor.Red);
+    
+    private void information(string message = "")
+        => verbose(message, ConsoleColor.Green);
+    
+    private void success(string message = "")
+        => verbose(message + "\n", ConsoleColor.Blue);
+    
+    private void code(string message = "")
+        => verbose(message, ConsoleColor.DarkYellow, ConsoleColor.Black, 1);
+
+    private void start(string message = "")
+        => verbose("Process: " + message, ConsoleColor.Magenta);
+
+    private void verbose(
+        string text, 
+        ConsoleColor fore = ConsoleColor.White,
+        ConsoleColor back = ConsoleColor.Black,
+        int tabIndex = 0,
+        bool newline = true
+        )
+    {
+        if (!Verbose)
+            return;
+        
+        var fullTab = "";
+        for (int i = 0; i < tabIndex; i++)
+            fullTab += "\t";
+
+        text = fullTab + text.Replace("\n", "\n" + fullTab);
+        
+        ForegroundColor = fore;
+        BackgroundColor = back;
+        Write(text);
+        
+        if (newline)
+            WriteLine();
     }
 }

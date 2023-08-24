@@ -9,12 +9,12 @@ var rect = data(
 Window.OnRender += r =>
 {
     r.Verbose = true;
-    for (int i = 0; i < 10; i++)
+    float N = 40;
+    for (int i = 0; i < N; i++)
     {
-        int j = i;
         r.FillTriangles(rect
-            .transform(v => (v.x * 50 * (j + 1), v.y * 50 * (j + 1), 0))
-            .colorize(25 * j / 255f, 25 * j / 255f, 25 * j / 255f)
+            .transform(v => (v.x * 20 * (N - i), v.y * 20 * (N - i), 0))
+            .colorize(i / N, 0, 0)
         );
     }
 };
