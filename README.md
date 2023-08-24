@@ -18,15 +18,17 @@ See this examples that contains all Radiance features:
 ```cs
 using Radiance;
 
-Window.OnKeyDown += key =>
+Window.OnKeyDown += (input, modifier) =>
 {
-    if (key == Input.Escape)
+    // Test if active modifier has pressed like, alt, shift, ctrl.
+    bool dontHasMod = (m & Modifier.ActiveModifier) == 0;
+    if (input == Input.Escape && !dontHasMod)
         Window.Close();
 }
 // Or use:
 // Window.CloseOn(Input.Escape);
 
-Window.Open(false); // or ignore parameter for fullscreen
+Window.Open(false); // true or ignore parameter for fullscreen
 ```
 
 ### Use C# to generate OpenGL Shaders with auto parameters
@@ -202,7 +204,7 @@ Window.OnRender += r =>
 };
 
 // Update global variables in others events
-Window.OnKeyDown += input =>
+Window.OnKeyDown += (input, modifier) =>
 {
     if (input == Input.D)
         horMov = maxSpeed;
@@ -270,6 +272,8 @@ carefoul to avoid unwanted behaviors.
 
 ### Radiance v1.3.0 (coming soon)
 
+ - ![](https://img.shields.io/badge/new-green) Cursor input events added.
+ - ![](https://img.shields.io/badge/new-update) Add modifier systems to keyboard input.
  - ![](https://img.shields.io/badge/new-green) Fill function on RenderOperations that triangularize polygons automatically.
  - ![](https://img.shields.io/badge/new-green) Improve use of data turning into a mutable data and avoid regenerating buffer if the data not change.
  - ![](https://img.shields.io/badge/new-green) Improve use of OpenGL resources and reutilizations.
