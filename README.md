@@ -387,8 +387,8 @@ carefoul to avoid unwanted behaviors.
 ### Radiance v1.3.0
 
  - ![](https://img.shields.io/badge/new-green) Cursor input events added.
- - ![](https://img.shields.io/badge/new-update) Add modifier systems to keyboard input.
- - ![](https://img.shields.io/badge/new-update) Improve Verbose mode outputs.
+ - ![](https://img.shields.io/badge/update-orange) Add modifier systems to keyboard input.
+ - ![](https://img.shields.io/badge/update-orange) Improve Verbose mode outputs.
  - ![](https://img.shields.io/badge/new-green) Improve use of data turning into a mutable data and avoid regenerating buffer if the data not change.
  - ![](https://img.shields.io/badge/new-green) Improve use of OpenGL resources and reutilizations.
 
