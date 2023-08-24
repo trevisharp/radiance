@@ -9,7 +9,7 @@ dotnet new console # Create project
 dotnet add package radiance # Install Radiance
 ```
 
-# Tutorials, Examples and Features
+# Examples and Features
 
 See this examples that contains all Radiance features:
 
@@ -37,7 +37,6 @@ Window.Open(false); // true or ignore parameter for fullscreen
 using Radiance;
 using static Radiance.RadianceUtils;
 
-// immutable data
 var region = data(
     (-1, -1, 0),
     (+1, -1, 0),
@@ -218,6 +217,121 @@ Window.OnKeyDown += (input, modifier) =>
     if (input == Input.S)
         verMov = -maxSpeed;
 };
+
+Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
+
+### Use multi Draw operations and analize the process with Verbose Mode
+
+```cs
+using Radiance;
+using static Radiance.RadianceUtils;
+
+var rect = data(
+    n, i, i + j,
+    n, j, i + j
+);
+
+Window.OnRender += r =>
+{
+    r.Verbose = true;
+    float N = 40;
+    for (int i = 0; i < N; i++)
+    {
+        // Create many prograns/Shaders
+        r.FillTriangles(rect
+            .transform(v => (v.x * 20 * (N - i), v.y * 20 * (N - i), 0))
+            .colorize(i / N, 0, 0)
+        );
+    }
+};
+
+Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
+
+### Edit you data state and update in the screen
+
+```cs
+using Radiance;
+using static Radiance.RadianceUtils;
+
+var w = i;
+var h = j;
+var end = i + j;
+
+var region = data(
+    n, w, end,
+    n, h, end
+);
+
+Window.OnRender += r =>
+{
+    r.Clear(black);
+
+    r.FillTriangles(region
+        .colorize(red)
+    );
+};
+
+Window.OnFrame += () =>
+{
+    end.x++;
+    end.y++;
+    w.x++;
+    h.y++;
+    region.HasChanged();
+};
+
+Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
+
+### Get cursor position and use all potential of Radiance
+
+```cs
+using Radiance;
+using static Radiance.RadianceUtils;
+
+var x = 0f;
+var y = 0f;
+
+var cursor = i + j;
+
+var region = data(
+    n | black, i | black, cursor | white,
+    n | black, j | black, cursor | white,
+
+    2 * j | black, j | black, cursor | white,
+    2 * j | black, 2 * j + i | black, cursor | white,
+
+    2 * i | black, 2 * i + j | black, cursor | white,
+    2 * i | black, i | black, cursor | white,
+
+    2 * i + 2 * j | black, 2 * i + j | black, cursor | white,
+    2 * i + 2 * j | black, 2 * j + i | black, cursor | white
+);
+
+Window.OnRender += r =>
+{
+    r.FillTriangles(region
+        .transform((v, c) => (width * v.x / 2, height * v.y / 2, 0))
+        .colorize((v, c) => c)
+    );
+};
+
+Window.OnFrame += delegate
+{
+    cursor.x = 2 * x / Window.Width;
+    cursor.y = 2 * y / Window.Height;
+    region.HasChanged();
+};
+
+Window.OnMouseMove += p => (x, y) = p;
 
 Window.CloseOn(Input.Escape);
 
