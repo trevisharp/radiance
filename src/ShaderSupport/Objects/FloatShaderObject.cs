@@ -36,10 +36,10 @@ public class FloatShaderObject : ShaderObject
     }
 
     public static implicit operator FloatShaderObject(float value)
-        => new (value.ToString());
+        => new (value.ToString().Replace(',', '.'));
         
     public static implicit operator FloatShaderObject(double value)
-        => new (value.ToString());
+        => new (value.ToString().Replace(',', '.'));
         
     public static implicit operator FloatShaderObject(int value)
         => new (value.ToString());
