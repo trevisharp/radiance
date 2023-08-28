@@ -63,31 +63,33 @@ public class RenderOperations
         IData data
     )
     {
-        var gpuBuffer = createBuffer();
-        int vertexArray = createVertexArray(data);
-        int program = createProgram();
-
         var frag = data.FragmentObject.Dependecies;
         var realOutputs = data.Outputs
-            .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));
+            .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));    
+
+        start("Creating Program");
+        var programData = new int[] { 0 };
 
         start("Vertex Shader Creation");
         var vertexTuple = generateVertexShader(
-            data.VertexObject, realOutputs, program
+            data.VertexObject, realOutputs, programData
         );
-        var verteShader = createVertexShader(vertexTuple.source);
+        var vertexShader = createVertexShader(vertexTuple.source);
+        success("Shader Created!!");
 
         start("Fragment Shader Creation");
         var fragmentTuple = generateFragmentShader(
-            data.FragmentObject, program
+            data.FragmentObject, programData
         );
         var fragmentShader = createFragmentShader(fragmentTuple.source);
+        success("Shader Created!!");
 
-        addShaders(
-            program,
-            verteShader,
-            fragmentShader
-        );
+        int program = createProgram(vertexShader, fragmentShader);
+        programData[0] = program;
+        success("Program Created!!");
+
+        var gpuBuffer = createBuffer();
+        int vertexArray = createVertexArray(data);
         
         effects += delegate
         {
@@ -128,9 +130,9 @@ public class RenderOperations
     internal void Unload()
     {
         GL.UseProgram(0);
-        foreach (var program in programList)
-            GL.DeleteProgram(program);
-        programList.Clear();
+        foreach (var program in programMap)
+            GL.DeleteProgram(program.Value);
+        programMap.Clear();
 
         foreach (var buffer in bufferList)
             GL.DeleteBuffer(buffer);
@@ -148,7 +150,7 @@ public class RenderOperations
 
     private List<int> bufferList = new();
 
-    private List<int> programList = new();
+    private Dictionary<(int, int), int> programMap = new();
 
     private Dictionary<int, int> shaderMap = new();
 
@@ -211,7 +213,6 @@ public class RenderOperations
         if (shaderMap.ContainsKey(hash))
         {
             information("Conflit. Reusing other shader!");
-            success("Shader Created!!");
             return shaderMap[hash];
         }
 
@@ -231,35 +232,46 @@ public class RenderOperations
             return -1;
         }
 
-        success("Shader Created!!");
         return shader;
     }
 
-    private int createProgram()
+    private int createProgram(
+        int vertexShader, 
+        int fragmentShader
+    )
     {
+        var programKey = (vertexShader, fragmentShader);
+        if (programMap.ContainsKey(programKey))
+        {
+            var reusingProgram = programMap[programKey];
+            information($"Reusing Program {reusingProgram}.");
+            return reusingProgram;
+        }
+
         var program = GL.CreateProgram();
-        this.programList.Add(program);
-        return program;
-    }
-
-    private int getHash(string str)
-        => str.GetHashCode();
-
-    private void addShaders(int program, int vertexShader, int fragmentShader)
-    {
+        
+        information("Attaching Shaders...");
         GL.AttachShader(program, vertexShader);
         GL.AttachShader(program, fragmentShader);
         
+        information("Link Program...");
         GL.LinkProgram(program);
 
+        information("Dettaching Program...");
         GL.DetachShader(program, vertexShader);
         GL.DetachShader(program, fragmentShader);
 
         GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
         if (code != (int)All.True)
             error($"Error occurred Program({program}) linking.");
+        
+        this.programMap.Add(programKey, program);
+        return program;
     }
-    
+
+    private int getHash(string str)
+        => str.GetHashCode();
+
     private int createBuffer()
     {
         var bufferObject = GL.GenBuffer();
@@ -287,7 +299,7 @@ public class RenderOperations
     private (string source, Action setup) generateVertexShader(
         Vec3ShaderObject vertexObject,
         IEnumerable<ShaderOutput> outputs,
-        int program)
+        int[] programData)
     {
         information($"Generating Shader...");
         var sb = getCodeBuilder();
@@ -310,7 +322,7 @@ public class RenderOperations
 
                     setup += delegate
                     {
-                        setUniform(program, dependence);
+                        setUniform(programData[0], dependence);
                     };
                     break;
                 
@@ -367,7 +379,7 @@ public class RenderOperations
 
     private (string source, Action setup) generateFragmentShader(
         Vec4ShaderObject fragmentObject,
-        int program)
+        int[] programData)
     {
         information($"Generating Shader...");
 
@@ -385,7 +397,7 @@ public class RenderOperations
 
                     setup += delegate
                     {
-                        setUniform(program, dependence);
+                        setUniform(programData[0], dependence);
                     };
                     break;
                 
