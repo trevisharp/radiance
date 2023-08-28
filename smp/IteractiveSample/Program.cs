@@ -1,8 +1,9 @@
 ﻿using Radiance;
+using Radiance.Types;
 using static Radiance.RadianceUtils;
 
-var x = globalSingle;
-var y = globalSingle;
+rfloat x = 0;
+rfloat y = 0;
 
 var horMov = 0f;
 var verMov = 0f;

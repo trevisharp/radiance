@@ -157,7 +157,7 @@ public class RenderOperations
         foreach (var field in mainType.GetRuntimeFields())
         {
             var type = field.FieldType;
-            if (!type.IsSubclassOf(typeof(GlobalShaderObject)))
+            if (!type.IsSubclassOf(typeof(ShaderReference)))
                 continue;
             
             var constructor = type.GetConstructor(

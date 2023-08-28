@@ -28,7 +28,7 @@ public class GlobalUniformDependence<T> : ShaderDependence<T>
     {
         get
         {
-            var globalObject = field.GetValue(baseType) as GlobalShaderObject;
+            var globalObject = field.GetValue(baseType) as ShaderReference;
             return globalObject.Value;
         }
     }

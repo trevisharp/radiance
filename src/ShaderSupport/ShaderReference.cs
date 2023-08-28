@@ -10,21 +10,21 @@ using Dependencies;
 /// <summary>
 /// A type to global variables used in shaders
 /// </summary>
-public class GlobalShaderObject : ShaderObject
+public class ShaderReference : ShaderObject
 { 
     protected FieldInfo field;
     protected object baseObject;
     
     public object Value { get; set; }
 
-    public GlobalShaderObject(FieldInfo field, object baseObject)
+    public ShaderReference(FieldInfo field, object baseObject)
     {
         this.field = field;
         this.baseObject = baseObject;
     
     }
 
-    public GlobalShaderObject(object value)
+    public ShaderReference(object value)
     {
         this.Value = value;
     }
@@ -33,16 +33,16 @@ public class GlobalShaderObject : ShaderObject
 /// <summary>
 /// A type to global variables used in shaders
 /// </summary>
-public class GlobalShaderObject<T, S> : GlobalShaderObject
+public class ShaderReference<T, S> : ShaderReference
     where S : ShaderObject, new()
 {
-    public GlobalShaderObject(FieldInfo field, object baseObject)
+    public ShaderReference(FieldInfo field, object baseObject)
         : base (field, baseObject) { }
 
-    public GlobalShaderObject(object value)
+    public ShaderReference(object value)
         : base (value) { }
 
-    public static implicit operator S(GlobalShaderObject<T, S> globalObject)
+    public static implicit operator S(ShaderReference<T, S> globalObject)
     {
         if (globalObject.field is not null && globalObject.baseObject is not null)
             return new GlobalUniformDependence<S>(

@@ -149,8 +149,8 @@ using Radiance;
 using static Radiance.RadianceUtils;
 
 // init global variable
-var x = globalSingle;
-var y = globalSingle;
+rfloat x = 0;
+rfloat y = 0;
 
 var horMov = 0f;
 var verMov = 0f;
@@ -381,6 +381,13 @@ be transformed in a new function that transform our code in calls of OpenGL libr
 In this way, our function will be executed only one time, in project setup and never execute again. This is
 important to understand that some implementations do not work like expected. We need use render functions with
 carefoul to avoid unwanted behaviors.
+
+### Radiance Types
+
+A real value that exist in your C# Program and maybe sended to GPU betwen uniform's can be represented with 
+Radiance Types, like rfloat. A rfloat variable will be transormed into a uniform automatically. Radiance types
+can be global ou local. On loops, use radiance types to avoid create a high quantity of shaders that are similiar
+but not equal.
 
 # Versions
 
