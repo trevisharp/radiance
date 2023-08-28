@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/08/2023
+ * Date:    28/08/2023
  */
 using System;
 using System.Text;
@@ -23,6 +23,8 @@ using ShaderSupport.Objects;
 /// </summary>
 public class RenderOperations
 {
+    private int globalTabIndex = 0;
+
     public bool Verbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
 
@@ -204,6 +206,7 @@ public class RenderOperations
         if (shaderMap.ContainsKey(hash))
         {
             information("Conflit. Reusing other shader!");
+            success("Shader Created!!");
             return shaderMap[hash];
         }
 
@@ -461,19 +464,19 @@ public class RenderOperations
     }
 
     private void error(string message = "")
-        => verbose(message, ConsoleColor.White, ConsoleColor.Red);
+        => verbose(message, ConsoleColor.White, ConsoleColor.Red, globalTabIndex);
     
     private void information(string message = "")
-        => verbose(message, ConsoleColor.Green);
+        => verbose(message, ConsoleColor.Green, ConsoleColor.Black, globalTabIndex);
     
     private void success(string message = "")
-        => verbose(message + "\n", ConsoleColor.Blue);
+        => verbose(message + "\n", ConsoleColor.Blue, ConsoleColor.Black, --globalTabIndex);
     
     private void code(string message = "")
-        => verbose(message, ConsoleColor.DarkYellow, ConsoleColor.Black, 1);
+        => verbose(message, ConsoleColor.DarkYellow, ConsoleColor.Black, globalTabIndex + 1);
 
     private void start(string message = "")
-        => verbose("Process: " + message, ConsoleColor.Magenta);
+        => verbose("Start: " + message, ConsoleColor.Magenta, ConsoleColor.Black, globalTabIndex++);
 
     private void verbose(
         string text, 
