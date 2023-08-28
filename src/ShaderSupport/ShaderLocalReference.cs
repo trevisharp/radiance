@@ -1,7 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    28/08/2023
  */
-using System.Reflection;
+#pragma warning disable CS0660
+#pragma warning disable CS0661
 
 namespace Radiance.ShaderSupport;
 
