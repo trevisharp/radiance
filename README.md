@@ -395,6 +395,11 @@ but not equal.
 
 # Versions
 
+### Radiance v1.4.0
+
+ - ![](https://img.shields.io/badge/update-orange) Global system types updates.
+ - ![](https://img.shields.io/badge/new-green) Program reusing if shaders are same in diferent draw calls.
+
 ### Radiance v1.3.0
 
  - ![](https://img.shields.io/badge/new-green) Cursor input events added.
@@ -430,5 +435,4 @@ but not equal.
 - Fill function on RenderOperations that triangularize polygons automatically
 - Add matrix Transformations
 - Add Textures
-- Mouse interoperability
 - Add Conditional Rendering
