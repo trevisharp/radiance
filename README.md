@@ -146,6 +146,7 @@ Window.Open();
 
 ```cs
 using Radiance;
+using Radiance.Types;
 using static Radiance.RadianceUtils;
 
 // init global variable
@@ -227,6 +228,7 @@ Window.Open();
 
 ```cs
 using Radiance;
+using Radiance.Types;
 using static Radiance.RadianceUtils;
 
 var rect = data(
@@ -389,9 +391,9 @@ carefoul to avoid unwanted behaviors.
 ### Radiance Types
 
 A real value that exist in your C# Program and maybe sended to GPU betwen uniform's can be represented with 
-Radiance Types, like rfloat. A rfloat variable will be transormed into a uniform automatically. Radiance types
-can be global ou local. On loops, use radiance types to avoid create a high quantity of shaders that are similiar
-but not equal.
+Radiance Types, like rfloat. A gfloat or lfloat variable will be transormed into a uniform automatically. Radiance
+types can be global ou local. On loops, use radiance types to avoid create a high quantity of shaders that are
+similiar but not equal.
 
 # Versions
 
