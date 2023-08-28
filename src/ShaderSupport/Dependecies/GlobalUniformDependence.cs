@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/08/2023
+ * Date:    28/08/2023
  */
 using System.Reflection;
 
@@ -28,8 +28,8 @@ public class GlobalUniformDependence<T> : ShaderDependence<T>
     {
         get
         {
-            var globalObject = field.GetValue(baseType) as ShaderReference;
-            return globalObject.Value;
+            var globalObject = field.GetValue(baseType) as ShaderGlobalReference;
+            return globalObject.ObjectValue;
         }
     }
 

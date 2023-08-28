@@ -1,4 +1,5 @@
 ﻿using Radiance;
+using Radiance.Types;
 using static Radiance.RadianceUtils;
 
 var rect = data(
@@ -10,7 +11,7 @@ Window.OnRender += r =>
 {
     r.Verbose = true;
     float N = 40;
-    for (int i = 0; i < N; i++)
+    for (lfloat i = 0; i < N; i++)
     {
         r.FillTriangles(rect
             .transform(v => (v.x * 20 * (N - i), v.y * 20 * (N - i), 0))

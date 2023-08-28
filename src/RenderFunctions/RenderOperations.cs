@@ -159,20 +159,25 @@ public class RenderOperations
         foreach (var field in mainType.GetRuntimeFields())
         {
             var type = field.FieldType;
-            if (!type.IsSubclassOf(typeof(ShaderReference)))
+            if (!type.IsSubclassOf(typeof(ShaderGlobalReference)))
                 continue;
             
             var constructor = type.GetConstructor(
                 new Type[] { 
                     typeof(FieldInfo), 
-                    typeof(object) 
+                    typeof(object),
+                    typeof(object)
                 }
             );
+
+            var gref = field.GetValue(Function.Target)
+                as ShaderGlobalReference;
 
             var obj = constructor.Invoke(
                 new object[] {
                     field,
-                    Function.Target
+                    Function.Target,
+                    gref.ObjectValue
                 }
             );
             

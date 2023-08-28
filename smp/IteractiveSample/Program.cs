@@ -2,8 +2,8 @@
 using Radiance.Types;
 using static Radiance.RadianceUtils;
 
-rfloat x = 0;
-rfloat y = 0;
+gfloat x = 0;
+gfloat y = 0;
 
 var horMov = 0f;
 var verMov = 0f;

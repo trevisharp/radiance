@@ -149,8 +149,8 @@ using Radiance;
 using static Radiance.RadianceUtils;
 
 // init global variable
-rfloat x = 0;
-rfloat y = 0;
+gfloat x = 0;
+gfloat y = 0;
 
 var horMov = 0f;
 var verMov = 0f;
@@ -238,7 +238,11 @@ Window.OnRender += r =>
 {
     r.Verbose = true;
     float N = 40;
-    for (int i = 0; i < N; i++)
+    // Local variables are considered a uniform. You can generate a single
+    // shader code using them. To update the values of l-type variables you
+    // need ouse x++, x-- or x.Update(value). Use x.Value to access the value
+    // of variable.
+    for (lfloat i = 0; i < N; i++)
     {
         // Create many prograns/Shaders
         r.FillTriangles(rect
