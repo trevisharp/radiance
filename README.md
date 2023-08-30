@@ -344,6 +344,28 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Generate simple shapes easily
+
+```cs
+using Radiance;
+using static Radiance.RadianceUtils;
+
+var r1 = rect(50, 50, 200, 100);
+var r2 = ellip(250, 150, 200, 50);
+var r3 = ellip(350, 250, 50, 50, 6);
+
+Window.OnRender += r =>
+{
+    r.Draw(r1);
+    r.Draw(r2);
+    r.Draw(r3);
+};
+
+Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
+
 # Concepts
 
 ### Shaders
@@ -391,9 +413,9 @@ carefoul to avoid unwanted behaviors.
 ### Radiance Types
 
 A real value that exist in your C# Program and maybe sended to GPU betwen uniform's can be represented with 
-Radiance Types, like rfloat. A gfloat or lfloat variable will be transormed into a uniform automatically. Radiance
-types can be global ou local. On loops, use radiance types to avoid create a high quantity of shaders that are
-similiar but not equal.
+Radiance Types, like gfloat and lfloat. A gfloat or lfloat variable will be transormed into a uniform 
+automatically. Radiance types can be global ou local. On loops, use radiance types to avoid create a high
+quantity of shaders that are similiar but not equal.
 
 # Versions
 
@@ -401,6 +423,7 @@ similiar but not equal.
 
  - ![](https://img.shields.io/badge/update-orange) Global system types updates.
  - ![](https://img.shields.io/badge/new-green) Program reusing if shaders are same in diferent draw calls.
+ - ![](https://img.shields.io/badge/new-green) Rect and Ellip shafe functions in RadianceUtils.
 
 ### Radiance v1.3.0
 

@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    28/08/2023
  */
+using System;
 using System.Text;
 using System.Linq;
 
@@ -17,6 +18,43 @@ using ShaderSupport.Dependencies;
 /// </summary>
 public static class RadianceUtils
 {
+    public static Vectors rect(
+        float x, float y, 
+        float wid, float hei
+    )
+    {
+        return data(
+            (x, y, 0),
+            (x, y + hei, 0),
+            (x + wid, y + hei, 0),
+            (x + wid, y, 0)
+        );
+    }
+    
+    public static Vectors ellip(
+        float x, float y, 
+        float a, float b = float.NaN,
+        int sizes = 63
+    )
+    {
+        Vectors result = new Vectors();
+
+        float phi = MathF.Tau / sizes;
+        if (b == float.NaN)
+            b = a;
+
+        for (int k = 0; k < sizes; k++)
+        {
+            result.Add((
+                a * MathF.Cos(phi * k) + x,
+                b * MathF.Sin(phi * k) + y,
+                0f
+            ));
+        }
+
+        return result;
+    }
+
     public static Vectors data(params Vector[] vectors)
     {
         var result = new Vectors();
