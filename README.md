@@ -38,13 +38,13 @@ using Radiance;
 using static Radiance.RadianceUtils;
 
 var region = data(
-    (-1, -1, 0),
-    (+1, -1, 0),
-    (-1, +1, 0),
+    (-1, -1, 0), // or -i -j
+    (+1, -1, 0), // or +i -j
+    (-1, +1, 0), // or -i +j
 
-    (+1, +1, 0),
-    (+1, -1, 0),
-    (-1, +1, 0)
+    (+1, +1, 0), // or +i +j
+    (+1, -1, 0), // or +i -j
+    (-1, +1, 0)  // or -i +j
 );
 
 Window.OnRender += r =>
