@@ -9,7 +9,7 @@ dotnet new console # Create project
 dotnet add package radiance # Install Radiance
 ```
 
-# Examples and Features
+# Features
 
 See this examples that contains all Radiance features:
 
@@ -419,6 +419,8 @@ quantity of shaders that are similiar but not equal.
 
 # Versions
 
+### Radiance v1.5.0 (Coming soon)
+
 ### Radiance v1.4.0
 
  - ![](https://img.shields.io/badge/update-orange) Global system types updates.
@@ -457,7 +459,15 @@ quantity of shaders that are similiar but not equal.
 
 # Next Features
 
+- Create a class BaseData : IData to simplify IData's implementations
+- README: Add the section 'What not to do'
+- README: Add the section 'Advanced operations' teaching how to create custom data types
+- README: Add the section 'Big Examples' with complex examples
+- README: Add the section 'Template Project' with a template for the project
+- Improve performance of Data Structures
+- Create Data Providers to increase the power of data structures.
 - Fill function on RenderOperations that triangularize polygons automatically
 - Add matrix Transformations
 - Add Textures
 - Add Conditional Rendering
+- Add Data types to have more generic overloads
