@@ -473,3 +473,5 @@ quantity of shaders that are similiar but not equal.
 - Add Data types to have more generic overloads
 - Solve bugs with gfloat operations
 - Add more g-types
+- Allow and Improve multi transform call
+- Improve conversion between g-types and shader types
