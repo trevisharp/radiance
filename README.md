@@ -471,3 +471,5 @@ quantity of shaders that are similiar but not equal.
 - Add Textures
 - Add Conditional Rendering
 - Add Data types to have more generic overloads
+- Solve bugs with gfloat operations
+- Add more g-types
