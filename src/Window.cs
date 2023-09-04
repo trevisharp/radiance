@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/08/2023
+ * Date:    04/09/2023
  */
 using System;
 using System.Collections.Generic;
@@ -78,6 +78,8 @@ public static class Window
 
         win.RenderFrame += e =>
         {
+            GL.Clear(ClearBufferMask.ColorBufferBit);
+            
             if (onRender is not null)
                 onRender();
 
@@ -217,7 +219,7 @@ public static class Window
     }
     private static void mapRender(Action<RenderOperations> value)
     {
-        GenericRenderFunction renderFunction = value;
+        RenderFunction renderFunction = value;
         renderFunction.Load();
 
         Action mappedAction = renderFunction;
@@ -226,6 +228,9 @@ public static class Window
         onRender += mappedAction;
     }
     
+    public static bool IsRendering(Action<RenderOperations> func)
+        => renderMap.ContainsKey(func);
+
     public static float DeltaTime => frameController.DeltaTime;
     public static float Fps => frameController.Fps;
 

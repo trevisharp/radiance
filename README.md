@@ -366,6 +366,56 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Add and Remove RenderFunctions
+
+```cs
+using Radiance;
+using static Radiance.RadianceUtils;
+
+var obj1 = render(r =>
+{
+    r.Draw(
+        rect(50, 50, 50, 50)
+        .colorize(v => {
+            var scale = (v.x - 50) / 50;
+            return (scale, 0, 1, 1);
+        })
+    );
+});
+
+var obj2 = render(r =>
+{
+    r.Draw(
+        rect(100, 100, 50, 50)
+        .colorize(v => {
+            var scale = (v.y - 100) / 50;
+            return (0, scale, 1, 1);
+        })
+    );
+});
+
+Window.OnRender += obj1; // Or obj1.StartRender();
+Window.OnRender += obj2; // Or obj2.StartRender();
+
+Window.OnKeyDown += (key, mod) =>
+{
+    switch (key)
+    {
+        case Input.A:
+            obj1.ToggleRender();
+            break;
+
+        case Input.S:
+            obj2.ToggleRender();
+            break;
+    }
+};
+
+Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
+
 # Concepts
 
 ### Shaders
@@ -421,6 +471,10 @@ quantity of shaders that are similiar but not equal.
 
 ### Radiance v1.5.0 (Coming soon)
 
+ - ![](https://img.shields.io/badge/new-green) Create a class BaseData : IData to simplify IData's implementations.
+ - ![](https://img.shields.io/badge/update-orange) Improve performance of Data Structures.
+ - ![](https://img.shields.io/badge/new-green) Add system to add and remove render functions.
+
 ### Radiance v1.4.0
 
  - ![](https://img.shields.io/badge/update-orange) Global system types updates.
@@ -459,12 +513,10 @@ quantity of shaders that are similiar but not equal.
 
 # Next Features
 
-- Create a class BaseData : IData to simplify IData's implementations
 - README: Add the section 'What not to do'
 - README: Add the section 'Advanced operations' teaching how to create custom data types
 - README: Add the section 'Big Examples' with complex examples
 - README: Add the section 'Template Project' with a template for the project
-- Improve performance of Data Structures
 - Create Data Providers to increase the power of data structures.
 - Fill function on RenderOperations that triangularize polygons automatically
 - Add matrix Transformations

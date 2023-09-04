@@ -1,7 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/08/2023
+ * Date:    03/09/2023
  */
-using System;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
@@ -10,7 +9,7 @@ using ShaderSupport;
 using ShaderSupport.Dependencies;
 using ShaderSupport.Objects;
 
-public class Vector : IData<Vec3ShaderObject>
+public class Vector : BaseData<Vec3ShaderObject>
 {
     public Vector(float x, float y, float z)
     {
@@ -22,15 +21,6 @@ public class Vector : IData<Vec3ShaderObject>
     public float x { get; set; }
     public float y { get; set; }
     public float z { get; set; }
-
-    public event Action OnChange;
-    public void HasChanged()
-    {
-        if (OnChange is null)
-            return;
-        
-        OnChange();
-    }
 
     public static implicit operator Vector((float x, float y, float z) data)
         => new Vector(data.x, data.y, data.z);
@@ -68,35 +58,23 @@ public class Vector : IData<Vec3ShaderObject>
     private PositionBufferDependence dep =>
         new PositionBufferDependence(this);
 
-    public Vec3ShaderObject VertexObject => dep;
-
-    public Vec4ShaderObject FragmentObject => Color.White;
-
-    public IEnumerable<ShaderOutput> Outputs
+    public override Vec3ShaderObject VertexObject => dep;
+    public override Vec4ShaderObject FragmentObject => Color.White;
+    public override IEnumerable<ShaderOutput> Outputs
         => ShaderOutput.Empty;
 
-    public int Size => 3;
-    public int Elements => 1;
-    public IEnumerable<int> Sizes => new int[] { 3 };
+    public override int Size => 3;
+    public override int Elements => 1;
+    public override IEnumerable<int> Sizes => new int[] { 3 };
 
-    public Vec3ShaderObject Data1 => dep;
+    public override Vec3ShaderObject Data1 => dep;
 
-    public void SetData(float[] arr, ref int indexoff)
+    public override void SetData(float[] arr, ref int indexoff)
     {
         arr[indexoff + 0] = x;
         arr[indexoff + 1] = y;
         arr[indexoff + 2] = z;
         indexoff += 3;
-    }
-
-    public float[] GetBuffer()
-    {
-        float[] buffer = new float[this.Size];
-
-        int indexoff = 0;
-        this.SetData(buffer, ref indexoff);
-        
-        return buffer;
     }
     
     #endregion
