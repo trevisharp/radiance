@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    28/08/2023
+ * Date:    04/09/2023
  */
 using System;
 using System.Text;
@@ -31,10 +31,6 @@ public class RenderOperations
     public RenderOperations(Delegate Function)
     {
         discoverGlobalVariables(Function);
-        effects += delegate
-        {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-        };
     }
 
     public void Clear(Color color)
