@@ -421,6 +421,9 @@ quantity of shaders that are similiar but not equal.
 
 ### Radiance v1.5.0 (Coming soon)
 
+ - ![](https://img.shields.io/badge/new-green) Create a class BaseData : IData to simplify IData's implementations.
+ - ![](https://img.shields.io/badge/update-orange) Improve performance of Data Structures.
+
 ### Radiance v1.4.0
 
  - ![](https://img.shields.io/badge/update-orange) Global system types updates.
@@ -459,12 +462,10 @@ quantity of shaders that are similiar but not equal.
 
 # Next Features
 
-- Create a class BaseData : IData to simplify IData's implementations
 - README: Add the section 'What not to do'
 - README: Add the section 'Advanced operations' teaching how to create custom data types
 - README: Add the section 'Big Examples' with complex examples
 - README: Add the section 'Template Project' with a template for the project
-- Improve performance of Data Structures
 - Create Data Providers to increase the power of data structures.
 - Fill function on RenderOperations that triangularize polygons automatically
 - Add matrix Transformations
