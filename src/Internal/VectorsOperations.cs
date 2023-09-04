@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace Radiance.Geometries;
+namespace Radiance.Internal;
 
 /// <summary>
 /// Contains operations to transform vectors data
