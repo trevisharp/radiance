@@ -1,94 +1,67 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/08/2023
+ * Date:    03/09/2023
  */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
 
 using ShaderSupport;
-using ShaderSupport.Dependencies;
 using ShaderSupport.Objects;
+using ShaderSupport.Dependencies;
 
 /// <summary>
 /// Represents a group of Colored Vectors.
 /// </summary>
-public class ColoredVectors : IData<Vec3ShaderObject, Vec4ShaderObject>, ICollection<ColoredVector>
+public class ColoredVectors : BaseData<Vec3ShaderObject, Vec4ShaderObject>
 {
-    #region ICollection Members
-
-    private List<ColoredVector> vectors = new List<ColoredVector>();
-    public int Count => vectors.Count;
-    public bool IsReadOnly => false;
-
-    public event Action OnChange;
-    public void HasChanged()
-    {
-        if (OnChange is null)
-            return;
-        
-        OnChange();
-    }
-
-    public void Add(ColoredVector item)
-        => this.vectors.Add(item);
-
-    public void Clear()
-        => this.vectors.Clear();
-
-    public bool Contains(ColoredVector item)
-        => this.vectors.Contains(item);
-
-    public void CopyTo(ColoredVector[] array, int arrayIndex)
-        => this.vectors.CopyTo(array, arrayIndex);
-
-    public IEnumerator<ColoredVector> GetEnumerator()
-        => this.vectors.GetEnumerator();
-
-    public bool Remove(ColoredVector item)
-        => this.vectors.Remove(item);
-
-    IEnumerator IEnumerable.GetEnumerator()
-        => this.vectors.GetEnumerator();
-
-    #endregion
-
-    #region Data Members
-
-    public Vec3ShaderObject VertexObject => Data1;
-
-    public Vec4ShaderObject FragmentObject => Data2;
-
-    public IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
-
-    public int Size => 7 * this.vectors.Count;
-
-    public int Elements => this.vectors.Count;
-
-    public IEnumerable<int> Sizes => new int[] { 3, 4 };
-
-    public Vec3ShaderObject Data1
-        => new PositionBufferDependence(this, 0);
+    private int elements = 0;
+    private List<float> vectors = new List<float>();
     
-    public Vec4ShaderObject Data2
+    public void Add(ColoredVector vec)
+    {
+        this.vectors.Add(vec.Vector.x);
+        this.vectors.Add(vec.Vector.y);
+        this.vectors.Add(vec.Vector.z);
+        this.vectors.Add(vec.Color.R);
+        this.vectors.Add(vec.Color.G);
+        this.vectors.Add(vec.Color.B);
+        this.vectors.Add(vec.Color.A);
+        elements++;
+    }
+
+    public void Add(float x, float y, float z, float r, float g, float b, float a)
+    {
+        this.vectors.Add(x);
+        this.vectors.Add(y);
+        this.vectors.Add(z);
+        this.vectors.Add(r);
+        this.vectors.Add(g);
+        this.vectors.Add(b);
+        this.vectors.Add(a);
+        elements++;
+    }
+
+    private ColorBufferDependence dep =>
+        new ColorBufferDependence(this);
+
+    public override Vec3ShaderObject VertexObject => Data1;
+    public override Vec4ShaderObject FragmentObject => Data2;
+    
+    public override void SetData(float[] arr, ref int indexoff)
+    {
+        var copy = vectors.ToArray();
+        Array.Copy(copy, 0, arr, indexoff, copy.Length);
+        indexoff += copy.Length;
+    }
+
+    public override int Size => this.vectors.Count;
+    public override int Elements => this.elements;
+    public override IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
+
+    public override IEnumerable<int> Sizes => new int[] { 3, 4 };
+    public override Vec3ShaderObject Data1 
+        => new PositionBufferDependence(this, 0);
+    public override Vec4ShaderObject Data2
         => new ColorBufferDependence(this, 1);
-
-    public void SetData(float[] arr, ref int indexoff)
-    {
-        foreach (var vector in this.vectors)
-            vector.SetData(arr, ref indexoff);
-    }
-
-    public float[] GetBuffer()
-    {
-        float[] buffer = new float[this.Size];
-
-        int indexoff = 0;
-        this.SetData(buffer, ref indexoff);
-        
-        return buffer;
-    }
-
-    #endregion
 }

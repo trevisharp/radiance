@@ -1,8 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/08/2023
+ * Date:    03/09/2023
  */
 using System;
-using System.Collections;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
@@ -14,80 +13,47 @@ using ShaderSupport.Dependencies;
 /// <summary>
 /// Represents a group of Vectors.
 /// </summary>
-public class Vectors : IData<Vec3ShaderObject>, ICollection<Vector>
+public class Vectors : BaseData<Vec3ShaderObject>
 {
-    #region ICollection Members
-
-    private List<Vector> vectors = new List<Vector>();
-    public int Count => vectors.Count;
-    public bool IsReadOnly => false;
-
-    public void Add(Vector item)
-        => this.vectors.Add(item);
-
-    public void Clear()
-        => this.vectors.Clear();
-
-    public bool Contains(Vector item)
-        => this.vectors.Contains(item);
-
-    public void CopyTo(Vector[] array, int arrayIndex)
-        => this.vectors.CopyTo(array, arrayIndex);
-
-    public IEnumerator<Vector> GetEnumerator()
-        => this.vectors.GetEnumerator();
-
-    public bool Remove(Vector item)
-        => this.vectors.Remove(item);
-
-    IEnumerator IEnumerable.GetEnumerator()
-        => this.vectors.GetEnumerator();
-
-    #endregion
-
-    #region Data Members
+    private int elements = 0;
+    private List<float> vectors = new List<float>();
     
-    public event Action OnChange;
-    public void HasChanged()
+    public void Add(Vector vec)
     {
-        if (OnChange is null)
-            return;
-        
-        OnChange();
+        this.vectors.Add(vec.x);
+        this.vectors.Add(vec.y);
+        this.vectors.Add(vec.z);
+        elements++;
+    }
+
+    public void Add(float x, float y, float z)
+    {
+        this.vectors.Add(x);
+        this.vectors.Add(y);
+        this.vectors.Add(z);
+        elements++;
     }
 
     private PositionBufferDependence dep =>
         new PositionBufferDependence(this);
 
-    public Vec3ShaderObject VertexObject => dep;
+    public override Vec3ShaderObject VertexObject => dep;
 
-    public Vec4ShaderObject FragmentObject => Color.White;
+    public override Vec4ShaderObject FragmentObject => Color.White;
     
-    public void SetData(float[] arr, ref int indexoff)
+    public override void SetData(float[] arr, ref int indexoff)
     {
-        foreach (var vector in this.vectors)
-            vector.SetData(arr, ref indexoff);
+        var copy = vectors.ToArray();
+        Array.Copy(copy, 0, arr, indexoff, copy.Length);
+        indexoff += copy.Length;
     }
 
-    public float[] GetBuffer()
-    {
-        float[] buffer = new float[this.Size];
-
-        int indexoff = 0;
-        this.SetData(buffer, ref indexoff);
-        
-        return buffer;
-    }
-
-    public int Size => 3 * this.vectors.Count;
+    public override int Size => this.vectors.Count;
     
-    public int Elements => this.vectors.Count;
+    public override int Elements => this.elements;
 
-    public IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
+    public override IEnumerable<ShaderOutput> Outputs => ShaderOutput.Empty;
 
-    public IEnumerable<int> Sizes => new int[] { 3 };
-
-    public Vec3ShaderObject Data1 => dep;
-
-    #endregion
+    public override IEnumerable<int> Sizes => new int[] { 3 };
+    public override Vec3ShaderObject Data1 => dep;
 }
