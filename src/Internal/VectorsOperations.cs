@@ -1,23 +1,21 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    04/09/2023
  */
 using System;
 
 namespace Radiance.Geometries;
-
-using Data;
 
 /// <summary>
 /// Contains operations to transform vectors data
 /// </summary>
 internal class VectorsOperations
 {
-    internal Vectors ConvexHull(Vectors vectors)
+    internal float[] ConvexHull(float[] points)
     {
         throw new NotImplementedException();
     }
 
-    internal Vectors Triangularize(Vector vectors)
+    internal float[] Triangularize(float[] points)
     {
         throw new NotImplementedException();
     }
