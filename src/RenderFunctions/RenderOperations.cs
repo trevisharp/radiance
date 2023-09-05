@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/09/2023
+ * Date:    05/09/2023
  */
 using System;
 using System.Text;
@@ -24,6 +24,15 @@ using ShaderSupport.Objects;
 public class RenderOperations
 {
     private int globalTabIndex = 0;
+
+    private event Action effects;
+    private event Action unloadEffects;
+
+    private List<int> bufferList = new();
+
+    private Dictionary<(int, int), int> programMap = new();
+
+    private Dictionary<int, int> shaderMap = new();
 
     public bool Verbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
@@ -115,12 +124,12 @@ public class RenderOperations
         };
     }
 
-    internal void Render(params object[] parameters)
+    internal void Render()
     {
         if (effects is null)
             return;
         
-        effects(parameters);
+        effects();
     }
 
     internal void Unload()
@@ -140,15 +149,6 @@ public class RenderOperations
 
         unloadEffects();
     }
-
-    private event Action<object[]> effects;
-    private event Action unloadEffects;
-
-    private List<int> bufferList = new();
-
-    private Dictionary<(int, int), int> programMap = new();
-
-    private Dictionary<int, int> shaderMap = new();
 
     private void discoverGlobalVariables(Delegate Function)
     {

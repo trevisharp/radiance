@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/09/2023
+ * Date:    05/09/2023
  */
 using System;
 using System.Text;
@@ -10,6 +10,7 @@ namespace Radiance;
 using Data;
 
 using RenderFunctions;
+using RenderFunctions.Renders;
 
 using ShaderSupport;
 using ShaderSupport.Objects;
@@ -77,9 +78,14 @@ public static class RadianceUtils
         return result;
     }
 
-    public static RenderFunction render(
+    public static IRender render(
         Action<RenderOperations> func
-    ) => func;
+    )
+    {
+        var renderFunction = new RenderFunction(func);
+        var render = new SingleRender(renderFunction);
+        return render;
+    }
 
     public static float dt => Window.DeltaTime;
 

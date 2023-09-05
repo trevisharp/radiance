@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/09/2023
+ * Date:    05/09/2023
  */
 using System;
 
@@ -19,12 +19,12 @@ public class RenderFunction
     public RenderFunction(Action<RenderOperations> render)
         => this.render = render;
 
-    public void Render(params object[] parameters)
+    public void Render()
     {
         if (!this.loaded)
             throw new Exception("A Render request call be a Unloaded RenderFunction.");
         
-        this.op.Render(parameters);
+        this.op.Render();
     }
 
     public void Load()
@@ -53,56 +53,5 @@ public class RenderFunction
         this.op.Unload();
         
         this.loaded = true;
-    }
-
-    public static implicit operator RenderFunction(
-        Action<RenderOperations> render
-    ) => new RenderFunction(render);
-
-    public static implicit operator Action(
-        RenderFunction func
-    ) => () => func.Render();
-
-    public static implicit operator Action<RenderOperations>(
-        RenderFunction func
-    ) => func.render;
-
-    /// <summary>
-    /// Return true if this render is rendering in the screen.
-    /// </summary>
-    public bool IsRendering
-        => Window.IsRendering(render);
-    
-    /// <summary>
-    /// Start render this in Window.
-    /// </summary>
-    public void StartRender()
-    {
-        if (IsRendering)
-            return;
-        
-        Window.OnRender += render;
-    }
-    
-    /// <summary>
-    /// Stop render this in Window.
-    /// </summary>
-    public void StopRender()
-    {
-        if (!IsRendering)
-            return;
-        
-        Window.OnRender -= render;
-    }
-
-    /// <summary>
-    /// If is rendering, stop render.
-    /// If is not rendering, start render.
-    /// </summary>
-    public void ToggleRender()
-    {
-        if (IsRendering)
-            StopRender();
-        else StartRender();
     }
 }

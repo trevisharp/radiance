@@ -1,8 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/08/2023
+ * Date:    05/09/2023
  */
 using System;
-using System.Collections.Generic;
 
 namespace Radiance.Internal;
 

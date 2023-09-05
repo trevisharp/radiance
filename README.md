@@ -372,7 +372,7 @@ Window.Open();
 using Radiance;
 using static Radiance.RadianceUtils;
 
-var obj1 = render(r =>
+var render1 = render(r =>
 {
     r.Draw(
         rect(50, 50, 50, 50)
@@ -383,7 +383,7 @@ var obj1 = render(r =>
     );
 });
 
-var obj2 = render(r =>
+var render2 = render(r =>
 {
     r.Draw(
         rect(100, 100, 50, 50)
@@ -394,19 +394,24 @@ var obj2 = render(r =>
     );
 });
 
-Window.OnRender += obj1; // Or obj1.StartRender();
-Window.OnRender += obj2; // Or obj2.StartRender();
+Window.OnRender += render1; // Or obj1.Show();
+Window.OnRender += render2; // Or obj2.Show();
 
 Window.OnKeyDown += (key, mod) =>
 {
     switch (key)
     {
         case Input.A:
-            obj1.ToggleRender();
+            render1.Toggle();
             break;
 
         case Input.S:
-            obj2.ToggleRender();
+            render2.Toggle();
+            break;
+        
+        case Input.D:
+            render1.SoftHide();
+            render2.SoftHide();
             break;
     }
 };

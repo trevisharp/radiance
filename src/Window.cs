@@ -1,8 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/09/2023
+ * Date:    05/09/2023
  */
 using System;
-using System.Collections.Generic;
 
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -11,7 +10,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace Radiance;
 
 using Internal;
-using RenderFunctions;
+using RenderFunctions.Renders;
 
 /// <summary>
 /// Represents the main windows that applications run
@@ -58,10 +57,8 @@ public static class Window
         win.Load += () =>
         {
             updateSize(win);
-            initializated = true;
-            foreach (var render in renders)
-                mapRender(render);
-            renders.Clear();
+
+            OnRender.Load();
             
             if (OnLoad is null)
                 return;
@@ -80,8 +77,7 @@ public static class Window
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
             
-            if (onRender is not null)
-                onRender();
+            OnRender.Render();
 
             win.SwapBuffers();
         };
@@ -190,46 +186,7 @@ public static class Window
         };
     }
 
-    private static event Action onRender;
-    private static Dictionary<Action<RenderOperations>, Action> renderMap = new();
-
-    private static bool initializated = false;
-    private static List<Action<RenderOperations>> renders = new();
-    public static event Action<RenderOperations> OnRender
-    {
-        add
-        {
-            if (value is null)
-                return;
-
-            if (initializated)
-                mapRender(value);
-            else renders.Add(value);
-        }
-        remove
-        {
-            if (!renderMap.ContainsKey(value))
-                return;
-            
-            var mappedAction = renderMap[value];
-            onRender -= mappedAction;
-
-            renderMap.Remove(value);
-        }
-    }
-    private static void mapRender(Action<RenderOperations> value)
-    {
-        RenderFunction renderFunction = value;
-        renderFunction.Load();
-
-        Action mappedAction = renderFunction;
-        renderMap.Add(value, mappedAction);
-
-        onRender += mappedAction;
-    }
-    
-    public static bool IsRendering(Action<RenderOperations> func)
-        => renderMap.ContainsKey(func);
+    public static BlockRender OnRender { get; set; } = new();
 
     public static float DeltaTime => frameController.DeltaTime;
     public static float Fps => frameController.Fps;
