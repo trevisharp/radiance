@@ -17,6 +17,12 @@ public class Vectors : BaseData<Vec3ShaderObject>
 {
     private int elements = 0;
     private List<float> vectors = new List<float>();
+
+    public float this[int index]
+    {
+        get => vectors[index];
+        set => vectors[index] = value;
+    }
     
     public void Add(Vector vec)
     {

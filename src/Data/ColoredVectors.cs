@@ -17,6 +17,12 @@ public class ColoredVectors : BaseData<Vec3ShaderObject, Vec4ShaderObject>
 {
     private int elements = 0;
     private List<float> vectors = new List<float>();
+
+    public float this[int index]
+    {
+        get => vectors[index];
+        set => vectors[index] = value;
+    }
     
     public void Add(ColoredVector vec)
     {
@@ -41,9 +47,6 @@ public class ColoredVectors : BaseData<Vec3ShaderObject, Vec4ShaderObject>
         this.vectors.Add(a);
         elements++;
     }
-
-    private ColorBufferDependence dep =>
-        new ColorBufferDependence(this);
 
     public override Vec3ShaderObject VertexObject => Data1;
     public override Vec4ShaderObject FragmentObject => Data2;

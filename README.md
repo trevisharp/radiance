@@ -457,7 +457,7 @@ be use like a Shader Object with a dependence. Every data type have a default im
 and Fragment Shader. Using transform function you can update the Vertex Shader. Using colorize function you
 can update the Fragment Shader.
 
-### Render Functions
+### IRenders
 
 Every function added in the OnRender Event do not be caled every frame, actually. In reality, the function will
 be transformed in a new function that transform our code in calls of OpenGL library and Shader pre computated.
@@ -479,6 +479,8 @@ quantity of shaders that are similiar but not equal.
  - ![](https://img.shields.io/badge/new-green) Create a class BaseData : IData to simplify IData's implementations.
  - ![](https://img.shields.io/badge/update-orange) Improve performance of Data Structures.
  - ![](https://img.shields.io/badge/new-green) Add system to add and remove render functions.
+ - ![](https://img.shields.io/badge/update-orange) Change all structure about RenderFunctions and introduce a IRender interface to all renders and create a RenderQueue.
+ - ![](https://img.shields.io/badge/update-orange) Create system to improve data administration and replace old system of data management.
 
 ### Radiance v1.4.0
 
