@@ -21,7 +21,7 @@ Window.OnRender += r =>
             var cursor = (x, y, 0);
             var d = distance(point, cursor);
             var s = (5.0 + 0.01 * sin(10 * t)) / d;
-            return (s, s, s, 0);
+            return (s, s, s, 1);
         })
     );
 };
