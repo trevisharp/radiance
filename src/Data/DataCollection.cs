@@ -7,9 +7,6 @@ using System.Collections.Generic;
 namespace Radiance.Data;
 
 using Radiance.ShaderSupport;
-using Radiance.ShaderSupport.Objects;
-using ShaderSupport;
-using ShaderSupport.Objects;
 
 /// <summary>
 /// A base class for easy implements all IData has Collections

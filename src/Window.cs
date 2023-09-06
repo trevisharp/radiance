@@ -33,6 +33,22 @@ public static class Window
     public static int Height => height;
 
     /// <summary>
+    /// Get and set if the cursor is visible
+    /// </summary>
+    /// <value></value>
+    public static bool CursorVisible
+    {
+        get => win?.CursorState != CursorState.Hidden;
+        set
+        {
+            if (win is null)
+                return;
+            
+            win.CursorState = value ? CursorState.Normal : CursorState.Hidden;
+        }
+    }
+
+    /// <summary>
     /// Open main application window
     /// </summary>
     public static void Open(bool fullscreen = true)
@@ -48,6 +64,7 @@ public static class Window
                     WindowState.Normal
             }
         );
+        win.CursorState = CursorState.Grabbed;
 
         win.Resize += e =>
         {

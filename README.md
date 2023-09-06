@@ -259,85 +259,40 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
-### Edit you data state and update in the screen
-
-```cs
-using Radiance;
-using static Radiance.RadianceUtils;
-
-var w = i;
-var h = j;
-var end = i + j;
-
-var region = data(
-    n, w, end,
-    n, h, end
-);
-
-Window.OnRender += r =>
-{
-    r.Clear(black);
-
-    r.FillTriangles(region
-        .colorize(red)
-    );
-};
-
-Window.OnFrame += () =>
-{
-    end.x++;
-    end.y++;
-    w.x++;
-    h.y++;
-    region.HasChanged();
-};
-
-Window.CloseOn(Input.Escape);
-
-Window.Open();
-```
-
 ### Get cursor position and use all potential of Radiance
 
 ```cs
 using Radiance;
+using Radiance.Types;
 using static Radiance.RadianceUtils;
 
-var x = 0f;
-var y = 0f;
+gfloat x = 0f;
+gfloat y = 0f;
 
-var cursor = i + j;
-
-var region = data(
-    n | black, i | black, cursor | white,
-    n | black, j | black, cursor | white,
-
-    2 * j | black, j | black, cursor | white,
-    2 * j | black, 2 * j + i | black, cursor | white,
-
-    2 * i | black, 2 * i + j | black, cursor | white,
-    2 * i | black, i | black, cursor | white,
-
-    2 * i + 2 * j | black, 2 * i + j | black, cursor | white,
-    2 * i + 2 * j | black, 2 * j + i | black, cursor | white
+var screen = data(
+    n, i, i + j,
+    n, j, i + j
 );
 
 Window.OnRender += r =>
 {
-    r.FillTriangles(region
-        .transform((v, c) => (width * v.x / 2, height * v.y / 2, 0))
-        .colorize((v, c) => c)
+    r.Verbose = true;
+    r.FillTriangles(screen
+        .transform(v => (v.x * width, v.y * height, v.z))
+        .colorize(v => 
+        {
+            var point = (v.x * width, v.y * height, v.z);
+            var cursor = (x, y, 0);
+            var d = distance(point, cursor);
+            var s = (5.0 + 0.01 * sin(10 * t)) / d;
+            return (s, s, s, 0);
+        })
     );
 };
 
-Window.OnFrame += delegate
-{
-    cursor.x = 2 * x / Window.Width;
-    cursor.y = 2 * y / Window.Height;
-    region.HasChanged();
-};
-
 Window.OnMouseMove += p => (x, y) = p;
+
+Window.CursorVisible = false;
 
 Window.CloseOn(Input.Escape);
 
@@ -481,6 +436,10 @@ quantity of shaders that are similiar but not equal.
  - ![](https://img.shields.io/badge/new-green) Add system to add and remove render functions.
  - ![](https://img.shields.io/badge/update-orange) Change all structure about RenderFunctions and introduce a IRender interface to all renders and create a RenderQueue.
  - ![](https://img.shields.io/badge/update-orange) Create system to improve data administration and replace old system of data management.
+ - ![](https://img.shields.io/badge/new-orange) Hide Cursor Feature.
+ - ![](https://img.shields.io/badge/update-orange) Now, change data not affect the draw and
+ data become imutable again. In next versions, Radiance will provide new ways to talk with
+ data and the they changes.
 
 ### Radiance v1.4.0
 
