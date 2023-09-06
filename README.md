@@ -429,7 +429,7 @@ quantity of shaders that are similiar but not equal.
 
 # Versions
 
-### Radiance v1.5.0 (Coming soon)
+### Radiance v1.5.0
 
  - ![](https://img.shields.io/badge/new-green) Create a class BaseData : IData to simplify IData's implementations.
  - ![](https://img.shields.io/badge/update-orange) Improve performance of Data Structures.
