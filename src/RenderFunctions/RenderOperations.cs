@@ -383,7 +383,7 @@ public class RenderOperations
         Action setup = null;
 
         var dependencens = fragmentObject.Dependecies
-            .Distinct();
+            .Distinct(ShaderDependence.Comparer);
         foreach (var dependence in dependencens)
         {
             switch (dependence.DependenceType)

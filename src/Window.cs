@@ -73,6 +73,13 @@ public static class Window
 
         win.Load += () =>
         {
+            GL.Enable(EnableCap.Blend);
+            GL.Enable(EnableCap.LineSmooth);
+            GL.BlendFunc(
+                BlendingFactor.SrcAlpha, 
+                BlendingFactor.OneMinusSrcAlpha
+            );
+
             updateSize(win);
 
             OnRender.Load();
@@ -178,7 +185,7 @@ public static class Window
             
             OnMouseLeave();
         };
-
+        
         win.Run();
     }
 
