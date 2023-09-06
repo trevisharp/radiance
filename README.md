@@ -630,7 +630,7 @@ public class Player
 ### Radiance v1.6.0
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
- - ![](https://img.shields.io/badge/bug solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
 
 ### Radiance v1.5.0
 
