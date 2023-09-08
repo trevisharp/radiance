@@ -631,6 +631,7 @@ public class Player
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
  - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
+ - ![](https://img.shields.io/badge/new-green) Added Triangularization algorithms.
 
 ### Radiance v1.5.0
 
@@ -686,7 +687,6 @@ public class Player
 - README: Add the section 'Advanced operations' teaching how to create custom data types
 - README: Add the section 'Template Project' with a template for the project
 - Create Data Providers to increase the power of data structures.
-- Fill function on RenderOperations that triangularize polygons automatically
 - Add matrix Transformations
 - Add Textures
 - Add Conditional Rendering
