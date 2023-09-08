@@ -1,11 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    08/09/2023
  */
 using System;
 
 namespace Radiance;
 
 using Data;
+
+using Internal;
+
 using ShaderSupport;
 using ShaderSupport.Objects;
 
@@ -101,4 +104,24 @@ public static class DataExtension
         where D1 : ShaderObject, new()
         where D2 : ShaderObject, new()
         => new FragmentTransformedData<D1, D2>(data, (_, _) => (r, g, b, 1.0));
+
+    public static IData triangules(
+        this Vectors vectors
+    )
+    {
+        VectorsOperations operations = new();
+        var triangularization = operations.Delaunay(vectors.Buffer);
+        var result = new Vectors();
+        
+        for (int i = 0; i < triangularization.Length; i += 3)
+        {
+            result.Add(
+                triangularization[i + 0],
+                triangularization[i + 1],
+                triangularization[i + 2]
+            );
+        }
+
+        return result;
+    }
 }
