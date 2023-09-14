@@ -21,7 +21,7 @@ using Radiance;
 Window.OnKeyDown += (input, modifier) =>
 {
     // Test if active modifier has pressed like, alt, shift, ctrl.
-    bool dontHasMod = (m & Modifier.ActiveModifier) == 0;
+    bool dontHasMod = (modifier & Modifier.ActiveModifier) == 0;
     if (input == Input.Escape && !dontHasMod)
         Window.Close();
 }
