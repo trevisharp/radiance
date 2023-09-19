@@ -5,11 +5,11 @@ A library based on OpenTK which is based on OpenGL to program Shaders in C#.
 # Table of Contents
 
  - [Overview](README.md/#Overview)
- - [How to install](README.md/#How to install)
+ - [How to install](README.md/#How%20to%20install)
  - [Features (For OpenGL Programers)](README.md/#Features (For OpenGL Programers))
- - [Concepts](README.md/#Concepts)
- - [Examples](README.md/#Examples)
- - [Versions](README.md/Versions)
+ - [Concepts](#Concepts)
+ - [Examples](#Examples)
+ - [Versions](#Versions)
 
 # Overview
 
