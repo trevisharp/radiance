@@ -13,6 +13,8 @@ A library based on OpenTK which is based on OpenGL to program Shaders in C#.
 
 # Overview
 
+Radiance is a library that can generate GLSL (The language of OpenGL) automatically only using C# code. Radiance manage OpenGL to create buffers, associate variables, compile shaders and control programs. With Radiance will can use OpenGL in high level without completly lose the high performance of OpenGL and GPU renderization.
+
 # How to install
 
 ```bash
