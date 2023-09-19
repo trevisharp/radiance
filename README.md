@@ -9,7 +9,7 @@ dotnet new console # Create project
 dotnet add package radiance # Install Radiance
 ```
 
-# Features
+# Features (For OpenGL Programers)
 
 See this examples that contains all Radiance features:
 
@@ -682,6 +682,7 @@ public class Player
 
 # Next Features
 
+- README: Add the section 'For not OpenGL programers'
 - README: Add the section 'What not to do'
 - README: Add the section 'Advanced operations' teaching how to create custom data types
 - README: Add the section 'Template Project' with a template for the project
