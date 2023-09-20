@@ -27,7 +27,7 @@ internal class VectorsOperations
         if (pts.Length < 9)
             return new float[0];
         
-        var plane = this.PlaneRegression(pts);
+        var plane = PlaneRegression(pts);
         var transformed = transform(pts, plane);
         return delaunay(transformed);
     }
@@ -110,160 +110,144 @@ internal class VectorsOperations
         xz /= N;
         
         /**
-        dE/da = 2a qx + 2b pxy + 2c pxz + 2d xm
-        a qx + b pxy + c pxz + d xm = 0
+        d = 1
 
-        dE/db = 2b qy + 2a pxy + 2c pyz + 2d ym
-        b qy + a pxy + c pyz + d ym = 0
+        dE/da = 2a qx + 2b pxy + 2c pxz + 2 xm
+        a qx + b pxy + c pxz + xm = 0
 
-        dE/dc = 2c qz + 2a pxz + 2b pyz + 2d zm
-        c qz + a pxz + b pyz + d zm = 0
+        dE/db = 2b qy + 2a pxy + 2c pyz + 2 ym
+        b qy + a pxy + c pyz + ym = 0
 
-        dE/dd = 2a xm + 2b ym + 2c zm + 2d
-        a xm + b ym + c zm + d = 0
+        dE/dc = 2c qz + 2a pxz + 2b pyz + 2 zm
+        c qz + a pxz + b pyz + zm = 0
 
-        a qx + b pxy + c pxz + d xm = 0
-        b qy + a pxy + c pyz + d ym = 0
-        c qz + a pxz + b pyz + d zm = 0
-        a xm + b ym + c zm + d = 0
-
-        (1) d = -a xm -b ym -c zm
-
-        a qx + b pxy + c pxz - a xm xm - b ym xm - c zm xm = 0
-        b qy + a pxy + c pyz - a xm ym - b ym ym - c zm ym = 0
-        c qz + a pxz + b pyz - a xm zm - b ym zm - c zm zm = 0
-
-        a (qx - xm xm) + b (pxy - ym xm) + c (pxz - zm xm) = 0
-        b (qy - ym ym) + a (pxy - xm ym) + c (pyz - zm ym) = 0
-        c (qz - zm zm) + a (pxz - xm zm) + b (pyz - ym zm) = 0
-
-        a A1 + b B1 + c C1 = 0
-        a A2 + b B2 + c C2 = 0
-        a A3 + b B3 + c C3 = 0
+        a qx  + b pxy + c pxz + xm = 0
+        a pxy + b qy  + c pyz + ym = 0
+        a pxz + b pyz + c qz  + zm = 0
         **/
         
-        var A1 = qx - xm * xm,
-            A2 = pxy - xm * ym,
-            A3 = pxz - xm * zm,
-            B1 = pxy - ym * xm,
-            B2 = qy - ym * ym,
-            B3 = pyz - ym * zm,
-            C1 = pxz * zm * xm,
-            C2 = pyz - zm * ym,
-            C3 = qz - zm * zm;
-        
+        d = 1f;
         (a, b, c) = solve3x3System(
-            A1, B1, C1,
-            A2, B2, C2,
-            A3, B3, C3
+            qx,  pxy, pxz, xm
+            pxy, qy,  pyz, ym
+            pxz, pyz, qz,  zm
         );
-        d = -a * xm -b * ym -c * zm;
 
         return (a, b, c, d);
     }
 
     private (float a, float b, float c) solve3x3System(
-        float A1, float B1, float C1,
-        float A2, float B2, float C2,
-        float A3, float B3, float C3
+        float A1, float B1, float C1, float K1,
+        float A2, float B2, float C2, float K2,
+        float A3, float B3, float C3, float K3
     )
     {
         if (A1 != 0)
         {
             /**
-            (1) a = -(b B1 + c C1) / A1
+            (1) a = -(K1 + b B1 + c C1) / A1
             
-            b B2 + c C2 - A2 / A1 * (b B1 + c C1) = 0
-            b B3 + c C3 - A3 / A1 * (b B1 + c C1) = 0
+            b B2 + c C2 - A2 / A1 * (K1 + b B1 + c C1) + K2 = 0
+            b B3 + c C3 - A3 / A1 * (K1 + b B1 + c C1) + K3 = 0
 
-            b (B2 - B1 * A2 / A1) + c (C2 - C1 * A2 / A1) = 0
-            b (B3 - B1 * A3 / A1) + c (C3 - C1 * A3 / A1) = 0
+            b (B2 - B1 * A2 / A1) + c (C2 - C1 * A2 / A1) - K1 * A2 / A1 + K2 = 0
+            b (B3 - B1 * A3 / A1) + c (C3 - C1 * A3 / A1) - K1 * A3 / A1 + K3 = 0
             **/
             (float b, float c) = solve2x2System(
-                B2 - B1 * A2 / A1, C2 - C1 * A2 / A1,
-                B3 - B1 * A3 / A1, C3 - C1 * A3 / A1,
+                B2 - B1 * A2 / A1, C2 - C1 * A2 / A1, -K1 * A2 / A1 + K2,
+                B3 - B1 * A3 / A1, C3 - C1 * A3 / A1, -K1 * A3 / A1 + K3
             );
-            var a =  -(b * B1 + c * C1) / A1;
+            var a =  -(K1 + b * B1 + c * C1) / A1;
             return (a, b, c);
         }
         else if (A2 != 0)
         {
             /**
-            (1) a = -(b B2 + c C2) / A2
+            (1) a = -(K2 + b B2 + c C2) / A2
             
-            b B1 + c C1 - A1 / A2 * (b B2 + c C2) = 0
-            b B3 + c C3 - A3 / A2 * (b B2 + c C2) = 0
+            b B1 + c C1 - A1 / A2 * (K2 + b B2 + c C2) + K1 = 0
+            b B3 + c C3 - A3 / A2 * (K2 + b B2 + c C2) + K3 = 0
 
-            b (B1 - B2 * A1 / A2) + c (C1 - C2 * A1 / A2) = 0
-            b (B3 - B1 * A3 / A2) + c (C3 - C1 * A3 / A2) = 0
+            b (B1 - B2 * A1 / A2) + c (C1 - C2 * A1 / A2) - K2 * A1 / A2 + K1 = 0
+            b (B3 - B1 * A3 / A2) + c (C3 - C1 * A3 / A2) - K2 * A3 / A2 + K3  = 0
             **/
             (float b, float c) = solve2x2System(
-                B1 - B2 * A1 / A2, C1 - C2 * A1 / A2,
-                B3 - B1 * A3 / A2, C3 - C1 * A3 / A2,
+                B1 - B2 * A1 / A2, C1 - C2 * A1 / A2, -K2 * A1 / A2 + K1,
+                B3 - B1 * A3 / A2, C3 - C1 * A3 / A2, -K2 * A3 / A2 + K3
             );
-            var a =  -(b * B2 + c * C2) / A2;
+            var a =  -(K2 + b * B2 + c * C2) / A2;
             return (a, b, c);
         }
         else if (A3 != 0)
         {
             /**
-            (1) a = -(b B3 + c C3) / A3
+            (1) a = -(K3 + b B3 + c C3) / A3
             
-            b B1 + c C1 - A1 / A3 * (b B3 + c C3) = 0
-            b B2 + c C2 - A2 / A3 * (b B3 + c C3) = 0
+            b B1 + c C1 - A1 / A3 * (K3 + b B3 + c C3) + K1 = 0
+            b B2 + c C2 - A2 / A3 * (K3 + b B3 + c C3) + K2 = 0
             
-            b (B1 - B3 A1 / A3) + c (C1 - C3 A1 / A3) = 0
-            b (B2 - B3 A2 / A3) + c (C2 - C3 A2 / A3) = 0
+            b (B1 - B3 A1 / A3) + c (C1 - C3 A1 / A3) - K3 * A1 / A3 + K1 = 0
+            b (B2 - B3 A2 / A3) + c (C2 - C3 A2 / A3) - K3 * A2 / A3 + K2 = 0
             **/
             (float b, float c) = solve2x2System(
-                B1 - B3 * A1 / A3, C1 - C3 * A1 / A3,
-                B2 - B3 * A2 / A3, C2 - C3 * A2 / A3,
+                B1 - B3 * A1 / A3, C1 - C3 * A1 / A3, -K3 * A1 / A3 + K1,
+                B2 - B3 * A2 / A3, C2 - C3 * A2 / A3, -K3 * A2 / A3 + K2 
             );
-            var a = -(b * B3 + c * C3) / A3;
+            var a = -(K3 + b * B3 + c * C3) / A3;
             return (a, b, c);
         }
         else
         {
             (float b, float c) = solve2x2System(
-                B1, C1,
-                B2, C2
+                B1, C1, K1,
+                B2, C2, K2
             );
             return (0, b, c);
         }
     }
 
     private (float a, float b) solve2x2System(
-        float A1, float B1,
-        float A2, float B2
+        float A1, float B1, float K1,
+        float A2, float B2, float K2
     )
     {
+        float a = 0, b = 0;
         if (A1 != 0)
         {
             /**
-            a A1 + b B1 = 0
-            a A2 + b B2 = 0
+            a A1 + b B1 + K1 = 0
+            a A2 + b B2 + K2 = 0
 
-            (1) a = -b B1 / A1
+            (1) a = (K1 - b B1) / A1
 
-            b = 1 -> a = -B1 / A1
+            A2 / A1 (K1 - b B1) + b B2 + K2 = 0
+            (B2 - A2 / A1 B1) b + K2 + A2 / A1 K1 = 0
+            b = -(K2 + A2 / A1 K1) / (B2 - A2 / A1 B1)
             **/
-            return (-B1 / A1, 1f);
+            b = -(K2 + A2 / A1 * K1) / (B2 - A2 / A1 * B1);
+            a = (K1 - b * B1) / A1;
         }
         else if (A2 != 0)
         {
             /**
-            a A1 + b B1 = 0
-            a A2 + b B2 = 0
+            a A1 + b B1 + K1 = 0
+            a A2 + b B2 + K2 = 0
 
-            (1) a = -b B2 / A2
+            (1) a = (K2 - b B2) / A2
 
-            b = 1 -> a = -B2 / A2
+            A1 / A2 (K2 - b B2) + b B1 + K1 = 0
+            (B1 - A1 / A2 B2) b + K1 + A1 / A2 K2 = 0
+            b = -(K1 + A1 / A2 K2) / (B1 - A1 / A2 B2)
             **/
-            return (-B2 / A2, 1f);
+            b = -(K1 + A1 / A2 * K2) / (B1 - A1 / A2 * B2);
+            a = (K2 - b * B2) / A2;
         }
         else
         {
-            return (0f, 1f);
+            a = 0;
+            b = K1 / B1;
+            return (a, b);
         }
+        return (a, b);
     }
 }
