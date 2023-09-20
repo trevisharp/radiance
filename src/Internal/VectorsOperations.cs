@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    07/09/2023
+ * Date:    20/09/2023
  */
 using System;
 using System.Collections.Generic;
@@ -28,12 +28,28 @@ internal class VectorsOperations
             return new float[0];
         
         var plane = this.PlaneRegression(pts);
-        
-        var result = new List<float>();
+        var transformed = transform(pts, plane);
+        return delaunay(transformed);
+    }
+    
+    private DelaunayPoint[] transform(float[] original, (float a, float b, float c, float d) plane)
+    {
+        throw new NotImplementedException();
+    }
 
+    private float[] delaunay(DelaunayPoint[] pts)
+    {
+        throw new NotImplementedException();
+    }
 
+    private struct DelaunayPoint
+    {
+        public float x;
+        public float y;
+        public float z;
 
-        return result.ToArray();
+        public float tx;
+        public float ty;
     }
 
     internal (float a, float b, float c, float d) PlaneRegression(float[] pts)
