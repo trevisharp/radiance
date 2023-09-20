@@ -2,6 +2,7 @@
  * Date:    20/09/2023
  */
 using System;
+using System.Linq;
 using System.Collections.Generic;
 
 using System.Runtime.Intrinsics.X86;
@@ -34,7 +35,111 @@ internal class VectorsOperations
     
     private DelaunayPoint[] transform(float[] original, (float a, float b, float c, float d) plane)
     {
-        throw new NotImplementedException();
+        var pts = new List<DelaunayPoint>();
+
+        float a = plane.a,
+              b = plane.b,
+              c = plane.c,
+              d = plane.d;
+        var mod = a * a + b * b + c * c;
+
+        var originDist = -d / mod;
+        float xo = a * originDist,
+              yo = b * originDist,
+              zo = c * originDist;
+        
+        float A, B1, B2;
+        int j, k;
+        
+        if (a != 0)
+        {
+            /**
+            u = (-b, a, 0)
+            v = (-c, 0, a)
+
+            r * u + s * v + o = p
+            r * a + yo = yp -> r = (yp - yo) / a
+            s * a + zo = zp -> s = (zp - zo) / a
+            **/
+
+            A = 1 / a;
+            B1 = -yo / a;
+            B2 = -zo / a;
+            j = 1;
+            k = 2;
+        }
+        else if (b != 0)
+        {
+            /**
+            u = (0, -c, b)
+            v = (b, -a, 0)
+
+            r * u + s * v + o = p
+            r * b + xo = xp -> r = (xp - xo) / b
+            s * b + zo = zp -> s = (zp - zo) / b
+            **/
+
+            A = 1 / b;
+            B1 = -xo / b;
+            B2 = -zo / b;
+            j = 0;
+            k = 2;
+        }
+        else // c != 0
+        {
+            /**
+            u = (c, 0, -a)
+            v = (0, c, -b)
+
+            r * u + s * v + o = p
+            r * c + xo = xp -> r = (xp - xo) / c
+            s * c + yo = yp -> s = (yp - yo) / c
+            **/
+
+            A = 1 / c;
+            B1 = -yo / c;
+            B2 = -yo / c;
+            j = 0;
+            k = 1;
+        }
+
+        for (int i = 0; i < original.Length; i += 3)
+        {
+            var pt = new DelaunayPoint();
+
+            float x = original[i + 0],
+                  y = original[i + 1],
+                  z = original[i + 2];
+
+            pt.x = x;
+            pt.y = y;
+            pt.z = z;
+
+            /**
+            a (x + a * t) + b (y + b * t) + c (z + c * t) + d = 0
+            a x + a^2 t + b y + b^2 t + c z + c^2 t + d = 0
+            t = -(ax + by + cz + d) / (a^2 + b^2 + c^2)
+
+            xp = x + a * t
+            yp = y + b * t
+            zp = z + c * t
+            p = (xp, yp, zp)
+            **/
+            var t = -(a * x + b * y + c * z + d) / mod;
+
+            float xp = x + a * t,
+                  yp = y + b * t,
+                  zp = z + b * t;
+            
+            pt.tx = A * original[i + j] + B1;
+            pt.ty = A * original[i + k] + B2;
+
+            pts.Add(pt);
+        }
+        
+        return pts
+            .OrderBy(p => p.tx)
+            .ToArray();
     }
 
     private float[] delaunay(DelaunayPoint[] pts)
@@ -79,15 +184,16 @@ internal class VectorsOperations
           am = S a_i / N
         **/
 
-        var qx = 0f, qy = 0f, qz = 0f,
-            pxy = 0f, pyz = 0f, pxz = 0f,
-            xm = 0f, ym = 0f, zm = 0f;
+        int N = pts.Length;
+        float qx = 0f, qy = 0f, qz = 0f,
+              pxy = 0f, pyz = 0f, pxz = 0f,
+              xm = 0f, ym = 0f, zm = 0f;
         
-        for (int i = 0; i < pts.Length; i += 3)
+        for (int i = 0; i < N; i += 3)
         {
-            var x = pts[i + 0],
-                y = pts[i + 1],
-                z = pts[i + 2];
+            float x = pts[i + 0],
+                  y = pts[i + 1],
+                  z = pts[i + 2];
             
             qx += x * x;
             qy += y * y;
@@ -96,8 +202,8 @@ internal class VectorsOperations
             pyz += y * z;
             pxz += x * z;
             xm += x;
-            xy += y;
-            xz += z;
+            ym += y;
+            zm += z;
         }
         qx /= N;
         qy /= N;
@@ -106,8 +212,8 @@ internal class VectorsOperations
         pyz /= N;
         pxz /= N;
         xm /= N;
-        xy /= N;
-        xz /= N;
+        ym /= N;
+        zm /= N;
         
         /**
         d = 1
@@ -128,8 +234,8 @@ internal class VectorsOperations
         
         d = 1f;
         (a, b, c) = solve3x3System(
-            qx,  pxy, pxz, xm
-            pxy, qy,  pyz, ym
+            qx,  pxy, pxz, xm,
+            pxy, qy,  pyz, ym,
             pxz, pyz, qz,  zm
         );
 
