@@ -653,7 +653,7 @@ public class Player
  - ![](https://img.shields.io/badge/new-green) Add system to add and remove render functions.
  - ![](https://img.shields.io/badge/update-orange) Change all structure about RenderFunctions and introduce a IRender interface to all renders and create a RenderQueue.
  - ![](https://img.shields.io/badge/update-orange) Create system to improve data administration and replace old system of data management.
- - ![](https://img.shields.io/badge/new-orange) Hide Cursor Feature.
+ - ![](https://img.shields.io/badge/new-green) Hide Cursor Feature.
  - ![](https://img.shields.io/badge/update-orange) Now, change data not affect the draw and
  data become imutable again. In next versions, Radiance will provide new ways to talk with
  data and the they changes.
