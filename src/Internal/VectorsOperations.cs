@@ -15,6 +15,8 @@ namespace Radiance.Internal;
 /// </summary>
 internal class VectorsOperations
 {
+    const int delaunayTriangularization = 12;
+
     internal float[] ConvexHull(float[] points)
     {
         throw new NotImplementedException();
@@ -144,7 +146,68 @@ internal class VectorsOperations
 
     private float[] delaunay(DelaunayPoint[] pts)
     {
+        var triangules = new List<(int, int, int)>();
+        delaunay(pts, triangules, 0, pts.Length);
+
+        int N = triangules.Count;
+        var result = new float[3 * N];
+
+        for (int n = 0; n < N; n++)
+        {
+            (int i, int j, int k) = triangules[n];
+
+            if (i == -1 || j == -1 || k == -1)
+                continue;
+
+            var triangule = triangules[i];
+            result[n + 0] = triangule.x;
+            result[n + 1] = triangule.y;
+            result[n + 2] = triangule.z;
+
+            triangule = triangules[j];
+            result[n + 3] = triangule.x;
+            result[n + 4] = triangule.y;
+            result[n + 5] = triangule.z;
+
+            triangule = triangules[k];
+            result[n + 6] = triangule.x;
+            result[n + 7] = triangule.y;
+            result[n + 8] = triangule.z;
+        }
+
+        return result;
+    }
+
+    private void slowDelaunay(
+        DelaunayPoint[] pts,
+        List<(int, int, int)> triangules)
+    {
         throw new NotImplementedException();
+    }
+
+    private void delaunay(
+        DelaunayPoint[] pts,
+        List<(int, int, int)> triangules,
+        int s, int e
+    )
+    {
+        int len = e - s;
+        if (len < delaunayTriangularization)
+        {
+            slowDelaunay(pts, triangules);
+            return;
+        }
+
+        int p = s + len / 2;
+        delaunay(pts, triangules, s, p);
+        delaunay(pts, triangules, p, e);
+
+        throw new NotImplementedException(
+            $"""In this version of radiance, Delaunay Triangularizaton
+            only works with a limited quantity of points. The limit
+            is {delaunayTriangularization - 1} points.
+            """
+        );
     }
 
     private struct DelaunayPoint
@@ -355,5 +418,10 @@ internal class VectorsOperations
             return (a, b);
         }
         return (a, b);
+    }
+
+    internal float[] PolygonTriangulation(float[] pts)
+    {
+        
     }
 }
