@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    20/09/2023
+ * Date:    21/09/2023
  */
 using System;
 using System.Linq;
@@ -17,6 +17,16 @@ internal class VectorsOperations
 {
     const int delaunayTriangularization = 12;
 
+    private struct PlanarPoint
+    {
+        public float x;
+        public float y;
+        public float z;
+
+        public float tx;
+        public float ty;
+    }
+
     internal float[] ConvexHull(float[] points)
     {
         throw new NotImplementedException();
@@ -31,193 +41,11 @@ internal class VectorsOperations
             return new float[0];
         
         var plane = PlaneRegression(pts);
-        var transformed = transform(pts, plane);
-        return delaunay(transformed);
-    }
-    
-    private DelaunayPoint[] transform(float[] original, (float a, float b, float c, float d) plane)
-    {
-        var pts = new List<DelaunayPoint>();
-
-        float a = plane.a,
-              b = plane.b,
-              c = plane.c,
-              d = plane.d;
-        var mod = a * a + b * b + c * c;
-
-        var originDist = -d / mod;
-        float xo = a * originDist,
-              yo = b * originDist,
-              zo = c * originDist;
-        
-        float A, B1, B2;
-        int j, k;
-        
-        if (a != 0)
-        {
-            /**
-            u = (-b, a, 0)
-            v = (-c, 0, a)
-
-            r * u + s * v + o = p
-            r * a + yo = yp -> r = (yp - yo) / a
-            s * a + zo = zp -> s = (zp - zo) / a
-            **/
-
-            A = 1 / a;
-            B1 = -yo / a;
-            B2 = -zo / a;
-            j = 1;
-            k = 2;
-        }
-        else if (b != 0)
-        {
-            /**
-            u = (0, -c, b)
-            v = (b, -a, 0)
-
-            r * u + s * v + o = p
-            r * b + xo = xp -> r = (xp - xo) / b
-            s * b + zo = zp -> s = (zp - zo) / b
-            **/
-
-            A = 1 / b;
-            B1 = -xo / b;
-            B2 = -zo / b;
-            j = 0;
-            k = 2;
-        }
-        else // c != 0
-        {
-            /**
-            u = (c, 0, -a)
-            v = (0, c, -b)
-
-            r * u + s * v + o = p
-            r * c + xo = xp -> r = (xp - xo) / c
-            s * c + yo = yp -> s = (yp - yo) / c
-            **/
-
-            A = 1 / c;
-            B1 = -yo / c;
-            B2 = -yo / c;
-            j = 0;
-            k = 1;
-        }
-
-        for (int i = 0; i < original.Length; i += 3)
-        {
-            var pt = new DelaunayPoint();
-
-            float x = original[i + 0],
-                  y = original[i + 1],
-                  z = original[i + 2];
-
-            pt.x = x;
-            pt.y = y;
-            pt.z = z;
-
-            /**
-            a (x + a * t) + b (y + b * t) + c (z + c * t) + d = 0
-            a x + a^2 t + b y + b^2 t + c z + c^2 t + d = 0
-            t = -(ax + by + cz + d) / (a^2 + b^2 + c^2)
-
-            xp = x + a * t
-            yp = y + b * t
-            zp = z + c * t
-            p = (xp, yp, zp)
-            **/
-            var t = -(a * x + b * y + c * z + d) / mod;
-
-            float xp = x + a * t,
-                  yp = y + b * t,
-                  zp = z + b * t;
-            
-            pt.tx = A * original[i + j] + B1;
-            pt.ty = A * original[i + k] + B2;
-
-            pts.Add(pt);
-        }
-        
-        return pts
+        var transformed = 
+            toPlanarPoints(pts, plane)
             .OrderBy(p => p.tx)
             .ToArray();
-    }
-
-    private float[] delaunay(DelaunayPoint[] pts)
-    {
-        var triangules = new List<(int, int, int)>();
-        delaunay(pts, triangules, 0, pts.Length);
-
-        int N = triangules.Count;
-        var result = new float[3 * N];
-
-        for (int n = 0; n < N; n++)
-        {
-            (int i, int j, int k) = triangules[n];
-
-            if (i == -1 || j == -1 || k == -1)
-                continue;
-
-            var triangule = triangules[i];
-            result[n + 0] = triangule.x;
-            result[n + 1] = triangule.y;
-            result[n + 2] = triangule.z;
-
-            triangule = triangules[j];
-            result[n + 3] = triangule.x;
-            result[n + 4] = triangule.y;
-            result[n + 5] = triangule.z;
-
-            triangule = triangules[k];
-            result[n + 6] = triangule.x;
-            result[n + 7] = triangule.y;
-            result[n + 8] = triangule.z;
-        }
-
-        return result;
-    }
-
-    private void slowDelaunay(
-        DelaunayPoint[] pts,
-        List<(int, int, int)> triangules)
-    {
-        throw new NotImplementedException();
-    }
-
-    private void delaunay(
-        DelaunayPoint[] pts,
-        List<(int, int, int)> triangules,
-        int s, int e
-    )
-    {
-        int len = e - s;
-        if (len < delaunayTriangularization)
-        {
-            slowDelaunay(pts, triangules);
-            return;
-        }
-
-        int p = s + len / 2;
-        delaunay(pts, triangules, s, p);
-        delaunay(pts, triangules, p, e);
-
-        throw new NotImplementedException(
-            $"""In this version of radiance, Delaunay Triangularizaton
-            only works with a limited quantity of points. The limit
-            is {delaunayTriangularization - 1} points.
-            """
-        );
-    }
-
-    private struct DelaunayPoint
-    {
-        public float x;
-        public float y;
-        public float z;
-
-        public float tx;
-        public float ty;
+        return delaunay(transformed);
     }
 
     internal (float a, float b, float c, float d) PlaneRegression(float[] pts)
@@ -303,6 +131,210 @@ internal class VectorsOperations
         );
 
         return (a, b, c, d);
+    }
+
+    /// <summary>
+    /// Get a triangulation of a polygon with points in a
+    /// clockwise order.
+    /// </summary>
+    internal float[] PlanarPolygonTriangulation(float[] pts)
+    {
+        var N = pts.Length;
+        if (N < 12)
+            return pts;
+        
+        var plane = PlaneRegression(pts);
+        var points = toPlanarPoints(pts, plane);
+        var orderMap = (
+            from p in points.Select((q, i) => new { q, i })
+            orderby p.q.tx
+            select p.i
+        ).ToArray();
+
+        var monotone = new List<PlanarPoint>();
+        for (int i = 0; i < N; i++)
+        {
+            var index = orderMap[i];
+            var pt = points[index];
+
+            
+        }
+
+        throw new NotImplementedException();
+    }
+    
+    private IEnumerable<PlanarPoint> toPlanarPoints(float[] original, (float a, float b, float c, float d) plane)
+    {
+        var pts = new List<PlanarPoint>();
+
+        float a = plane.a,
+              b = plane.b,
+              c = plane.c,
+              d = plane.d;
+        var mod = a * a + b * b + c * c;
+
+        var originDist = -d / mod;
+        float xo = a * originDist,
+              yo = b * originDist,
+              zo = c * originDist;
+        
+        float A, B1, B2;
+        int j, k;
+        
+        if (a != 0)
+        {
+            /**
+            u = (-b, a, 0)
+            v = (-c, 0, a)
+
+            r * u + s * v + o = p
+            r * a + yo = yp -> r = (yp - yo) / a
+            s * a + zo = zp -> s = (zp - zo) / a
+            **/
+
+            A = 1 / a;
+            B1 = -yo / a;
+            B2 = -zo / a;
+            j = 1;
+            k = 2;
+        }
+        else if (b != 0)
+        {
+            /**
+            u = (0, -c, b)
+            v = (b, -a, 0)
+
+            r * u + s * v + o = p
+            r * b + xo = xp -> r = (xp - xo) / b
+            s * b + zo = zp -> s = (zp - zo) / b
+            **/
+
+            A = 1 / b;
+            B1 = -xo / b;
+            B2 = -zo / b;
+            j = 0;
+            k = 2;
+        }
+        else // c != 0
+        {
+            /**
+            u = (c, 0, -a)
+            v = (0, c, -b)
+
+            r * u + s * v + o = p
+            r * c + xo = xp -> r = (xp - xo) / c
+            s * c + yo = yp -> s = (yp - yo) / c
+            **/
+
+            A = 1 / c;
+            B1 = -yo / c;
+            B2 = -yo / c;
+            j = 0;
+            k = 1;
+        }
+
+        for (int i = 0; i < original.Length; i += 3)
+        {
+            var pt = new PlanarPoint();
+
+            float x = original[i + 0],
+                  y = original[i + 1],
+                  z = original[i + 2];
+
+            pt.x = x;
+            pt.y = y;
+            pt.z = z;
+
+            /**
+            a (x + a * t) + b (y + b * t) + c (z + c * t) + d = 0
+            a x + a^2 t + b y + b^2 t + c z + c^2 t + d = 0
+            t = -(ax + by + cz + d) / (a^2 + b^2 + c^2)
+
+            xp = x + a * t
+            yp = y + b * t
+            zp = z + c * t
+            p = (xp, yp, zp)
+            **/
+            var t = -(a * x + b * y + c * z + d) / mod;
+
+            float xp = x + a * t,
+                  yp = y + b * t,
+                  zp = z + b * t;
+            
+            pt.tx = A * original[i + j] + B1;
+            pt.ty = A * original[i + k] + B2;
+
+            pts.Add(pt);
+        }
+        
+        return pts;
+    }
+
+    private float[] delaunay(PlanarPoint[] pts)
+    {
+        var triangules = new List<(int x, int y, int z)>();
+        delaunay(pts, triangules, 0, pts.Length);
+
+        int N = triangules.Count;
+        var result = new float[3 * N];
+
+        for (int n = 0; n < N; n++)
+        {
+            (int i, int j, int k) = triangules[n];
+
+            if (i == -1 || j == -1 || k == -1)
+                continue;
+
+            var triangule = triangules[i];
+            result[n + 0] = triangule.x;
+            result[n + 1] = triangule.y;
+            result[n + 2] = triangule.z;
+
+            triangule = triangules[j];
+            result[n + 3] = triangule.x;
+            result[n + 4] = triangule.y;
+            result[n + 5] = triangule.z;
+
+            triangule = triangules[k];
+            result[n + 6] = triangule.x;
+            result[n + 7] = triangule.y;
+            result[n + 8] = triangule.z;
+        }
+
+        return result;
+    }
+
+    private void slowDelaunay(
+        PlanarPoint[] pts,
+        List<(int, int, int)> triangules)
+    {
+        throw new NotImplementedException();
+    }
+
+    private void delaunay(
+        PlanarPoint[] pts,
+        List<(int, int, int)> triangules,
+        int s, int e
+    )
+    {
+        int len = e - s;
+        if (len < delaunayTriangularization)
+        {
+            slowDelaunay(pts, triangules);
+            return;
+        }
+
+        int p = s + len / 2;
+        delaunay(pts, triangules, s, p);
+        delaunay(pts, triangules, p, e);
+
+        throw new NotImplementedException(
+            $"""
+            In this version of radiance, Delaunay Triangularizaton
+            only works with a limited quantity of points. The limit
+            is {delaunayTriangularization - 1} points.
+            """
+        );
     }
 
     private (float a, float b, float c) solve3x3System(
@@ -418,10 +450,5 @@ internal class VectorsOperations
             return (a, b);
         }
         return (a, b);
-    }
-
-    internal float[] PolygonTriangulation(float[] pts)
-    {
-        
     }
 }

@@ -110,7 +110,8 @@ public static class DataExtension
     )
     {
         VectorsOperations operations = new();
-        var triangularization = operations.PlanarDelaunay(vectors.Buffer);
+        var triangularization = operations
+            .PlanarPolygonTriangulation(vectors.Buffer);
         var result = new Vectors();
         
         for (int i = 0; i < triangularization.Length; i += 3)
