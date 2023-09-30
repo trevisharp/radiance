@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    08/09/2023
+ * Date:    30/09/2023
  */
 using System;
 
@@ -109,8 +109,7 @@ public static class DataExtension
         this Vectors vectors
     )
     {
-        VectorsOperations operations = new();
-        var triangularization = operations
+        var triangularization = VectorsOperations
             .PlanarPolygonTriangulation(vectors.Buffer);
         var result = new Vectors();
         

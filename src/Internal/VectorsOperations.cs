@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/09/2023
+ * Date:    30/09/2023
  */
 using System;
 using System.Linq;
@@ -13,42 +13,11 @@ namespace Radiance.Internal;
 /// <summary>
 /// Contains operations to transform vectors data
 /// </summary>
-internal class VectorsOperations
+internal static class VectorsOperations
 {
-    const int delaunayTriangularization = 12;
+    private const int sortTreshold = 8;
 
-    private struct PlanarPoint
-    {
-        public float x;
-        public float y;
-        public float z;
-
-        public float tx;
-        public float ty;
-    }
-
-    internal float[] ConvexHull(float[] points)
-    {
-        throw new NotImplementedException();
-    }
-
-    /// <summary>
-    /// Version 1.0 of triangularization.
-    /// </summary>
-    internal float[] PlanarDelaunay(float[] pts)
-    {
-        if (pts.Length < 9)
-            return new float[0];
-        
-        var plane = PlaneRegression(pts);
-        var transformed = 
-            toPlanarPoints(pts, plane)
-            .OrderBy(p => p.tx)
-            .ToArray();
-        return delaunay(transformed);
-    }
-
-    internal (float a, float b, float c, float d) PlaneRegression(float[] pts)
+    internal static (float a, float b, float c, float d) PlaneRegression(float[] pts)
     {
         float a, b, c, d;
         /**
@@ -137,35 +106,115 @@ internal class VectorsOperations
     /// Get a triangulation of a polygon with points in a
     /// clockwise order.
     /// </summary>
-    internal float[] PlanarPolygonTriangulation(float[] pts)
+    internal static float[] PlanarPolygonTriangulation(float[] pts)
     {
-        var N = pts.Length;
-        if (N < 12)
+        var N = pts.Length / 3;
+        if (N < 4)
             return pts;
         
+        var triangules = new List<float>();
+
         var plane = PlaneRegression(pts);
         var points = toPlanarPoints(pts, plane);
-        var orderMap = (
-            from p in points.Select((q, i) => new { q, i })
-            orderby p.q.tx
-            select p.i
-        ).ToArray();
-
-        var monotone = new List<PlanarPoint>();
+        var orderMap = sort(points, 3, 5);
+        var edges = new PolygonEdgeCollection(N);
+        
         for (int i = 0; i < N; i++)
         {
-            var index = orderMap[i];
-            var pt = points[index];
+            var v = orderMap[i];
 
-            
+
         }
 
-        throw new NotImplementedException();
+        return triangules.ToArray();
+    }
+
+    private static void monotonePlaneTriangulation(
+        List<int> indexList, float[] data,
+        List<float> triangules
+    )
+    {
+
+    }
+
+    private static int[] sort(float[] data, int offset, int size)
+    {
+        var orderMap = new int[data.Length / size];
+        for (int i = 0, n = 0; i < orderMap.Length; i++, n += size)
+            orderMap[i] = n;
+
+        quickSort(data, offset, size, orderMap, 0, orderMap.Length);
+
+        return orderMap;
+    }
+
+    private static void quickSort(
+        float[] data, int offset, int size, 
+        int[] map, int start, int end
+    )
+    {
+        if (end - start < sortTreshold)
+        {
+            slowSort(data, offset, size, map, start, end);
+            return;
+        }
+
+        var pivoIndex = map[end - 1];
+        var pivo = data[pivoIndex + offset];
+
+        int i = start, j = end - 2;
+        while (i < j)
+        {
+            float iv = data[map[i]];
+            while(iv < pivo && i < j)
+                iv = data[map[++i]];
+            
+            float jv = data[map[j]];
+            while (jv > pivo && i < j)
+                jv = data[map[--j]];
+
+            if (i >= j)
+                break;
+            
+            var temp = map[i];
+            map[i] = map[j];
+            map[j] = temp;
+        }
+        map[end - 1] = map[j];
+        map[j] = pivoIndex;
+
+        quickSort(data, offset, size, map, start, j);
+        quickSort(data, offset, size, map, j + 1, end);
+    }
+
+    private static void slowSort(
+        float[] data, int offset, int size, 
+        int[] map, int start, int end
+    )
+    {
+        bool sorted = false;
+        while (!sorted)
+        {
+            sorted = true;
+            for (int i = start; i < end - 1; i++)
+            {
+                var v1 = data[map[i]];
+                var v2 = data[map[i + 1]];
+                if (v1 < v2)
+                    continue;
+                
+                var temp = map[i];
+                map[i] = map[i + 1];
+                map[i + 1] = map[i];
+                sorted = false;
+            }
+        }
     }
     
-    private IEnumerable<PlanarPoint> toPlanarPoints(float[] original, (float a, float b, float c, float d) plane)
+    private static float[] toPlanarPoints(float[] original, (float a, float b, float c, float d) plane)
     {
-        var pts = new List<PlanarPoint>();
+        var result = new float[5 * original.Length / 3];
+        int n = 0;
 
         float a = plane.a,
               b = plane.b,
@@ -235,15 +284,13 @@ internal class VectorsOperations
 
         for (int i = 0; i < original.Length; i += 3)
         {
-            var pt = new PlanarPoint();
-
             float x = original[i + 0],
                   y = original[i + 1],
                   z = original[i + 2];
 
-            pt.x = x;
-            pt.y = y;
-            pt.z = z;
+            result[n + 0] = x;
+            result[n + 1] = y;
+            result[n + 2] = z;
 
             /**
             a (x + a * t) + b (y + b * t) + c (z + c * t) + d = 0
@@ -261,83 +308,15 @@ internal class VectorsOperations
                   yp = y + b * t,
                   zp = z + b * t;
             
-            pt.tx = A * original[i + j] + B1;
-            pt.ty = A * original[i + k] + B2;
-
-            pts.Add(pt);
+            result[n + 3] = A * original[i + j] + B1;
+            result[n + 4] = A * original[i + k] + B2;
+            n += 5;
         }
         
-        return pts;
-    }
-
-    private float[] delaunay(PlanarPoint[] pts)
-    {
-        var triangules = new List<(int x, int y, int z)>();
-        delaunay(pts, triangules, 0, pts.Length);
-
-        int N = triangules.Count;
-        var result = new float[3 * N];
-
-        for (int n = 0; n < N; n++)
-        {
-            (int i, int j, int k) = triangules[n];
-
-            if (i == -1 || j == -1 || k == -1)
-                continue;
-
-            var triangule = triangules[i];
-            result[n + 0] = triangule.x;
-            result[n + 1] = triangule.y;
-            result[n + 2] = triangule.z;
-
-            triangule = triangules[j];
-            result[n + 3] = triangule.x;
-            result[n + 4] = triangule.y;
-            result[n + 5] = triangule.z;
-
-            triangule = triangules[k];
-            result[n + 6] = triangule.x;
-            result[n + 7] = triangule.y;
-            result[n + 8] = triangule.z;
-        }
-
         return result;
     }
 
-    private void slowDelaunay(
-        PlanarPoint[] pts,
-        List<(int, int, int)> triangules)
-    {
-        throw new NotImplementedException();
-    }
-
-    private void delaunay(
-        PlanarPoint[] pts,
-        List<(int, int, int)> triangules,
-        int s, int e
-    )
-    {
-        int len = e - s;
-        if (len < delaunayTriangularization)
-        {
-            slowDelaunay(pts, triangules);
-            return;
-        }
-
-        int p = s + len / 2;
-        delaunay(pts, triangules, s, p);
-        delaunay(pts, triangules, p, e);
-
-        throw new NotImplementedException(
-            $"""
-            In this version of radiance, Delaunay Triangularizaton
-            only works with a limited quantity of points. The limit
-            is {delaunayTriangularization - 1} points.
-            """
-        );
-    }
-
-    private (float a, float b, float c) solve3x3System(
+    private static (float a, float b, float c) solve3x3System(
         float A1, float B1, float C1, float K1,
         float A2, float B2, float C2, float K2,
         float A3, float B3, float C3, float K3
@@ -407,7 +386,7 @@ internal class VectorsOperations
         }
     }
 
-    private (float a, float b) solve2x2System(
+    private static (float a, float b) solve2x2System(
         float A1, float B1, float K1,
         float A2, float B2, float K2
     )
