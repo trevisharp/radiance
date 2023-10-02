@@ -10,8 +10,6 @@ using System.Runtime.Intrinsics.Arm;
 
 namespace Radiance.Internal;
 
-using edge = System.Tuple<int, int>;
-
 /// <summary>
 /// Contains operations to transform vectors data
 /// </summary>
@@ -121,53 +119,60 @@ internal static class VectorsOperations
         var orderMap = sort(points, 5, 3, 4);
         var edges = new PolygonEdgeCollection(N);
         var status = new OrderedEdgeCollection(points, 3, 4);
-        var crrEdges = new List<edge>();
         var visited = new bool[N];
+        var helper = new Dictionary<(int, int), int>();
         
         for (int i = 0; i < N; i++)
         {
             var k = orderMap[i];
-
-            var x = points[k + 3];
-            var y = points[k + 4];
-            var conns = edges.GetConnections(k);
             visited[k] = true;
-
-            int visitCount = 0;
-            for (int j = 0; j < conns.Count; i++)
-                if (visited[j])
-                    visitCount++;
-            
-            treatStart(visitCount);
-
-
         }
 
         return triangules.ToArray();
 
         void treatSplit(int vertex)
         {
-            var above = aboveEdge(vertex);
-            var help = helper(above);
+            var conns = edges.GetConnections(vertex);
+            float x = points[vertex + 3];
+            float y = points[vertex + 4];
 
+            var above = status.GetAbove(x, y);
+            var help = helper[(above.i, above.j)];
+            edges.Connect(help, vertex);
+
+            foreach (var conn in conns)
+            {
+                status.AddEdge(vertex, conn);
+                helper[(vertex, conn)] = vertex;
+            }
         }
 
-        void treatStart(int visitCount)
+        void treatMerge(int vertex)
         {
-            if (visitCount != 0)
-                return;
-            
+            var conns = edges.GetConnections(vertex);
+            float x = points[vertex + 3];
+            float y = points[vertex + 4];
 
+            var above = status.GetAbove(x, y);
+            foreach (var conn in conns)
+                status.RemoveEdge(conn, vertex);
+            helper[above] = vertex;
         }
 
-        edge aboveEdge(int vertex)
+        void treatStart(int vertex)
         {
-            return default(edge);
+            var conns = edges.GetConnections(vertex);
+            foreach (var conn in conns)
+                status.AddEdge(vertex, conn);
+            helper[(vertex, conns.First())] = vertex;
         }
 
-        int helper(edge e)
+        void treatEnd(int vertex)
         {
-            return -1;
+            var conns = edges.GetConnections(vertex);
+            foreach (var conn in conns)
+                status.RemoveEdge(vertex, conn);
+            edges.Connect(vertex, conns.First());
         }
     }
 

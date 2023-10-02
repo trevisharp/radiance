@@ -45,6 +45,22 @@ internal class OrderedEdgeCollection
         this.yIndex = yIndex;
     }
 
+    public (int, int) GetAbove(float x, float y)
+    {
+        var crr = edges.Last;
+
+        while (crr is not null)
+        {
+            var edge = crr.Value;
+            if (edge.a * x + edge.b >= y)
+                return (edge.vi, edge.vj);
+            crr = crr.Previous;
+        }
+
+        var first = edges.First.Value;
+        return (first.vi, first.vj);
+    }
+
     public void RemoveEdge(int vi, int vj)
     {
         foreach (var node in edges)
@@ -55,6 +71,18 @@ internal class OrderedEdgeCollection
             edges.Remove(node);
             return;
         }
+    }
+
+    public bool Contains(int vi, int vj)
+    {
+        foreach (var node in edges)
+        {
+            if (node.vi != vi || node.vj != vj)
+                continue;
+            
+            return true;
+        }
+        return false;
     }
 
     public void AddEdge(int vi, int vj)
