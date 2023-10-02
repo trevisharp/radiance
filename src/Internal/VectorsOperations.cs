@@ -10,6 +10,8 @@ using System.Runtime.Intrinsics.Arm;
 
 namespace Radiance.Internal;
 
+using edge = System.Tuple<int, int>;
+
 /// <summary>
 /// Contains operations to transform vectors data
 /// </summary>
@@ -116,17 +118,57 @@ internal static class VectorsOperations
 
         var plane = PlaneRegression(pts);
         var points = toPlanarPoints(pts, plane);
-        var orderMap = sort(points, 3, 5);
+        var orderMap = sort(points, 5, 3, 4);
         var edges = new PolygonEdgeCollection(N);
+        var status = new OrderedEdgeCollection(points, 3, 4);
+        var crrEdges = new List<edge>();
+        var visited = new bool[N];
         
         for (int i = 0; i < N; i++)
         {
-            var v = orderMap[i];
+            var k = orderMap[i];
+
+            var x = points[k + 3];
+            var y = points[k + 4];
+            var conns = edges.GetConnections(k);
+            visited[k] = true;
+
+            int visitCount = 0;
+            for (int j = 0; j < conns.Count; i++)
+                if (visited[j])
+                    visitCount++;
+            
+            treatStart(visitCount);
 
 
         }
 
         return triangules.ToArray();
+
+        void treatSplit(int vertex)
+        {
+            var above = aboveEdge(vertex);
+            var help = helper(above);
+
+        }
+
+        void treatStart(int visitCount)
+        {
+            if (visitCount != 0)
+                return;
+            
+
+        }
+
+        edge aboveEdge(int vertex)
+        {
+            return default(edge);
+        }
+
+        int helper(edge e)
+        {
+            return -1;
+        }
     }
 
     private static void monotonePlaneTriangulation(
@@ -137,30 +179,30 @@ internal static class VectorsOperations
 
     }
 
-    private static int[] sort(float[] data, int offset, int size)
+    private static int[] sort(float[] data, int size, int offsetA, int offsetB = -1)
     {
         var orderMap = new int[data.Length / size];
         for (int i = 0, n = 0; i < orderMap.Length; i++, n += size)
             orderMap[i] = n;
 
-        quickSort(data, offset, size, orderMap, 0, orderMap.Length);
+        quickSort(data, offsetA, offsetB, size, orderMap, 0, orderMap.Length);
 
         return orderMap;
     }
 
     private static void quickSort(
-        float[] data, int offset, int size, 
+        float[] data, int offsetA, int offsetB, int size, 
         int[] map, int start, int end
     )
     {
         if (end - start < sortTreshold)
         {
-            slowSort(data, offset, size, map, start, end);
+            slowSort(data, offsetA, offsetB, size, map, start, end);
             return;
         }
 
         var pivoIndex = map[end - 1];
-        var pivo = data[pivoIndex + offset];
+        var pivo = data[pivoIndex + offsetA];
 
         int i = start, j = end - 2;
         while (i < j)
@@ -183,12 +225,12 @@ internal static class VectorsOperations
         map[end - 1] = map[j];
         map[j] = pivoIndex;
 
-        quickSort(data, offset, size, map, start, j);
-        quickSort(data, offset, size, map, j + 1, end);
+        quickSort(data, offsetA, offsetB, size, map, start, j);
+        quickSort(data, offsetA, offsetB, size, map, j + 1, end);
     }
 
     private static void slowSort(
-        float[] data, int offset, int size, 
+        float[] data, int offsetA, int offsetB, int size, 
         int[] map, int start, int end
     )
     {
@@ -198,14 +240,23 @@ internal static class VectorsOperations
             sorted = true;
             for (int i = start; i < end - 1; i++)
             {
-                var v1 = data[map[i]];
-                var v2 = data[map[i + 1]];
+                int j = map[i],
+                    k = map[i + 1];
+                var v1 = data[j + offsetA];
+                var v2 = data[k + offsetA];
                 if (v1 < v2)
                     continue;
+
+                if (v1 == v2)
+                {
+                    v1 = data[j + offsetB];
+                    v2 = data[k + offsetB];
+                    if (v1 < v2)
+                        continue;
+                }
                 
-                var temp = map[i];
-                map[i] = map[i + 1];
-                map[i + 1] = map[i];
+                map[i] = k;
+                map[i + 1] = j;
                 sorted = false;
             }
         }

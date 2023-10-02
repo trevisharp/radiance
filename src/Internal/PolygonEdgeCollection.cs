@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/09/2023
+ * Date:    01/10/2023
  */
 using System.Collections.Generic;
 
@@ -10,10 +10,16 @@ internal class PolygonEdgeCollection
     int last;
     List<int>[] list;
     
-    internal PolygonEdgeCollection(int n)
+    internal PolygonEdgeCollection(int verticesCount)
     {
-        this.last = n - 1;
-        list = new List<int>[n];
+        this.last = verticesCount - 1;
+        list = new List<int>[verticesCount];
+    }
+
+    internal List<int> GetConnections(int i)
+    {
+        init(i);
+        return list[i];
     }
 
     internal bool IsConnected(int i, int j)
