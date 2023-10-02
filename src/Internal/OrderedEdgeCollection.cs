@@ -45,7 +45,7 @@ internal class OrderedEdgeCollection
         this.yIndex = yIndex;
     }
 
-    public (int, int) GetAbove(float x, float y)
+    public (int i, int j) GetAbove(float x, float y)
     {
         var crr = edges.Last;
 

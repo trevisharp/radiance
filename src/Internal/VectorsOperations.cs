@@ -91,6 +91,12 @@ internal static class VectorsOperations
         a pxy + b qy  + c pyz + ym = 0
         a pxz + b pyz + c qz  + zm = 0
         **/
+
+        System.Console.WriteLine(
+            qx + " " +  pxy + " " + pxz + " " + xm + " " +
+            pxy + " " + qy + " " +  pyz + " " + ym + " " +
+            pxz + " " + pyz + " " + qz + " " +  zm
+        );
         
         d = 1f;
         (a, b, c) = solve3x3System(
@@ -98,7 +104,24 @@ internal static class VectorsOperations
             pxy, qy,  pyz, ym,
             pxz, pyz, qz,  zm
         );
-
+        
+        /**
+        d = 0
+        a qx  + b pxy + c pxz = 0
+        a pxy + b qy  + c pyz = 0
+        a pxz + b pyz + c qz = 0
+        **/
+        if (float.IsNaN(a))
+        {
+            d = 0f;
+            (a, b, c) = solve3x3System(
+                qx,  pxy, pxz, 0,
+                pxy, qy,  pyz, 0,
+                pxz, pyz, qz,  0
+            );
+        }
+        
+        System.Console.WriteLine($"{a} {b} {c} {d}");
         return (a, b, c, d);
     }
 
@@ -113,21 +136,30 @@ internal static class VectorsOperations
             return pts;
         
         var triangules = new List<float>();
-
+        
         var plane = PlaneRegression(pts);
         var points = toPlanarPoints(pts, plane);
+        System.Console.WriteLine("to planar done!");
         var orderMap = sort(points, 5, 3, 4);
+        System.Console.WriteLine("sort done!");
         var edges = new PolygonEdgeCollection(N);
         var status = new OrderedEdgeCollection(points, 3, 4);
         var visited = new bool[N];
         var helper = new Dictionary<(int, int), int>();
+        System.Console.WriteLine("data structure done!");
         
-        for (int i = 0; i < N; i++)
-        {
-            var k = orderMap[i];
-            visited[k] = true;
-        }
+        // TODO
+        // for (int i = 0; i < N; i++)
+        // {
+        //     var k = orderMap[i];
+        //     visited[k] = true;
 
+        // }
+
+        // foreach (var poly in edges.GetPolygons())
+        
+        System.Console.WriteLine("premonotone");
+        monotonePlaneTriangulation(orderMap, points, triangules);
         return triangules.ToArray();
 
         void treatSplit(int vertex)
@@ -177,11 +209,55 @@ internal static class VectorsOperations
     }
 
     private static void monotonePlaneTriangulation(
-        List<int> indexList, float[] data,
+        int[] polyOrderMap, float[] data,
         List<float> triangules
     )
     {
+        var edges = new PolygonEdgeCollection(polyOrderMap.Length);
+        var stack = new Stack<int>();
+        stack.Push(polyOrderMap[0]);
+        stack.Push(polyOrderMap[1]);
 
+        for (int k = 2; k < polyOrderMap.Length; k++)
+        {
+            var vertex = polyOrderMap[k];
+            var top = stack.Peek();
+            var isConnected = 
+                vertex == top + 1 || vertex == top - 1 ||
+                (vertex == polyOrderMap.Length - 1 && top == 0) ||
+                (vertex == 0 && top == polyOrderMap.Length - 1);
+            if (isConnected)
+            {
+                stack.Push(vertex);
+                continue;
+            }
+
+            while (!isConnected)
+            {
+                edges.Connect(vertex, top);
+                stack.Pop();
+                if (stack.Count == 0)
+                    break;
+                
+                top = stack.Peek();
+                isConnected = 
+                    vertex == top + 1 || vertex == top - 1 ||
+                    (vertex == polyOrderMap.Length - 1 && top == 0) ||
+                    (vertex == 0 && top == polyOrderMap.Length - 1);
+            }
+            
+            stack.Push(vertex);
+        }
+
+        foreach (var poly in edges.GetPolygons())
+        {
+            foreach (var index in poly)
+            {
+                triangules.Add(data[index + 0]);
+                triangules.Add(data[index + 1]);
+                triangules.Add(data[index + 2]);
+            }
+        }
     }
 
     private static int[] sort(float[] data, int size, int offsetA, int offsetB = -1)

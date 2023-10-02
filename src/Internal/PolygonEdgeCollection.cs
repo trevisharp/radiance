@@ -22,6 +22,41 @@ internal class PolygonEdgeCollection
         return list[i];
     }
 
+    internal List<int[]> GetPolygons()
+    {
+        List<int[]> result = new List<int[]>();
+
+        bool[] visited = new bool[list.Length];
+        Stack<int> stack = new Stack<int>();
+
+
+        for (int i = 0; i < list.Length; i++)
+        {
+            if (visited[i])
+                continue;
+
+            List<int> poly = new List<int>();
+
+            stack.Clear();
+            stack.Push(i);
+            while (stack.Count > 0)
+            {
+                var index = stack.Pop();
+                if (visited[index])
+                    continue;
+                
+                visited[index] = true;
+                poly.Add(index);
+
+                foreach (var conn in list[index])
+                    stack.Push(conn);
+            }
+            result.Add(poly.ToArray());
+        }
+
+        return result;
+    }
+
     internal bool IsConnected(int i, int j)
     {
         if (i == j)
