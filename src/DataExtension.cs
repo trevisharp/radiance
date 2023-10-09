@@ -105,6 +105,24 @@ public static class DataExtension
         where D2 : ShaderObject, new()
         => new FragmentTransformedData<D1, D2>(data, (_, _) => (r, g, b, 1.0));
 
+    public static Vectors reverse(
+        this Vectors vectors
+    )
+    {
+        var result = new Vectors();
+
+        for (int i = vectors.Buffer.Length - 3; i > 0; i -= 3)
+        {
+            result.Add(
+                vectors.Buffer[i + 0],
+                vectors.Buffer[i + 1],
+                vectors.Buffer[i + 2]
+            );
+        }
+
+        return result;
+    }
+
     public static IData triangules(
         this Vectors vectors
     )

@@ -15,7 +15,7 @@ namespace Radiance.Internal;
 /// </summary>
 internal static class VectorsOperations
 {
-    private const int sortTreshold = 8;
+    private const int sortTreshold = 32;
 
     internal static (float a, float b, float c, float d) PlaneRegression(float[] pts)
     {
@@ -308,6 +308,7 @@ internal static class VectorsOperations
         return orderMap;
     }
 
+    // TODO: Fix bug in quickSort
     private static void quickSort(
         float[] data, int offsetA, int offsetB, int size, 
         int[] map, int start, int end
