@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/09/2023
+ * Date:    09/10/2023
  */
 using System;
 using System.Linq;
@@ -19,7 +19,6 @@ internal static class VectorsOperations
 
     internal static (float a, float b, float c, float d) PlaneRegression(float[] pts)
     {
-        float a, b, c, d;
         /**
         E = S (a*x_i + b*y_i + c*z_i + d)^2 / N
           
@@ -35,8 +34,8 @@ internal static class VectorsOperations
           + (2cd Sz) / N
 
           = a^2 qx + b^2 qy + c^2 qz
-          + 2ab pxy + 2ac pxz + 2ad xm
-          + 2bc pyz + 2bd ym + 2cd zm
+          + 2ab pxy + 2ac pxz + 2bc pyz 
+          + 2ad xm + 2bd ym + 2cd zm
           + d^2
 
           qa = S a_i^2 / N
@@ -44,12 +43,12 @@ internal static class VectorsOperations
           am = S a_i / N
         **/
 
-        int N = pts.Length;
+        int N = pts.Length / 3;
         float qx = 0f, qy = 0f, qz = 0f,
               pxy = 0f, pyz = 0f, pxz = 0f,
               xm = 0f, ym = 0f, zm = 0f;
         
-        for (int i = 0; i < N; i += 3)
+        for (int i = 0; i < pts.Length; i += 3)
         {
             float x = pts[i + 0],
                   y = pts[i + 1],
@@ -74,55 +73,19 @@ internal static class VectorsOperations
         xm /= N;
         ym /= N;
         zm /= N;
+
+        var covxy = pxy - xm * ym;
+        var covyz = pyz - ym * zm;
+        var covxz = pxz - xm * zm;
+        var varx = qx - xm * xm;
+        var vary = qy - ym * ym;
+        var varz = qz - zm * zm;
         
-        /**
-        d = 1
+        var a = (covyz - covxy * covxz) / varx;
+        var b = (covxz - covxy * covyz) / vary;
+        var d = -a * xm - b * ym - zm;
 
-        dE/da = 2a qx + 2b pxy + 2c pxz + 2 xm
-        a qx + b pxy + c pxz + xm = 0
-
-        dE/db = 2b qy + 2a pxy + 2c pyz + 2 ym
-        b qy + a pxy + c pyz + ym = 0
-
-        dE/dc = 2c qz + 2a pxz + 2b pyz + 2 zm
-        c qz + a pxz + b pyz + zm = 0
-
-        a qx  + b pxy + c pxz + xm = 0
-        a pxy + b qy  + c pyz + ym = 0
-        a pxz + b pyz + c qz  + zm = 0
-        **/
-
-        System.Console.WriteLine(
-            qx + " " +  pxy + " " + pxz + " " + xm + " " +
-            pxy + " " + qy + " " +  pyz + " " + ym + " " +
-            pxz + " " + pyz + " " + qz + " " +  zm
-        );
-        
-        d = 1f;
-        (a, b, c) = solve3x3System(
-            qx,  pxy, pxz, xm,
-            pxy, qy,  pyz, ym,
-            pxz, pyz, qz,  zm
-        );
-        
-        /**
-        d = 0
-        a qx  + b pxy + c pxz = 0
-        a pxy + b qy  + c pyz = 0
-        a pxz + b pyz + c qz = 0
-        **/
-        if (float.IsNaN(a))
-        {
-            d = 0f;
-            (a, b, c) = solve3x3System(
-                qx,  pxy, pxz, 0,
-                pxy, qy,  pyz, 0,
-                pxz, pyz, qz,  0
-            );
-        }
-        
-        System.Console.WriteLine($"{a} {b} {c} {d}");
-        return (a, b, c, d);
+        return (a, b, 1f, d);
     }
 
     /// <summary>
@@ -139,14 +102,11 @@ internal static class VectorsOperations
         
         var plane = PlaneRegression(pts);
         var points = toPlanarPoints(pts, plane);
-        System.Console.WriteLine("to planar done!");
         var orderMap = sort(points, 5, 3, 4);
-        System.Console.WriteLine("sort done!");
         var edges = new PolygonEdgeCollection(N);
         var status = new OrderedEdgeCollection(points, 3, 4);
         var visited = new bool[N];
         var helper = new Dictionary<(int, int), int>();
-        System.Console.WriteLine("data structure done!");
         
         // TODO
         // for (int i = 0; i < N; i++)
@@ -158,8 +118,9 @@ internal static class VectorsOperations
 
         // foreach (var poly in edges.GetPolygons())
         
-        System.Console.WriteLine("premonotone");
-        monotonePlaneTriangulation(orderMap, points, triangules);
+        monotonePlaneTriangulation(orderMap, 
+            points, triangules, 5
+        );
         return triangules.ToArray();
 
         void treatSplit(int vertex)
@@ -210,53 +171,129 @@ internal static class VectorsOperations
 
     private static void monotonePlaneTriangulation(
         int[] polyOrderMap, float[] data,
-        List<float> triangules
+        List<float> triangules, int dataSize
     )
     {
         var edges = new PolygonEdgeCollection(polyOrderMap.Length);
+
         var stack = new Stack<int>();
         stack.Push(polyOrderMap[0]);
         stack.Push(polyOrderMap[1]);
 
         for (int k = 2; k < polyOrderMap.Length; k++)
         {
-            var vertex = polyOrderMap[k];
-            var top = stack.Peek();
-            var isConnected = 
-                vertex == top + 1 || vertex == top - 1 ||
-                (vertex == polyOrderMap.Length - 1 && top == 0) ||
-                (vertex == 0 && top == polyOrderMap.Length - 1);
-            if (isConnected)
+            stack.Push(polyOrderMap[k]);
+            while (stack.Count > 2)
             {
-                stack.Push(vertex);
-                continue;
-            }
+                var r = stack.Pop();
+                var q = stack.Pop();
+                var p = stack.Pop();
 
-            while (!isConnected)
-            {
-                edges.Connect(vertex, top);
-                stack.Pop();
-                if (stack.Count == 0)
+                var res = isTriangule(p, q, r);
+                if (!res.HasValue)
+                {
+                    stack.Push(p);
+                    stack.Push(q);
+                    stack.Push(r);
                     break;
+                }
                 
-                top = stack.Peek();
-                isConnected = 
-                    vertex == top + 1 || vertex == top - 1 ||
-                    (vertex == polyOrderMap.Length - 1 && top == 0) ||
-                    (vertex == 0 && top == polyOrderMap.Length - 1);
+                var diagonal = res.Value;
+                edges.Connect(
+                    diagonal.s / dataSize,
+                    diagonal.t / dataSize
+                );
+                triangules.Add(data[p + 0]);
+                triangules.Add(data[p + 1]);
+                triangules.Add(data[p + 2]);
+                triangules.Add(data[q + 0]);
+                triangules.Add(data[q + 1]);
+                triangules.Add(data[q + 2]);
+                triangules.Add(data[r + 0]);
+                triangules.Add(data[r + 1]);
+                triangules.Add(data[r + 2]);
+
+                if (stack.Count > 2)
+                {
+                    stack.Push(diagonal.s);
+                    continue;
+                }
+
+                stack.Push(diagonal.s);
+                stack.Push(diagonal.t);
             }
-            
-            stack.Push(vertex);
         }
 
-        foreach (var poly in edges.GetPolygons())
+        /// <summary>
+        /// If p and q is connected test if (p, q, r) are a triangule
+        /// and return the right face
+        /// </summary>
+        (int s, int t)? isTriangule(int p, int q, int r)
         {
-            foreach (var index in poly)
+            if (edges.IsConnected(q / dataSize, r / dataSize))
             {
-                triangules.Add(data[index + 0]);
-                triangules.Add(data[index + 1]);
-                triangules.Add(data[index + 2]);
+                int mid = q;
+                int aft, bef;
+                if (p < mid && mid < r)
+                {
+                    bef = p;
+                    aft = r;
+                }
+                else if (r < mid && mid < p)
+                {
+                    bef = r;
+                    aft = p;
+                }
+                else
+                {
+                    bef = int.Max(p, r);
+                    aft = int.Min(p, r);
+                }
+
+                var lft = left(bef, mid, aft);
+                if (lft < 0)
+                    return null;
+                
+                return (p, r);
             }
+            else if (edges.IsConnected(p / dataSize, r / dataSize))
+            {
+                int mid = p;
+                int aft, bef;
+                if (q < mid && mid < r)
+                {
+                    bef = q;
+                    aft = r;
+                }
+                else if (r < mid && mid < q)
+                {
+                    bef = r;
+                    aft = q;
+                }
+                else
+                {
+                    bef = int.Max(q, r);
+                    aft = int.Min(q, r);
+                }
+
+                var lft = left(bef, mid, aft);
+                if (lft < 0)
+                    return null;
+                
+                return (q, r);
+            }
+            return null;
+        }
+
+        float left(int p, int q, int r)
+        {
+            var vx = data[p + 3] - data[q + 3];
+            var vy = data[p + 4] - data[q + 4];
+            
+            var ux = data[r + 3] - data[q + 3];
+            var uy = data[r + 4] - data[q + 4];
+
+            return vx * uy - ux * vy;
         }
     }
 
@@ -523,8 +560,23 @@ internal static class VectorsOperations
         float A2, float B2, float K2
     )
     {
+
         float a = 0, b = 0;
-        if (A1 != 0)
+        if (A1 == 0 && A2 == 0)
+        {
+            a = 0;
+            b = B1 != 0 ?
+                solve1x1System(B1, K1) :
+                solve1x1System(B2, K2);
+        }
+        else if (B1 == 0 && B2 == 0)
+        {
+            a = A1 != 0 ?
+                solve1x1System(A1, K1) :
+                solve1x1System(A2, K2);
+            b = 0;
+        }
+        else if (A1 != 0)
         {
             /**
             a A1 + b B1 + K1 = 0
@@ -558,8 +610,15 @@ internal static class VectorsOperations
         {
             a = 0;
             b = K1 / B1;
-            return (a, b);
         }
         return (a, b);
+    }
+
+    private static float solve1x1System(float A, float B)
+    {
+        if (A == 0 || B == 0)
+            return 0;
+        
+        return -B / A;
     }
 }
