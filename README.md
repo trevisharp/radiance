@@ -2,14 +2,28 @@
 
 A library based on OpenTK which is based on OpenGL to program Shaders in C#.
 
-# How to use
+# Table of Contents
+
+ - [Overview](#overview)
+ - [How to install](#how-to-install)
+ - [Features (For OpenGL Programers)](#features-for-opengl-programers)
+ - [Concepts](#concepts)
+ - [Examples](#examples)
+ - [Versions](#versions)
+ - [Next Features](#next-features)
+
+# Overview
+
+Radiance is a library that can generate GLSL (The language of OpenGL) automatically only using C# code. Radiance manage OpenGL to create buffers, associate variables, compile shaders and control programs. With Radiance will can use OpenGL in high level without completly lose the high performance of OpenGL and GPU renderization.
+
+# How to install
 
 ```bash
 dotnet new console # Create project
 dotnet add package radiance # Install Radiance
 ```
 
-# Features
+# Features (For OpenGL Programers)
 
 See this examples that contains all Radiance features:
 
@@ -21,7 +35,7 @@ using Radiance;
 Window.OnKeyDown += (input, modifier) =>
 {
     // Test if active modifier has pressed like, alt, shift, ctrl.
-    bool dontHasMod = (m & Modifier.ActiveModifier) == 0;
+    bool dontHasMod = (modifier & Modifier.ActiveModifier) == 0;
     if (input == Input.Escape && !dontHasMod)
         Window.Close();
 }
@@ -627,7 +641,7 @@ public class Player
 
 # Versions
 
-### Radiance v1.6.0
+### Radiance v1.6.0 (coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
  - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
@@ -636,26 +650,26 @@ public class Player
 ### Radiance v1.5.0
 
  - ![](https://img.shields.io/badge/new-green) Create a class BaseData : IData to simplify IData's implementations.
- - ![](https://img.shields.io/badge/update-orange) Improve performance of Data Structures.
+ - ![](https://img.shields.io/badge/update-blue) Improve performance of Data Structures.
  - ![](https://img.shields.io/badge/new-green) Add system to add and remove render functions.
- - ![](https://img.shields.io/badge/update-orange) Change all structure about RenderFunctions and introduce a IRender interface to all renders and create a RenderQueue.
- - ![](https://img.shields.io/badge/update-orange) Create system to improve data administration and replace old system of data management.
- - ![](https://img.shields.io/badge/new-orange) Hide Cursor Feature.
- - ![](https://img.shields.io/badge/update-orange) Now, change data not affect the draw and
+ - ![](https://img.shields.io/badge/update-blue) Change all structure about RenderFunctions and introduce a IRender interface to all renders and create a RenderQueue.
+ - ![](https://img.shields.io/badge/update-blue) Create system to improve data administration and replace old system of data management.
+ - ![](https://img.shields.io/badge/new-green) Hide Cursor Feature.
+ - ![](https://img.shields.io/badge/update-blue) Now, change data not affect the draw and
  data become imutable again. In next versions, Radiance will provide new ways to talk with
  data and the they changes.
 
 ### Radiance v1.4.0
 
- - ![](https://img.shields.io/badge/update-orange) Global system types updates.
+ - ![](https://img.shields.io/badge/update-blue) Global system types updates.
  - ![](https://img.shields.io/badge/new-green) Program reusing if shaders are same in diferent draw calls.
  - ![](https://img.shields.io/badge/new-green) Rect and Ellip shafe functions in RadianceUtils.
 
 ### Radiance v1.3.0
 
  - ![](https://img.shields.io/badge/new-green) Cursor input events added.
- - ![](https://img.shields.io/badge/update-orange) Add modifier systems to keyboard input.
- - ![](https://img.shields.io/badge/update-orange) Improve Verbose mode outputs.
+ - ![](https://img.shields.io/badge/update-blue) Add modifier systems to keyboard input.
+ - ![](https://img.shields.io/badge/update-blue) Improve Verbose mode outputs.
  - ![](https://img.shields.io/badge/new-green) Improve use of data turning into a mutable data and avoid regenerating buffer if the data not change.
  - ![](https://img.shields.io/badge/new-green) Improve use of OpenGL resources and reutilizations.
 
@@ -667,9 +681,9 @@ public class Player
 ### Radiance v1.1.0
 
  - ![](https://img.shields.io/badge/new-green) Colored Vectors data type added.
- - ![](https://img.shields.io/badge/update-orange) Data System Reworked.
+ - ![](https://img.shields.io/badge/update-blue) Data System Reworked.
  - ![](https://img.shields.io/badge/new-green) Auto outputs and inputs betwen Shader Pipeline.
- - ![](https://img.shields.io/badge/update-orange) More itens in Radiance Utils.
+ - ![](https://img.shields.io/badge/update-blue) More itens in Radiance Utils.
 
 ### Radiance v1.0.0
 
@@ -683,6 +697,7 @@ public class Player
 
 # Next Features
 
+- README: Add the section 'For not OpenGL programers'
 - README: Add the section 'What not to do'
 - README: Add the section 'Advanced operations' teaching how to create custom data types
 - README: Add the section 'Template Project' with a template for the project
