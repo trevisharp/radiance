@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/09/2023
+ * Date:    09/10/2023
  */
 using System;
 using System.Text;
@@ -50,7 +50,7 @@ public static class RadianceUtils
         {
             result.Add((
                 a * MathF.Cos(phi * k) + x,
-                b * MathF.Sin(phi * k) + y,
+                b * MathF.Sin(-phi * k) + y,
                 0f
             ));
         }
