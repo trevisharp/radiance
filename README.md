@@ -631,7 +631,7 @@ public class Player
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
  - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
- - ![](https://img.shields.io/badge/new-green) Added Triangularization algorithms.
+ - ![](https://img.shields.io/badge/new-green) Added Triangularization algorithms for x-monotone polygons.
 
 ### Radiance v1.5.0
 
