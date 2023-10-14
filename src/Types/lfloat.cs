@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    28/08/2023
+ * Date:    14/10/2023
  */
+#pragma warning disable CS8981
+
 namespace Radiance.Types;
 
 using Internal;
