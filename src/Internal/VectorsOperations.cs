@@ -15,7 +15,7 @@ namespace Radiance.Internal;
 /// </summary>
 internal static class VectorsOperations
 {
-    private const int sortTreshold = 32;
+    private const int sortTreshold = 8;
 
     internal static (float a, float b, float c, float d) PlaneRegression(float[] pts)
     {
@@ -109,64 +109,12 @@ internal static class VectorsOperations
         var helper = new Dictionary<(int, int), int>();
         
         // TODO
-        // for (int i = 0; i < N; i++)
-        // {
-        //     var k = orderMap[i];
-        //     visited[k] = true;
-
-        // }
-
-        // foreach (var poly in edges.GetPolygons())
+        // monotone subdivision
         
         monotonePlaneTriangulation(orderMap, 
             points, triangules, 5
         );
         return triangules.ToArray();
-
-        void treatSplit(int vertex)
-        {
-            var conns = edges.GetConnections(vertex);
-            float x = points[vertex + 3];
-            float y = points[vertex + 4];
-
-            var above = status.GetAbove(x, y);
-            var help = helper[(above.i, above.j)];
-            edges.Connect(help, vertex);
-
-            foreach (var conn in conns)
-            {
-                status.AddEdge(vertex, conn);
-                helper[(vertex, conn)] = vertex;
-            }
-        }
-
-        void treatMerge(int vertex)
-        {
-            var conns = edges.GetConnections(vertex);
-            float x = points[vertex + 3];
-            float y = points[vertex + 4];
-
-            var above = status.GetAbove(x, y);
-            foreach (var conn in conns)
-                status.RemoveEdge(conn, vertex);
-            helper[above] = vertex;
-        }
-
-        void treatStart(int vertex)
-        {
-            var conns = edges.GetConnections(vertex);
-            foreach (var conn in conns)
-                status.AddEdge(vertex, conn);
-            helper[(vertex, conns.First())] = vertex;
-        }
-
-        void treatEnd(int vertex)
-        {
-            var conns = edges.GetConnections(vertex);
-            foreach (var conn in conns)
-                status.RemoveEdge(vertex, conn);
-            edges.Connect(vertex, conns.First());
-        }
     }
 
     private static void monotonePlaneTriangulation(
@@ -203,25 +151,23 @@ internal static class VectorsOperations
                     diagonal.s / dataSize,
                     diagonal.t / dataSize
                 );
-                triangules.Add(data[p + 0]);
-                triangules.Add(data[p + 1]);
-                triangules.Add(data[p + 2]);
-                triangules.Add(data[q + 0]);
-                triangules.Add(data[q + 1]);
-                triangules.Add(data[q + 2]);
-                triangules.Add(data[r + 0]);
-                triangules.Add(data[r + 1]);
-                triangules.Add(data[r + 2]);
-
-                if (stack.Count > 2)
-                {
-                    stack.Push(diagonal.s);
-                    continue;
-                }
+                addTriangule(p);
+                addTriangule(q);
+                addTriangule(r);
 
                 stack.Push(diagonal.s);
                 stack.Push(diagonal.t);
             }
+        }
+
+        /// <summary>
+        /// Add point p to list of trinagules data 
+        /// </summary>
+        void addTriangule(int p)
+        {
+            triangules.Add(data[p + 0]);
+            triangules.Add(data[p + 1]);
+            triangules.Add(data[p + 2]);
         }
 
         /// <summary>
@@ -285,6 +231,9 @@ internal static class VectorsOperations
             return null;
         }
 
+        /// <summary>
+        /// Teste if the r is left from (p, q) line 
+        /// </summary>
         float left(int p, int q, int r)
         {
             var vx = data[p + 3] - data[q + 3];
@@ -308,31 +257,35 @@ internal static class VectorsOperations
         return orderMap;
     }
 
-    // TODO: Fix bug in quickSort
     private static void quickSort(
         float[] data, int offsetA, int offsetB, int size, 
         int[] map, int start, int end
     )
     {
-        if (end - start < sortTreshold)
+        int len = end - start;
+        if (len < sortTreshold)
         {
             slowSort(data, offsetA, offsetB, size, map, start, end);
             return;
         }
 
-        var pivoIndex = map[end - 1];
+        var goodPivoIndex = start + len / 4;
+        var pivoIndex = map[goodPivoIndex];
         var pivo = data[pivoIndex + offsetA];
+
+        map[goodPivoIndex] = map[end - 1];
+        map[end - 1] = pivoIndex;
 
         int i = start, j = end - 2;
         while (i < j)
         {
-            float iv = data[map[i]];
+            float iv = data[map[i] + offsetA];
             while(iv < pivo && i < j)
-                iv = data[map[++i]];
+                iv = data[map[++i] + offsetA];
             
-            float jv = data[map[j]];
+            float jv = data[map[j] + offsetA];
             while (jv > pivo && i < j)
-                jv = data[map[--j]];
+                jv = data[map[--j] + offsetA];
 
             if (i >= j)
                 break;
@@ -341,11 +294,13 @@ internal static class VectorsOperations
             map[i] = map[j];
             map[j] = temp;
         }
-        map[end - 1] = map[j];
-        map[j] = pivoIndex;
+
+        var oldPivo = map[j];
+        map[j] = map[end - 1];
+        map[end - 1] = oldPivo;
 
         quickSort(data, offsetA, offsetB, size, map, start, j);
-        quickSort(data, offsetA, offsetB, size, map, j + 1, end);
+        quickSort(data, offsetA, offsetB, size, map, j, end);
     }
 
     private static void slowSort(
