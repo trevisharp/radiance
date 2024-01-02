@@ -105,6 +105,7 @@ public static class RadianceUtils
 
     internal readonly static TimeShaderInput _t = new();
     public static FloatShaderObject t => _t;
+    public static DateTime ZeroTime => _t.ZeroTime;
 
     internal readonly static WidthWindowDependence _width = new();
     public static FloatShaderObject width => _width;

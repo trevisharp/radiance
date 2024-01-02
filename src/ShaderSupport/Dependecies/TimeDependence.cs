@@ -15,6 +15,8 @@ public class TimeShaderInput : ShaderDependence<FloatShaderObject>
 {
     DateTime start;
 
+    public DateTime ZeroTime => start;
+
     public TimeShaderInput()
     {
         this.start = DateTime.Now;
