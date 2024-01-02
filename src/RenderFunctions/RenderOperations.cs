@@ -23,6 +23,9 @@ using ShaderSupport.Objects;
 /// </summary>
 public class RenderOperations
 {
+    static Dictionary<int, int> shaderMap = new();
+    static Dictionary<(int, int), int> programMap = new();
+    
     private int globalTabIndex = 0;
 
     private event Action effects;
@@ -30,9 +33,6 @@ public class RenderOperations
 
     private List<int> bufferList = new();
 
-    private Dictionary<(int, int), int> programMap = new();
-
-    private Dictionary<int, int> shaderMap = new();
 
     public bool Verbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
@@ -261,7 +261,7 @@ public class RenderOperations
         if (code != (int)All.True)
             error($"Error occurred Program({program}) linking.");
         
-        this.programMap.Add(programKey, program);
+        programMap.Add(programKey, program);
         return program;
     }
 
