@@ -43,7 +43,7 @@ public static class RadianceUtils
         Vectors result = new Vectors();
 
         float phi = MathF.Tau / sizes;
-        if (b == float.NaN)
+        if (float.IsNaN(b))
             b = a;
 
         for (int k = 0; k < sizes; k++)
