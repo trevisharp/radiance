@@ -641,12 +641,14 @@ public class Player
 
 # Versions
 
-### Radiance v1.6.0 (coming soon)
+### Radiance v2.0.0 (coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
  - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
  - ![](https://img.shields.io/badge/new-green) Added Triangularization algorithms for x-monotone polygons.
  - ![](https://img.shields.io/badge/bug%20solved-red) Disable some warning from base code.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs to improve reutilization of shaders and programns.
+ - ![](https://img.shields.io/badge/new-green) Add a Zero time to know the DateTime of initial t field in RadianceUtils.
 
 ### Radiance v1.5.0
 
