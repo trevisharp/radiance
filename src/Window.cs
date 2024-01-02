@@ -57,7 +57,7 @@ public static class Window
             GameWindowSettings.Default,
             new NativeWindowSettings()
             {
-                Size = (800, 600),
+                ClientSize = (800, 600),
                 WindowState = 
                     fullscreen ?
                     WindowState.Fullscreen :

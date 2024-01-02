@@ -649,6 +649,7 @@ public class Player
  - ![](https://img.shields.io/badge/bug%20solved-red) Disable some warning from base code.
  - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs to improve reutilization of shaders and programns.
  - ![](https://img.shields.io/badge/new-green) Add a Zero time to know the DateTime of initial t field in RadianceUtils.
+ - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.8.2.
 
 ### Radiance v1.5.0
 
