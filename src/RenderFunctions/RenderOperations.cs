@@ -53,6 +53,11 @@ public class RenderOperations
             TextureParameterName.TextureWrapT,
             (int)TextureWrapMode.Repeat
         );
+        GL.TexParameter(
+            TextureTarget.Texture2D,
+            TextureParameterName.TextureMagFilter,
+            (int)TextureMagFilter.Linear
+        );
     }
 
     public void Clear(Color color)
