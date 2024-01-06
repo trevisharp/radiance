@@ -36,13 +36,23 @@ public class RenderOperations
 
     private List<int> bufferList = new();
 
-
     public bool Verbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
 
     public RenderOperations(Delegate Function)
     {
         discoverGlobalVariables(Function);
+
+        GL.TexParameter(
+            TextureTarget.Texture2D, 
+            TextureParameterName.TextureWrapS, 
+            (int)TextureWrapMode.ClampToBorder
+        );
+        GL.TexParameter(
+            TextureTarget.Texture2D,
+            TextureParameterName.TextureWrapT,
+            (int)TextureWrapMode.ClampToBorder
+        );
     }
 
     public void Clear(Color color)
@@ -60,7 +70,7 @@ public class RenderOperations
 
     public void FillTriangles(IData data)
         => baseDraw(PrimitiveType.Triangles, data);
-            
+
     public void Draw(IData data) 
         => baseDraw(PrimitiveType.LineLoop, data);
 
