@@ -206,6 +206,12 @@ public static class RadianceUtils
         return texture;
     }
 
+    /// <summary>
+    /// Get a pixel color of a img in a specific position of a texture.
+    /// </summary>
+    public static Vec4ShaderObject texture(Sampler2DShaderObject img, Vec2ShaderObject pos)
+        => func<Vec4ShaderObject, Sampler2DShaderObject, Vec2ShaderObject>("texture", img, pos);
+
     private static FloatShaderObject operation<T>(string name, T obj1, T obj2)
         where T : ShaderObject
         => func<FloatShaderObject, T, T>(name, obj1, obj2);
