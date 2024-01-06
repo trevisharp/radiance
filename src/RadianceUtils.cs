@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    09/10/2023
+ * Date:    06/01/2024
  */
 using System;
 using System.Text;
@@ -197,6 +197,9 @@ public static class RadianceUtils
         where T : ShaderObject, new()
         => func<T, T, T, FloatShaderObject>("mix", x, y, a);
 
+    /// <summary>
+    /// Open a image file to use in your shader.
+    /// </summary>
     public static Sampler2DShaderObject open(string imgFile)
     {
         var texture = new TextureDependence(imgFile);
