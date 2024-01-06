@@ -58,18 +58,16 @@ public class RenderOperations
         };
     }
 
-    public void FillTriangles(
-        IData data
-    ) => baseDraw(PrimitiveType.Triangles, data);
-        
-    public void Draw(
-        IData data
-    ) => baseDraw(PrimitiveType.LineLoop, data);
+    public void FillTriangles(IData data)
+        => baseDraw(PrimitiveType.Triangles, data);
 
-    private void baseDraw(
-        PrimitiveType type,
-        IData data
-    )
+    public void Fill(Vectors data)
+        => FillTriangles(data.triangules());
+        
+    public void Draw(IData data) 
+        => baseDraw(PrimitiveType.LineLoop, data);
+
+    private void baseDraw(PrimitiveType type, IData data)
     {
         var frag = data.FragmentObject.Dependecies;
         var realOutputs = data.Outputs
