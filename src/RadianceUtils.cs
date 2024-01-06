@@ -197,6 +197,12 @@ public static class RadianceUtils
         where T : ShaderObject, new()
         => func<T, T, T, FloatShaderObject>("mix", x, y, a);
 
+    public static Sampler2DShaderObject open(string imgFile)
+    {
+        var texture = new TextureDependence(imgFile);
+        return texture;
+    }
+
     private static FloatShaderObject operation<T>(string name, T obj1, T obj2)
         where T : ShaderObject
         => func<FloatShaderObject, T, T>(name, obj1, obj2);

@@ -8,7 +8,5 @@ namespace Radiance.ShaderSupport.Objects;
 /// </summary>
 public class Sampler2DShaderObject : ShaderObject
 {
-    public Sampler2DShaderObject()
-    {
-    }
+    public Sampler2DShaderObject() { }
 }
