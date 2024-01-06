@@ -46,12 +46,12 @@ public class RenderOperations
         GL.TexParameter(
             TextureTarget.Texture2D, 
             TextureParameterName.TextureWrapS, 
-            (int)TextureWrapMode.ClampToBorder
+            (int)TextureWrapMode.Repeat
         );
         GL.TexParameter(
             TextureTarget.Texture2D,
             TextureParameterName.TextureWrapT,
-            (int)TextureWrapMode.ClampToBorder
+            (int)TextureWrapMode.Repeat
         );
     }
 
