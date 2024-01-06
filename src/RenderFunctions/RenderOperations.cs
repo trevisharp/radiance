@@ -11,12 +11,15 @@ using static System.Console;
 
 using OpenTK.Graphics.OpenGL4;
 
+using StbImageSharp;
+
 namespace Radiance.RenderFunctions;
 
 using Data;
 
 using ShaderSupport;
 using ShaderSupport.Objects;
+using ShaderSupport.Dependencies;
 
 /// <summary>
 /// Provide render operations to draw data in screen.
@@ -295,7 +298,8 @@ public class RenderOperations
     private (string source, Action setup) generateVertexShader(
         Vec3ShaderObject vertexObject,
         IEnumerable<ShaderOutput> outputs,
-        int[] programData)
+        int[] programData
+    )
     {
         information($"Generating Shader...");
         var sb = getCodeBuilder();
@@ -375,7 +379,8 @@ public class RenderOperations
 
     private (string source, Action setup) generateFragmentShader(
         Vec4ShaderObject fragmentObject,
-        int[] programData)
+        int[] programData
+    )
     {
         information($"Generating Shader...");
 
@@ -445,6 +450,11 @@ public class RenderOperations
             case ShaderDependence<FloatShaderObject>:
                 setUniformFloat(program, dependence.Name, (float)dependence.Value);
                 break;
+            
+            case ShaderDependence<Sampler2DShaderObject>:
+                var data = dependence.Value as ImageResult;
+                setUniformSample2D(data);
+                break;
         }
     }
 
@@ -452,6 +462,15 @@ public class RenderOperations
     {
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform1(code, value);
+    }
+
+    private void setUniformSample2D(ImageResult image)
+    {
+        GL.TexImage2D(
+            TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
+            image.Width, image.Height, 0, PixelFormat.Rgba,
+            PixelType.UnsignedByte, image.Data
+        );
     }
 
     private int createVertexArray(IData data)
