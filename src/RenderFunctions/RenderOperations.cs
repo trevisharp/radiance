@@ -60,10 +60,7 @@ public class RenderOperations
 
     public void FillTriangles(IData data)
         => baseDraw(PrimitiveType.Triangles, data);
-
-    public void Fill(Vectors data)
-        => FillTriangles(data.triangules());
-        
+            
     public void Draw(IData data) 
         => baseDraw(PrimitiveType.LineLoop, data);
 
