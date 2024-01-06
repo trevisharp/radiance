@@ -123,7 +123,7 @@ public static class DataExtension
         return result;
     }
 
-    public static IData triangules(
+    public static Vectors triangules(
         this Vectors vectors
     )
     {
