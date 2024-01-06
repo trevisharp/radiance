@@ -58,6 +58,12 @@ public class RenderOperations
             TextureParameterName.TextureMagFilter,
             (int)TextureMagFilter.Linear
         );
+        GL.TexParameter(
+            TextureTarget.Texture2D,
+            TextureParameterName.TextureMinFilter,
+            (int)TextureMinFilter.LinearMipmapLinear
+        );
+
     }
 
     public void Clear(Color color)
