@@ -644,12 +644,15 @@ public class Player
 ### Radiance v2.0.0 (coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
+ - ![](https://img.shields.io/badge/new-green) Add texture system.
+ - ![](https://img.shields.io/badge/new-green) Add more radiance utils elements.
  - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
  - ![](https://img.shields.io/badge/new-green) Added Triangularization algorithms for x-monotone polygons.
  - ![](https://img.shields.io/badge/bug%20solved-red) Disable some warning from base code.
  - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs to improve reutilization of shaders and programns.
  - ![](https://img.shields.io/badge/new-green) Add a Zero time to know the DateTime of initial t field in RadianceUtils.
  - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.8.2.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs on float value string format in the code generation.
 
 ### Radiance v1.5.0
 
@@ -707,7 +710,6 @@ public class Player
 - README: Add the section 'Template Project' with a template for the project
 - Create Data Providers to increase the power of data structures.
 - Add matrix Transformations
-- Add Textures
 - Add Conditional Rendering
 - Add Data types to have more generic overloads
 - Solve bugs with gfloat operations
