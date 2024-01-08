@@ -10,6 +10,8 @@ using System.Collections.Generic;
 
 namespace Radiance.ShaderSupport.Objects;
 
+using Internal;
+
 /// <summary>
 /// Represent a Vec3 data in shader implementation.
 /// </summary>
@@ -172,7 +174,7 @@ public class Vec3ShaderObject : ShaderObject
     }
 
     public static implicit operator Vec3ShaderObject((float x, float y, float z) tuple)
-        => new Vec3ShaderObject($"vec3({tuple.x}, {tuple.y}, {tuple.z})");
+        => new Vec3ShaderObject($"vec3({tuple.x.Format()}, {tuple.y.Format()}, {tuple.z.Format()})");
 
     public static implicit operator Vec3ShaderObject((FloatShaderObject x, FloatShaderObject y, FloatShaderObject z) tuple)
         => new Vec3ShaderObject(

@@ -10,6 +10,8 @@ using System.Linq;
 
 namespace Radiance.ShaderSupport.Objects;
 
+using Internal;
+
 /// <summary>
 /// Represent a Vec4 data in shader implementation.
 /// </summary>
@@ -180,7 +182,7 @@ public class Vec4ShaderObject : ShaderObject
     }
 
     public static implicit operator Vec4ShaderObject((float x, float y, float z, float w) tuple)
-        => new Vec4ShaderObject($"vec4({tuple.x}, {tuple.y}, {tuple.z}, {tuple.w})");
+        => new Vec4ShaderObject($"vec4({tuple.x.Format()}, {tuple.y.Format()}, {tuple.z.Format()}, {tuple.w.Format()})");
 
     public static implicit operator Vec4ShaderObject((FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
         => new Vec4ShaderObject(

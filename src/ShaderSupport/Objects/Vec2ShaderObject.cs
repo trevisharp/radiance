@@ -10,6 +10,8 @@ using System.Collections.Generic;
 
 namespace Radiance.ShaderSupport.Objects;
 
+using Internal;
+
 /// <summary>
 /// Represent a Vec2 data in shader implementation.
 /// </summary>
@@ -155,7 +157,7 @@ public class Vec2ShaderObject : ShaderObject
     }
     
     public static implicit operator Vec2ShaderObject((float x, float y) tuple)
-        => new Vec2ShaderObject($"vec2({tuple.x}, {tuple.y})");
+        => new Vec2ShaderObject($"vec2({tuple.x.Format()}, {tuple.y.Format()})");
 
     public static implicit operator Vec2ShaderObject((FloatShaderObject x, FloatShaderObject y) tuple)
         => new Vec2ShaderObject(
