@@ -58,6 +58,12 @@ public static class RadianceUtils
         return result;
     }
 
+    internal readonly static Vectors _circle = ellip(0, 0, 1, 1, 128);
+    public static Vectors circle => _circle;
+
+    internal readonly static Vectors _square = rect(0, 0, 1, 1);
+    public static Vectors square => _square;
+
     public static Vectors data(params Vector[] vectors)
     {
         var result = new Vectors();
