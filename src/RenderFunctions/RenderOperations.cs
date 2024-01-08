@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/09/2023
+ * Date:    08/01/2024
  */
 using System;
 using System.Text;
@@ -19,7 +19,6 @@ using Data;
 
 using ShaderSupport;
 using ShaderSupport.Objects;
-using ShaderSupport.Dependencies;
 
 /// <summary>
 /// Provide render operations to draw data in screen.
@@ -42,28 +41,6 @@ public class RenderOperations
     public RenderOperations(Delegate Function)
     {
         discoverGlobalVariables(Function);
-
-        GL.TexParameter(
-            TextureTarget.Texture2D, 
-            TextureParameterName.TextureWrapS, 
-            (int)TextureWrapMode.Repeat
-        );
-        GL.TexParameter(
-            TextureTarget.Texture2D,
-            TextureParameterName.TextureWrapT,
-            (int)TextureWrapMode.Repeat
-        );
-        GL.TexParameter(
-            TextureTarget.Texture2D,
-            TextureParameterName.TextureMagFilter,
-            (int)TextureMagFilter.Linear
-        );
-        GL.TexParameter(
-            TextureTarget.Texture2D,
-            TextureParameterName.TextureMinFilter,
-            (int)TextureMinFilter.LinearMipmapLinear
-        );
-
     }
 
     public void Clear(Color color)
@@ -482,11 +459,37 @@ public class RenderOperations
 
     private void setUniformSample2D(ImageResult image)
     {
+        int handle = GL.GenTexture();
+
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, handle);
+        
         GL.TexImage2D(
             TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
             image.Width, image.Height, 0, PixelFormat.Rgba,
             PixelType.UnsignedByte, image.Data
+        );   
+        GL.TexParameter(
+            TextureTarget.Texture2D, 
+            TextureParameterName.TextureWrapS, 
+            (int)TextureWrapMode.Repeat
         );
+        GL.TexParameter(
+            TextureTarget.Texture2D,
+            TextureParameterName.TextureWrapT,
+            (int)TextureWrapMode.Repeat
+        );
+        GL.TexParameter(
+            TextureTarget.Texture2D,
+            TextureParameterName.TextureMagFilter,
+            (int)TextureMagFilter.Linear
+        );
+        GL.TexParameter(
+            TextureTarget.Texture2D,
+            TextureParameterName.TextureMinFilter,
+            (int)TextureMinFilter.Linear
+        );
+        GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
     }
 
     private int createVertexArray(IData data)

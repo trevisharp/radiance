@@ -14,7 +14,7 @@ using Objects;
 /// </summary>
 public class TextureDependence : ShaderDependence<Sampler2DShaderObject>
 {
-    private static int textureCount = 0;
+    private static int textureCount = -1;
     private static string getTextureId()
     {
         textureCount++;
