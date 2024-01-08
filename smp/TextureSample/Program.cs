@@ -5,14 +5,11 @@ var myRender = render(r =>
 {
     var img = open("pain.png");
     var mod = 400 * sin(t / 5);
+    r.Clear(white);
     r.FillTriangles(ellip(0, 0, 1)
         .triangules()
         .transform(v => (mod * v.x + width / 2, mod * v.y + height / 2, v.z))
-        .colorize(v => texture(img, (v.x, v.y)))
-    );
-    r.Draw(ellip(0, 0, 1)
-        .transform(v => (mod * v.x + width / 2, mod * v.y + height / 2, v.z))
-        .colorize(v => white)
+        .colorize(v => texture(img, (0.3, 0.3)))
     );
 });
 
