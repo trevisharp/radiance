@@ -653,6 +653,9 @@ public class Player
  - ![](https://img.shields.io/badge/new-green) Add a Zero time to know the DateTime of initial t field in RadianceUtils.
  - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.8.2.
  - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs on float value string format in the code generation.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Improve triangularization solving some bugs.
+ - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
+ - ![](https://img.shields.io/badge/new-green) Add Text writting.
 
 ### Radiance v1.5.0
 
@@ -708,7 +711,6 @@ public class Player
 - README: Add the section 'What not to do'
 - README: Add the section 'Advanced operations' teaching how to create custom data types
 - README: Add the section 'Template Project' with a template for the project
-- Create Data Providers to increase the power of data structures.
 - Add matrix Transformations
 - Add Conditional Rendering
 - Add Data types to have more generic overloads
@@ -716,4 +718,3 @@ public class Player
 - Add more g-types
 - Allow and Improve multi transform call
 - Improve conversion between g-types and shader types
-- Add Text writting
