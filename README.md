@@ -390,6 +390,32 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Draw Textures
+
+```cs
+﻿using Radiance;
+using static Radiance.RadianceUtils;
+
+var myRender = render(r =>
+{
+    var img = open("pain.png");
+    var mod = 400 * sin(t / 5);
+    r.Clear(white);
+    r.Verbose = true;
+    r.FillTriangles(circle
+        .triangules()
+        .transform(v => (mod * v.x + width / 2, mod * v.y + height / 2, v.z))
+        .colorize(v => texture(img, (mod * v.x / width + 0.5f, mod * v.y / height + 0.5f)))
+    );
+});
+
+Window.OnRender += myRender;
+
+Window.CloseOn(Input.Escape);
+
+Window.Open();
+```
+
 # Concepts
 
 ### Shaders
@@ -646,42 +672,40 @@ public class Player
  - ![](https://img.shields.io/badge/new-green) Active Blending.
  - ![](https://img.shields.io/badge/new-green) Add texture system.
  - ![](https://img.shields.io/badge/new-green) Add more radiance utils elements.
- - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
  - ![](https://img.shields.io/badge/new-green) Added Triangularization algorithms for x-monotone polygons.
- - ![](https://img.shields.io/badge/bug%20solved-red) Disable some warning from base code.
- - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs to improve reutilization of shaders and programns.
  - ![](https://img.shields.io/badge/new-green) Add a Zero time to know the DateTime of initial t field in RadianceUtils.
- - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.8.2.
- - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs on float value string format in the code generation.
- - ![](https://img.shields.io/badge/bug%20solved-red) Improve triangularization solving some bugs.
  - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
  - ![](https://img.shields.io/badge/new-green) Add Text writting.
+ - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.8.2.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Disable some warning from base code.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs to improve reutilization of shaders and programns.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs on float value string format in the code generation.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Improve triangularization solving some bugs.
+ - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
 
 ### Radiance v1.5.0
 
- - ![](https://img.shields.io/badge/new-green) Create a class BaseData : IData to simplify IData's implementations.
- - ![](https://img.shields.io/badge/update-blue) Improve performance of Data Structures.
+ - ![](https://img.shields.io/badge/new-green) Hide Cursor Feature.
  - ![](https://img.shields.io/badge/new-green) Add system to add and remove render functions.
+ - ![](https://img.shields.io/badge/new-green) Create a class BaseData : IData to simplify IData's implementations.
  - ![](https://img.shields.io/badge/update-blue) Change all structure about RenderFunctions and introduce a IRender interface to all renders and create a RenderQueue.
  - ![](https://img.shields.io/badge/update-blue) Create system to improve data administration and replace old system of data management.
- - ![](https://img.shields.io/badge/new-green) Hide Cursor Feature.
- - ![](https://img.shields.io/badge/update-blue) Now, change data not affect the draw and
- data become imutable again. In next versions, Radiance will provide new ways to talk with
- data and the they changes.
+ - ![](https://img.shields.io/badge/update-blue) Now, change data not affect the draw and data become imutable again. In next versions, Radiance will provide new ways to talk with data and the they changes.
+ - ![](https://img.shields.io/badge/update-blue) Improve performance of Data Structures.
 
 ### Radiance v1.4.0
 
- - ![](https://img.shields.io/badge/update-blue) Global system types updates.
  - ![](https://img.shields.io/badge/new-green) Program reusing if shaders are same in diferent draw calls.
  - ![](https://img.shields.io/badge/new-green) Rect and Ellip shafe functions in RadianceUtils.
+ - ![](https://img.shields.io/badge/update-blue) Global system types updates.
 
 ### Radiance v1.3.0
 
  - ![](https://img.shields.io/badge/new-green) Cursor input events added.
- - ![](https://img.shields.io/badge/update-blue) Add modifier systems to keyboard input.
- - ![](https://img.shields.io/badge/update-blue) Improve Verbose mode outputs.
  - ![](https://img.shields.io/badge/new-green) Improve use of data turning into a mutable data and avoid regenerating buffer if the data not change.
  - ![](https://img.shields.io/badge/new-green) Improve use of OpenGL resources and reutilizations.
+ - ![](https://img.shields.io/badge/update-blue) Add modifier systems to keyboard input.
+ - ![](https://img.shields.io/badge/update-blue) Improve Verbose mode outputs.
 
 ### Radiance v1.2.0
 
@@ -691,8 +715,8 @@ public class Player
 ### Radiance v1.1.0
 
  - ![](https://img.shields.io/badge/new-green) Colored Vectors data type added.
- - ![](https://img.shields.io/badge/update-blue) Data System Reworked.
  - ![](https://img.shields.io/badge/new-green) Auto outputs and inputs betwen Shader Pipeline.
+ - ![](https://img.shields.io/badge/update-blue) Data System Reworked.
  - ![](https://img.shields.io/badge/update-blue) More itens in Radiance Utils.
 
 ### Radiance v1.0.0
