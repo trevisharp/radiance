@@ -667,6 +667,23 @@ public class Player
 
 # Versions
 
+### Radiance v2.2.1 (coming soon)
+
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Improve triangularization solving some bugs.
+
+### Radiance v2.2.0 (coming soon)
+
+ - ![](https://img.shields.io/badge/new-green) Add Release shaders feature.
+ - ![](https://img.shields.io/badge/new-green) Add Conditional Rendering.
+ - ![](https://img.shields.io/badgeupdate-blue) Improve generate code legibility.
+
+### Radiance v2.1.0 (coming soon)
+
+ - ![](https://img.shields.io/badge/new-green) Add Text writting.
+ - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
+ - ![](https://img.shields.io/badge/update-blue) Improve texture system with multi-texture features.
+ - ![](https://img.shields.io/badge/update-blue) Improve triangularization performance.
+
 ### Radiance v2.0.0 (coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
@@ -674,14 +691,12 @@ public class Player
  - ![](https://img.shields.io/badge/new-green) Add more radiance utils elements.
  - ![](https://img.shields.io/badge/new-green) Added Triangularization algorithms for x-monotone polygons.
  - ![](https://img.shields.io/badge/new-green) Add a Zero time to know the DateTime of initial t field in RadianceUtils.
- - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
- - ![](https://img.shields.io/badge/new-green) Add Text writting.
  - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.8.2.
- - ![](https://img.shields.io/badge/bug%20solved-red) Disable some warning from base code.
- - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs to improve reutilization of shaders and programns.
- - ![](https://img.shields.io/badge/bug%20solved-red) Solve bugs on float value string format in the code generation.
- - ![](https://img.shields.io/badge/bug%20solved-red) Improve triangularization solving some bugs.
- - ![](https://img.shields.io/badge/bug%20solved-red) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Disable some warning from base code.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Solve bugs to improve reutilization of shaders and programns.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Solve bugs on float value string format in the code generation.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
+ - ![](https://img.shields.io/badge/removed-red) Remove some legacy structures.
 
 ### Radiance v1.5.0
 
@@ -736,7 +751,6 @@ public class Player
 - README: Add the section 'Advanced operations' teaching how to create custom data types
 - README: Add the section 'Template Project' with a template for the project
 - Add matrix Transformations
-- Add Conditional Rendering
 - Add Data types to have more generic overloads
 - Solve bugs with gfloat operations
 - Add more g-types
