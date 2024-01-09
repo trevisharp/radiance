@@ -27,6 +27,7 @@ public class RenderOperations
 {
     static Dictionary<int, int> shaderMap = new();
     static Dictionary<(int, int), int> programMap = new();
+    static Dictionary<ImageResult, int> imgMap = new();
     
     private int globalTabIndex = 0;
 
@@ -459,7 +460,23 @@ public class RenderOperations
 
     private void setUniformSample2D(ImageResult image)
     {
+        activateImage(image);
+    }
+
+    private void activateImage(ImageResult image)
+    {
+        if (!imgMap.ContainsKey(image))
+            initImageData(image);
+        
+        int handle = imgMap[image];
+        GL.ActiveTexture(TextureUnit.Texture0);
+        GL.BindTexture(TextureTarget.Texture2D, handle);
+    }
+
+    private void initImageData(ImageResult image)
+    {
         int handle = GL.GenTexture();
+        imgMap.Add(image, handle);
 
         GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, handle);
