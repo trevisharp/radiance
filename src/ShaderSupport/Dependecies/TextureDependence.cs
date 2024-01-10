@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/01/2023
+ * Date:    09/01/2023
  */
 using System.IO;
 
@@ -15,10 +15,10 @@ using Objects;
 public class TextureDependence : ShaderDependence<Sampler2DShaderObject>
 {
     private static int textureCount = -1;
-    private static string getTextureId()
+    private static int getTextureId()
     {
         textureCount++;
-        return $"texture{textureCount}";
+        return textureCount;
     }
 
     private static bool initializated = false;
@@ -31,24 +31,23 @@ public class TextureDependence : ShaderDependence<Sampler2DShaderObject>
         StbImage.stbi_set_flip_vertically_on_load(1);
     }
 
-    ImageResult img;
+    public ImageResult Image { get; set; }
     public TextureDependence(string imgPath)
     {
-        
         if (!File.Exists(imgPath))
             throw new FileNotFoundException();
         
         init();
-        this.img = ImageResult.FromStream(
+        this.Image = ImageResult.FromStream(
             File.OpenRead(imgPath),
             ColorComponents.RedGreenBlueAlpha
         );
-        this.DependenceType = ShaderDependenceType.Uniform;
-        this.Name = getTextureId();
+        this.DependenceType = ShaderDependenceType.Texture;
+        this.Name = $"texture{getTextureId()}";
     }
 
-    public override object Value => img;
+    public override object Value => Image;
 
     public override string GetHeader()
-        => $"uniform sampler2D {Name};";
+        => $"uniform sampler2D {this.Name};";
 }

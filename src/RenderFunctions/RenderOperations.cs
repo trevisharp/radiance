@@ -19,6 +19,7 @@ using Data;
 
 using ShaderSupport;
 using ShaderSupport.Objects;
+using ShaderSupport.Dependencies;
 
 /// <summary>
 /// Provide render operations to draw data in screen.
@@ -27,7 +28,8 @@ public class RenderOperations
 {
     static Dictionary<int, int> shaderMap = new();
     static Dictionary<(int, int), int> programMap = new();
-    static Dictionary<ImageResult, int> imgMap = new();
+    static Dictionary<ImageResult, int> textureMap = new();
+    static Dictionary<int, List<int>> programTextureMap = new();
     
     private int globalTabIndex = 0;
 
@@ -302,6 +304,7 @@ public class RenderOperations
         var outDeps = outputs
             .SelectMany(o => o.BaseValue.Dependecies);
 
+        int textureId = 0;
         var dependencens = vertexObject.Dependecies
             .Append(RadianceUtils._width)
             .Append(RadianceUtils._height)
@@ -317,6 +320,18 @@ public class RenderOperations
                     setup += delegate
                     {
                         setUniform(programData[0], dependence);
+                    };
+                    break;
+                
+                case ShaderDependenceType.Texture:
+                    int id = textureId;
+                    textureId++;
+
+                    sb.AppendLine($"uniform sampler2D texture{id};");
+
+                    setup += delegate
+                    {
+                        setTextureData(programData[0], id, dependence);
                     };
                     break;
                 
@@ -380,7 +395,8 @@ public class RenderOperations
 
         var sb = getCodeBuilder();
         Action setup = null;
-
+        
+        int textureId = 0;
         var dependencens = fragmentObject.Dependecies
             .Distinct(ShaderDependence.Comparer);
         foreach (var dependence in dependencens)
@@ -396,8 +412,20 @@ public class RenderOperations
                     };
                     break;
                 
+                case ShaderDependenceType.Texture:
+                    int id = textureId;
+                    textureId++;
+
+                    sb.AppendLine($"uniform sampler2D texture{id};");
+
+                    setup += delegate
+                    {
+                        setTextureData(programData[0], id, dependence);
+                    };
+                    break;
+                
                 case ShaderDependenceType.Variable:
-                    sb.Append(dependence.GetHeader());
+                    sb.AppendLine(dependence.GetHeader());
                     break;
             }
         }
@@ -444,11 +472,6 @@ public class RenderOperations
             case ShaderDependence<FloatShaderObject>:
                 setUniformFloat(program, dependence.Name, (float)dependence.Value);
                 break;
-            
-            case ShaderDependence<Sampler2DShaderObject>:
-                var data = dependence.Value as ImageResult;
-                setUniformSample2D(data);
-                break;
         }
     }
 
@@ -458,27 +481,37 @@ public class RenderOperations
         GL.Uniform1(code, value);
     }
 
-    private void setUniformSample2D(ImageResult image)
+    private void setTextureData(int program, int id, ShaderDependence dependence)
     {
-        activateImage(image);
+        var texture = dependence as TextureDependence;
+        if (texture is null)
+            return;
+
+        activateImage(texture.Image, id);
+        var code = GL.GetUniformLocation(program, $"texture{id}");
+        GL.Uniform1(code, id);
     }
 
-    private void activateImage(ImageResult image)
+    private void activateImage(ImageResult image, int id)
     {
-        if (!imgMap.ContainsKey(image))
-            initImageData(image);
-        
-        int handle = imgMap[image];
-        GL.ActiveTexture(TextureUnit.Texture0);
+        int handle = getTextureHandle(image);
+        GL.ActiveTexture(TextureUnit.Texture0 + id);
         GL.BindTexture(TextureTarget.Texture2D, handle);
     }
 
-    private void initImageData(ImageResult image)
+    private int getTextureHandle(ImageResult image)
+    {
+        if (textureMap.ContainsKey(image))
+            return textureMap[image];
+        
+        int handle = initImageData(image);
+        textureMap.Add(image, handle);
+        return handle;
+    }
+
+    private int initImageData(ImageResult image)
     {
         int handle = GL.GenTexture();
-        imgMap.Add(image, handle);
-
-        GL.ActiveTexture(TextureUnit.Texture0);
         GL.BindTexture(TextureTarget.Texture2D, handle);
         
         GL.TexImage2D(
@@ -507,6 +540,8 @@ public class RenderOperations
             (int)TextureMinFilter.Linear
         );
         GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
+
+        return handle;
     }
 
     private int createVertexArray(IData data)

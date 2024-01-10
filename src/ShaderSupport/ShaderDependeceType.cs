@@ -12,4 +12,5 @@ public enum ShaderDependenceType
     Uniform = 1,
     Variable = 2,
     CustomData = 4,
+    Texture = 8
 }
