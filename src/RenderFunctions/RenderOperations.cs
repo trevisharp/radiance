@@ -29,7 +29,6 @@ public class RenderOperations
     static Dictionary<int, int> shaderMap = new();
     static Dictionary<(int, int), int> programMap = new();
     static Dictionary<ImageResult, int> textureMap = new();
-    static Dictionary<int, List<int>> programTextureMap = new();
     
     private int globalTabIndex = 0;
 
