@@ -670,19 +670,20 @@ public class Player
 ### Radiance v2.0.0 (coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Add Text writting.
- - ![](https://img.shields.io/badge/new-green) Add Release shaders feature.
+ - ![](https://img.shields.io/badge/new-green) Add Release Shaders to speedup production apps.
  - ![](https://img.shields.io/badge/new-green) Add Conditional Rendering.
- - ![](https://img.shields.io/badgeupdate-blue) Improve generate code legibility.
  - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
- - ![](https://img.shields.io/badge/update-blue) Improve texture system with multi-texture features.
+ - ![](https://img.shields.io/badge/update-blue) Improve IRender abstraction and RenderUtils, simplifying the shader programming.
+ - ![](https://img.shields.io/badge/update-blue) Improve generate code legibility and expression reuse.
+ - ![](https://img.shields.io/badge/update-blue) Improve abstraction of shaders to improve and organization.
  - ![](https://img.shields.io/badge/update-blue) Improve triangularization performance.
- - ![](https://img.shields.io/badge/bug%20solved-orange) Improve triangularization solving some bugs.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Solving bugs in triangularization.
  - ![](https://img.shields.io/badge/removed-red) Remove some legacy structures.
 
 ### Radiance v1.9.0
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
- - ![](https://img.shields.io/badge/new-green) Add texture system.
+ - ![](https://img.shields.io/badge/new-green) Add texture system and multi-texture system.
  - ![](https://img.shields.io/badge/new-green) Add more radiance utils elements.
  - ![](https://img.shields.io/badge/new-green) Added Triangularization algorithms for x-monotone polygons.
  - ![](https://img.shields.io/badge/new-green) Add a Zero time to know the DateTime of initial t field in RadianceUtils.
