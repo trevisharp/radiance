@@ -3,14 +3,19 @@ using static Radiance.RadianceUtils;
 
 var myRender = render(r =>
 {
-    var img = open("pain.png");
-    var mod = 400 * sin(t / 5);
+    var img1 = open("faustao1.png");
+    var img2 = open("faustao2.png");
     r.Clear(white);
-    r.Verbose = true;
     r.FillTriangles(circle
         .triangules()
-        .transform(v => (mod * v.x + width / 2, mod * v.y + height / 2, v.z))
-        .colorize(v => texture(img, (mod * v.x / width + 0.5f, mod * v.y / height + 0.5f)))
+        .transform(v => (300 * v.x + width / 2, 300 * v.y + height / 2, v.z))
+        .colorize(v => 
+            mix(
+                texture(img1, (300 * v.x / width + 0.5f, 300 * v.y / height + 0.5f)),
+                texture(img2, (300 * v.x / width + 0.5f, 300 * v.y / height + 0.5f)),
+                (sin(t) + 1) / 2
+            )
+        )
     );
 });
 
