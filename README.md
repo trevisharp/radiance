@@ -667,24 +667,19 @@ public class Player
 
 # Versions
 
-### Radiance v2.2.1 (coming soon)
+### Radiance v2.0.0 (coming soon)
 
- - ![](https://img.shields.io/badge/bug%20solved-orange) Improve triangularization solving some bugs.
-
-### Radiance v2.2.0 (coming soon)
-
+ - ![](https://img.shields.io/badge/new-green) Add Text writting.
  - ![](https://img.shields.io/badge/new-green) Add Release shaders feature.
  - ![](https://img.shields.io/badge/new-green) Add Conditional Rendering.
  - ![](https://img.shields.io/badgeupdate-blue) Improve generate code legibility.
-
-### Radiance v2.1.0 (coming soon)
-
- - ![](https://img.shields.io/badge/new-green) Add Text writting.
  - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
  - ![](https://img.shields.io/badge/update-blue) Improve texture system with multi-texture features.
  - ![](https://img.shields.io/badge/update-blue) Improve triangularization performance.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Improve triangularization solving some bugs.
+ - ![](https://img.shields.io/badge/removed-red) Remove some legacy structures.
 
-### Radiance v2.0.0 (coming soon)
+### Radiance v1.9.0
 
  - ![](https://img.shields.io/badge/new-green) Active Blending.
  - ![](https://img.shields.io/badge/new-green) Add texture system.
@@ -696,7 +691,6 @@ public class Player
  - ![](https://img.shields.io/badge/bug%20solved-orange) Solve bugs to improve reutilization of shaders and programns.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Solve bugs on float value string format in the code generation.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Solved bug that crash the shader when we use a gfloat multiple times in the FragmentShader.
- - ![](https://img.shields.io/badge/removed-red) Remove some legacy structures.
 
 ### Radiance v1.5.0
 

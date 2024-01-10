@@ -5,6 +5,10 @@ var myRender = render(r =>
 {
     var img1 = open("faustao1.png");
     var img2 = open("faustao2.png");
+
+    // x = 300 * x + width / 2;
+    // y = 300 * y + height / 2;
+
     r.Clear(white);
     r.FillTriangles(circle
         .triangules()
