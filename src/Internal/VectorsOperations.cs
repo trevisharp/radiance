@@ -151,9 +151,9 @@ internal static class VectorsOperations
                     diagonal.s / dataSize,
                     diagonal.t / dataSize
                 );
-                addTriangule(p);
-                addTriangule(q);
-                addTriangule(r);
+                addPoint(p);
+                addPoint(q);
+                addPoint(r);
 
                 stack.Push(diagonal.s);
                 stack.Push(diagonal.t);
@@ -163,7 +163,7 @@ internal static class VectorsOperations
         /// <summary>
         /// Add point p to list of trinagules data 
         /// </summary>
-        void addTriangule(int p)
+        void addPoint(int p)
         {
             triangules.Add(data[p + 0]);
             triangules.Add(data[p + 1]);
@@ -179,24 +179,24 @@ internal static class VectorsOperations
             if (edges.IsConnected(q / dataSize, r / dataSize))
             {
                 int mid = q;
-                int aft, bef;
+                int fst, lst;
                 if (p < mid && mid < r)
                 {
-                    bef = p;
-                    aft = r;
+                    lst = p;
+                    fst = r;
                 }
                 else if (r < mid && mid < p)
                 {
-                    bef = r;
-                    aft = p;
+                    lst = r;
+                    fst = p;
                 }
                 else
                 {
-                    bef = int.Max(p, r);
-                    aft = int.Min(p, r);
+                    lst = int.Min(p, r);
+                    fst = int.Max(p, r);
                 }
 
-                var lft = left(bef, mid, aft);
+                var lft = left(lst, mid, fst);
                 if (lft < 0)
                     return null;
                 
@@ -205,24 +205,24 @@ internal static class VectorsOperations
             else if (edges.IsConnected(p / dataSize, r / dataSize))
             {
                 int mid = p;
-                int aft, bef;
+                int fst, lst;
                 if (q < mid && mid < r)
                 {
-                    bef = q;
-                    aft = r;
+                    lst = q;
+                    fst = r;
                 }
                 else if (r < mid && mid < q)
                 {
-                    bef = r;
-                    aft = q;
+                    lst = r;
+                    fst = q;
                 }
                 else
                 {
-                    bef = int.Max(q, r);
-                    aft = int.Min(q, r);
+                    lst = int.Min(q, r);
+                    fst = int.Max(q, r);
                 }
 
-                var lft = left(bef, mid, aft);
+                var lft = left(lst, mid, fst);
                 if (lft < 0)
                     return null;
                 

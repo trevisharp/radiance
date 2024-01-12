@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    09/10/2023
+ * Date:    12/01/2024
  */
 using System.Collections.Generic;
 
@@ -26,14 +26,8 @@ internal class PolygonEdgeCollection
     {
         if (i == j)
             return false;
-
-        if (list[i] is null)
-            return 
-                (i + 1 == j) ||
-                (i - 1 == j) ||
-                (i == 0 && j == last) ||
-                (i == last && i == 0);
-
+        
+        init(i);
         return list[i].Contains(j);
     }
 
