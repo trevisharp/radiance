@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    09/10/2023
+ * Date:    15/01/2024
  */
 using System;
 using System.Linq;
@@ -130,7 +130,6 @@ internal static class VectorsOperations
 
         for (int k = 2; k < polyOrderMap.Length; k++)
         {
-            System.Console.WriteLine(k);
             var crrIndex = polyOrderMap[k];
             var last = stack.Pop();
             var isConn = edges.IsConnected(
@@ -141,7 +140,6 @@ internal static class VectorsOperations
             
             if (isConn)
             {
-                System.Console.WriteLine("SAME CHAIN");
                 (int index, bool chain) mid;
                 do
                 {
@@ -226,18 +224,13 @@ internal static class VectorsOperations
         /// </summary>
         float left(int p, int q, int r)
         {
-            System.Console.WriteLine($"{data[p + 3]} {data[p + 4]}");
-            System.Console.WriteLine($"{data[q + 3]} {data[q + 4]}");
-            System.Console.WriteLine($"{data[r + 3]} {data[r + 4]}");
             var vx = data[p + 3] - data[q + 3];
             var vy = data[p + 4] - data[q + 4];
             
             var ux = data[r + 3] - data[q + 3];
             var uy = data[r + 4] - data[q + 4];
 
-            var result = vx * uy - ux * vy;
-            System.Console.WriteLine(result);
-            return result;
+            return vx * uy - ux * vy;
         }
     }
 
@@ -289,6 +282,9 @@ internal static class VectorsOperations
             map[i] = map[j];
             map[j] = temp;
         }
+
+        if (data[map[j] + offsetA] < pivo)
+            j++;
 
         var oldPivo = map[j];
         map[j] = map[end - 1];
