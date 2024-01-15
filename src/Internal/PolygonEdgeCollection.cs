@@ -47,6 +47,5 @@ internal class PolygonEdgeCollection
         list[index] = new List<int>();
         list[index].Add(index == last ? 0 : index + 1);
         list[index].Add(index == 0 ? last : index - 1);
-
     }
 }

@@ -10,7 +10,7 @@ var myRender = render(r =>
     // y = 300 * y + height / 2;
 
     r.Clear(white);
-    r.FillTriangles(ellip(0, 0, 1, 1, 48)
+    r.FillTriangles(ellip(0, 0, 1, 1, 46)
         .triangules()
         .transform(v => (300 * v.x + width / 2, 300 * v.y + height / 2, v.z))
         .colorize(v => 
@@ -21,7 +21,7 @@ var myRender = render(r =>
             )
         )
     );
-    r.Draw(ellip(0, 0, 1, 1, 48)
+    r.Draw(ellip(0, 0, 1, 1, 46)
         .triangules()
         .transform(v => (300 * v.x + width / 2, 300 * v.y + height / 2, v.z))
         .colorize(red)

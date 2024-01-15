@@ -124,44 +124,95 @@ internal static class VectorsOperations
     {
         var edges = new PolygonEdgeCollection(polyOrderMap.Length);
 
-        var stack = new Stack<int>();
-        stack.Push(polyOrderMap[0]);
-        stack.Push(polyOrderMap[1]);
+        var stack = new Stack<(int index, bool chain)>();
+        stack.Push((polyOrderMap[0], false));
+        stack.Push((polyOrderMap[1], true));
 
         for (int k = 2; k < polyOrderMap.Length; k++)
         {
-            stack.Push(polyOrderMap[k]);
-            while (stack.Count > 2)
+            System.Console.WriteLine(k);
+            var crrIndex = polyOrderMap[k];
+            var last = stack.Pop();
+            var isConn = edges.IsConnected(
+                last.index / dataSize,
+                crrIndex / dataSize
+            );
+            (int index, bool chain) next = (crrIndex, !(isConn ^ last.chain));
+            
+            if (isConn)
             {
-                var r = stack.Pop();
-                var q = stack.Pop();
-                var p = stack.Pop();
-
-                var res = isTriangule(p, q, r);
-                if (!res.HasValue)
+                System.Console.WriteLine("SAME CHAIN");
+                (int index, bool chain) mid;
+                do
                 {
-                    stack.Push(p);
-                    stack.Push(q);
-                    stack.Push(r);
-                    break;
-                }
-                
-                var diagonal = res.Value;
-                edges.Connect(
-                    diagonal.s / dataSize,
-                    diagonal.t / dataSize
-                );
-                addPoint(p);
-                addPoint(q);
-                addPoint(r);
-
-                stack.Push(diagonal.s);
-                stack.Push(diagonal.t);
+                    if (stack.Count == 0)
+                    {
+                        stack.Push(last);
+                        stack.Push(next);
+                        break;
+                    }
+                    
+                    mid = last;
+                    last = stack.Pop();
+                    if (left(last.index, mid.index, next.index) < 0)
+                    {
+                        stack.Push(last);
+                        stack.Push(mid);
+                        stack.Push(next);
+                        break;
+                    }
+                    
+                    edges.Connect(
+                        last.index / dataSize,
+                        next.index / dataSize
+                    );
+                    addTriangule(last.index, mid.index, next.index);
+                } while (true);
             }
+            else
+            {
+                var top = last;
+                var mid = stack.Pop();
+                edges.Connect(
+                    last.index / dataSize,
+                    next.index / dataSize
+                );
+                addTriangule(last.index, mid.index, next.index);
+
+                while (stack.Count > 0)
+                {
+                    last = mid;
+                    mid = stack.Pop();
+                    edges.Connect(
+                        last.index / dataSize,
+                        next.index / dataSize
+                    );
+                    addTriangule(last.index, mid.index, next.index);
+                }
+                stack.Push(top);
+                stack.Push(next);
+            }
+        }
+        if (stack.Count > 2)
+        {
+            int a = stack.Pop().index,
+                b = stack.Pop().index,
+                c = stack.Pop().index;
+            addTriangule(a, b, c);
         }
 
         /// <summary>
-        /// Add point p to list of trinagules data 
+        /// Add trinagule (p, q, r) to list of triangules data
+        /// </summary>
+        void addTriangule(int p, int q, int r)
+        {
+            addPoint(p);
+            addPoint(q);
+            addPoint(r);
+        }
+
+        /// <summary>
+        /// Add point p to list of triangules data 
         /// </summary>
         void addPoint(int p)
         {
@@ -171,78 +222,22 @@ internal static class VectorsOperations
         }
 
         /// <summary>
-        /// If p and q is connected test if (p, q, r) are a triangule
-        /// and return the right face
-        /// </summary>
-        (int s, int t)? isTriangule(int p, int q, int r)
-        {
-            if (edges.IsConnected(q / dataSize, r / dataSize))
-            {
-                int mid = q;
-                int fst, lst;
-                if (p < mid && mid < r)
-                {
-                    lst = p;
-                    fst = r;
-                }
-                else if (r < mid && mid < p)
-                {
-                    lst = r;
-                    fst = p;
-                }
-                else
-                {
-                    lst = int.Min(p, r);
-                    fst = int.Max(p, r);
-                }
-
-                var lft = left(lst, mid, fst);
-                if (lft < 0)
-                    return null;
-                
-                return (p, r);
-            }
-            else if (edges.IsConnected(p / dataSize, r / dataSize))
-            {
-                int mid = p;
-                int fst, lst;
-                if (q < mid && mid < r)
-                {
-                    lst = q;
-                    fst = r;
-                }
-                else if (r < mid && mid < q)
-                {
-                    lst = r;
-                    fst = q;
-                }
-                else
-                {
-                    lst = int.Min(q, r);
-                    fst = int.Max(q, r);
-                }
-
-                var lft = left(lst, mid, fst);
-                if (lft < 0)
-                    return null;
-                
-                return (q, r);
-            }
-            return null;
-        }
-
-        /// <summary>
         /// Teste if the r is left from (p, q) line 
         /// </summary>
         float left(int p, int q, int r)
         {
+            System.Console.WriteLine($"{data[p + 3]} {data[p + 4]}");
+            System.Console.WriteLine($"{data[q + 3]} {data[q + 4]}");
+            System.Console.WriteLine($"{data[r + 3]} {data[r + 4]}");
             var vx = data[p + 3] - data[q + 3];
             var vy = data[p + 4] - data[q + 4];
             
             var ux = data[r + 3] - data[q + 3];
             var uy = data[r + 4] - data[q + 4];
 
-            return vx * uy - ux * vy;
+            var result = vx * uy - ux * vy;
+            System.Console.WriteLine(result);
+            return result;
         }
     }
 
