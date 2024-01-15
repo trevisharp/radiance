@@ -1,7 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/09/2023
+ * Date:    15/01/2024
  */
 using System;
+using Radiance.Internal;
 
 namespace Radiance.RenderFunctions;
 
@@ -35,6 +36,8 @@ public class RenderFunction
         this.op = new RenderOperations(
             this.Function
         );
+        var ctx = RenderContext.CreateContext();
+        ctx.Operation = op;
 
         var paramerters = Function.Method.GetParameters();
         object[] fakeInput = new object[paramerters.Length];

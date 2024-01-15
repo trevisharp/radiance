@@ -1,13 +1,17 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/01/2024
+ * Date:    15/01/2024
  */
 using System;
 using System.Text;
 using System.Linq;
+using System.Threading;
+using System.Collections.Generic;
 
 namespace Radiance;
 
 using Data;
+
+using Internal;
 
 using RenderFunctions;
 using RenderFunctions.Renders;
