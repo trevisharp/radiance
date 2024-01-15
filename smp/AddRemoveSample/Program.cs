@@ -3,6 +3,11 @@ using static Radiance.RadianceUtils;
 
 var render1 = render(r =>
 {
+    /**
+        r = (x - 50) / 50;
+        g = 0;
+        draw();
+     **/
     r.Draw(
         rect(50, 50, 50, 50)
         .colorize(v => {
@@ -14,6 +19,11 @@ var render1 = render(r =>
 
 var render2 = render(r =>
 {
+    /**
+        r = 0;
+        g = (y - 100) / 50;
+        draw();
+     **/
     r.Draw(
         rect(100, 100, 50, 50)
         .colorize(v => {

@@ -46,6 +46,11 @@ Window.OnFrame += delegate
 
 Window.OnRender += r =>
 {
+    /**
+        x *= 50 + _x;
+        y *= 50 + _y;
+        draw();
+     **/
     r.Draw(region
         .transform(v => (v.x * 50 + x, v.y * 50 + y, v.z))
     );

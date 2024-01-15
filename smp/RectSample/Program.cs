@@ -20,6 +20,22 @@ var border = data(
 
 Window.OnRender += r =>
 {
+    /**
+        var size = 50 + 20 * cos(5 * t);
+        var center = (width / 2, height / 2, 0);
+
+        clear(white);
+        
+        pos = center + size * pos;
+        r = cos(t) + 1;
+        g = sin(t) + 1;
+        b = 0;
+        fill();
+        ...
+        pos = center + size * pos;
+        color = black;
+        draw();
+     **/
     var size = 50 + 20 * cos(5 * t);
     var center = (width / 2, height / 2, 0);
 

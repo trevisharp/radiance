@@ -12,6 +12,19 @@ var screen = data(
 
 Window.OnRender += r =>
 {
+    /**
+        verbose = true;
+        x *= width;
+        y *= height;
+        var point = (x, y, z);
+        var cursor = (cx, cy, 0);
+        var d = distance(point, cursor);
+        var s = (5.0 + 0.01 * sin(10 * t)) / d;
+        r = s;
+        g = s;
+        b = s;
+        draw();
+     **/
     r.Verbose = true;
     r.FillTriangles(screen
         .transform(v => (v.x * width, v.y * height, v.z))
