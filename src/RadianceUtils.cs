@@ -4,8 +4,6 @@
 using System;
 using System.Text;
 using System.Linq;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace Radiance;
 
@@ -25,6 +23,12 @@ using ShaderSupport.Dependencies;
 /// </summary>
 public static class RadianceUtils
 {
+    public static void draw(IData data)
+    {
+        var ctx = RenderContext.GetContext();
+        ctx.Operation.Draw(data);
+    }
+
     public static Vectors rect(
         float x, float y, 
         float wid, float hei
