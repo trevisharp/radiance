@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/01/2024
+ * Date:    18/01/2024
  */
 using System;
 using System.Text;
@@ -7,6 +7,8 @@ using System.Linq;
 using System.Collections.Generic;
 
 namespace Radiance.Data;
+
+using Exceptions;
 
 /// <summary>
 /// Represents a data that can be sended to a shader and drawed.
@@ -20,7 +22,7 @@ public abstract class Polygon
     public Polygon()
         => AppendLayout(3, "vec3", "pos");
 
-    public Polygon Add(float x, float y, float z)
+    public Polygon Add(float x, float y, float z, params float[] extra)
     {
         data.AddLast(x);
         data.AddLast(y);
@@ -29,16 +31,43 @@ public abstract class Polygon
         for (int i = 1; i < layouts.Count; i++)
         {
             var layout = layouts[i];
-            if (layout.definition is null)
+            if (layout.definition is not null)
+            {
+                foreach (var def in layout.definition)
+                    data.AddLast(def(x, y, z));
+                continue;
+            }
+
+            if (extra.Length == 0)
             {
                 for (int k = 0; k < layout.size; k++)
                     data.AddLast(0);
                 continue;
             }
-
-            foreach (var def in layout.definition)
-                data.AddLast(def(x, y, z));
+            
+            if (extra.Length != layout.size)
+                throw new InvalidExtraDataException();
+            
+            for (int k = 0; k < layout.size; k++)
+                data.AddLast(extra[k]);
         }
+
+        return this;
+    }
+
+    public Polygon Append(int fields)
+    {
+        var it = data.First;
+
+        while (it != null)
+        {
+            for (int n = 0; n < elementSize; n++)
+                it = it.Next;
+            
+            for (int i = 0; i < fields; i++)
+                data.AddBefore(it, 0);
+        }
+        AppendLayout(fields, "noname", "notype", null);
 
         return this;
     }
