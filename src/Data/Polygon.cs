@@ -3,8 +3,8 @@
  */
 using System;
 using System.Text;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Radiance.Data;
 
@@ -13,6 +13,7 @@ namespace Radiance.Data;
 /// </summary>
 public abstract class Polygon
 {
+    private int elementSize = 0;
     private List<LayoutInfo> layouts = new();
     private LinkedList<float> data = new();
 
@@ -28,39 +29,79 @@ public abstract class Polygon
         for (int i = 1; i < layouts.Count; i++)
         {
             var layout = layouts[i];
-            var layoutData =
-                layout.definition is null ?
-                new float[layout.size] :
-                layout.definition(new float[] { x, y, z });
-            
-            foreach (var value in layoutData)
-                data.AddLast(value);
+            if (layout.definition is null)
+            {
+                for (int k = 0; k < layout.size; k++)
+                    data.AddLast(0);
+                continue;
+            }
+
+            foreach (var def in layout.definition)
+                data.AddLast(def(x, y, z));
         }
 
         return this;
     }
 
-    internal void AppendLayout(int size, string type, string name)
-        => this.layouts.Add(new(size, type, name, null));
-    
-    internal string GetHeader()
+    public Polygon Append(params Func<float, float, float, float>[] defs)
     {
-        StringBuilder sb = new StringBuilder();
+        var it = data.First;
 
-        int location = 0;
-        foreach (var layout in layouts)
-            sb.AppendLine($"layout (location = {location}) in {layout.type} {layout.name};");
+        while (it != null)
+        {
+            float x = it.Value;
+            it = it.Next;
 
-        return sb.ToString();
+            float y = it.Value;
+            it = it.Next;
+
+            float z = it.Value;
+            it = it.Next;
+
+            for (int n = 3; n < elementSize; n++)
+                it = it.Next;
+            
+            foreach (var def in defs)
+                data.AddBefore(it, def(x, y, z));
+        }
+        AppendLayout(defs.Length, "noname", "notype", defs);
+
+        return this;
     }
 
-    internal float[] GetData()
+    internal void AppendLayout(
+        int size, string type, string name, 
+        Func<float, float, float, float>[] defs = null
+    )
+    {
+        this.layouts.Add(new(size, type, name, defs));
+        this.elementSize += size;
+    }
+    
+    internal string Header
+    {
+        get
+        {
+            StringBuilder sb = new StringBuilder();
+
+            int location = 0;
+            foreach (var layout in layouts)
+                sb.AppendLine($"layout (location = {location}) in {layout.type} {layout.name};");
+
+            return sb.ToString();
+        }
+    }
+
+    internal float[] Data
         => data.ToArray();
 
+    internal int ElementSize
+        => this.elementSize;
+    
     private record LayoutInfo(
         int size,
         string type,
         string name,
-        Func<float[], float[]> definition
+        Func<float, float, float, float>[] definition
     );
 }
