@@ -16,7 +16,7 @@ var myRender = render((cr, cg, cb, amp) =>
     fill();
 });
 
-Polygon data = rect(50, 50);
+var data = rect(50, 50);
 
 Window.OnRender += () => myRender(data, red, 5);
 
