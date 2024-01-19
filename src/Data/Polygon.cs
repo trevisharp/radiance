@@ -52,6 +52,7 @@ public class Polygon
                 data.AddLast(extra[k]);
         }
 
+        change();
         return this;
     }
 
@@ -69,6 +70,7 @@ public class Polygon
         }
         AppendLayout(fields, "noname", "notype", null);
 
+        change();
         return this;
     }
 
@@ -95,7 +97,15 @@ public class Polygon
         }
         AppendLayout(defs.Length, "noname", "notype", defs);
 
+        change();
         return this;
+    }
+
+    public event Action OnChange;
+    private void change()
+    {
+        if (OnChange is not null)
+            OnChange();
     }
 
     internal void AppendLayout(

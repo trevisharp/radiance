@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/08/2023
+ * Date:    19/01/2024
  */
 namespace Radiance.ShaderSupport.Dependencies;
 
@@ -14,7 +14,8 @@ public class BufferDependence<T> : ShaderDependence<T>
     private float[] buffer;
     private string header;
 
-    public BufferDependence(string name, IData data, int position = 1)
+    // TODO: Remove
+    public BufferDependence(string name, IData data, int location = 0)
     {
         data.OnChange += delegate
         {
@@ -25,7 +26,19 @@ public class BufferDependence<T> : ShaderDependence<T>
         this.Name = name;
         this.DependenceType = ShaderDependenceType.CustomData;
 
-        this.header = $"layout(location = {position}) in {ShaderObject.GetStringName<T>()} {Name};";
+        this.header = $"layout(location = {location}) in {ShaderObject.GetStringName<T>()} {Name};";
+    }
+    
+    public BufferDependence(string name, Polygon poly, int location = 0)
+    {
+        poly.OnChange += () =>
+            this.buffer = poly.Data;
+        this.buffer = poly.Data;
+
+        this.Name = name;
+        this.DependenceType = ShaderDependenceType.CustomData;
+
+        this.header = $"layout(location = {location}) in {ShaderObject.GetStringName<T>()} {Name};";
     }
 
     public override object Value
