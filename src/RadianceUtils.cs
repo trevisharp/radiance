@@ -9,6 +9,8 @@ namespace Radiance;
 
 using Data;
 
+using Renders;
+
 using Internal;
 
 using RenderFunctions;
@@ -90,6 +92,17 @@ public static class RadianceUtils
             result.Add(v);
         
         return result;
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static Render render(Action function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
     }
 
     public static IRender render(
