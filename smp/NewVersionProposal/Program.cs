@@ -10,16 +10,10 @@ var myRender = render((cr, cg, cb, amp) =>
     x += amp * sin(t);  
     y += amp * cos(t);
 
-    r = 0;
-    g = 0;
-    b = 0;
-
+    (r, g, b) = black;
     draw();
 
-    r = cr;
-    g = cg;
-    b = cb;
-
+    (r, g, b) = (cr, cg, cb);
     fill();
 });
 
