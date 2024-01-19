@@ -1,4 +1,5 @@
 ﻿using Radiance;
+using static Radiance.Utils;
 using static Radiance.RadianceUtils;
 
 var myRender = render((cr, cg, cb, amp) =>
@@ -8,6 +9,12 @@ var myRender = render((cr, cg, cb, amp) =>
 
     x += amp * sin(t);  
     y += amp * cos(t);
+
+    r = 0;
+    g = 0;
+    b = 0;
+
+    draw();
 
     r = cr;
     g = cg;
