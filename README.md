@@ -673,12 +673,13 @@ public class Player
  - ![](https://img.shields.io/badge/new-green) Add Release Shaders to speedup production apps.
  - ![](https://img.shields.io/badge/new-green) Add Conditional Rendering.
  - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
- - ![](https://img.shields.io/badge/update-blue) Improve IRender abstraction and RenderUtils, simplifying the shader programming.
+ - ![](https://img.shields.io/badge/update-blue) Replace old Renders by a new and most powerfull Render abstraction.
+ - ![](https://img.shields.io/badge/update-blue) Replace old Data abstraction by Polygon class and Vecs.
  - ![](https://img.shields.io/badge/update-blue) Improve generate code legibility and expression reuse.
  - ![](https://img.shields.io/badge/update-blue) Improve abstraction of shaders to improve and organization.
  - ![](https://img.shields.io/badge/update-blue) Improve triangularization performance.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Solving bugs in triangularization.
- - ![](https://img.shields.io/badge/removed-red) Remove some legacy structures.
+ - ![](https://img.shields.io/badge/removed-red) Remove old ShaderFunctions and Data abstractions.
 
 ### Radiance v1.9.0
 
