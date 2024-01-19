@@ -19,7 +19,7 @@ var myRender = render((cr, cg, cb, amp) =>
 
 var data = rect(50, 50);
 
-Window.OnRender += () => myRender(data, red, 5);
+Window._OnRender += () => myRender(data, red, 5);
 
 Window.CloseOn(Input.Escape);
 Window.Open();

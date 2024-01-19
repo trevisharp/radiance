@@ -102,6 +102,8 @@ public static class Window
             GL.Clear(ClearBufferMask.ColorBufferBit);
             
             OnRender.Render();
+            if (_OnRender is not null)
+                _OnRender();
 
             win.SwapBuffers();
         };
@@ -218,6 +220,7 @@ public static class Window
     public static event Action OnLoad;
     public static event Action OnUnload;
     public static event Action OnFrame;
+    public static event Action _OnRender;
 
     public static event Action<Input, Modifier> OnKeyDown;
     public static event Action<Input, Modifier> OnKeyUp;
