@@ -23,8 +23,22 @@ using ShaderSupport.Dependencies;
 /// <summary>
 /// A facade with all utils to use Radiance features.
 /// </summary>
-public static class utils
+public static class Utils
 {
+    /// <summary>
+    /// Create a rectangle with specific width and height
+    /// centralized on (0, 0) cordinate.
+    /// </summary>
+    public static Polygon rect(float width, float height)
+    {
+        var halfWid = width / 2;
+        var halfHei = height / 2;
+        return new Polygon()
+            .Add(-halfWid, -halfHei, 0)
+            .Add(-halfHei, halfWid, 0)
+            .Add(halfHei, halfWid, 0)
+            .Add(halfHei, -halfWid, 0);
+    }
 
     /// <summary>
     /// Create render with shaders based on function recived.

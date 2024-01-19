@@ -13,7 +13,7 @@ using Exceptions;
 /// <summary>
 /// Represents a data that can be sended to a shader and drawed.
 /// </summary>
-public abstract class Polygon
+public class Polygon
 {
     private int elementSize = 0;
     private List<LayoutInfo> layouts = new();
