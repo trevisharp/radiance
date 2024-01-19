@@ -11,38 +11,45 @@ using Internal;
 using Exceptions;
 
 using ShaderSupport.Objects;
+using Radiance.RenderFunctions;
 
+/// <summary>
+/// Represents a function that can used by GPU to draw in the screen.
+/// </summary>
 public class Render : DynamicObject
 {
-    private Delegate function;
-
+    private ShaderManager manager;
     private readonly int extraParameterCount;
     public int ExtraParameterCount => extraParameterCount;
 
     public Render(Action function)
     {
         this.extraParameterCount = 0;
-        this.function = function;
+        this.manager = new ShaderManager(function);
     }
+
     public Render(Action<FloatShaderObject> function)
     {
         this.extraParameterCount = 1;
-        this.function = function;
+        this.manager = new ShaderManager(function);
     }
+
     public Render(Action<FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 2;
-        this.function = function;
+        this.manager = new ShaderManager(function);
     }
+
     public Render(Action<FloatShaderObject, FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 3;
-        this.function = function;
+        this.manager = new ShaderManager(function);
     }
+    
     public Render(Action<FloatShaderObject, FloatShaderObject, FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 4;
-        this.function = function;
+        this.manager = new ShaderManager(function);
     }
 
     public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
@@ -53,12 +60,9 @@ public class Render : DynamicObject
         var poly = args[0] as Polygon;
         if (poly is null)
             throw new MissingPolygonException();
-        
-        var ctx = RenderContext.GetContext();
-        ctx.Data = poly;
-        ctx.Operation = null; // TODO
+
         var data = getArgs(args[1..]);
-        this.function.DynamicInvoke(data);
+        manager.Render(poly, data);
 
         result = true;
         return true;
@@ -67,7 +71,7 @@ public class Render : DynamicObject
     private float[] getArgs(object[] args)
     {
         int index = 0;
-        float[] result = new float[extraParameterCount];
+        var result = new float[extraParameterCount];
 
         foreach (var arg in args)
             index = setArgs(arg, result, index);

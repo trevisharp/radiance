@@ -40,9 +40,30 @@ public class ShaderManager
     public bool Verbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
 
-    public ShaderManager(Delegate Function)
+    public ShaderManager(Action function)
     {
-        discoverGlobalVariables(Function);
+        discoverGlobalVariables(function);
+    }
+    public ShaderManager(Action<FloatShaderObject> function)
+    {
+        discoverGlobalVariables(function);
+    }
+    public ShaderManager(Action<
+        FloatShaderObject, FloatShaderObject> function)
+    {
+        discoverGlobalVariables(function);
+    }
+    public ShaderManager(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject> function)
+    {
+        discoverGlobalVariables(function);
+    }
+    public ShaderManager(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject, FloatShaderObject> function)
+    {
+        discoverGlobalVariables(function);
     }
 
     public void Clear(Color color)
@@ -122,7 +143,7 @@ public class ShaderManager
         };
     }
 
-    internal void Render()
+    internal void Render(Polygon polygon, float[] parameters)
     {
         if (effects is null)
             return;
