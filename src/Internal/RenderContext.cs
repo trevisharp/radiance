@@ -39,8 +39,6 @@ internal class RenderContext
     
     internal RenderOperations Operation { get; set; }
     internal Polygon Data { get; set; }
-    internal FloatShaderObject X { get; set; }
-    internal FloatShaderObject Y { get; set; }
-    internal FloatShaderObject Z { get; set; }
+    internal Vec3ShaderObject Position { get; set; }
     internal Vec4ShaderObject Color { get; set; }
 }

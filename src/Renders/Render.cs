@@ -12,6 +12,7 @@ using Exceptions;
 
 using ShaderSupport.Objects;
 using Radiance.RenderFunctions;
+using Radiance.ShaderSupport.Dependencies;
 
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
@@ -40,13 +41,15 @@ public class Render : DynamicObject
         this.manager = new ShaderManager(function);
     }
 
-    public Render(Action<FloatShaderObject, FloatShaderObject, FloatShaderObject> function)
+    public Render(Action<FloatShaderObject,
+        FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 3;
         this.manager = new ShaderManager(function);
     }
 
-    public Render(Action<FloatShaderObject, FloatShaderObject, FloatShaderObject, FloatShaderObject> function)
+    public Render(Action<FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 4;
         this.manager = new ShaderManager(function);
@@ -68,10 +71,10 @@ public class Render : DynamicObject
         return true;
     }
 
-    private void startContext()
+    private void startContext(Polygon polygon)
     {
         var ctx = RenderContext.CreateContext();
-        
+        // TODO
     }
 
     private float[] getArgs(object[] args)
