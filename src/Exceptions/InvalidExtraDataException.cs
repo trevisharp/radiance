@@ -1,7 +1,13 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    19/01/2024
+ */
 using System;
 
 namespace Radiance.Exceptions;
 
+/// <summary>
+/// 
+/// </summary>
 public class InvalidExtraDataException : Exception
 {
     public override string Message =>
