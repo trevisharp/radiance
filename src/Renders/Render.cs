@@ -45,7 +45,7 @@ public class Render : DynamicObject
         this.extraParameterCount = 3;
         this.manager = new ShaderManager(function);
     }
-    
+
     public Render(Action<FloatShaderObject, FloatShaderObject, FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 4;
@@ -66,6 +66,12 @@ public class Render : DynamicObject
 
         result = true;
         return true;
+    }
+
+    private void startContext()
+    {
+        var ctx = RenderContext.CreateContext();
+        
     }
 
     private float[] getArgs(object[] args)
