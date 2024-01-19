@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/01/2024
+ * Date:    19/01/2024
  */
 using System;
 using System.Text;
@@ -98,6 +98,50 @@ public static class RadianceUtils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static Render render(Action function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static Render render(Action<float> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+    
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static Render render(Action<float, float> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+    
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static Render render(Action<float, float, float> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static Render render(Action<float, float, float, float> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");

@@ -14,12 +14,32 @@ public class Render : DynamicObject
 {
     private Delegate function;
 
-    private readonly int parameterCount;
-    public int ParameterCount => parameterCount;
+    private readonly int extraParameterCount;
+    public int ExtraParameterCount => extraParameterCount;
 
     public Render(Action function)
     {
-        this.parameterCount = 1;
+        this.extraParameterCount = 0;
+        this.function = function;
+    }
+    public Render(Action<float> function)
+    {
+        this.extraParameterCount = 1;
+        this.function = function;
+    }
+    public Render(Action<float, float> function)
+    {
+        this.extraParameterCount = 2;
+        this.function = function;
+    }
+    public Render(Action<float, float, float> function)
+    {
+        this.extraParameterCount = 3;
+        this.function = function;
+    }
+    public Render(Action<float, float, float, float> function)
+    {
+        this.extraParameterCount = 4;
         this.function = function;
     }
 
@@ -45,7 +65,7 @@ public class Render : DynamicObject
     private float[] getArgs(object[] args)
     {
         int index = 0;
-        float[] result = new float[parameterCount];
+        float[] result = new float[extraParameterCount];
 
         foreach (var arg in args)
             index = setArgs(arg, result, index);
