@@ -4,7 +4,6 @@
 namespace Radiance;
 
 using Data;
-
 using Internal;
 
 /// <summary>
