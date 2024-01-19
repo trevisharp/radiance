@@ -108,7 +108,7 @@ public static class RadianceUtils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action<float> function)
+    public static Render render(Action<FloatShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -119,7 +119,8 @@ public static class RadianceUtils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action<float, float> function)
+    public static Render render(Action<
+        FloatShaderObject, FloatShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -130,7 +131,9 @@ public static class RadianceUtils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action<float, float, float> function)
+    public static Render render(Action<
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -141,7 +144,9 @@ public static class RadianceUtils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action<float, float, float, float> function)
+    public static Render render(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject, FloatShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");

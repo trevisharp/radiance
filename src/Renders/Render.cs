@@ -10,6 +10,8 @@ using Data;
 using Internal;
 using Exceptions;
 
+using ShaderSupport.Objects;
+
 public class Render : DynamicObject
 {
     private Delegate function;
@@ -22,22 +24,22 @@ public class Render : DynamicObject
         this.extraParameterCount = 0;
         this.function = function;
     }
-    public Render(Action<float> function)
+    public Render(Action<FloatShaderObject> function)
     {
         this.extraParameterCount = 1;
         this.function = function;
     }
-    public Render(Action<float, float> function)
+    public Render(Action<FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 2;
         this.function = function;
     }
-    public Render(Action<float, float, float> function)
+    public Render(Action<FloatShaderObject, FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 3;
         this.function = function;
     }
-    public Render(Action<float, float, float, float> function)
+    public Render(Action<FloatShaderObject, FloatShaderObject, FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 4;
         this.function = function;
