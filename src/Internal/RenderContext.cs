@@ -37,7 +37,6 @@ internal class RenderContext
         return null;
     }
     
-    internal RenderOperations Operation { get; set; }
     internal Polygon Data { get; set; }
     internal Vec3ShaderObject Position { get; set; }
     internal Vec4ShaderObject Color { get; set; }

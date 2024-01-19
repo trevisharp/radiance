@@ -10,7 +10,6 @@ using OpenTK.Graphics.OpenGL4;
 namespace Radiance;
 
 using Internal;
-using RenderFunctions.Renders;
 
 /// <summary>
 /// Represents the main windows that applications run
@@ -81,8 +80,6 @@ public static class Window
             );
 
             updateSize(win);
-
-            OnRender.Load();
             
             if (OnLoad is null)
                 return;
@@ -101,9 +98,8 @@ public static class Window
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
             
-            OnRender.Render();
-            if (_OnRender is not null)
-                _OnRender();
+            if (OnRender is not null)
+                OnRender();
 
             win.SwapBuffers();
         };
@@ -211,16 +207,14 @@ public static class Window
                 Close();
         };
     }
-
-    public static BlockRender OnRender { get; set; } = new();
-
+    
     public static float DeltaTime => frameController.DeltaTime;
     public static float Fps => frameController.Fps;
 
     public static event Action OnLoad;
     public static event Action OnUnload;
     public static event Action OnFrame;
-    public static event Action _OnRender;
+    public static event Action OnRender;
 
     public static event Action<Input, Modifier> OnKeyDown;
     public static event Action<Input, Modifier> OnKeyUp;

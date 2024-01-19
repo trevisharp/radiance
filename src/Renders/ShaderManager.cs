@@ -66,26 +66,26 @@ public class ShaderManager
         discoverGlobalVariables(function);
     }
 
-    public void Clear(Color color)
+    public void Clear(Vec4 color)
     {
         effects += delegate
         {
             GL.ClearColor(
-                color.R,
-                color.G,
-                color.B,
-                color.A
+                color.X,
+                color.Y,
+                color.Z,
+                color.W
             );
         };
     }
 
-    public void FillTriangles(IData data)
+    public void FillTriangles(Polygon data)
         => baseDraw(PrimitiveType.Triangles, data);
 
-    public void Draw(IData data) 
+    public void Draw(Polygon data) 
         => baseDraw(PrimitiveType.LineLoop, data);
 
-    private void baseDraw(PrimitiveType type, IData data)
+    private void baseDraw(PrimitiveType type, Polygon data)
     {
         var frag = data.FragmentObject.Dependecies;
         var realOutputs = data.Outputs
@@ -564,7 +564,7 @@ public class ShaderManager
         return handle;
     }
 
-    private int createVertexArray(IData data)
+    private int createVertexArray(Polygon data)
     {
         int vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);
