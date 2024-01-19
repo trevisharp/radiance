@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Radiance.Internal;
 
+using Data;
 using RenderFunctions;
 
 internal class RenderContext
@@ -32,5 +33,6 @@ internal class RenderContext
         return null;
     }
     
+    internal Polygon Data { get; set; }
     internal RenderOperations Operation { get; set; }
 }

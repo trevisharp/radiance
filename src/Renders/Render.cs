@@ -2,12 +2,12 @@
  * Date:    19/01/2024
  */
 using System;
-using System.Linq;
 using System.Dynamic;
 
 namespace Radiance.Renders;
 
 using Data;
+using Internal;
 using Exceptions;
 
 public class Render : DynamicObject
@@ -26,9 +26,15 @@ public class Render : DynamicObject
     public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
     {
         if (args.Length == 0)
-            
+            throw new MissingPolygonException();
 
         var poly = args[0] as Polygon;
+        if (poly is null)
+            throw new MissingPolygonException();
+        
+        var ctx = RenderContext.GetContext();
+        ctx.Data = poly;
+        ctx.Operation = null; // TODO
         var data = getArgs(args[1..]);
         this.function.DynamicInvoke(data);
 
