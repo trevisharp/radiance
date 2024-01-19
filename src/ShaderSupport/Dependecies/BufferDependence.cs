@@ -13,21 +13,6 @@ public class BufferDependence<T> : ShaderDependence<T>
 {
     private float[] buffer;
     private string header;
-
-    // TODO: Remove
-    public BufferDependence(string name, IData data, int location = 0)
-    {
-        data.OnChange += delegate
-        {
-            this.buffer = data.GetBuffer();
-        };
-        this.buffer = data.GetBuffer();
-
-        this.Name = name;
-        this.DependenceType = ShaderDependenceType.CustomData;
-
-        this.header = $"layout(location = {location}) in {ShaderObject.GetStringName<T>()} {Name};";
-    }
     
     public BufferDependence(string name, Polygon poly, int location = 0)
     {

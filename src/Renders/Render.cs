@@ -75,7 +75,10 @@ public class Render : DynamicObject
     private void startContext(Polygon polygon)
     {
         var ctx = RenderContext.CreateContext();
-        // TODO
+        ctx.Position = new BufferDependence<Vec3ShaderObject>(
+            "pos", polygon, 0
+        );
+        
     }
 
     private float[] getArgs(object[] args)
