@@ -55,7 +55,8 @@ public class Render : DynamicObject
         this.manager = new ShaderManager(function);
     }
 
-    public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
+    public override bool TryInvoke(
+        InvokeBinder binder, object[] args, out object result)
     {
         if (args.Length == 0)
             throw new MissingPolygonException();
