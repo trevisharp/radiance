@@ -93,67 +93,7 @@ public static class RadianceUtils
         
         return result;
     }
-
-    /// <summary>
-    /// Create render with shaders based on function recived.
-    /// </summary>
-    public static Render render(Action function)
-    {
-        if (function is null)
-            throw new ArgumentNullException("function");
-        
-        return new Render(function);
-    }
-
-    /// <summary>
-    /// Create render with shaders based on function recived.
-    /// </summary>
-    public static Render render(Action<FloatShaderObject> function)
-    {
-        if (function is null)
-            throw new ArgumentNullException("function");
-        
-        return new Render(function);
-    }
     
-    /// <summary>
-    /// Create render with shaders based on function recived.
-    /// </summary>
-    public static Render render(Action<
-        FloatShaderObject, FloatShaderObject> function)
-    {
-        if (function is null)
-            throw new ArgumentNullException("function");
-        
-        return new Render(function);
-    }
-    
-    /// <summary>
-    /// Create render with shaders based on function recived.
-    /// </summary>
-    public static Render render(Action<
-        FloatShaderObject, FloatShaderObject,
-        FloatShaderObject> function)
-    {
-        if (function is null)
-            throw new ArgumentNullException("function");
-        
-        return new Render(function);
-    }
-
-    /// <summary>
-    /// Create render with shaders based on function recived.
-    /// </summary>
-    public static Render render(Action<
-        FloatShaderObject, FloatShaderObject, 
-        FloatShaderObject, FloatShaderObject> function)
-    {
-        if (function is null)
-            throw new ArgumentNullException("function");
-        
-        return new Render(function);
-    }
-
     public static IRender render(
         Action<RenderOperations> func
     )

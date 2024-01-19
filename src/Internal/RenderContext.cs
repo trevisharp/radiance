@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/01/2024
+ * Date:    19/01/2024
  */
 using System.Threading;
 using System.Collections.Generic;
@@ -8,7 +8,11 @@ namespace Radiance.Internal;
 
 using Data;
 using RenderFunctions;
+using ShaderSupport.Objects;
 
+/// <summary>
+/// A global thread-safe context to shader construction.
+/// </summary>
 internal class RenderContext
 {
     private static Dictionary<int, RenderContext> threadMap = new();
@@ -35,4 +39,6 @@ internal class RenderContext
     
     internal Polygon Data { get; set; }
     internal RenderOperations Operation { get; set; }
+    internal Vec3ShaderObject Position { get; set; }
+    internal Vec4ShaderObject Color { get; set; }
 }
