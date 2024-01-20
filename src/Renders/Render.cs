@@ -78,7 +78,8 @@ public class Render : DynamicObject
         ctx.Position = new BufferDependence<Vec3ShaderObject>(
             "pos", polygon, 0
         );
-        
+        ctx.Color = new Vec4ShaderObject("(0.0, 0.0, 0.0, 1.0)");
+        ctx.Manager = this.manager;
     }
 
     private float[] getArgs(object[] args)

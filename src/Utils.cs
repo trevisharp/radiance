@@ -29,6 +29,53 @@ public static class Utils
     internal readonly static HeightWindowDependence _height = new();
     
     /// <summary>
+    /// Clean the entire screen.
+    /// Shader Only.
+    /// </summary>
+    public static void clear(Vec4 color)
+    {
+        var ctx = RenderContext.GetContext();
+        var man = ctx.Manager;
+        man.Clear(color);
+    }
+
+    /// <summary>
+    /// Get ou update the actual position of a generic point of the drawed polygon.
+    /// Shader Only.
+    /// </summary>
+    public static Vec3ShaderObject pos
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext();
+            return ctx.Position;
+        }
+        set
+        {
+            var ctx = RenderContext.GetContext();
+            ctx.Position = value;
+        }
+    }
+
+    /// <summary>
+    /// Get ou update the actual color of a generic point inside drawed area.
+    /// Shader Only.
+    /// </summary>
+    public static Vec4ShaderObject color
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext();
+            return ctx.Color;
+        }
+        set
+        {
+            var ctx = RenderContext.GetContext();
+            ctx.Color = value;
+        }
+    }
+    
+    /// <summary>
     /// Get the time between two frames.
     /// </summary>
     public static float dt => Window.DeltaTime;

@@ -38,6 +38,7 @@ internal class RenderContext
     }
     
     internal Polygon Data { get; set; }
+    internal ShaderManager Manager { get; set; }
     internal Vec3ShaderObject Position { get; set; }
     internal Vec4ShaderObject Color { get; set; }
 }
