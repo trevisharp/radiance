@@ -3,16 +3,18 @@ using static Radiance.Utils;
 
 var myRender = render((cr, cg, cb, amp) =>
 {
+    clear(white);
+
     x += width / 2;
     y += height / 2;
 
     x += amp * sin(t);  
     y += amp * cos(t);
 
-    (r, g, b, a) = black;
+    color = black;
     draw();
 
-    (r, g, b, a) = (cr, cg, cb, 1);
+    color = (cr, cg, cb, 1);
     fill();
 });
 
