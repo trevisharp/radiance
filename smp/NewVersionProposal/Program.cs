@@ -1,6 +1,5 @@
 ﻿using Radiance;
 using static Radiance.Utils;
-using static Radiance.RadianceUtils;
 
 var myRender = render((cr, cg, cb, amp) =>
 {
@@ -10,16 +9,16 @@ var myRender = render((cr, cg, cb, amp) =>
     x += amp * sin(t);  
     y += amp * cos(t);
 
-    (r, g, b) = black;
+    (r, g, b, a) = black;
     draw();
 
-    (r, g, b) = (cr, cg, cb);
+    (r, g, b, a) = (cr, cg, cb, 1);
     fill();
 });
 
-var data = rect(50, 50);
+var data = Rect(50, 50);
 
-Window._OnRender += () => myRender(data, red, 5);
+Window.OnRender += () => myRender(data, red, 5);
 
 Window.CloseOn(Input.Escape);
 Window.Open();
