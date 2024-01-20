@@ -329,8 +329,8 @@ public class ShaderManager
 
         int textureId = 0;
         var dependencens = vertexObject.Dependecies
-            .Append(RadianceUtils._width)
-            .Append(RadianceUtils._height)
+            .Append(Utils._width)
+            .Append(Utils._height)
             .Concat(outDeps)
             .Distinct(ShaderDependence.Comparer);
         foreach (var dependence in dependencens)
@@ -572,17 +572,17 @@ public class ShaderManager
         int vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);
 
-        int total = data.Sizes.Sum();
+        int total = data.Layouts.Sum(layout => layout.size);
         var stride = total * sizeof(float);
         var type = VertexAttribPointerType.Float;
 
         int i = 0;
         int offset = 0;
-        foreach (var size in data.Sizes)
+        foreach (var layout in data.Layouts)
         {
-            GL.VertexAttribPointer(i, size, type, false, stride, offset);
+            GL.VertexAttribPointer(i, layout.size, type, false, stride, offset);
             GL.EnableVertexAttribArray(i);
-            offset += size * sizeof(float);
+            offset += layout.size * sizeof(float);
             i++;
         }
 

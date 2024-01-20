@@ -19,6 +19,8 @@ public class Polygon
     private List<LayoutInfo> layouts = new();
     private LinkedList<float> data = new();
 
+    public IEnumerable<LayoutInfo> Layouts => layouts;
+
     public Polygon()
         => AppendLayout(3, "vec3", "pos");
 
@@ -137,7 +139,7 @@ public class Polygon
     internal int ElementSize
         => this.elementSize;
     
-    private record LayoutInfo(
+    public record LayoutInfo(
         int size,
         string type,
         string name,
