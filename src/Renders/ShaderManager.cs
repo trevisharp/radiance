@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/01/2024
+ * Date:    20/01/2024
  */
 using System;
 using System.Text;
@@ -16,6 +16,7 @@ using StbImageSharp;
 namespace Radiance.RenderFunctions;
 
 using Data;
+using Internal;
 
 using ShaderSupport;
 using ShaderSupport.Objects;
@@ -87,7 +88,9 @@ public class ShaderManager
 
     private void baseDraw(PrimitiveType type, Polygon data)
     {
-        var frag = data.FragmentObject.Dependecies;
+        var ctx = RenderContext.GetContext();
+
+        var frag = ctx.Color.Dependecies;
         var realOutputs = data.Outputs
             .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));    
 
@@ -96,14 +99,14 @@ public class ShaderManager
 
         start("Vertex Shader Creation");
         var vertexTuple = generateVertexShader(
-            data.VertexObject, realOutputs, programData
+            ctx.Position, realOutputs, programData
         );
         var vertexShader = createVertexShader(vertexTuple.source);
         success("Shader Created!!");
 
         start("Fragment Shader Creation");
         var fragmentTuple = generateFragmentShader(
-            data.FragmentObject, programData
+            ctx.Color, programData
         );
         var fragmentShader = createFragmentShader(fragmentTuple.source);
         success("Shader Created!!");
