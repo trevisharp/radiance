@@ -89,24 +89,27 @@ public class ShaderManager
     private void baseDraw(PrimitiveType type, Polygon data)
     {
         var ctx = RenderContext.GetContext();
+        var vert = ctx.Position;
+        var frag = ctx.Color;
 
-        var frag = ctx.Color.Dependecies;
-        var realOutputs = data.Outputs
-            .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));    
+        // TODO
+        // var realOutputs = data.Outputs
+        //     .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));
+        var realOutputs = new ShaderOutput[0];
 
         start("Creating Program");
         var programData = new int[] { 0 };
 
         start("Vertex Shader Creation");
         var vertexTuple = generateVertexShader(
-            ctx.Position, realOutputs, programData
+            vert, realOutputs, programData
         );
         var vertexShader = createVertexShader(vertexTuple.source);
         success("Shader Created!!");
 
         start("Fragment Shader Creation");
         var fragmentTuple = generateFragmentShader(
-            ctx.Color, programData
+            frag, programData
         );
         var fragmentShader = createFragmentShader(fragmentTuple.source);
         success("Shader Created!!");

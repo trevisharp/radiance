@@ -1,7 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/01/2024
+ * Date:    21/01/2024
  */
 namespace Radiance.Data;
+
+using ShaderSupport.Objects;
 
 /// <summary>
 /// Represents a three dimension float vector.
@@ -24,4 +26,7 @@ public record Vec3(float X, float Y, float Z)
     
     public static implicit operator Vec3((float x, float y, float z) tuple)
         => new Vec3(tuple.x, tuple.y, tuple.z);
+    
+    public static implicit operator Vec3ShaderObject(Vec3 vec)
+        => new Vec3ShaderObject($"vec3({vec.X}, {vec.Y}, {vec.Z})");
 }

@@ -1,7 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/01/2024
+ * Date:    21/01/2024
  */
 namespace Radiance.Data;
+
+using ShaderSupport.Objects;
 
 /// <summary>
 /// Represents a two dimension float vector.
@@ -23,4 +25,7 @@ public record Vec2(float X, float Y)
 
     public static implicit operator Vec2((float x, float y) tuple)
         => new Vec2(tuple.x, tuple.y);
+    
+    public static implicit operator Vec2ShaderObject(Vec2 vec)
+        => new Vec2ShaderObject($"vec2({vec.X}, {vec.Y})");
 }
