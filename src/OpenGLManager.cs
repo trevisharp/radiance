@@ -35,7 +35,7 @@ public class OpenGLManager
     
     public static bool Verbose { get; set; } = false;
 
-    public static void FreeResources()
+    public static void FreeAllResources()
     {
         GL.UseProgram(0);
         foreach (var program in programMap)
@@ -155,8 +155,6 @@ public class OpenGLManager
         var frag = ctx.Color;
 
         // TODO
-        // var realOutputs = data.Outputs
-        //     .Where(o => frag.Any(d => d.Name == o.BaseDependence.Name));
         var realOutputs = new ShaderOutput[0];
 
         start("Creating Program");
@@ -184,7 +182,7 @@ public class OpenGLManager
         {
             GL.UseProgram(program);
             
-            bindBuffer(poly);
+            bindVertexArray(poly);
             bindBuffer(poly);
 
             if (vertexTuple.setup is not null)
@@ -388,19 +386,6 @@ public class OpenGLManager
                 
                 case ShaderDependenceType.CustomData:
                     sb.AppendLine(dependence.GetHeader());
-
-                    setup += delegate
-                    {
-                        //TODO
-                        // float[] data = (float[])dependence.Value;
-
-                        // GL.BufferData(
-                        //     BufferTarget.ArrayBuffer,
-                        //     data.Length * sizeof(float), 
-                        //     data, 
-                        //     BufferUsageHint.DynamicDraw
-                        // );
-                    };
                     break;
             }
         }

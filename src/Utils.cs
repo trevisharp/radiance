@@ -40,6 +40,26 @@ public static class Utils
     }
 
     /// <summary>
+    /// Draw the polygon in the screen.
+    /// </summary>
+    public static void draw()
+    {
+        var ctx = RenderContext.GetContext();
+        var man = ctx.Manager;
+        man.Draw();
+    }
+
+    /// <summary>
+    /// Fill the polygon in the screen.
+    /// </summary>
+    public static void fill()
+    {
+        var ctx = RenderContext.GetContext();
+        var man = ctx.Manager;
+        man.Fill();
+    }
+
+    /// <summary>
     /// Get ou update the actual position of a generic point of the drawed polygon.
     /// Shader Only.
     /// </summary>
