@@ -7,8 +7,8 @@ using System.Reflection;
 
 namespace Radiance.Types;
 
-using ShaderSupport;
-using ShaderSupport.Objects;
+using Shaders;
+using Shaders.Objects;
 
 /// <summary>
 /// Use gfloat to declare a global use of float with interoperability with shaders.

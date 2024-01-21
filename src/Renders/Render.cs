@@ -10,9 +10,9 @@ using Data;
 using Internal;
 using Exceptions;
 
-using ShaderSupport.Objects;
+using Shaders.Objects;
 using Radiance.RenderFunctions;
-using Radiance.ShaderSupport.Dependencies;
+using Radiance.Shaders.Dependencies;
 
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.

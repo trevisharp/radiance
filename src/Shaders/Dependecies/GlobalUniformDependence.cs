@@ -3,7 +3,7 @@
  */
 using System.Reflection;
 
-namespace Radiance.ShaderSupport.Dependencies;
+namespace Radiance.Shaders.Dependencies;
 
 /// <summary>
 /// Represents a dependece of a position buffer data.

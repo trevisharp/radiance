@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    21/08/2023
  */
-namespace Radiance.ShaderSupport.Dependencies;
+namespace Radiance.Shaders.Dependencies;
 
 using Internal;
 

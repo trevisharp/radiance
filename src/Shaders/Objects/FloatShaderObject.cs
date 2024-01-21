@@ -7,7 +7,7 @@
 using System.Linq;
 using System.Collections.Generic; 
 
-namespace Radiance.ShaderSupport.Objects;
+namespace Radiance.Shaders.Objects;
 
 /// <summary>
 /// Represent a Float data in shader implementation.

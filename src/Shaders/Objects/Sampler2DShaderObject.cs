@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/01/2023
  */
-namespace Radiance.ShaderSupport.Objects;
+namespace Radiance.Shaders.Objects;
 
 /// <summary>
 /// Represents a Sampler2D used by textures in OpenGL.

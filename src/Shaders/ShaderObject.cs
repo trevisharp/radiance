@@ -3,7 +3,7 @@
  */
 using System.Collections.Generic;
 
-namespace Radiance.ShaderSupport;
+namespace Radiance.Shaders;
 
 using Objects;
 

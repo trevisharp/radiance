@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    15/08/2023
  */
-namespace Radiance.ShaderSupport.Dependencies;
+namespace Radiance.Shaders.Dependencies;
 
 using Objects;
 
@@ -9,17 +9,17 @@ using Objects;
 /// Represents a input for the width of
 /// screen used in shader implementation.
 /// </summary>
-public class HeightWindowDependence : ShaderDependence<FloatShaderObject>
+public class WidthWindowDependence : ShaderDependence<FloatShaderObject>
 {
-    public HeightWindowDependence()
+    public WidthWindowDependence()
     {
-        this.Name = "height";
+        this.Name = "width";
         this.DependenceType = ShaderDependenceType.Uniform;
     }
 
     public override object Value
-        => (float)Window.Height;
+        => (float)Window.Width;
 
     public override string GetHeader()
-        => "uniform float height;";
+        => "uniform float width;";
 }

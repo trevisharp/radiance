@@ -13,9 +13,9 @@ using Renders;
 
 using Internal;
 
-using ShaderSupport;
-using ShaderSupport.Objects;
-using ShaderSupport.Dependencies;
+using Shaders;
+using Shaders.Objects;
+using Shaders.Dependencies;
 
 /// <summary>
 /// A facade with all utils to use Radiance features.

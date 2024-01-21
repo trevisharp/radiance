@@ -8,7 +8,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Radiance.ShaderSupport.Objects;
+namespace Radiance.Shaders.Objects;
 
 using Internal;
 

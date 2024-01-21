@@ -4,7 +4,7 @@
 #pragma warning disable CS0660
 #pragma warning disable CS0661
 
-namespace Radiance.ShaderSupport;
+namespace Radiance.Shaders;
 
 using Internal;
 using Dependencies;

@@ -5,7 +5,7 @@ using System.IO;
 
 using StbImageSharp;
 
-namespace Radiance.ShaderSupport.Dependencies;
+namespace Radiance.Shaders.Dependencies;
 
 using Objects;
 

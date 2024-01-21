@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    28/08/2023
  */
-namespace Radiance.ShaderSupport.Dependencies;
+namespace Radiance.Shaders.Dependencies;
 
 /// <summary>
 /// Represents a dependece of a position buffer data.

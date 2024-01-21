@@ -18,9 +18,9 @@ namespace Radiance.RenderFunctions;
 using Data;
 using Internal;
 
-using ShaderSupport;
-using ShaderSupport.Objects;
-using ShaderSupport.Dependencies;
+using Shaders;
+using Shaders.Objects;
+using Shaders.Dependencies;
 
 /// <summary>
 /// A class to build GLSL shader code and manage OpenGL buffers.

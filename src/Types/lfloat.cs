@@ -6,8 +6,8 @@
 namespace Radiance.Types;
 
 using Internal;
-using ShaderSupport;
-using ShaderSupport.Objects;
+using Shaders;
+using Shaders.Objects;
 
 /// <summary>
 /// Use lfloat to declare a local use of float with interoperability with shaders.

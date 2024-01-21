@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    19/01/2024
  */
-namespace Radiance.ShaderSupport.Dependencies;
+namespace Radiance.Shaders.Dependencies;
 
 using Data;
 

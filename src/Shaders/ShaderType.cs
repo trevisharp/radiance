@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    14/08/2023
  */
-namespace Radiance.ShaderSupport;
+namespace Radiance.Shaders;
 
 /// <summary>
 /// Represents a valid type in shader implementation.

@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace Radiance.ShaderSupport.Dependencies;
+namespace Radiance.Shaders.Dependencies;
 
 using Objects;
 

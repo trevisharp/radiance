@@ -3,7 +3,7 @@
  */
 namespace Radiance.Data;
 
-using ShaderSupport.Objects;
+using Shaders.Objects;
 
 /// <summary>
 /// Represents a three dimension float vector.

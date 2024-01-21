@@ -8,7 +8,7 @@ namespace Radiance.Internal;
 
 using Data;
 using RenderFunctions;
-using ShaderSupport.Objects;
+using Shaders.Objects;
 
 /// <summary>
 /// A global thread-safe context to shader construction.

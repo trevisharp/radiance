@@ -6,7 +6,7 @@
 
 using System.Reflection;
 
-namespace Radiance.ShaderSupport;
+namespace Radiance.Shaders;
 
 using Dependencies;
 
