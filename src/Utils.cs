@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/01/2024
+ * Date:    21/01/2024
  */
 using System;
 using System.Text;
@@ -261,7 +261,7 @@ public static class Utils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action function)
+    public static dynamic render(Action function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -272,7 +272,7 @@ public static class Utils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action<FloatShaderObject> function)
+    public static dynamic render(Action<FloatShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -283,7 +283,7 @@ public static class Utils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action<
+    public static dynamic render(Action<
         FloatShaderObject, FloatShaderObject> function)
     {
         if (function is null)
@@ -295,7 +295,7 @@ public static class Utils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action<
+    public static dynamic render(Action<
         FloatShaderObject, FloatShaderObject,
         FloatShaderObject> function)
     {
@@ -308,7 +308,7 @@ public static class Utils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
-    public static Render render(Action<
+    public static dynamic render(Action<
         FloatShaderObject, FloatShaderObject, 
         FloatShaderObject, FloatShaderObject> function)
     {
