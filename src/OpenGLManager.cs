@@ -66,6 +66,7 @@ public class OpenGLManager
         if (operations is null)
             return;
         
+        CreateResources(polygon);
         operations(polygon, parameters);
     }
 
@@ -84,20 +85,22 @@ public class OpenGLManager
 
     public void Fill()
     {
-        
+        baseDraw(PrimitiveType.Triangles);
     }
 
     public void Draw() 
     {
-
+        baseDraw(PrimitiveType.LineLoop);
     }
 
     /// <summary>
     /// Create Resources of OpenGL based on poly state and changes.
     /// </summary>
-    /// <param name="poly"></param>
     public void CreateResources(Polygon poly)
     {
+        if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
+            return;
+
         updateResources(poly, true, true);
         poly.OnChange += (bufferBreak, layoutBreak) =>
             updateResources(poly, bufferBreak, layoutBreak);

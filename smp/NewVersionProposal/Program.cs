@@ -1,26 +1,24 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((cr, cg, cb, amp) =>
+Window.OnLoad += delegate
 {
-    clear(white);
+    OpenGLManager.Verbose = true;
+    var myRender = render(() =>
+    {
+        clear(white);
 
-    x += width / 2;
-    y += height / 2;
+        pos += (width / 2, height / 2, 0);
+        pos += (5 * sin(t), 5 * cos(t), 0);
 
-    x += amp * sin(t);  
-    y += amp * cos(t);
+        color = black;
+        draw();
+    });
 
-    color = black;
-    draw();
+    var data = Rect(50, 50);
 
-    color = (cr, cg, cb, 1);
-    fill();
-});
-
-var data = Rect(50, 50);
-
-Window.OnRender += () => myRender(data, red, 5);
+    Window.OnRender += () => myRender(data);
+};
 
 Window.CloseOn(Input.Escape);
 Window.Open();

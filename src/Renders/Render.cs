@@ -25,26 +25,24 @@ public class Render : DynamicObject
     public Render(Action function)
     {
         this.extraParameterCount = 0;
-        this.manager = new OpenGLManager();
+        initRender();
+        function();
     }
 
     public Render(Action<FloatShaderObject> function)
     {
         this.extraParameterCount = 1;
-        this.manager = new OpenGLManager();
     }
 
     public Render(Action<FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 2;
-        this.manager = new OpenGLManager();
     }
 
     public Render(Action<FloatShaderObject,
         FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 3;
-        this.manager = new OpenGLManager();
     }
 
     public Render(Action<FloatShaderObject, FloatShaderObject,
@@ -71,14 +69,14 @@ public class Render : DynamicObject
         return true;
     }
 
-    private void startContext(Polygon polygon)
+    private void initRender()
     {
         var ctx = RenderContext.CreateContext();
         ctx.Position = new BufferDependence<Vec3ShaderObject>(
-            "pos", polygon, 0
+            "pos", null, 0
         );
         ctx.Color = new Vec4ShaderObject("(0.0, 0.0, 0.0, 1.0)");
-        ctx.Manager = this.manager;
+        this.manager = ctx.Manager = new OpenGLManager();
     }
 
     private float[] getArgs(object[] args)
