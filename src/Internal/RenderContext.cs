@@ -1,13 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/01/2024
+ * Date:    21/01/2024
  */
 using System.Threading;
 using System.Collections.Generic;
 
 namespace Radiance.Internal;
 
-using Data;
-using RenderFunctions;
+using Shaders;
 using Shaders.Objects;
 
 /// <summary>
@@ -37,8 +36,7 @@ internal class RenderContext
         return null;
     }
     
-    internal Polygon Data { get; set; }
-    internal ShaderManager Manager { get; set; }
+    internal OpenGLManager Manager { get; set; }
     internal Vec3ShaderObject Position { get; set; }
     internal Vec4ShaderObject Color { get; set; }
 }

@@ -16,8 +16,10 @@ public class BufferDependence<T> : ShaderDependence<T>
     
     public BufferDependence(string name, Polygon poly, int location = 0)
     {
-        poly.OnChange += () =>
+        poly.OnChange += delegate
+        {
             this.buffer = poly.Data;
+        };
         this.buffer = poly.Data;
 
         this.Name = name;

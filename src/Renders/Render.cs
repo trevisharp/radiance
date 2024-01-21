@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/01/2024
+ * Date:    21/01/2024
  */
 using System;
 using System.Dynamic;
@@ -11,7 +11,6 @@ using Internal;
 using Exceptions;
 
 using Shaders.Objects;
-using Radiance.RenderFunctions;
 using Radiance.Shaders.Dependencies;
 
 /// <summary>
@@ -19,40 +18,40 @@ using Radiance.Shaders.Dependencies;
 /// </summary>
 public class Render : DynamicObject
 {
-    private ShaderManager manager;
+    private OpenGLManager manager;
     private readonly int extraParameterCount;
     public int ExtraParameterCount => extraParameterCount;
 
     public Render(Action function)
     {
         this.extraParameterCount = 0;
-        this.manager = new ShaderManager(function);
+        this.manager = new OpenGLManager();
     }
 
     public Render(Action<FloatShaderObject> function)
     {
         this.extraParameterCount = 1;
-        this.manager = new ShaderManager(function);
+        this.manager = new OpenGLManager();
     }
 
     public Render(Action<FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 2;
-        this.manager = new ShaderManager(function);
+        this.manager = new OpenGLManager();
     }
 
     public Render(Action<FloatShaderObject,
         FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 3;
-        this.manager = new ShaderManager(function);
+        this.manager = new OpenGLManager();
     }
 
     public Render(Action<FloatShaderObject, FloatShaderObject,
         FloatShaderObject, FloatShaderObject> function)
     {
         this.extraParameterCount = 4;
-        this.manager = new ShaderManager(function);
+        this.manager = new OpenGLManager();
     }
 
     public override bool TryInvoke(

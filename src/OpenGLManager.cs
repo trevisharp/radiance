@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    20/01/2024
+ * Date:    21/01/2024
  */
 using System;
 using System.Text;
@@ -9,11 +9,10 @@ using System.Collections.Generic;
 
 using static System.Console;
 
+using StbImageSharp;
 using OpenTK.Graphics.OpenGL4;
 
-using StbImageSharp;
-
-namespace Radiance.RenderFunctions;
+namespace Radiance;
 
 using Data;
 using Internal;
@@ -23,53 +22,56 @@ using Shaders.Objects;
 using Shaders.Dependencies;
 
 /// <summary>
-/// A class to build GLSL shader code and manage OpenGL buffers.
+/// A class to manage OpenGL buffers, shaders and programs.
 /// </summary>
-public class ShaderManager
+public class OpenGLManager
 {
+    // Global OpenGL resources indexes map
     static Dictionary<int, int> shaderMap = new();
     static Dictionary<(int, int), int> programMap = new();
     static Dictionary<ImageResult, int> textureMap = new();
+    static List<int> bufferList = new();
+    static List<int> vertexArrayList = new();
+    
+    public static bool Verbose { get; set; } = false;
+
+    public static void FreeResources()
+    {
+        GL.UseProgram(0);
+        foreach (var program in programMap)
+            GL.DeleteProgram(program.Value);
+        programMap.Clear();
+
+        foreach (var buffer in bufferList)
+            GL.DeleteBuffer(buffer);
+        bufferList.Clear();
+
+        foreach (var shaderKey in shaderMap)
+            GL.DeleteShader(shaderKey.Value);
+        shaderMap.Clear();
+
+        foreach (var vertexArray in vertexArrayList)
+            GL.DeleteVertexArray(vertexArray);
+    }
     
     private int globalTabIndex = 0;
 
-    private event Action effects;
+    private event Action<Polygon, float[]> operations;
     private event Action unloadEffects;
 
-    private List<int> bufferList = new();
-
-    public bool Verbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
 
-    public ShaderManager(Action function)
+    public void Render(Polygon polygon, float[] parameters)
     {
-        discoverGlobalVariables(function);
-    }
-    public ShaderManager(Action<FloatShaderObject> function)
-    {
-        discoverGlobalVariables(function);
-    }
-    public ShaderManager(Action<
-        FloatShaderObject, FloatShaderObject> function)
-    {
-        discoverGlobalVariables(function);
-    }
-    public ShaderManager(Action<
-        FloatShaderObject, FloatShaderObject, 
-        FloatShaderObject> function)
-    {
-        discoverGlobalVariables(function);
-    }
-    public ShaderManager(Action<
-        FloatShaderObject, FloatShaderObject, 
-        FloatShaderObject, FloatShaderObject> function)
-    {
-        discoverGlobalVariables(function);
+        if (operations is null)
+            return;
+        
+        operations(polygon, parameters);
     }
 
     public void Clear(Vec4 color)
     {
-        effects += delegate
+        operations += delegate
         {
             GL.ClearColor(
                 color.X,
@@ -80,13 +82,73 @@ public class ShaderManager
         };
     }
 
-    public void FillTriangles(Polygon data)
-        => baseDraw(PrimitiveType.Triangles, data);
+    public void Fill()
+    {
+        
+    }
 
-    public void Draw(Polygon data) 
-        => baseDraw(PrimitiveType.LineLoop, data);
+    public void Draw() 
+    {
 
-    private void baseDraw(PrimitiveType type, Polygon data)
+    }
+
+    /// <summary>
+    /// Create Resources of OpenGL based on poly state and changes.
+    /// </summary>
+    /// <param name="poly"></param>
+    public void CreateResources(Polygon poly)
+    {
+        updateResources(poly, true, true);
+        poly.OnChange += (bufferBreak, layoutBreak) =>
+            updateResources(poly, bufferBreak, layoutBreak);
+    }
+
+    private void bindBuffer(Polygon poly)
+    {
+        GL.BindBuffer(
+            BufferTarget.ArrayBuffer, 
+            poly.Buffer
+        );
+    }
+
+    private void bindVertexArray(Polygon poly)
+    {
+        GL.BindVertexArray(
+            poly.VertexObjectArray
+        );
+    }
+
+    private void updateResources(Polygon poly, bool bufferBreak, bool layoutBreak)
+    {
+        if (bufferBreak)
+        {
+            if (poly.Buffer > -1)
+                GL.DeleteBuffer(poly.Buffer);
+
+            int buffer = createBuffer();
+            poly.Buffer = buffer;
+        }
+        bindBuffer(poly);
+
+        if (layoutBreak)
+        {
+            if (poly.VertexObjectArray > -1)
+                GL.DeleteVertexArray(poly.VertexObjectArray);
+
+            int vertexArray = createVertexArray(poly);
+            poly.VertexObjectArray = vertexArray;
+        }
+        bindVertexArray(poly);
+
+        var data = poly.Data;
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            data.Length * sizeof(float), data, 
+            BufferUsageHint.DynamicDraw
+        );
+    }
+
+    private void baseDraw(PrimitiveType type)
     {
         var ctx = RenderContext.GetContext();
         var vert = ctx.Position;
@@ -117,19 +179,13 @@ public class ShaderManager
         int program = createProgram(vertexShader, fragmentShader);
         programData[0] = program;
         success("Program Created!!");
-
-        var gpuBuffer = createBuffer();
-        int vertexArray = createVertexArray(data);
         
-        effects += delegate
+        operations += (poly, data) =>
         {
             GL.UseProgram(program);
-            GL.BindVertexArray(vertexArray);
-
-            GL.BindBuffer(
-                BufferTarget.ArrayBuffer, 
-                gpuBuffer
-            );
+            
+            bindBuffer(poly);
+            bindBuffer(poly);
 
             if (vertexTuple.setup is not null)
                 vertexTuple.setup();
@@ -138,41 +194,10 @@ public class ShaderManager
                 fragmentTuple.setup();
 
             GL.DrawArrays(
-                type,
-                0, data.Elements
+                type, 0,
+                poly.Elements
             );
         };
-
-        unloadEffects += delegate
-        {
-            GL.DeleteVertexArray(vertexArray);
-        };
-    }
-
-    internal void Render(Polygon polygon, float[] parameters)
-    {
-        if (effects is null)
-            return;
-        
-        effects();
-    }
-
-    internal void Unload()
-    {
-        GL.UseProgram(0);
-        foreach (var program in programMap)
-            GL.DeleteProgram(program.Value);
-        programMap.Clear();
-
-        foreach (var buffer in bufferList)
-            GL.DeleteBuffer(buffer);
-        bufferList.Clear();
-
-        foreach (var shaderKey in shaderMap)
-            GL.DeleteShader(shaderKey.Value);
-        shaderMap.Clear();
-
-        unloadEffects();
     }
 
     private void discoverGlobalVariables(Delegate Function)
@@ -366,14 +391,15 @@ public class ShaderManager
 
                     setup += delegate
                     {
-                        float[] data = (float[])dependence.Value;
+                        //TODO
+                        // float[] data = (float[])dependence.Value;
 
-                        GL.BufferData(
-                            BufferTarget.ArrayBuffer,
-                            data.Length * sizeof(float), 
-                            data, 
-                            BufferUsageHint.DynamicDraw
-                        );
+                        // GL.BufferData(
+                        //     BufferTarget.ArrayBuffer,
+                        //     data.Length * sizeof(float), 
+                        //     data, 
+                        //     BufferUsageHint.DynamicDraw
+                        // );
                     };
                     break;
             }
@@ -589,6 +615,7 @@ public class ShaderManager
             i++;
         }
 
+        vertexArrayList.Add(vertexObject);
         return vertexObject;
     }
 

@@ -746,6 +746,7 @@ public class Player
 - README: Add the section 'What not to do'
 - README: Add the section 'Advanced operations' teaching how to create custom data types
 - README: Add the section 'Template Project' with a template for the project
+- Enable Vertex Object Array reutilization in OpenGLManager
 - Add matrix Transformations
 - Add Data types to have more generic overloads
 - Solve bugs with gfloat operations

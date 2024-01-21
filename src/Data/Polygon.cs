@@ -11,15 +11,13 @@ namespace Radiance.Data;
 using Exceptions;
 
 /// <summary>
-/// Represents a data that can be sended to a shader and drawed.
+/// Represents a data that can managed by GPU and drawed in screen.
 /// </summary>
 public class Polygon
 {
     private int elementSize = 0;
     private List<LayoutInfo> layouts = new();
     private LinkedList<float> data = new();
-
-    internal IEnumerable<LayoutInfo> Layouts => layouts;
 
     public Polygon()
         => AppendLayout(3, "vec3", "pos");
@@ -54,7 +52,7 @@ public class Polygon
                 data.AddLast(extra[k]);
         }
 
-        change();
+        change(true, false);
         return this;
     }
 
@@ -72,7 +70,7 @@ public class Polygon
         }
         AppendLayout(fields, "noname", "notype", null);
 
-        change();
+        change(true, true);
         return this;
     }
 
@@ -99,15 +97,15 @@ public class Polygon
         }
         AppendLayout(defs.Length, "noname", "notype", defs);
 
-        change();
+        change(true, true);
         return this;
     }
 
-    public event Action OnChange;
-    private void change()
+    public event Action<bool, bool> OnChange;
+    private void change(bool bufferBreak, bool layoutBreak)
     {
         if (OnChange is not null)
-            OnChange();
+            OnChange(bufferBreak, layoutBreak);
     }
 
     internal void AppendLayout(
@@ -119,6 +117,12 @@ public class Polygon
         this.elementSize += size;
     }
     
+    internal IEnumerable<LayoutInfo> Layouts => layouts;
+
+    internal int Buffer { get; set; } = -1;
+    
+    internal int VertexObjectArray { get; set; } = -1;
+
     internal string Header
     {
         get
