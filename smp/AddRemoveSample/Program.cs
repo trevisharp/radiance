@@ -1,41 +1,44 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-var render1 = render(r =>
+var render1 = render(() =>
 {
-    pos += (50, 50, 0);
+    pos += (width / 2, height / 2, 0);
     var scale = (x - 50) / 50;
-    color = (scale, 0, 1, 1);
-    draw();
+    color = (scale, 0, 1, scale);
+    fill();
 });
 
-var render2 = render(r =>
+var render2 = render(() =>
 {
-    pos += (100, 100, 0);
+    pos += (width / 2, height / 2, 0);
     var scale = (y - 100) / 50;
-    color = (0, scale, 1, 1);
-    draw();
+    color = (0, scale, 1, scale);
+    fill();
 });
 
-var rect = Rect(50, 50);
-Window.OnRender += render1(rect);
-Window.OnRender += render2(rect);
+var rect = Rect(500, 500);
+var drawRect1 = render1(rect);
+var drawRect2 = render2(rect);
+
+Window.OnRender += drawRect1;
+Window.OnRender += drawRect2;
 
 Window.OnKeyDown += (key, mod) =>
 {
     switch (key)
     {
         case Input.A:
-            render1.Toggle();
+            Window.OnRender -= drawRect1;
             break;
 
         case Input.S:
-            render2.Toggle();
+            Window.OnRender -= drawRect2;
             break;
-        
+
         case Input.D:
-            render1.SoftHide();
-            render2.SoftHide();
+            Window.OnRender += drawRect1;
+            Window.OnRender += drawRect2;
             break;
     }
 };
