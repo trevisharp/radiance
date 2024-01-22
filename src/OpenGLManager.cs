@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/01/2024
+ * Date:    22/01/2024
  */
 using System;
 using System.Text;
@@ -69,7 +69,7 @@ public class OpenGLManager
         operations(polygon, parameters);
     }
 
-    public void Clear(Vec4 color)
+    public void AddClear(Vec4 color)
     {
         operations += delegate
         {
@@ -82,20 +82,13 @@ public class OpenGLManager
         };
     }
 
-    public void Fill()
-    {
-        baseDraw(true);
-    }
+    public void AddFill()
+        => baseDraw(true);
 
-    public void Draw() 
-    {
-        baseDraw(false);
-    }
+    public void AddDraw() 
+        => baseDraw(false);
 
-    /// <summary>
-    /// Create Resources of OpenGL based on poly state and changes.
-    /// </summary>
-    public void CreateResources(Polygon poly)
+    private void createResources(Polygon poly)
     {
         if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
             return;
