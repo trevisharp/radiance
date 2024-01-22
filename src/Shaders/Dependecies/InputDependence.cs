@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    22/01/2024
  */
-namespace Radiance.Shaders.Dependecies;
+namespace Radiance.Shaders.Dependencies;
 
 /// <summary>
 /// Represents a input dependence from Vertex Shader to Fragment Shader.

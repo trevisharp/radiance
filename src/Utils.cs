@@ -169,6 +169,13 @@ public static class Utils
     public static Vec4 magenta => new(1, 0, 1, 1);
 
     /// <summary>
+    /// Return the current center point of screen.
+    /// Shader Only.
+    /// </summary>
+    public static Vec3ShaderObject center => var((width / 2, height / 2, 0), "center");
+    
+
+    /// <summary>
     /// Return the current width of screen.
     /// Shader Only.
     /// </summary>
@@ -589,6 +596,38 @@ public static class Utils
     /// </summary>
     public static Vec4ShaderObject texture(Sampler2DShaderObject img, Vec2ShaderObject pos)
         => func<Vec4ShaderObject, Sampler2DShaderObject, Vec2ShaderObject>("texture", img, pos);
+
+    
+    private static FloatShaderObject var(FloatShaderObject obj, string name)
+    {
+        var dependence = new CodeDependence(
+            obj, name
+        );
+        var variable = new FloatShaderObject(
+            name, obj.Dependecies.Append(dependence)
+        );
+        return variable;
+    }
+    private static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
+    {
+        var dependence = new CodeDependence(
+            obj, name
+        );
+        var variable = new Vec2ShaderObject(
+            name, obj.Dependecies.Append(dependence)
+        );
+        return variable;
+    }
+    private static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
+    {
+        var dependence = new CodeDependence(
+            obj, name
+        );
+        var variable = new Vec3ShaderObject(
+            name, obj.Dependecies.Append(dependence)
+        );
+        return variable;
+    }
 
     private static FloatShaderObject operation<T>(string name, T obj1, T obj2)
         where T : ShaderObject

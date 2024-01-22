@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    22/01/2024
  */
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -13,6 +13,7 @@ public abstract class ShaderDependence
 {
     public abstract object Value { get; }
     public abstract string GetHeader();
+    public virtual string GetCode() => null;
     public string Name { get; set; }
     public ShaderDependenceType DependenceType { get; set; }
 
@@ -24,14 +25,11 @@ public abstract class ShaderDependence<T> : ShaderDependence
     where T : ShaderObject, new()
 {
     public static implicit operator T(ShaderDependence<T> dependece)
-    {
-        T obj = new();
-
-        obj.Expression = dependece.Name;
-        obj.Dependecies = new ShaderDependence[] { dependece };
-
-        return obj;
-    }
+        => new()
+        {
+            Expression = dependece.Name,
+            Dependecies = new ShaderDependence[] { dependece }
+        };
 }
 
 public class ShaderDependenceComparer : IEqualityComparer<ShaderDependence>

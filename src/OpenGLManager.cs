@@ -317,6 +317,11 @@ public class OpenGLManager
             .Append(Utils._width)
             .Append(Utils._height)
             .Distinct(ShaderDependence.Comparer);
+        
+        var codeDeps = dependencens
+            .Where(dep => dep is CodeDependence)
+            .Select(dep => dep as CodeDependence);
+
         foreach (var dependence in dependencens)
         {
             switch (dependence.DependenceType)
@@ -360,6 +365,9 @@ public class OpenGLManager
         sb.AppendLine();
         sb.AppendLine("void main()");
         sb.AppendLine("{");
+        foreach (var codeDep in codeDeps)
+            sb.AppendLine("\t" + codeDep.GetCode() + ";");
+
         sb.AppendLine($"\tvec3 finalPosition = {exp};");
         sb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
         sb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
@@ -394,6 +402,11 @@ public class OpenGLManager
         int textureId = 0;
         var dependencens = fragmentObject.Dependecies
             .Distinct(ShaderDependence.Comparer);
+        
+        var codeDeps = dependencens
+            .Where(dep => dep is CodeDependence)
+            .Select(dep => dep as CodeDependence);
+        
         foreach (var dependence in dependencens)
         {
             switch (dependence.DependenceType)
@@ -431,6 +444,9 @@ public class OpenGLManager
         sb.AppendLine("out vec4 outColor;");
         sb.AppendLine("void main()");
         sb.AppendLine("{");
+        foreach (var codeDep in codeDeps)
+            sb.AppendLine("\t" + codeDep.GetCode() + ";");
+        
         sb.AppendLine($"\toutColor = {exp};");
         sb.Append("}");
 
