@@ -1,35 +1,20 @@
 ﻿using Radiance;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils;
 
-var myRender = render(r =>
+var myRender = render(() =>
 {
     var img1 = open("faustao1.png");
     var img2 = open("faustao2.png");
 
-    /**
-        clear(white);
-        x = (300 * x + width / 2);
-        y = (300 * y + height / 2);
-        var point = (300 * x / width + 0.5f, 300 * y / height + 0.5f);
-        color = mix(texture(img1, point), texture(img2, point), (sin(t) + 1) / 2);
-        fill();
-     **/
-
-    r.Clear(white);
-    r.FillTriangles(circle
-        .triangules()
-        .transform(v => (300 * v.x + width / 2, 300 * v.y + height / 2, v.z))
-        .colorize(v => 
-            mix(
-                texture(img1, (300 * v.x / width + 0.5f, 300 * v.y / height + 0.5f)),
-                texture(img2, (300 * v.x / width + 0.5f, 300 * v.y / height + 0.5f)),
-                (sin(t) + 1) / 2
-            )
-        )
-    );
+    clear(white);
+    pos = (500 * pos.x + width / 2, 500 * pos.y + height / 2, 0);
+    // var point = (300 * pos.x / width + 0.5f, 300 * pos.y / height + 0.5f);
+    // color = mix(texture(img1, point), texture(img2, point), (sin(t) + 1) / 2);
+    color = black;
+    fill();
 });
 
-Window.OnRender += myRender;
+Window.OnRender += () => myRender(Circle);
 
 Window.CloseOn(Input.Escape);
 

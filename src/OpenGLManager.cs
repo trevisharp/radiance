@@ -66,7 +66,6 @@ public class OpenGLManager
         if (operations is null)
             return;
         
-        CreateResources(polygon);
         operations(polygon, parameters);
     }
 
@@ -85,12 +84,12 @@ public class OpenGLManager
 
     public void Fill()
     {
-        baseDraw(PrimitiveType.Triangles);
+        baseDraw(true);
     }
 
     public void Draw() 
     {
-        baseDraw(PrimitiveType.LineLoop);
+        baseDraw(false);
     }
 
     /// <summary>
@@ -151,7 +150,7 @@ public class OpenGLManager
         );
     }
 
-    private void baseDraw(PrimitiveType type)
+    private void baseDraw(bool isFill)
     {
         var ctx = RenderContext.GetContext();
         var vert = ctx.Position;
@@ -183,6 +182,10 @@ public class OpenGLManager
         
         operations += (poly, data) =>
         {
+            if (isFill)
+                poly = poly.Triangulation;
+
+            CreateResources(poly);
             GL.UseProgram(program);
             
             bindVertexArray(poly);
@@ -195,8 +198,8 @@ public class OpenGLManager
                 fragmentTuple.setup();
 
             GL.DrawArrays(
-                type, 0,
-                poly.Elements
+                isFill ? PrimitiveType.Triangles : PrimitiveType.LineLoop, 
+                0, poly.Elements
             );
         };
     }

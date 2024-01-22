@@ -8,6 +8,7 @@ using System.Collections.Generic;
 
 namespace Radiance.Data;
 
+using Internal;
 using Exceptions;
 
 /// <summary>
@@ -18,6 +19,33 @@ public class Polygon
     private int elementSize = 0;
     private List<LayoutInfo> layouts = new();
     private LinkedList<float> data = new();
+    private Polygon triangulationPair = null;
+    public Polygon Triangulation
+    {
+        get
+        {
+            if (triangulationPair is not null)
+                return triangulationPair;
+            
+            var triangules = VectorsOperations
+                .PlanarPolygonTriangulation(
+                    this.Data
+                );
+            
+            Polygon polygon = new Polygon();
+            for (int i = 0; i < triangules.Length; i += 3)
+                polygon.Add(
+                    triangules[i + 0],
+                    triangules[i + 1],
+                    triangules[i + 2]
+                );
+            
+            polygon.triangulationPair = polygon;
+            this.triangulationPair = polygon;
+
+            return triangulationPair;
+        }
+    }
 
     public Polygon()
         => AppendLayout(3, "vec3", "pos");
