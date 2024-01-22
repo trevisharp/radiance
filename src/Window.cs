@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/09/2023
+ * Date:    21/01/2024
  */
 using System;
 
@@ -22,19 +22,23 @@ public static class Window
     private static int height = -1;
 
     /// <summary>
-    /// The width of the screen
+    /// Return true if screen is Open.
+    /// </summary>
+    public static bool IsOpen { get; private set; } = false;
+
+    /// <summary>
+    /// The width of the screen.
     /// </summary>
     public static int Width => width;
 
     /// <summary>
-    /// The height of the screen
+    /// The height of the screen.
     /// </summary>
     public static int Height => height;
 
     /// <summary>
-    /// Get and set if the cursor is visible
+    /// Get and set if the cursor is visible.
     /// </summary>
-    /// <value></value>
     public static bool CursorVisible
     {
         get => win?.CursorState != CursorState.Hidden;
@@ -48,7 +52,7 @@ public static class Window
     }
 
     /// <summary>
-    /// Open main application window
+    /// Open main application window.
     /// </summary>
     public static void Open(bool fullscreen = true)
     {
@@ -72,6 +76,7 @@ public static class Window
 
         win.Load += () =>
         {
+            IsOpen = true;
             GL.Enable(EnableCap.Blend);
             GL.Enable(EnableCap.LineSmooth);
             GL.BlendFunc(
@@ -188,16 +193,29 @@ public static class Window
     }
 
     /// <summary>
-    /// Close main application window
+    /// Run a function only if the window is open, else
+    /// schedule execution.
+    /// </summary>
+    public static void RunOrSchedule(Action func)
+    {
+        if (IsOpen)
+            func();
+        else
+            OnLoad += func;
+    }
+
+    /// <summary>
+    /// Close main application window.
     /// </summary>
     public static void Close()
     {
         win.Close();
         win.Dispose();
+        IsOpen = false;
     }
 
     /// <summary>
-    /// Set inputs to close the application
+    /// Set inputs to close the application.
     /// </summary>
     public static void CloseOn(Input input)
     {

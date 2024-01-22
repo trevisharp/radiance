@@ -25,8 +25,10 @@ public class Render : DynamicObject
     public Render(Action function)
     {
         this.extraParameterCount = 0;
-        initRender();
-        function();
+        Window.RunOrSchedule(() => {
+            initRender();
+            function();
+        });
     }
 
     public Render(Action<FloatShaderObject> function)
