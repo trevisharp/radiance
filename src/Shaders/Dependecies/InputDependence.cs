@@ -10,7 +10,7 @@ public class InputDependence<T> : ShaderDependence<T>
     where T : ShaderObject, new()
 {
     private string type;
-    public VariableDependence(string name)
+    public InputDependence(string name)
     {
         this.DependenceType = ShaderDependenceType.Variable;
         this.type = ShaderObject.GetStringName<T>();

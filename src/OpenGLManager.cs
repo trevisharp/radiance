@@ -149,15 +149,12 @@ public class OpenGLManager
         var vert = ctx.Position;
         var frag = ctx.Color;
 
-        // TODO
-        var realOutputs = new ShaderOutput[0];
-
         start("Creating Program");
         var programData = new int[] { 0 };
 
         start("Vertex Shader Creation");
         var vertexTuple = generateVertexShader(
-            vert, realOutputs, programData
+            vert, programData
         );
         var vertexShader = createVertexShader(vertexTuple.source);
         success("Shader Created!!");
@@ -308,7 +305,6 @@ public class OpenGLManager
 
     private (string source, Action setup) generateVertexShader(
         Vec3ShaderObject vertexObject,
-        IEnumerable<ShaderOutput> outputs,
         int[] programData
     )
     {
@@ -316,14 +312,10 @@ public class OpenGLManager
         var sb = getCodeBuilder();
         Action setup = null;
 
-        var outDeps = outputs
-            .SelectMany(o => o.BaseValue.Dependecies);
-
         int textureId = 0;
         var dependencens = vertexObject.Dependecies
             .Append(Utils._width)
             .Append(Utils._height)
-            .Concat(outDeps)
             .Distinct(ShaderDependence.Comparer);
         foreach (var dependence in dependencens)
         {
@@ -356,12 +348,12 @@ public class OpenGLManager
             }
         }
 
-        foreach (var output in outputs)
-        {
-            var type = output.BaseValue.Type;
-            var name = output.BaseDependence.Name;
-            sb.AppendLine($"out {getShaderTypeName(type)} {name};");
-        }
+        // foreach (var output in outputs)
+        // {
+        //     var type = output.BaseValue.Type;
+        //     var name = output.BaseDependence.Name;
+        //     sb.AppendLine($"out {getShaderTypeName(type)} {name};");
+        // }
         
         var exp = vertexObject.Expression;
 
@@ -372,12 +364,12 @@ public class OpenGLManager
         sb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
         sb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
 
-        foreach (var output in outputs)
-        {
-            var outExp = output.BaseValue.Expression;
-            var name = output.BaseDependence.Name;
-            sb.AppendLine($"\t{name} = {outExp};");
-        }
+        // foreach (var output in outputs)
+        // {
+        //     var outExp = output.BaseValue.Expression;
+        //     var name = output.BaseDependence.Name;
+        //     sb.AppendLine($"\t{name} = {outExp};");
+        // }
 
         sb.Append("}");
 

@@ -457,7 +457,7 @@ public static class Utils
     public static Vec2ShaderObject step(
         Vec2ShaderObject edge0,
         Vec2ShaderObject x
-    )  => operation<Vec2ShaderObject, Vec2ShaderObject, Vec2ShaderObject>("step", edge0, x);
+    )  => func<Vec2ShaderObject, Vec2ShaderObject, Vec2ShaderObject>("step", edge0, x);
     
     /// <summary>
     /// Generate a step function by comparing two values.
@@ -466,7 +466,7 @@ public static class Utils
     public static Vec3ShaderObject step(
         Vec3ShaderObject edge0,
         Vec3ShaderObject x
-    )  => operation<Vec3ShaderObject, Vec3ShaderObject, Vec3ShaderObject>("step", edge0, x);
+    )  => func<Vec3ShaderObject, Vec3ShaderObject, Vec3ShaderObject>("step", edge0, x);
     
     /// <summary>
     /// Calculate the length of a vector.
