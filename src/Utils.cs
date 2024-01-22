@@ -77,6 +77,45 @@ public static class Utils
         }
     }
 
+    public static FloatShaderObject x
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext();
+            return ctx.Position.x;
+        }
+        set
+        {
+
+        }
+    }
+
+    public static FloatShaderObject y
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext();
+            return ctx.Position.y;
+        }
+        set
+        {
+
+        }
+    }
+
+    public static FloatShaderObject z
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext();
+            return ctx.Position.z;
+        }
+        set
+        {
+
+        }
+    }
+
     /// <summary>
     /// Get ou update the actual color of a generic point inside drawed area.
     /// Shader Only.
@@ -162,6 +201,11 @@ public static class Utils
     /// Get a square with side 1 centralizated in (0, 0, 0).
     /// </summary>
     public static Polygon Square => square;
+
+    /// <summary>
+    /// Get a rectangle with size of opened screen centralizated in center of screen.
+    /// </summary>
+    public static Polygon Screen => Rect(0, 0, 0, Window.Width, Window.Height);
 
     /// <summary>
     /// Create a rectangle with specific width and height
