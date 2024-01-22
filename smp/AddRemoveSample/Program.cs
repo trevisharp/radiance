@@ -1,40 +1,25 @@
 ﻿using Radiance;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils;
 
 var render1 = render(r =>
 {
-    /**
-        r = (x - 50) / 50;
-        g = 0;
-        draw();
-     **/
-    r.Draw(
-        rect(50, 50, 50, 50)
-        .colorize(v => {
-            var scale = (v.x - 50) / 50;
-            return (scale, 0, 1, 1);
-        })
-    );
+    pos += (50, 50, 0);
+    var scale = (x - 50) / 50;
+    color = (scale, 0, 1, 1);
+    draw();
 });
 
 var render2 = render(r =>
 {
-    /**
-        r = 0;
-        g = (y - 100) / 50;
-        draw();
-     **/
-    r.Draw(
-        rect(100, 100, 50, 50)
-        .colorize(v => {
-            var scale = (v.y - 100) / 50;
-            return (0, scale, 1, 1);
-        })
-    );
+    pos += (100, 100, 0);
+    var scale = (y - 100) / 50;
+    color = (0, scale, 1, 1);
+    draw();
 });
 
-Window.OnRender += render1; // Or obj1.Show();
-Window.OnRender += render2; // Or obj2.Show();
+var rect = Rect(50, 50);
+Window.OnRender += render1(rect);
+Window.OnRender += render2(rect);
 
 Window.OnKeyDown += (key, mod) =>
 {
