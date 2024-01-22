@@ -178,7 +178,7 @@ public class OpenGLManager
             if (isFill)
                 poly = poly.Triangulation;
 
-            CreateResources(poly);
+            createResources(poly);
             GL.UseProgram(program);
             
             bindVertexArray(poly);

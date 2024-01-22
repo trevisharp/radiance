@@ -36,7 +36,7 @@ public static class Utils
     {
         var ctx = RenderContext.GetContext();
         var man = ctx.Manager;
-        man.Clear(color);
+        man.AddClear(color);
     }
 
     /// <summary>
@@ -46,7 +46,7 @@ public static class Utils
     {
         var ctx = RenderContext.GetContext();
         var man = ctx.Manager;
-        man.Draw();
+        man.AddDraw();
     }
 
     /// <summary>
@@ -56,7 +56,7 @@ public static class Utils
     {
         var ctx = RenderContext.GetContext();
         var man = ctx.Manager;
-        man.Fill();
+        man.AddFill();
     }
 
     /// <summary>
