@@ -1,7 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    15/08/2023
  */
-using System;
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
 

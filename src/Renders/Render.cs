@@ -2,16 +2,19 @@
  * Date:    21/01/2024
  */
 using System;
+using System.Linq;
 using System.Dynamic;
+using System.Reflection;
+using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
+using Shaders;
+using Shaders.Objects;
+using Shaders.Dependencies;
 using Data;
 using Internal;
 using Exceptions;
-
-using Shaders.Objects;
-using Radiance.Shaders.Dependencies;
 
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
@@ -20,38 +23,18 @@ public class Render : DynamicObject
 {
     private OpenGLManager manager;
     private readonly int extraParameterCount;
+    private List<UniformParameterDependence> dependenceList;
     public int ExtraParameterCount => extraParameterCount;
 
-    public Render(Action function)
+    public Render(Delegate function)
     {
-        this.extraParameterCount = 0;
+        this.extraParameterCount = 
+            function.Method.GetParameters().Length;
+        this.dependenceList = new();
         Window.RunOrSchedule(() => {
             initRender();
-            function();
+            callWithShaderObjects(function);
         });
-    }
-
-    public Render(Action<FloatShaderObject> function)
-    {
-        this.extraParameterCount = 1;
-    }
-
-    public Render(Action<FloatShaderObject, FloatShaderObject> function)
-    {
-        this.extraParameterCount = 2;
-    }
-
-    public Render(Action<FloatShaderObject,
-        FloatShaderObject, FloatShaderObject> function)
-    {
-        this.extraParameterCount = 3;
-    }
-
-    public Render(Action<FloatShaderObject, FloatShaderObject,
-        FloatShaderObject, FloatShaderObject> function)
-    {
-        this.extraParameterCount = 4;
-        this.manager = new OpenGLManager();
     }
 
     public override bool TryInvoke(
@@ -65,10 +48,41 @@ public class Render : DynamicObject
             throw new MissingPolygonException();
 
         var data = getArgs(args[1..]);
+        foreach (var pair in data.Zip(dependenceList))
+            pair.Second.SetValue(pair.First);
+
         manager.Render(poly, data);
 
         result = true;
         return true;
+    }
+
+    private void callWithShaderObjects(Delegate func)
+    {
+        var parameters = func.Method.GetParameters();
+        
+        var objs = parameters
+            .Select(p => generateDependence(p))
+            .ToArray();
+        
+        if (objs.Any(obj => obj is null))
+            throw new InvalidRenderException();
+
+        func.DynamicInvoke(objs);
+    }
+
+    private ShaderObject generateDependence(ParameterInfo parameter)
+    {
+        if (parameter.ParameterType == typeof(FloatShaderObject))
+        {
+            var dep = new UniformParameterDependence(
+                parameter.Name, "float"
+            );
+            this.dependenceList.Add(dep);
+            return new FloatShaderObject(parameter.Name, dep);
+        }
+        
+        return null;
     }
 
     private void initRender()
@@ -101,6 +115,14 @@ public class Render : DynamicObject
         {
             case float num:
                 add(num);
+                break;
+            
+            case int num:
+                add((float)num);
+                break;
+            
+            case double num:
+                add((float)num);
                 break;
                 
             case Vec2 vec:

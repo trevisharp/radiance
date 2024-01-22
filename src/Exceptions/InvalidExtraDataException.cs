@@ -6,7 +6,8 @@ using System;
 namespace Radiance.Exceptions;
 
 /// <summary>
-/// 
+/// Represents a error that occurs when a invalid number of parameters
+/// are sended to a render call.
 /// </summary>
 public class InvalidExtraDataException : Exception
 {
