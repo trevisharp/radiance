@@ -200,40 +200,7 @@ public class OpenGLManager
             );
         };
     }
-
-    private void discoverGlobalVariables(Delegate Function)
-    {
-        var mainType = Function.Method.DeclaringType;
-        
-        foreach (var field in mainType.GetRuntimeFields())
-        {
-            var type = field.FieldType;
-            if (!type.IsSubclassOf(typeof(ShaderGlobalReference)))
-                continue;
-            
-            var constructor = type.GetConstructor(
-                new Type[] { 
-                    typeof(FieldInfo), 
-                    typeof(object),
-                    typeof(object)
-                }
-            );
-
-            var gref = field.GetValue(Function.Target)
-                as ShaderGlobalReference;
-
-            var obj = constructor.Invoke(
-                new object[] {
-                    field,
-                    Function.Target,
-                    gref.ObjectValue
-                }
-            );
-            
-            field.SetValue(Function.Target, obj);
-        }
-    }
-
+    
     private int createVertexShader(string source)
     {
         return createShader(
