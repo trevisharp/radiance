@@ -679,7 +679,7 @@ public class Player
  - ![](https://img.shields.io/badge/update-blue) Improve abstraction of shaders to improve and organization.
  - ![](https://img.shields.io/badge/update-blue) Improve triangularization performance.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Solving bugs in triangularization.
- - ![](https://img.shields.io/badge/removed-red) Remove old ShaderFunctions and Data abstractions.
+ - ![](https://img.shields.io/badge/removed-red) Remove old ShaderFunctions, Types and Data abstractions.
 
 ### Radiance v1.9.0
 
@@ -743,13 +743,5 @@ public class Player
 # Next Features
 
 - README: Add the section 'For not OpenGL programers'
-- README: Add the section 'What not to do'
-- README: Add the section 'Advanced operations' teaching how to create custom data types
-- README: Add the section 'Template Project' with a template for the project
 - Enable Vertex Object Array reutilization in OpenGLManager
 - Add matrix Transformations
-- Add Data types to have more generic overloads
-- Solve bugs with gfloat operations
-- Add more g-types
-- Allow and Improve multi transform call
-- Improve conversion between g-types and shader types

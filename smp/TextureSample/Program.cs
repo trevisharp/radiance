@@ -2,23 +2,20 @@
 using static Radiance.Utils;
 
 OpenGLManager.Verbose = true;
-var myRender = render(() =>
+var myRender = render((img1, img2) =>
 {
-    var img1 = open("faustao1.png");
-    var img2 = open("faustao2.png");
-
     clear(white);
 
     pos *= 500;
     pos += center;
     
     var point = (x / width, y / height);
-    // color = mix(texture(img1, point), texture(img2, point), (sin(t) + 1) / 2);
-    color = black;
+    color = mix(texture(img1, point), texture(img2, point), (sin(t) + 1) / 2);
     fill();
 });
 
-Window.OnRender += () => myRender(Circle);
+Window.OnRender += () =>
+    myRender(Circle, open("faustao1.png"), open("faustao2.png"));
 
 Window.CloseOn(Input.Escape);
 
