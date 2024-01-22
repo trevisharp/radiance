@@ -440,6 +440,33 @@ public static class Utils
         FloatShaderObject edge1,
         FloatShaderObject x
     )  => operation<FloatShaderObject>("smoothstep", edge0, edge1, x);
+
+    /// <summary>
+    /// Generate a step function by comparing two values.
+    /// Shader Only.
+    /// </summary>
+    public static FloatShaderObject step(
+        FloatShaderObject edge0,
+        FloatShaderObject x
+    )  => func<FloatShaderObject, FloatShaderObject, FloatShaderObject>("step", edge0, x);
+    
+    /// <summary>
+    /// Generate a step function by comparing two values.
+    /// Shader Only.
+    /// </summary>
+    public static Vec2ShaderObject step(
+        Vec2ShaderObject edge0,
+        Vec2ShaderObject x
+    )  => operation<Vec2ShaderObject, Vec2ShaderObject, Vec2ShaderObject>("step", edge0, x);
+    
+    /// <summary>
+    /// Generate a step function by comparing two values.
+    /// Shader Only.
+    /// </summary>
+    public static Vec3ShaderObject step(
+        Vec3ShaderObject edge0,
+        Vec3ShaderObject x
+    )  => operation<Vec3ShaderObject, Vec3ShaderObject, Vec3ShaderObject>("step", edge0, x);
     
     /// <summary>
     /// Calculate the length of a vector.
