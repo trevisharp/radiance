@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/01/2024
+ * Date:    23/01/2024
  */
 using System.Collections.Generic;
 using System.Diagnostics.CodeAnalysis;
@@ -13,14 +13,13 @@ using Exceptions;
 /// </summary>
 public abstract class ShaderDependence
 {
+    public string Name { get; set; }
+    public ShaderDependenceType DependenceType { get; set; }
     public abstract object Value { get; }
     public abstract string GetHeader();
     public virtual string GetCode() => null;
-    public string Name { get; set; }
-    public ShaderDependenceType DependenceType { get; set; }
     public virtual void UpdateValue(object newValue)
         => throw new ReadonlyDependenceException();
-
     public static ShaderDependenceComparer Comparer
         => new ShaderDependenceComparer();
 }

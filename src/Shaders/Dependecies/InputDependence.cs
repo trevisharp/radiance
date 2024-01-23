@@ -1,19 +1,18 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/01/2024
+ * Date:    23/01/2024
  */
 namespace Radiance.Shaders.Dependencies;
 
 /// <summary>
 /// Represents a input dependence from Vertex Shader to Fragment Shader.
 /// </summary>
-public class InputDependence<T> : ShaderDependence<T>
-    where T : ShaderObject, new()
+public class InputDependence : ShaderDependence
 {
     private string type;
-    public InputDependence(string name)
+    public InputDependence(string name, string type)
     {
         this.DependenceType = ShaderDependenceType.Variable;
-        this.type = ShaderObject.GetStringName<T>();
+        this.type = type;
         this.Name = name;
     }
 

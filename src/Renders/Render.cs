@@ -105,7 +105,11 @@ public class Render : DynamicObject
         ctx.Position = new BufferDependence<Vec3ShaderObject>(
             "pos", null, 0
         );
+        ctx.Position.Origin = ShaderOrigin.VertexShader;
+
         ctx.Color = new Vec4ShaderObject("(0.0, 0.0, 0.0, 1.0)");
+        ctx.Color.Origin = ShaderOrigin.FragmentShader;
+        
         this.manager = ctx.Manager = new OpenGLManager();
     }
 

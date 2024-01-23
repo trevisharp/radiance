@@ -679,7 +679,6 @@ public class Player
  - ![](https://img.shields.io/badge/update-blue) Replace old Data abstraction by Polygon class and Vecs.
  - ![](https://img.shields.io/badge/update-blue) Improve generate code legibility and expression reuse.
  - ![](https://img.shields.io/badge/update-blue) Improve abstraction of shaders to improve and organization.
- - ![](https://img.shields.io/badge/update-blue) Improve triangularization performance.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Solving bugs in triangularization.
  - ![](https://img.shields.io/badge/removed-red) Remove old ShaderFunctions, Types and Data abstractions.
 
@@ -752,3 +751,4 @@ public class Player
 - Improve Dependence abstraction to reduce resposabilities of OpenGLManager.
 - Enable auto input/outputs.
 - Rewrite documentation based in Radiance v2.0.
+- Improve triangularization performance.

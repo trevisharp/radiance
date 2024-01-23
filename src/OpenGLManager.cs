@@ -52,15 +52,14 @@ public class OpenGLManager
 
         foreach (var vertexArray in vertexArrayList)
             GL.DeleteVertexArray(vertexArray);
+        vertexArrayList.Clear();
     }
     
     private int globalTabIndex = 0;
-
     private event Action<Polygon, object[]> operations;
-    private event Action unloadEffects;
 
     public string VersionText { get; set; } = "330 core";
-
+    
     public void Render(Polygon polygon, object[] parameters)
     {
         if (operations is null)
