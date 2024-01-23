@@ -390,6 +390,94 @@ public static class Utils
     }
 
     /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        Sampler2DShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        Sampler2DShaderObject, FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        Sampler2DShaderObject, FloatShaderObject,
+        FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        Sampler2DShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        Sampler2DShaderObject, Sampler2DShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        Sampler2DShaderObject, Sampler2DShaderObject,
+        FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        Sampler2DShaderObject, Sampler2DShaderObject,
+        FloatShaderObject, FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
     /// Returns the cosine of the specified angle.
     /// Shader Only.
     /// </summary>
@@ -585,9 +673,9 @@ public static class Utils
     /// <summary>
     /// Open a image file to use in your shader.
     /// </summary>
-    public static Sampler2DShaderObject open(string imgFile)
+    public static Texture open(string imgFile)
     {
-        var texture = new TextureDependence(imgFile);
+        var texture = new Texture(imgFile);
         return texture;
     }
 

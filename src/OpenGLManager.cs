@@ -56,12 +56,12 @@ public class OpenGLManager
     
     private int globalTabIndex = 0;
 
-    private event Action<Polygon, float[]> operations;
+    private event Action<Polygon, object[]> operations;
     private event Action unloadEffects;
 
     public string VersionText { get; set; } = "330 core";
 
-    public void Render(Polygon polygon, float[] parameters)
+    public void Render(Polygon polygon, object[] parameters)
     {
         if (operations is null)
             return;
@@ -498,7 +498,7 @@ public class OpenGLManager
         if (texture is null)
             return;
 
-        activateImage(texture.Image, id);
+        activateImage(texture.Value as ImageResult, id);
         var code = GL.GetUniformLocation(program, $"texture{id}");
         GL.Uniform1(code, id);
     }

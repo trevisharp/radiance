@@ -1,12 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    09/01/2023
+ * Date:    22/01/2023
  */
-using System.IO;
-
-using StbImageSharp;
-
 namespace Radiance.Shaders.Dependencies;
 
+using Data;
 using Objects;
 
 /// <summary>
@@ -21,33 +18,18 @@ public class TextureDependence : ShaderDependence<Sampler2DShaderObject>
         return textureCount;
     }
 
-    private static bool initializated = false;
-    private static void init()
+    private Texture texture;
+    public TextureDependence()
     {
-        if (initializated)
-            return;
-        
-        initializated = true;
-        StbImage.stbi_set_flip_vertically_on_load(1);
-    }
-
-    public ImageResult Image { get; set; }
-    public TextureDependence(string imgPath)
-    {
-        if (!File.Exists(imgPath))
-            throw new FileNotFoundException();
-        
-        init();
-        this.Image = ImageResult.FromStream(
-            File.OpenRead(imgPath),
-            ColorComponents.RedGreenBlueAlpha
-        );
         this.DependenceType = ShaderDependenceType.Texture;
         this.Name = $"texture{getTextureId()}";
     }
 
-    public override object Value => Image;
+    public override object Value => texture?.ImageData ?? null;
 
     public override string GetHeader()
         => $"uniform sampler2D {this.Name};";
+
+    public override void UpdateValue(object newValue)
+        => texture = newValue as Texture;
 }

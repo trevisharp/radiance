@@ -6,6 +6,8 @@ using System.Diagnostics.CodeAnalysis;
 
 namespace Radiance.Shaders;
 
+using Exceptions;
+
 /// <summary>
 /// Represents a Input for a Shader Implementation.
 /// </summary>
@@ -16,6 +18,8 @@ public abstract class ShaderDependence
     public virtual string GetCode() => null;
     public string Name { get; set; }
     public ShaderDependenceType DependenceType { get; set; }
+    public virtual void UpdateValue(object newValue)
+        => throw new ReadonlyDependenceException();
 
     public static ShaderDependenceComparer Comparer
         => new ShaderDependenceComparer();

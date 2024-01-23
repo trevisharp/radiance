@@ -23,7 +23,7 @@ public class Render : DynamicObject
 {
     private OpenGLManager manager;
     private readonly int extraParameterCount;
-    private List<UniformParameterDependence> dependenceList;
+    private List<ShaderDependence> dependenceList;
     public int ExtraParameterCount => extraParameterCount;
 
     public Render(Delegate function)
@@ -49,7 +49,7 @@ public class Render : DynamicObject
 
         var data = getArgs(args[1..]);
         foreach (var pair in data.Zip(dependenceList))
-            pair.Second.SetValue(pair.First);
+            pair.Second.UpdateValue(pair.First);
 
         manager.Render(poly, data);
 
@@ -79,7 +79,14 @@ public class Render : DynamicObject
                 parameter.Name, "float"
             );
             this.dependenceList.Add(dep);
-            return new FloatShaderObject(parameter.Name, dep);
+            return dep;
+        }
+
+        if (parameter.ParameterType == typeof(Sampler2DShaderObject))
+        {
+            var dep = new TextureDependence();
+            this.dependenceList.Add(dep);
+            return dep;
         }
         
         return null;
@@ -95,10 +102,10 @@ public class Render : DynamicObject
         this.manager = ctx.Manager = new OpenGLManager();
     }
 
-    private float[] getArgs(object[] args)
+    private object[] getArgs(object[] args)
     {
         int index = 0;
-        var result = new float[extraParameterCount];
+        var result = new object[extraParameterCount];
 
         foreach (var arg in args)
             index = setArgs(arg, result, index);
@@ -109,7 +116,7 @@ public class Render : DynamicObject
         return result;
     }
 
-    private int setArgs(object arg, float[] arr, int index)
+    private int setArgs(object arg, object[] arr, int index)
     {
         switch (arg)
         {
@@ -142,10 +149,14 @@ public class Render : DynamicObject
                 add(vec.Z);
                 add(vec.W);
                 break;
+            
+            case Texture img:
+                add(img);
+                break;
         }
         return index;
 
-        void add(float value)
+        void add(object value)
         {
             if (index >= arr.Length)
                 throw new SurplusParametersException();

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/01/2024
+ * Date:    22/01/2024
  */
 namespace Radiance.Shaders.Dependencies;
 
@@ -21,8 +21,8 @@ public class UniformParameterDependence : ShaderDependence<FloatShaderObject>
         this.type = type;
     }
 
-    public void SetValue(object value)
-        => this.value = value;
+    public override void UpdateValue(object newValue)
+        => this.value = newValue;
 
     public override string GetHeader()
         => $"uniform {type} {Name};";
