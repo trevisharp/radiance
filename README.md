@@ -673,6 +673,7 @@ public class Player
  - ![](https://img.shields.io/badge/new-green) Add Release Shaders to speedup production apps.
  - ![](https://img.shields.io/badge/new-green) Add Conditional Rendering.
  - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
+ - ![](https://img.shields.io/badge/update-blue) New shader programming syntax.
  - ![](https://img.shields.io/badge/update-blue) Replace old Renders by a new and most powerfull Render abstraction.
  - ![](https://img.shields.io/badge/update-blue) Replace old Data abstraction by Polygon class and Vecs.
  - ![](https://img.shields.io/badge/update-blue) Improve generate code legibility and expression reuse.
@@ -742,6 +743,12 @@ public class Player
 
 # Next Features
 
-- README: Add the section 'For not OpenGL programers'
-- Enable Vertex Object Array reutilization in OpenGLManager
-- Add matrix Transformations
+- Enable Vertex Object Array reutilization in OpenGLManager.
+- Add Non Monotone triangulation.
+- Add matrix Transformations.
+- Add conditional rendering.
+- Add loop rendering.
+- Improve Dependence abstraction to reduce resposabilities of OpenGLManager.
+- Enable auto input/outputs.
+- Rewrite documentation based in Radiance v2.0.
+- Enable partial Render call.

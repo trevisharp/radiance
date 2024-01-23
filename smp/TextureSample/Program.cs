@@ -1,7 +1,6 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-OpenGLManager.Verbose = true;
 var myRender = render((img1, img2) =>
 {
     clear(white);
