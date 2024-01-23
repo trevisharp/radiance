@@ -1,7 +1,7 @@
-﻿using System;
-using Radiance;
+﻿using Radiance;
 using static Radiance.Utils;
 
+OpenGLManager.Verbose = true;
 var myRender = render((img1, img2) =>
 {
     clear(white);
@@ -10,7 +10,9 @@ var myRender = render((img1, img2) =>
     pos += center;
     
     var point = (1, 1);
-    color = mix(texture(img1, point), texture(img2, point), (sin(t) + 1) / 2);
+    var text1 = texture(img1, point);
+    var text2 = texture(img2, point);
+    color = mix(text1, text2, (sin(t) + 1) / 2);
     fill();
 });
 

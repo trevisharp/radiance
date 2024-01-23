@@ -22,6 +22,8 @@ using Shaders.Dependencies;
 /// </summary>
 public static class Utils
 {
+    private static int variableCount = 0;
+
     internal readonly static Polygon square = Rect(1, 1);
     internal readonly static Polygon circle = Ellipse(1, 1, 128);
     internal readonly static TimeShaderInput _t = new();
@@ -683,8 +685,7 @@ public static class Utils
     /// Get a pixel color of a img in a specific position of a texture.
     /// </summary>
     public static Vec4ShaderObject texture(Sampler2DShaderObject img, Vec2ShaderObject pos)
-        => func<Vec4ShaderObject, Sampler2DShaderObject, Vec2ShaderObject>("texture", img, pos);
-
+        => autoVar(func<Vec4ShaderObject, Sampler2DShaderObject, Vec2ShaderObject>("texture", img, pos), "tex");
     
     private static FloatShaderObject var(FloatShaderObject obj, string name)
     {
@@ -696,6 +697,7 @@ public static class Utils
         );
         return variable;
     }
+
     private static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
     {
         var dependence = new CodeDependence(
@@ -706,6 +708,7 @@ public static class Utils
         );
         return variable;
     }
+
     private static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
     {
         var dependence = new CodeDependence(
@@ -716,6 +719,29 @@ public static class Utils
         );
         return variable;
     }
+
+    private static Vec4ShaderObject var(Vec4ShaderObject obj, string name)
+    {
+        var dependence = new CodeDependence(
+            obj, name
+        );
+        var variable = new Vec4ShaderObject(
+            name, obj.Dependecies.Append(dependence)
+        );
+        return variable;
+    }
+    
+    private static FloatShaderObject autoVar(FloatShaderObject obj, string name)
+        => var(obj, name + variableCount++);
+
+    private static Vec2ShaderObject autoVar(Vec2ShaderObject obj, string name)
+        => var(obj, name + variableCount++);
+
+    private static Vec3ShaderObject autoVar(Vec3ShaderObject obj, string name)
+        => var(obj, name + variableCount++);
+
+    private static Vec4ShaderObject autoVar(Vec4ShaderObject obj, string name)
+        => var(obj, name + variableCount++);
 
     private static FloatShaderObject operation<T>(string name, T obj1, T obj2)
         where T : ShaderObject

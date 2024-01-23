@@ -317,7 +317,7 @@ public class OpenGLManager
             .Append(Utils._height)
             .Distinct(ShaderDependence.Comparer);
         
-        var codeDeps = dependencens
+        var codeDeps = vertexObject.Dependecies
             .Where(dep => dep is CodeDependence)
             .Select(dep => dep as CodeDependence);
 
@@ -398,7 +398,7 @@ public class OpenGLManager
         var dependencens = fragmentObject.Dependecies
             .Distinct(ShaderDependence.Comparer);
         
-        var codeDeps = dependencens
+        var codeDeps = fragmentObject.Dependecies
             .Where(dep => dep is CodeDependence)
             .Select(dep => dep as CodeDependence);
         
