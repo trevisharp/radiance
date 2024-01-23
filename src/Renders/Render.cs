@@ -19,7 +19,7 @@ using Exceptions;
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
 /// </summary>
-public class Render : DynamicObject
+public class Render : DynamicObject, ICurryable
 {
     private OpenGLManager manager;
     private readonly int extraParameterCount;
@@ -37,6 +37,9 @@ public class Render : DynamicObject
         });
     }
 
+    public dynamic Curry(params object[] parameters)
+        => new CurryingRender(this, parameters);
+
     public override bool TryInvoke(
         InvokeBinder binder, object[] args, out object result)
     {
@@ -49,7 +52,7 @@ public class Render : DynamicObject
 
         if (args.Length < extraParameterCount + 1)
         {
-            result = new PartialRender(this, args);
+            result = this.Curry(args);
             return true;
         }
 

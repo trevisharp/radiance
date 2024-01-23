@@ -11,7 +11,7 @@ namespace Radiance.Renders;
 /// Represents a Render with some parameters gived resulting in a
 /// function with less parameters that the original Render.
 /// </summary>
-public class PartialRender : DynamicObject
+public class CurryingRender : DynamicObject, ICurryable
 {
     private Render parent;
     private List<object> parameters;
@@ -19,7 +19,7 @@ public class PartialRender : DynamicObject
     public Render Parent => parent;
     public IEnumerable<object> GivedParameters => parameters;
 
-    public PartialRender(Render parent, params object[] objects)
+    public CurryingRender(Render parent, params object[] objects)
     {
         this.parent = parent;
         this.parameters = new();
@@ -35,4 +35,8 @@ public class PartialRender : DynamicObject
         parent.TryInvoke(binder, totalParams, out result);
         return true;
     }
+
+    public dynamic Curry(params object[] parameters)
+        => parent.Curry(parameters);
+
 }
