@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/01/2024
+ * Date:    23/01/2024
  */
 using System;
 using System.Linq;
@@ -47,14 +47,20 @@ public class Render : DynamicObject
         if (poly is null)
             throw new MissingPolygonException();
 
+        if (args.Length < extraParameterCount + 1)
+        {
+            result = new PartialRender(this, args);
+            return true;
+        }
+
         var data = getArgs(args[1..]);
 
         foreach (var pair in data.Zip(dependenceList))
             pair.Second.UpdateValue(pair.First);
 
         manager.Render(poly, data);
-
-        result = true;
+        
+        result = null;
         return true;
     }
 
