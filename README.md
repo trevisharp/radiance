@@ -672,6 +672,7 @@ public class Player
  - ![](https://img.shields.io/badge/new-green) Add Text writting.
  - ![](https://img.shields.io/badge/new-green) Add Release Shaders to speedup production apps.
  - ![](https://img.shields.io/badge/new-green) Add Conditional Rendering.
+ - ![](https://img.shields.io/badge/new-green) Add Partial Render Invocation/Fixing parameters.
  - ![](https://img.shields.io/badge/new-green) Create Data Providers to increase the power of data structures.
  - ![](https://img.shields.io/badge/update-blue) New shader programming syntax.
  - ![](https://img.shields.io/badge/update-blue) Replace old Renders by a new and most powerfull Render abstraction.
@@ -751,4 +752,3 @@ public class Player
 - Improve Dependence abstraction to reduce resposabilities of OpenGLManager.
 - Enable auto input/outputs.
 - Rewrite documentation based in Radiance v2.0.
-- Enable partial Render call.

@@ -1,4 +1,5 @@
-﻿using Radiance;
+﻿using System;
+using Radiance;
 using static Radiance.Utils;
 
 var myRender = render((img1, img2) =>
@@ -14,11 +15,19 @@ var myRender = render((img1, img2) =>
 });
 
 var f1 = open("faustao1.png");
-var f2 = open("faustao2.png");
-var circleMix = myRender(Circle);
+var faustaoMix = myRender(Circle, f1);
 
-Window.OnRender += () => circleMix(f1, f2);
+var f2 = open("faustao2.png");
+var f3 = open("faustao3.jpg");
+var img = f2;
+
+Window.OnRender += () => faustaoMix(img);
+
+Window.OnKeyDown += (key, mod) =>
+{
+    if (key == Input.Space)
+        img = img == f2 ? f3 : f2;
+};
 
 Window.CloseOn(Input.Escape);
-
 Window.Open();
