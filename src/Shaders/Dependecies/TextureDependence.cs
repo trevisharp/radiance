@@ -25,7 +25,7 @@ public class TextureDependence : ShaderDependence<Sampler2DShaderObject>
         this.Name = $"texture{getTextureId()}";
     }
 
-    public override object Value => texture?.ImageData ?? null;
+    public override object Value => texture;
 
     public override string GetHeader()
         => $"uniform sampler2D {this.Name};";

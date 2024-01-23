@@ -48,6 +48,7 @@ public class Render : DynamicObject
             throw new MissingPolygonException();
 
         var data = getArgs(args[1..]);
+
         foreach (var pair in data.Zip(dependenceList))
             pair.Second.UpdateValue(pair.First);
 

@@ -21,14 +21,16 @@ public class Texture
         initializated = true;
         StbImage.stbi_set_flip_vertically_on_load(1);
     }
-    ImageResult img;
 
+    ImageResult img;
+    public readonly string Source;
     public Texture(string imgPath)
     {
         if (!File.Exists(imgPath))
             throw new FileNotFoundException();
         
         init();
+        this.Source = imgPath;
         this.img = ImageResult.FromStream(
             File.OpenRead(imgPath),
             ColorComponents.RedGreenBlueAlpha

@@ -312,7 +312,6 @@ public class OpenGLManager
         var sb = getCodeBuilder();
         Action setup = null;
 
-        int textureId = 0;
         var dependencens = vertexObject.Dependecies
             .Append(Utils._width)
             .Append(Utils._height)
@@ -336,14 +335,11 @@ public class OpenGLManager
                     break;
                 
                 case ShaderDependenceType.Texture:
-                    int id = textureId;
-                    textureId++;
-
-                    sb.AppendLine($"uniform sampler2D texture{id};");
+                    sb.AppendLine(dependence.GetHeader());
 
                     setup += delegate
                     {
-                        setTextureData(programData[0], id, dependence);
+                        setTextureData(programData[0], dependence);
                     };
                     break;
                 
@@ -399,7 +395,6 @@ public class OpenGLManager
         var sb = getCodeBuilder();
         Action setup = null;
         
-        int textureId = 0;
         var dependencens = fragmentObject.Dependecies
             .Distinct(ShaderDependence.Comparer);
         
@@ -421,14 +416,11 @@ public class OpenGLManager
                     break;
                 
                 case ShaderDependenceType.Texture:
-                    int id = textureId;
-                    textureId++;
-
-                    sb.AppendLine($"uniform sampler2D texture{id};");
+                    sb.AppendLine(dependence.GetHeader());
 
                     setup += delegate
                     {
-                        setTextureData(programData[0], id, dependence);
+                        setTextureData(programData[0], dependence);
                     };
                     break;
                 
@@ -492,13 +484,18 @@ public class OpenGLManager
         GL.Uniform1(code, value);
     }
 
-    private void setTextureData(int program, int id, ShaderDependence dependence)
+    private void setTextureData(int program, ShaderDependence dependence)
     {
-        var texture = dependence as TextureDependence;
-        if (texture is null)
+        var textureDep = dependence as TextureDependence;
+        if (textureDep is null)
             return;
+        
+        int id = int.Parse(
+            dependence.Name.Replace("texture", "")
+        );
+        var texture = textureDep.Value as Texture;
 
-        activateImage(texture.Value as ImageResult, id);
+        activateImage(texture.ImageData, id);
         var code = GL.GetUniformLocation(program, $"texture{id}");
         GL.Uniform1(code, id);
     }
