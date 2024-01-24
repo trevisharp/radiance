@@ -20,18 +20,18 @@ public class Vec4ShaderObject : ShaderObject
     public Vec4ShaderObject()
     {
         this.Expression = "(0.0, 0.0, 0.0, 0.0)";
-        this.Dependecies = new ShaderDependence[0];
+        this.Dependecies = new OldShaderDependence[0];
         this.Type = ShaderType.Vec4;
     }
 
-    public Vec4ShaderObject(string value, params ShaderDependence[] dependecies)
+    public Vec4ShaderObject(string value, params OldShaderDependence[] dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;
         this.Type = ShaderType.Vec4;
     }
 
-    public Vec4ShaderObject(string value, IEnumerable<ShaderDependence> dependecies)
+    public Vec4ShaderObject(string value, IEnumerable<OldShaderDependence> dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;

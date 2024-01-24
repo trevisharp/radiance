@@ -1,45 +1,60 @@
-/* Author:  Leonardo Trevisan Silio
- * Date:    23/01/2024
- */
+using System;
+using System.Text;
 using System.Collections.Generic;
-using System.Diagnostics.CodeAnalysis;
-
-namespace Radiance.Shaders;
-
-using Exceptions;
 
 /// <summary>
-/// Represents a Input for a Shader Implementation.
+/// Represents a dependence .
 /// </summary>
 public abstract class ShaderDependence
 {
-    public string Name { get; set; }
-    public ShaderDependenceType DependenceType { get; set; }
-    public abstract object Value { get; }
-    public abstract string GetHeader();
-    public virtual string GetCode() => null;
-    public virtual void UpdateValue(object newValue)
-        => throw new ReadonlyDependenceException();
-    public static ShaderDependenceComparer Comparer
-        => new ShaderDependenceComparer();
-}
+    /// <summary>
+    /// Add code in the current shader of this dependence.
+    /// </summary>
+    public virtual void AddCode(StringBuilder sb) { }
 
-public abstract class ShaderDependence<T> : ShaderDependence
-    where T : ShaderObject, new()
-{
-    public static implicit operator T(ShaderDependence<T> dependece)
-        => new()
-        {
-            Expression = dependece.Name,
-            Dependecies = new ShaderDependence[] { dependece }
-        };
-}
-
-public class ShaderDependenceComparer : IEqualityComparer<ShaderDependence>
-{
-    public bool Equals(ShaderDependence x, ShaderDependence y)
-        => x.GetHeader() == y.GetHeader();
+    /// <summary>
+    /// Add code in the vertex shader.
+    /// </summary>
+    public virtual void AddVertexCode(StringBuilder sb) { }
     
-    public int GetHashCode([DisallowNull] ShaderDependence obj)
-        => obj.GetHeader().GetHashCode();
+    /// <summary>
+    /// Add code in the fragment shader.
+    /// </summary>
+    public virtual void AddFragmentCode(StringBuilder sb) { }
+
+    /// <summary>
+    /// Add header in the current shader of this dependence.
+    /// </summary>
+    public virtual void AddHeader(StringBuilder sb) { }
+    
+    /// <summary>
+    /// Add header in the vertex shader.
+    /// </summary>
+    public virtual void AddVertexHeader(StringBuilder sb) { }
+
+    /// <summary>
+    /// Add header in the fragment shader.
+    /// </summary>
+    public virtual void AddFragmentHeader(StringBuilder sb) { }
+
+    /// <summary>
+    /// Add operations to be executed to load dependence data in the current
+    /// shader of the dependence.
+    /// </summary>
+    public virtual IEnumerable<Action> AddOperations() { yield break; }
+    
+    /// <summary>
+    /// Add operations to be executed to load dependence data vertex shader.
+    /// </summary>
+    public virtual IEnumerable<Action> AddVertexOperations() { yield break; }
+    
+    /// <summary>
+    /// Add operations to be executed to load dependence data fragment shader.
+    /// </summary>
+    public virtual IEnumerable<Action> AddFragmentOperations() { yield break; }
+
+    /// <summary>
+    /// Update the data used by dependence in its operations.
+    /// </summary>
+    public virtual void UpdateData(object value) { }
 }

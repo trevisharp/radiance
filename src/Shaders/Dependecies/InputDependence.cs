@@ -6,7 +6,7 @@ namespace Radiance.Shaders.Dependencies;
 /// <summary>
 /// Represents a input dependence from Vertex Shader to Fragment Shader.
 /// </summary>
-public class InputDependence : ShaderDependence
+public class InputDependence : OldShaderDependence
 {
     private string type;
     public InputDependence(string name, string type)

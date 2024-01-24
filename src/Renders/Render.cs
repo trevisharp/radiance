@@ -23,7 +23,7 @@ public class Render : DynamicObject, ICurryable
 {
     private OpenGLManager manager;
     private readonly int extraParameterCount;
-    private List<ShaderDependence> dependenceList;
+    private List<OldShaderDependence> dependenceList;
     public int ExtraParameterCount => extraParameterCount;
 
     public Render(Delegate function)

@@ -10,7 +10,7 @@ namespace Radiance.Shaders.Dependencies;
 /// Represents a Dependence of a code definition.
 /// </summary>
 /// 
-public class CodeDependence : ShaderDependence
+public class CodeDependence : OldShaderDependence
 {
     private readonly string expression;
     private readonly string type;

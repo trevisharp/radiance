@@ -17,18 +17,18 @@ public class FloatShaderObject : ShaderObject
     public FloatShaderObject()
     {
         this.Expression = "0.0";
-        this.Dependecies = new ShaderDependence[0];
+        this.Dependecies = new OldShaderDependence[0];
         this.Type = ShaderType.Float;
     }
 
-    public FloatShaderObject(string value, params ShaderDependence[] dependecies)
+    public FloatShaderObject(string value, params OldShaderDependence[] dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;
         this.Type = ShaderType.Float;
     }
 
-    public FloatShaderObject(string value, IEnumerable<ShaderDependence> dependecies)
+    public FloatShaderObject(string value, IEnumerable<OldShaderDependence> dependecies)
     {
         this.Expression = value;
         this.Dependecies = dependecies;

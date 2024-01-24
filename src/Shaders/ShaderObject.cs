@@ -17,7 +17,7 @@ public class ShaderObject
     public virtual ShaderType Type { get; set; }
     public virtual string Expression { get; set; }
     public ShaderOrigin Origin { get; set; } = ShaderOrigin.Global;
-    public virtual IEnumerable<ShaderDependence> Dependecies { get; set; }
+    public virtual IEnumerable<OldShaderDependence> Dependecies { get; set; }
 
     public static implicit operator ShaderObject(float value) => value;
     public static implicit operator ShaderObject(double value) => (float)value;

@@ -825,7 +825,7 @@ public static class Utils
         {
             if (inputs[i] is ShaderObject input)
                 sb.Append(input.Expression);
-            else if (inputs[i] is ShaderDependence dependence)
+            else if (inputs[i] is OldShaderDependence dependence)
                 sb.Append(dependence.Name);
             sb.Append(", ");
         }
@@ -834,7 +834,7 @@ public static class Utils
         {
             if (inputs[^1] is ShaderObject input)
                 sb.Append(input.Expression);
-            else if (inputs[^1] is ShaderDependence dependence)
+            else if (inputs[^1] is OldShaderDependence dependence)
                 sb.Append(dependence.Name);
             sb.Append(")");
         }

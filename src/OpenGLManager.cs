@@ -286,9 +286,9 @@ public class OpenGLManager
         return bufferObject;
     }
 
-    private List<ShaderDependence> getDependences(IEnumerable<ShaderObject> objs)
+    private List<OldShaderDependence> getDependences(IEnumerable<ShaderObject> objs)
     {
-        var dependences = new List<ShaderDependence>();
+        var dependences = new List<OldShaderDependence>();
         foreach (var obj in objs)
         {
             foreach (var dependence in obj.Dependecies)
@@ -314,7 +314,7 @@ public class OpenGLManager
         var dependencens = vertexObject.Dependecies
             .Append(Utils._width)
             .Append(Utils._height)
-            .Distinct(ShaderDependence.Comparer);
+            .Distinct(OldShaderDependence.Comparer);
         
         var codeDeps = vertexObject.Dependecies
             .Where(dep => dep is CodeDependence)
@@ -395,7 +395,7 @@ public class OpenGLManager
         Action setup = null;
         
         var dependencens = fragmentObject.Dependecies
-            .Distinct(ShaderDependence.Comparer);
+            .Distinct(OldShaderDependence.Comparer);
         
         var codeDeps = fragmentObject.Dependecies
             .Where(dep => dep is CodeDependence)
@@ -467,7 +467,7 @@ public class OpenGLManager
             _ => "float"
         };
 
-    private void setUniform(int program, ShaderDependence dependence)
+    private void setUniform(int program, OldShaderDependence dependence)
     {
         switch (dependence)
         {
@@ -483,7 +483,7 @@ public class OpenGLManager
         GL.Uniform1(code, value);
     }
 
-    private void setTextureData(int program, ShaderDependence dependence)
+    private void setTextureData(int program, OldShaderDependence dependence)
     {
         var textureDep = dependence as TextureDependence;
         if (textureDep is null)
