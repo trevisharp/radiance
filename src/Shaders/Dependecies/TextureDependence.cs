@@ -9,7 +9,7 @@ using Objects;
 /// <summary>
 /// Represents a dependece of a Sampler2D used by textures in OpenGL.
 /// </summary>
-public class TextureDependence : ShaderDependence<Sampler2DShaderObject>
+public class TextureDependence : OldShaderDependence<Sampler2DShaderObject>
 {
     private static int textureCount = -1;
     private static int getTextureId()

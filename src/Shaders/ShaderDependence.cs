@@ -1,6 +1,11 @@
+/* Author:  Leonardo Trevisan Silio
+ * Date:    24/01/2024
+ */
 using System;
 using System.Text;
 using System.Collections.Generic;
+
+namespace Radiance.Shaders;
 
 /// <summary>
 /// Represents a dependence .
@@ -38,20 +43,20 @@ public abstract class ShaderDependence
     public virtual void AddFragmentHeader(StringBuilder sb) { }
 
     /// <summary>
-    /// Add operations to be executed to load dependence data in the current
+    /// Add operation to be executed to load dependence data in the current
     /// shader of the dependence.
     /// </summary>
-    public virtual IEnumerable<Action> AddOperations() { yield break; }
+    public virtual Action AddOperation(ShaderContext ctx) => null;
     
     /// <summary>
-    /// Add operations to be executed to load dependence data vertex shader.
+    /// Add operation to be executed to load dependence data vertex shader.
     /// </summary>
-    public virtual IEnumerable<Action> AddVertexOperations() { yield break; }
+    public virtual Action AddVertexOperation(ShaderContext ctx) => null;
     
     /// <summary>
-    /// Add operations to be executed to load dependence data fragment shader.
+    /// Add operation to be executed to load dependence data fragment shader.
     /// </summary>
-    public virtual IEnumerable<Action> AddFragmentOperations() { yield break; }
+    public virtual Action AddFragmentOperation(ShaderContext ctx) => null;
 
     /// <summary>
     /// Update the data used by dependence in its operations.

@@ -8,7 +8,7 @@ using Data;
 /// <summary>
 /// Represents a dependece of a generic buffer data.
 /// </summary>
-public class BufferDependence<T> : ShaderDependence<T>
+public class BufferDependence<T> : OldShaderDependence<T>
     where T : ShaderObject, new()
 {
     private float[] buffer;

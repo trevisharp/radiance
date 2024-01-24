@@ -9,17 +9,17 @@ using Objects;
 /// Represents a input for the width of
 /// screen used in shader implementation.
 /// </summary>
-public class HeightWindowDependence : OldShaderDependence<FloatShaderObject>
+public class OldWidthWindowDependence : OldShaderDependence<FloatShaderObject>
 {
-    public HeightWindowDependence()
+    public OldWidthWindowDependence()
     {
-        this.Name = "height";
+        this.Name = "width";
         this.DependenceType = ShaderDependenceType.Uniform;
     }
 
     public override object Value
-        => (float)Window.Height;
+        => (float)Window.Width;
 
     public override string GetHeader()
-        => "uniform float height;";
+        => "uniform float width;";
 }

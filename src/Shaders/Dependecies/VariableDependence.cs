@@ -8,7 +8,7 @@ using Internal;
 /// <summary>
 /// Represents a dependece of a position buffer data.
 /// </summary>
-public class VariableDependence<T> : ShaderDependence<T>
+public class VariableDependence<T> : OldShaderDependence<T>
     where T : ShaderObject, new()
 {
     private string type;

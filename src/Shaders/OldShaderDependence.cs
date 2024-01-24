@@ -24,10 +24,10 @@ public abstract class OldShaderDependence
         => new ShaderDependenceComparer();
 }
 
-public abstract class ShaderDependence<T> : OldShaderDependence
+public abstract class OldShaderDependence<T> : OldShaderDependence
     where T : ShaderObject, new()
 {
-    public static implicit operator T(ShaderDependence<T> dependece)
+    public static implicit operator T(OldShaderDependence<T> dependece)
         => new()
         {
             Expression = dependece.Name,

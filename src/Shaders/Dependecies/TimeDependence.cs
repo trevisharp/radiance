@@ -11,7 +11,7 @@ using Objects;
 /// Represents a input for shaders of the time 
 /// passed since the creation of this input in seconds.
 /// </summary>
-public class TimeShaderInput : ShaderDependence<FloatShaderObject>
+public class TimeShaderInput : OldShaderDependence<FloatShaderObject>
 {
     DateTime start;
 

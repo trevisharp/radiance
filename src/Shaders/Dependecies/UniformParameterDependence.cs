@@ -8,7 +8,7 @@ using Objects;
 /// <summary>
 /// Represent a parameter in a function used to create a render.
 /// </summary>
-public class UniformParameterDependence : ShaderDependence<FloatShaderObject>
+public class UniformParameterDependence : OldShaderDependence<FloatShaderObject>
 {
     private string type;
     private object value;

@@ -471,7 +471,7 @@ public class OpenGLManager
     {
         switch (dependence)
         {
-            case ShaderDependence<FloatShaderObject>:
+            case OldShaderDependence<FloatShaderObject>:
                 setUniformFloat(program, dependence.Name, (float)dependence.Value);
                 break;
         }

@@ -27,7 +27,7 @@ public static class Utils
     internal readonly static Polygon square = Rect(1, 1);
     internal readonly static Polygon circle = Ellipse(1, 1, 128);
     internal readonly static TimeShaderInput _t = new();
-    internal readonly static WidthWindowDependence _width = new();
+    internal readonly static OldWidthWindowDependence _width = new();
     internal readonly static HeightWindowDependence _height = new();
     
     /// <summary>
