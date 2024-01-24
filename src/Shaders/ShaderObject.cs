@@ -14,10 +14,10 @@ using Radiance.Shaders.Dependencies;
 /// </summary>
 public class ShaderObject
 {
-    public virtual ShaderType Type { get; set; }
-    public virtual string Expression { get; set; }
+    public ShaderType Type { get; set; }
+    public string Expression { get; set; }
     public ShaderOrigin Origin { get; set; } = ShaderOrigin.Global;
-    public virtual IEnumerable<OldShaderDependence> Dependecies { get; set; }
+    public IEnumerable<ShaderDependence> Dependecies { get; set; }
 
     public static implicit operator ShaderObject(float value) => value;
     public static implicit operator ShaderObject(double value) => (float)value;

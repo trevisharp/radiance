@@ -6,6 +6,8 @@ using System.Text;
 
 namespace Radiance.Shaders;
 
+using Objects;
+
 /// <summary>
 /// Represents a dependence .
 /// </summary>
@@ -61,4 +63,9 @@ public abstract class ShaderDependence
     /// Update the data used by dependence in its operations.
     /// </summary>
     public virtual void UpdateData(object value) { }
+
+    public static implicit operator FloatShaderObject(ShaderDependence dependence)
+    {
+        
+    }
 }
