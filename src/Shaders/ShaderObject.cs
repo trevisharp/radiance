@@ -1,13 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    23/01/2024
  */
+using System.Linq;
 using System.Collections.Generic;
 
 namespace Radiance.Shaders;
 
-using System.Linq;
 using Objects;
-using Radiance.Shaders.Dependencies;
+using Dependencies;
 
 /// <summary>
 /// Represents any data in a shader implementation.
@@ -75,23 +75,4 @@ public class ShaderObject
 
     public override string ToString()
         => Expression;
-    
-    public static string GetStringName<T>()
-        where T : ShaderObject
-    {
-        var type = typeof(T);
-        if (type == typeof(FloatShaderObject))
-            return "float";
-
-        if (type == typeof(Vec2ShaderObject))
-            return "vec2";
-
-        if (type == typeof(Vec3ShaderObject))
-            return "vec3";
-
-        if (type == typeof(Vec4ShaderObject))
-            return "vec4";
-        
-        return "unk";
-    }
 }
