@@ -1,25 +1,19 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    24/01/2024
  */
+using System;
+using System.Text;
+
 namespace Radiance.Shaders.Dependencies;
 
-using Objects;
-
 /// <summary>
-/// Represents a input for the width of
-/// screen used in shader implementation.
+/// Represents a dependence of the height of the screen.
 /// </summary>
-public class HeightWindowDependence : OldShaderDependence<FloatShaderObject>
+public class HeightWindowDependence : ShaderDependence
 {
-    public HeightWindowDependence()
-    {
-        this.Name = "height";
-        this.DependenceType = ShaderDependenceType.Uniform;
-    }
+    public override void AddHeader(StringBuilder sb)
+        => sb.AppendLine("uniform float height;");
 
-    public override object Value
-        => (float)Window.Height;
-
-    public override string GetHeader()
-        => "uniform float height;";
+    public override Action AddOperation(ShaderContext ctx)
+        => () => ctx.SetUniformFloat("height", (float)Window.Height);
 }

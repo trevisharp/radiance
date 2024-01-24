@@ -2,7 +2,6 @@
  * Date:    24/01/2024
  */
 using System;
-using System.Collections.Generic;
 using System.Text;
 
 namespace Radiance.Shaders.Dependencies;

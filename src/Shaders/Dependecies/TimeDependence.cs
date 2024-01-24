@@ -1,32 +1,23 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/08/2023
+ * Date:    24/01/2024
  */
 using System;
+using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Objects;
-
 /// <summary>
-/// Represents a input for shaders of the time 
-/// passed since the creation of this input in seconds.
+/// Represents a dependence of the time of the application.
 /// </summary>
-public class TimeShaderInput : OldShaderDependence<FloatShaderObject>
+public class TimeDependence : ShaderDependence
 {
-    DateTime start;
-
+    DateTime start = DateTime.Now;
+    float secs => (float)(DateTime.Now - start).TotalSeconds;
     public DateTime ZeroTime => start;
+        
+    public override void AddHeader(StringBuilder sb)
+        => sb.AppendLine("uniform float t;");
 
-    public TimeShaderInput()
-    {
-        this.start = DateTime.Now;
-        this.Name = "t";
-        this.DependenceType = ShaderDependenceType.Uniform;
-    }
-
-    public override object Value
-        => (float)(DateTime.Now - start).TotalSeconds;
-
-    public override string GetHeader()
-        => "uniform float t;";
+    public override Action AddOperation(ShaderContext ctx)
+        => () => ctx.SetUniformFloat("t", secs);
 }
