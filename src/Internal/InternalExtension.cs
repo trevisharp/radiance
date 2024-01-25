@@ -9,4 +9,10 @@ internal static class InternalExtension
 {
     internal static string Format(this float value)
         => value.ToString(CultureInfo.InvariantCulture);
+        
+    internal static string Format(this double value)
+        => value.ToString(CultureInfo.InvariantCulture);
+        
+    internal static string Format(this int value)
+        => value.ToString(CultureInfo.InvariantCulture);
 }

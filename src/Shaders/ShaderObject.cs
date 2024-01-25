@@ -13,12 +13,17 @@ using static ShaderOrigin;
 /// <summary>
 /// Represents any data in a shader implementation.
 /// </summary>
-public abstract record ShaderObject(
-    ShaderType Type,
-    string Expression,
-    ShaderOrigin Origin,
-    IEnumerable<ShaderDependence> Dependencies
+public abstract class ShaderObject(
+    ShaderType type,
+    string expression,
+    ShaderOrigin origin,
+    IEnumerable<ShaderDependence> dependencies
 ) {
+    public readonly ShaderType Type = type;
+    public readonly string Expression = expression;
+    public readonly ShaderOrigin Origin = origin;
+    public readonly IEnumerable<ShaderDependence> Dependencies = dependencies;
+
     public override string ToString()
         => Expression;
 

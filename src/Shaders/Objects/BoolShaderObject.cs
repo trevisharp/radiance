@@ -8,7 +8,7 @@ namespace Radiance.Shaders.Objects;
 /// <summary>
 /// Represent a Bool data in shader implementation.
 /// </summary>
-public record BoolShaderObject : ShaderObject
+public class BoolShaderObject : ShaderObject
 {
     public BoolShaderObject(
         string value, ShaderOrigin origin,

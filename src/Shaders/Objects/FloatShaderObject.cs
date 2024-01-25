@@ -1,14 +1,18 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    24/01/2024
  */
-using System.Collections.Generic; 
+#pragma warning disable CS0660
+#pragma warning disable CS0661
+
+using System.Collections.Generic;
+using Radiance.Internal;
 
 namespace Radiance.Shaders.Objects;
 
 /// <summary>
 /// Represent a Float data in shader implementation.
 /// </summary>
-public record FloatShaderObject : ShaderObject
+public class FloatShaderObject : ShaderObject
 {
     public FloatShaderObject(
         string value, ShaderOrigin origin,
@@ -16,13 +20,13 @@ public record FloatShaderObject : ShaderObject
         ) : base(ShaderType.Bool, value, origin, deps) { }
 
     public static implicit operator FloatShaderObject(float value)
-        => new (value.ToString().Replace(',', '.'), ShaderOrigin.Global, []);
+        => new (value.Format(), ShaderOrigin.Global, []);
         
     public static implicit operator FloatShaderObject(double value)
-        => new (value.ToString().Replace(',', '.'), ShaderOrigin.Global, []);
+        => new (value.Format(), ShaderOrigin.Global, []);
         
     public static implicit operator FloatShaderObject(int value)
-        => new (value.ToString(), ShaderOrigin.Global, []);
+        => new (value.Format(), ShaderOrigin.Global, []);
     
     public static BoolShaderObject operator ==(FloatShaderObject a, FloatShaderObject b)
         => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(

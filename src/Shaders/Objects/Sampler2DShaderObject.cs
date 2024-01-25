@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/01/2023
+ * Date:    25/01/2023
  */
+using System.Collections.Generic;
+
 namespace Radiance.Shaders.Objects;
 
 /// <summary>
@@ -8,5 +10,8 @@ namespace Radiance.Shaders.Objects;
 /// </summary>
 public class Sampler2DShaderObject : ShaderObject
 {
-    public Sampler2DShaderObject() { }
+    public Sampler2DShaderObject(
+        string value, ShaderOrigin origin,
+        IEnumerable<ShaderDependence> deps
+        ) : base(ShaderType.Vec3, value, origin, deps) { }
 }
