@@ -35,8 +35,7 @@ public static class Utils
     public static void clear(Vec4 color)
     {
         var ctx = RenderContext.GetContext();
-        var man = ctx.Manager;
-        man.AddClear(color);
+        ctx.AddClear(color);
     }
 
     /// <summary>
@@ -45,8 +44,7 @@ public static class Utils
     public static void draw()
     {
         var ctx = RenderContext.GetContext();
-        var man = ctx.Manager;
-        man.AddDraw();
+        ctx.AddDraw();
     }
 
     /// <summary>
@@ -55,8 +53,7 @@ public static class Utils
     public static void fill()
     {
         var ctx = RenderContext.GetContext();
-        var man = ctx.Manager;
-        man.AddFill();
+        ctx.AddFill();
     }
 
     /// <summary>
@@ -662,7 +659,7 @@ public static class Utils
     /// Shader Only.
     /// </summary>
     public static T mix<T>(T x, T y, FloatShaderObject a) 
-        where T : ShaderObject, new()
+        where T : ShaderObject
         => func<T>("mix", x, y, a);
 
     /// <summary>

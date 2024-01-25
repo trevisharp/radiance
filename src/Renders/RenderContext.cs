@@ -104,12 +104,12 @@ public class RenderContext
         ShaderContext shaderCtx = new ShaderContext();
 
         start("Vertex Shader Creation");
-        var vertexTuple = generateVertexShader(Position, shaderCtx);
+        var vertexTuple = generateVertexShader(Position, Color, shaderCtx);
         var vertexShader = createVertexShader(vertexTuple.source);
         success("Shader Created!!");
 
         start("Fragment Shader Creation");
-        var fragmentTuple = generateFragmentShader(Color, shaderCtx);
+        var fragmentTuple = generateFragmentShader(Position, Color, shaderCtx);
         var fragmentShader = createFragmentShader(fragmentTuple.source);
         success("Shader Created!!");
 
@@ -224,6 +224,7 @@ public class RenderContext
 
     private (string source, Action setup) generateVertexShader(
         Vec3ShaderObject vertexObject,
+        Vec4ShaderObject fragmentObject,
         ShaderContext ctx
     )
     {
@@ -244,6 +245,12 @@ public class RenderContext
             setup += dep.AddOperation(ctx);
         }
 
+        foreach (var dep in fragmentObject.Dependencies)
+        {
+            dep.AddVertexHeader(sb);
+            setup += dep.AddVertexOperation(ctx);
+        }
+
         sb.AppendLine();
         sb.AppendLine("void main()");
         sb.AppendLine("{");
@@ -251,6 +258,11 @@ public class RenderContext
         {
             dep.AddCode(sb);
             dep.AddVertexCode(sb);
+        }
+
+        foreach (var dep in fragmentObject.Dependencies)
+        {
+            dep.AddVertexHeader(sb);
         }
 
         sb.AppendLine($"\tvec3 finalPosition = {vertexObject.Expression};");
@@ -267,6 +279,7 @@ public class RenderContext
     }
 
     private (string source, Action setup) generateFragmentShader(
+        Vec3ShaderObject vertexObject,
         Vec4ShaderObject fragmentObject,
         ShaderContext ctx
     )
@@ -287,6 +300,12 @@ public class RenderContext
             setup += dep.AddOperation(ctx);
         }
 
+        foreach (var dep in vertexObject.Dependencies)
+        {
+            dep.AddFragmentHeader(sb);
+            setup += dep.AddFragmentOperation(ctx);
+        }
+
         sb.AppendLine();
         sb.AppendLine("out vec4 outColor;");
         sb.AppendLine("void main()");
@@ -296,6 +315,12 @@ public class RenderContext
             dep.AddCode(sb);
             dep.AddFragmentCode(sb);
         }
+
+        foreach (var dep in vertexObject.Dependencies)
+        {
+            dep.AddFragmentCode(sb);
+        }
+
         
         sb.AppendLine($"\toutColor = {fragmentObject.Expression};");
         sb.Append("}");

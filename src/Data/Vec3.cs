@@ -3,6 +3,7 @@
  */
 namespace Radiance.Data;
 
+using Shaders;
 using Shaders.Objects;
 
 /// <summary>
@@ -28,5 +29,5 @@ public record Vec3(float X, float Y, float Z)
         => new Vec3(tuple.x, tuple.y, tuple.z);
     
     public static implicit operator Vec3ShaderObject(Vec3 vec)
-        => new Vec3ShaderObject($"vec3({vec.X}, {vec.Y}, {vec.Z})");
+        => new Vec3ShaderObject($"vec3({vec.X}, {vec.Y}, {vec.Z})", ShaderOrigin.Global, []);
 }

@@ -18,7 +18,7 @@ public class OutputDependence(ShaderObject obj) : ShaderDependence
     );
 
     public override void AddVertexCode(StringBuilder sb)
-        => sb.AppendLine($"{name} = {obj.Expression}");
+        => sb.AppendLine($"\t{name} = {obj.Expression}");
 
     public override void AddVertexHeader(StringBuilder sb)
         => sb.AppendLine($"out {type} {name};");

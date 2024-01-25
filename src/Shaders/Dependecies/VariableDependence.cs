@@ -33,5 +33,5 @@ public class VariableDependence : ShaderDependence
         : this(obj.Type.TypeName, obj.Expression) {}
 
     public override void AddCode(StringBuilder sb)
-        => sb.AppendLine($"{type} {name} = {expr};");
+        => sb.AppendLine($"\t{type} {name} = {expr};");
 }

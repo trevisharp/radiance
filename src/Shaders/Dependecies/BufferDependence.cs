@@ -14,16 +14,16 @@ using Data;
 public class BufferDependence : ShaderDependence
 {
     Polygon polygon = null;
-    public override void AddVertexCode(StringBuilder sb)
+    public override void AddVertexHeader(StringBuilder sb)
     {
         if (polygon is null)
+        {
+            sb.AppendLine($"layout (location = 0) in vec3 pos;");
             return;
+        }
         
         sb.AppendLine(polygon.Header);
     }
-
-    public override Action AddVertexOperation(ShaderContext ctx)
-        => () => Console.Write("TODO");
 
     public override void UpdateData(object value)
         => this.polygon = value as Polygon;
