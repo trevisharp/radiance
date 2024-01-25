@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/01/2023
+ * Date:    25/01/2023
  */
 namespace Radiance.Shaders.Dependencies;
 
@@ -9,7 +9,7 @@ using Objects;
 /// <summary>
 /// Represents a dependece of a Sampler2D used by textures in OpenGL.
 /// </summary>
-public class TextureDependence : OldShaderDependence<Sampler2DShaderObject>
+public class TextureDependence : ShaderDependence
 {
     private static int textureCount = -1;
     private static int getTextureId()
