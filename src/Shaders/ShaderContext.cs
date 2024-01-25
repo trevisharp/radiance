@@ -58,6 +58,22 @@ public class ShaderContext
         GL.Uniform1(code, id);
     }
 
+    public void CreateResources(Polygon poly)
+    {
+        if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
+            return;
+
+        updateResources(poly, true, true);
+        poly.OnChange += (bufferBreak, layoutBreak) =>
+            updateResources(poly, bufferBreak, layoutBreak);
+    }
+
+    public void Use(Polygon poly)
+    {            
+        bindVertexArray(poly);
+        bindBuffer(poly);
+    }
+
     private int activateImage(ImageResult image)
     {
         int id = -1;
@@ -151,16 +167,6 @@ public class ShaderContext
         GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
         bufferList.Add(bufferObject);
         return bufferObject;
-    }
-
-    private void createResources(Polygon poly)
-    {
-        if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
-            return;
-
-        updateResources(poly, true, true);
-        poly.OnChange += (bufferBreak, layoutBreak) =>
-            updateResources(poly, bufferBreak, layoutBreak);
     }
 
     private void bindBuffer(Polygon poly)

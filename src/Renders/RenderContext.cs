@@ -5,22 +5,17 @@ using System;
 using System.Text;
 using System.Linq;
 using System.Threading;
-using System.Reflection;
 using System.Collections.Generic;
 
 using static System.Console;
 
-using StbImageSharp;
 using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance.Renders;
 
 using Data;
-using Internal;
-
 using Shaders;
 using Shaders.Objects;
-using Shaders.Dependencies;
 
 /// <summary>
 /// A global thread-safe context to shader construction.
@@ -105,20 +100,16 @@ public class RenderContext
 
     private void baseDraw(bool isFill)
     {
-        var renderCtx = RenderContext.GetContext();
-        var vert = renderCtx.Position;
-        var frag = renderCtx.Color;
-
         start("Creating Program");
         ShaderContext shaderCtx = new ShaderContext();
 
         start("Vertex Shader Creation");
-        var vertexTuple = generateVertexShader(vert, shaderCtx);
+        var vertexTuple = generateVertexShader(Position, shaderCtx);
         var vertexShader = createVertexShader(vertexTuple.source);
         success("Shader Created!!");
 
         start("Fragment Shader Creation");
-        var fragmentTuple = generateFragmentShader(frag, shaderCtx);
+        var fragmentTuple = generateFragmentShader(Color, shaderCtx);
         var fragmentShader = createFragmentShader(fragmentTuple.source);
         success("Shader Created!!");
 
@@ -131,11 +122,10 @@ public class RenderContext
             if (isFill)
                 poly = poly.Triangulation;
 
-            createResources(poly);
+            shaderCtx.CreateResources(poly);
             GL.UseProgram(program);
-            
-            bindVertexArray(poly);
-            bindBuffer(poly);
+
+            shaderCtx.Use(poly);
 
             if (vertexTuple.setup is not null)
                 vertexTuple.setup();
