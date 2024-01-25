@@ -285,7 +285,7 @@ public class OpenGLManager
         var sb = getCodeBuilder();
         Action setup = null;
 
-        var dependencens = vertexObject.Dependecies
+        var dependencens = vertexObject.Dependencies
             .Append(Utils._width)
             .Append(Utils._height)
             .Distinct(ShaderDependence.Comparer);
@@ -414,40 +414,6 @@ public class OpenGLManager
         var sb = new StringBuilder();
         sb.AppendLine($"#version {VersionText}");
         return sb;
-    }
-    
-    private string getShaderTypeName(ShaderType type)
-        => type switch
-        {
-            ShaderType.Float => "float",
-            ShaderType.Vec2 => "vec2",
-            ShaderType.Vec3 => "vec3",
-            ShaderType.Vec4 => "vec4",
-            ShaderType.Bool => "bool",
-            _ => "float"
-        };
-
-    private int createVertexArray(Polygon data)
-    {
-        int vertexObject = GL.GenVertexArray();
-        GL.BindVertexArray(vertexObject);
-
-        int total = data.Layouts.Sum(layout => layout.size);
-        var stride = total * sizeof(float);
-        var type = VertexAttribPointerType.Float;
-
-        int i = 0;
-        int offset = 0;
-        foreach (var layout in data.Layouts)
-        {
-            GL.VertexAttribPointer(i, layout.size, type, false, stride, offset);
-            GL.EnableVertexAttribArray(i);
-            offset += layout.size * sizeof(float);
-            i++;
-        }
-
-        vertexArrayList.Add(vertexObject);
-        return vertexObject;
     }
 
     private void error(string message = "")

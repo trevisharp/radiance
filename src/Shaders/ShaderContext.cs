@@ -132,4 +132,27 @@ public class ShaderContext
 
         return handle;
     } 
+    
+    private int createVertexArray(Polygon data)
+    {
+        int vertexObject = GL.GenVertexArray();
+        GL.BindVertexArray(vertexObject);
+
+        int total = data.Layouts.Sum(layout => layout.size);
+        var stride = total * sizeof(float);
+        var type = VertexAttribPointerType.Float;
+
+        int i = 0;
+        int offset = 0;
+        foreach (var layout in data.Layouts)
+        {
+            GL.VertexAttribPointer(i, layout.size, type, false, stride, offset);
+            GL.EnableVertexAttribArray(i);
+            offset += layout.size * sizeof(float);
+            i++;
+        }
+
+        vertexArrayList.Add(vertexObject);
+        return vertexObject;
+    }
 }

@@ -25,12 +25,8 @@ public static class Utils
     internal readonly static Polygon square = Rect(1, 1);
     internal readonly static Polygon circle = Ellipse(1, 1, 128);
     internal readonly static TimeDependence timeDep = new();
-    internal readonly static FloatShaderObject _t = 
-        new("t", ShaderOrigin.Global, [timeDep]);
-    internal readonly static FloatShaderObject _width =
-        new("width", ShaderOrigin.Global, [new WidthWindowDependence()]);
-    internal readonly static FloatShaderObject _height =
-        new("height", ShaderOrigin.Global, [new HeightWindowDependence()]);
+    internal readonly static WidthWindowDependence widthDep = new();
+    internal readonly static HeightWindowDependence heightDep = new();
     
     /// <summary>
     /// Clean the entire screen.
@@ -183,19 +179,22 @@ public static class Utils
     /// Return the current width of screen.
     /// Shader Only.
     /// </summary>
-    public static FloatShaderObject width => _width;
+    public static readonly FloatShaderObject width =
+        new("width", ShaderOrigin.Global, [widthDep]);
 
     /// <summary>
     /// Return the current height of screen.
     /// Shader Only.
     /// </summary>
-    public static FloatShaderObject height => _height;
+    public static readonly FloatShaderObject height =
+        new("height", ShaderOrigin.Global, [heightDep]);
 
     /// <summary>
     /// Return the current time of application.
     /// Shader Only.
     /// </summary>
-    public static FloatShaderObject t => _t;
+    public static FloatShaderObject t =
+        new("t", ShaderOrigin.Global, [timeDep]);
 
     /// <summary>
     /// Return the time when t is zero.
