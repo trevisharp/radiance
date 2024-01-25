@@ -1,8 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    10/08/2023
+ * Date:    24/01/2024
  */
-using System.Linq;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Radiance.Shaders.Objects;
 
@@ -11,33 +11,20 @@ namespace Radiance.Shaders.Objects;
 /// </summary>
 public record BoolShaderObject : ShaderObject
 {
-    public BoolShaderObject() 
-        : base(ShaderType.Bool, "false", ShaderOrigin.Global, [])
-    { }
-
-    public BoolShaderObject(string value, params ShaderDependence[] deps)
-    {
-        this.Expression = value;
-        this.Dependecies = deps;
-        this.Type = ShaderType.Bool;
-    }
-
-    public BoolShaderObject(string value, IEnumerable<ShaderDependence> deps)
-    {
-        this.Expression = value;
-        this.Dependecies = deps;
-        this.Type = ShaderType.Bool;
-    }
+    public BoolShaderObject(
+        string value, ShaderOrigin origin,
+        IEnumerable<ShaderDependence> deps
+        ) : base(ShaderType.Bool, value, origin, deps) { }
 
     public static BoolShaderObject operator &(BoolShaderObject a, BoolShaderObject b)
-        => new BoolShaderObject($"{a.Expression} && {b.Expression}", a.Dependecies.Concat(b.Dependecies));
+        => new ($"{a} && {b}", a.Dependecies.Concat(b.Dependecies));
 
     public static BoolShaderObject operator |(BoolShaderObject a, BoolShaderObject b)
-        => new BoolShaderObject($"{a.Expression} || {b.Expression}", a.Dependecies.Concat(b.Dependecies));
+        => new ($"{a.Expression} || {b.Expression}", a.Dependecies.Concat(b.Dependecies));
     
     public static BoolShaderObject operator !(BoolShaderObject a)
-        => new BoolShaderObject($"!({a.Expression})", a.Dependecies);
+        => new ($"!({a.Expression})", a.Dependecies);
 
     public static implicit operator BoolShaderObject(bool value)
-        => new BoolShaderObject($"{value}");
+        => new (value.ToString(), ShaderOrigin.Global, []);
 }

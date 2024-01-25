@@ -1,23 +1,27 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/01/2024
+ * Date:    24/01/2024
  */
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
 namespace Radiance.Shaders;
 
-using Objects;
 using Dependencies;
+using static ShaderOrigin;
 
 /// <summary>
 /// Represents any data in a shader implementation.
 /// </summary>
-public record ShaderObject(
+public abstract record ShaderObject(
     ShaderType Type,
     string Expression,
     ShaderOrigin Origin,
     IEnumerable<ShaderDependence> Dependencies
 ) {
+    public override string ToString()
+        => Expression;
+
     public static implicit operator ShaderObject(float value) => value;
     public static implicit operator ShaderObject(double value) => (float)value;
     public static implicit operator ShaderObject(int value) => value;
@@ -27,51 +31,44 @@ public record ShaderObject(
     public static implicit operator ShaderObject((float x, float y, float z, float w) value) => value;
 
     public static T Union<T>(string newExpression, T obj1, T obj2)
-        where T : ShaderObject, new()
+        where T : ShaderObject
     {
-        var deps = obj1.Dependecies.Concat(obj2.Dependecies);
+        var deps = obj1.Dependencies.Concat(obj2.Dependencies);
 
         var origin = (obj1.Origin, obj2.Origin) switch
         {
-            (ShaderOrigin.VertexShader, ShaderOrigin.VertexShader) => ShaderOrigin.VertexShader,
-            (ShaderOrigin.VertexShader, ShaderOrigin.Global) => ShaderOrigin.VertexShader,
-            (ShaderOrigin.Global, ShaderOrigin.VertexShader) => ShaderOrigin.VertexShader,
+            (VertexShader, VertexShader) => VertexShader,
+            (VertexShader, Global) => VertexShader,
+            (Global, VertexShader) => VertexShader,
 
-            (ShaderOrigin.FragmentShader, ShaderOrigin.FragmentShader) => ShaderOrigin.FragmentShader,
-            (ShaderOrigin.FragmentShader, ShaderOrigin.Global) => ShaderOrigin.FragmentShader,
-            (ShaderOrigin.Global, ShaderOrigin.FragmentShader) => ShaderOrigin.FragmentShader,
+            (FragmentShader, FragmentShader) => FragmentShader,
+            (FragmentShader, Global) => FragmentShader,
+            (Global, FragmentShader) => FragmentShader,
 
-            (ShaderOrigin.FragmentShader, ShaderOrigin.VertexShader) => ShaderOrigin.FragmentShader,
-            (ShaderOrigin.VertexShader, ShaderOrigin.FragmentShader) => ShaderOrigin.FragmentShader,
+            (FragmentShader, VertexShader) => FragmentShader,
+            (VertexShader, FragmentShader) => FragmentShader,
 
-            _ => ShaderOrigin.Global
+            _ => Global
         };
 
         bool hasConflitct = 
-            obj1.Origin != ShaderOrigin.Global && 
-            obj2.Origin != ShaderOrigin.Global && 
+            obj1.Origin != Global && 
+            obj2.Origin != Global && 
             obj1.Origin != obj2.Origin;
         if (hasConflitct)
         {
             (ShaderObject vertObj, ShaderObject fragObj) = 
-                obj1.Origin == ShaderOrigin.VertexShader ?
+                obj1.Origin == VertexShader ?
                 (obj1, obj2) : (obj2, obj1);
 
-            // TODO
-            vertObj.Dependecies = vertObj.Dependecies
-                .Append(null);
-
-            deps = deps.Append(new InputDependence(vertObj.Expression, null));
+            var output = new OutputDependence(vertObj);
+            
+            deps = deps.Append(output);
         }
 
-        return new T
-        {
-            Expression = newExpression,
-            Dependecies = deps,
-            Origin = origin
-        };;
+        var newObj = Activator.CreateInstance(
+            typeof(T), obj1.Type, newExpression, origin, deps
+        );
+        return newObj as T;
     }
-
-    public override string ToString()
-        => Expression;
 }

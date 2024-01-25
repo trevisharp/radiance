@@ -1,26 +1,37 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/08/2023
+ * Date:    24/01/2024
  */
+using System.Text;
+
 namespace Radiance.Shaders.Dependencies;
 
 using Internal;
 
 /// <summary>
-/// Represents a dependece of a position buffer data.
+/// Represents dependence of a variable definition in shader code.
 /// </summary>
-public class VariableDependence<T> : OldShaderDependence<T>
-    where T : ShaderObject, new()
+public class VariableDependence : ShaderDependence
 {
-    private string type;
-    public VariableDependence()
+    public string Name => this.name;
+
+    string type, name, expr;
+    public VariableDependence(string type, string name, string expr)
     {
-        this.DependenceType = ShaderDependenceType.Variable;
-        this.type = ShaderObject.GetStringName<T>();
-        this.Name = ParamNamgeGenerator.GetNext();
+        this.type = type;
+        this.name = name;
+        this.expr = expr;
     }
 
-    public override object Value => null;
+    public VariableDependence(string type, string expr)
+    {
+        this.type = type;
+        this.name = AutoVariableName.Next(type);
+        this.expr = expr;
+    }
 
-    public override string GetHeader()
-        => $"in {type} {Name};";
+    public VariableDependence(ShaderObject obj)
+        : this(obj.Type.TypeName, obj.Expression) {}
+
+    public override void AddCode(StringBuilder sb)
+        => sb.AppendLine($"{type} {name} = {expr};");
 }

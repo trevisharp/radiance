@@ -1,23 +1,28 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/01/2024
+ * Date:    24/01/2024
  */
+using System.Text;
+
 namespace Radiance.Shaders.Dependencies;
 
-/// <summary>
-/// Represents a input dependence from Vertex Shader to Fragment Shader.
-/// </summary>
-public class OutputDependence<T> : OldShaderDependence<T>
-    where T : ShaderObject, new()
-{
-    private string type;
-    public OutputDependence(string name)
-    {
-        this.DependenceType = ShaderDependenceType.Variable;
-        this.type = ShaderObject.GetStringName<T>();
-        this.Name = name;
-    }
+using Internal;
 
-    public override object Value => null;
-    public override string GetHeader()
-        => $"out {type} {Name};";
+/// <summary>
+/// Represents a dependence of output data from Vertex Shader to Fragment Shader.
+/// </summary>
+public class OutputDependence(ShaderObject obj) : ShaderDependence
+{
+    private readonly string type = obj.Type.TypeName;
+    private readonly string name = AutoVariableName.Next(
+        "out" + obj.Type.TypeName, 7
+    );
+
+    public override void AddVertexCode(StringBuilder sb)
+        => sb.AppendLine($"{name} = {obj.Expression}");
+
+    public override void AddVertexHeader(StringBuilder sb)
+        => sb.AppendLine($"out {type} {name};");
+
+    public override void AddFragmentHeader(StringBuilder sb)
+        => sb.AppendLine($"in {type} {name};");
 }
