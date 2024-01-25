@@ -26,34 +26,8 @@ using Shaders.Dependencies;
 /// </summary>
 public class OpenGLManager
 {
-    // Global OpenGL resources indexes map
-    static Dictionary<int, int> shaderMap = new();
-    static Dictionary<(int, int), int> programMap = new();
-    static Dictionary<ImageResult, int> textureMap = new();
-    static List<int> bufferList = new();
-    static List<int> vertexArrayList = new();
     
     public static bool Verbose { get; set; } = false;
-
-    public static void FreeAllResources()
-    {
-        GL.UseProgram(0);
-        foreach (var program in programMap)
-            GL.DeleteProgram(program.Value);
-        programMap.Clear();
-
-        foreach (var buffer in bufferList)
-            GL.DeleteBuffer(buffer);
-        bufferList.Clear();
-
-        foreach (var shaderKey in shaderMap)
-            GL.DeleteShader(shaderKey.Value);
-        shaderMap.Clear();
-
-        foreach (var vertexArray in vertexArrayList)
-            GL.DeleteVertexArray(vertexArray);
-        vertexArrayList.Clear();
-    }
     
     private int globalTabIndex = 0;
     private event Action<Polygon, object[]> operations;
@@ -286,9 +260,9 @@ public class OpenGLManager
         return bufferObject;
     }
 
-    private List<OldShaderDependence> getDependences(IEnumerable<ShaderObject> objs)
+    private List<ShaderDependence> getDependences(IEnumerable<ShaderObject> objs)
     {
-        var dependences = new List<OldShaderDependence>();
+        var dependences = new List<ShaderDependence>();
         foreach (var obj in objs)
         {
             foreach (var dependence in obj.Dependecies)
@@ -314,7 +288,7 @@ public class OpenGLManager
         var dependencens = vertexObject.Dependecies
             .Append(Utils._width)
             .Append(Utils._height)
-            .Distinct(OldShaderDependence.Comparer);
+            .Distinct(ShaderDependence.Comparer);
         
         var codeDeps = vertexObject.Dependecies
             .Where(dep => dep is CodeDependence)
@@ -348,13 +322,6 @@ public class OpenGLManager
             }
         }
 
-        // foreach (var output in outputs)
-        // {
-        //     var type = output.BaseValue.Type;
-        //     var name = output.BaseDependence.Name;
-        //     sb.AppendLine($"out {getShaderTypeName(type)} {name};");
-        // }
-        
         var exp = vertexObject.Expression;
 
         sb.AppendLine();
@@ -366,13 +333,6 @@ public class OpenGLManager
         sb.AppendLine($"\tvec3 finalPosition = {exp};");
         sb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
         sb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
-
-        // foreach (var output in outputs)
-        // {
-        //     var outExp = output.BaseValue.Expression;
-        //     var name = output.BaseDependence.Name;
-        //     sb.AppendLine($"\t{name} = {outExp};");
-        // }
 
         sb.Append("}");
 
@@ -395,7 +355,7 @@ public class OpenGLManager
         Action setup = null;
         
         var dependencens = fragmentObject.Dependecies
-            .Distinct(OldShaderDependence.Comparer);
+            .Distinct(ShaderDependence.Comparer);
         
         var codeDeps = fragmentObject.Dependecies
             .Where(dep => dep is CodeDependence)
@@ -466,90 +426,6 @@ public class OpenGLManager
             ShaderType.Bool => "bool",
             _ => "float"
         };
-
-    private void setUniform(int program, OldShaderDependence dependence)
-    {
-        switch (dependence)
-        {
-            case OldShaderDependence<FloatShaderObject>:
-                setUniformFloat(program, dependence.Name, (float)dependence.Value);
-                break;
-        }
-    }
-
-    private void setUniformFloat(int program, string name, float value)
-    {
-        var code = GL.GetUniformLocation(program, name);
-        GL.Uniform1(code, value);
-    }
-
-    private void setTextureData(int program, OldShaderDependence dependence)
-    {
-        var textureDep = dependence as TextureDependence;
-        if (textureDep is null)
-            return;
-        
-        int id = int.Parse(
-            dependence.Name.Replace("texture", "")
-        );
-        var texture = textureDep.Value as Texture;
-
-        activateImage(texture.ImageData, id);
-        var code = GL.GetUniformLocation(program, $"texture{id}");
-        GL.Uniform1(code, id);
-    }
-
-    private void activateImage(ImageResult image, int id)
-    {
-        int handle = getTextureHandle(image);
-        GL.ActiveTexture(TextureUnit.Texture0 + id);
-        GL.BindTexture(TextureTarget.Texture2D, handle);
-    }
-
-    private int getTextureHandle(ImageResult image)
-    {
-        if (textureMap.ContainsKey(image))
-            return textureMap[image];
-        
-        int handle = initImageData(image);
-        textureMap.Add(image, handle);
-        return handle;
-    }
-
-    private int initImageData(ImageResult image)
-    {
-        int handle = GL.GenTexture();
-        GL.BindTexture(TextureTarget.Texture2D, handle);
-        
-        GL.TexImage2D(
-            TextureTarget.Texture2D, 0, PixelInternalFormat.Rgba, 
-            image.Width, image.Height, 0, PixelFormat.Rgba,
-            PixelType.UnsignedByte, image.Data
-        );   
-        GL.TexParameter(
-            TextureTarget.Texture2D, 
-            TextureParameterName.TextureWrapS, 
-            (int)TextureWrapMode.Repeat
-        );
-        GL.TexParameter(
-            TextureTarget.Texture2D,
-            TextureParameterName.TextureWrapT,
-            (int)TextureWrapMode.Repeat
-        );
-        GL.TexParameter(
-            TextureTarget.Texture2D,
-            TextureParameterName.TextureMagFilter,
-            (int)TextureMagFilter.Linear
-        );
-        GL.TexParameter(
-            TextureTarget.Texture2D,
-            TextureParameterName.TextureMinFilter,
-            (int)TextureMinFilter.Linear
-        );
-        GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
-
-        return handle;
-    }
 
     private int createVertexArray(Polygon data)
     {
