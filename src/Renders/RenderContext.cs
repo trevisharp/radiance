@@ -1,9 +1,10 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/01/2024
+ * Date:    25/01/2024
  */
 using System;
 using System.Text;
 using System.Linq;
+using System.Threading;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -12,7 +13,7 @@ using static System.Console;
 using StbImageSharp;
 using OpenTK.Graphics.OpenGL4;
 
-namespace Radiance;
+namespace Radiance.Renders;
 
 using Data;
 using Internal;
@@ -22,10 +23,49 @@ using Shaders.Objects;
 using Shaders.Dependencies;
 
 /// <summary>
-/// A class to manage OpenGL buffers, shaders and programs.
+/// A global thread-safe context to shader construction.
 /// </summary>
-public class OpenGLManager
+public class RenderContext
 {
+    private static Dictionary<int, RenderContext> threadMap = new();
+    internal static RenderContext CreateContext()
+    {
+        var crr = Thread.CurrentThread;
+        var id  = crr.ManagedThreadId;
+        if (threadMap.ContainsKey(id))
+            threadMap.Remove(id);
+    
+        var ctx = new RenderContext();
+        threadMap.Add(id, ctx);
+        return ctx;
+    }
+    internal static RenderContext GetContext()
+    {
+        var crr = Thread.CurrentThread;
+        var id  = crr.ManagedThreadId;
+        if (threadMap.ContainsKey(id))
+            return threadMap[id];
+        
+        return null;
+    }
+
+    static Dictionary<int, int> shaderMap = new();
+    static Dictionary<(int, int), int> programMap = new();
+
+    /// <summary>
+    /// Unload all OpenGL Resources.
+    /// </summary>
+    public static void FreeAllResources()
+    {
+        GL.UseProgram(0);
+        foreach (var program in programMap)
+            GL.DeleteProgram(program.Value);
+        programMap.Clear();
+
+        foreach (var shaderKey in shaderMap)
+            GL.DeleteShader(shaderKey.Value);
+        shaderMap.Clear();
+    }
     
     public static bool Verbose { get; set; } = false;
     
@@ -33,6 +73,8 @@ public class OpenGLManager
     private event Action<Polygon, object[]> operations;
 
     public string VersionText { get; set; } = "330 core";
+    public Vec3ShaderObject Position { get; set; }
+    public Vec4ShaderObject Color { get; set; }
     
     public void Render(Polygon polygon, object[] parameters)
     {
@@ -61,86 +103,27 @@ public class OpenGLManager
     public void AddDraw() 
         => baseDraw(false);
 
-    private void createResources(Polygon poly)
-    {
-        if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
-            return;
-
-        updateResources(poly, true, true);
-        poly.OnChange += (bufferBreak, layoutBreak) =>
-            updateResources(poly, bufferBreak, layoutBreak);
-    }
-
-    private void bindBuffer(Polygon poly)
-    {
-        GL.BindBuffer(
-            BufferTarget.ArrayBuffer, 
-            poly.Buffer
-        );
-    }
-
-    private void bindVertexArray(Polygon poly)
-    {
-        GL.BindVertexArray(
-            poly.VertexObjectArray
-        );
-    }
-
-    private void updateResources(Polygon poly, bool bufferBreak, bool layoutBreak)
-    {
-        if (bufferBreak)
-        {
-            if (poly.Buffer > -1)
-                GL.DeleteBuffer(poly.Buffer);
-
-            int buffer = createBuffer();
-            poly.Buffer = buffer;
-        }
-        bindBuffer(poly);
-
-        if (layoutBreak)
-        {
-            if (poly.VertexObjectArray > -1)
-                GL.DeleteVertexArray(poly.VertexObjectArray);
-
-            int vertexArray = createVertexArray(poly);
-            poly.VertexObjectArray = vertexArray;
-        }
-        bindVertexArray(poly);
-
-        var data = poly.Data;
-        GL.BufferData(
-            BufferTarget.ArrayBuffer,
-            data.Length * sizeof(float), data, 
-            BufferUsageHint.DynamicDraw
-        );
-    }
-
     private void baseDraw(bool isFill)
     {
-        var ctx = RenderContext.GetContext();
-        var vert = ctx.Position;
-        var frag = ctx.Color;
+        var renderCtx = RenderContext.GetContext();
+        var vert = renderCtx.Position;
+        var frag = renderCtx.Color;
 
         start("Creating Program");
-        var programData = new int[] { 0 };
+        ShaderContext shaderCtx = new ShaderContext();
 
         start("Vertex Shader Creation");
-        var vertexTuple = generateVertexShader(
-            vert, programData
-        );
+        var vertexTuple = generateVertexShader(vert, shaderCtx);
         var vertexShader = createVertexShader(vertexTuple.source);
         success("Shader Created!!");
 
         start("Fragment Shader Creation");
-        var fragmentTuple = generateFragmentShader(
-            frag, programData
-        );
+        var fragmentTuple = generateFragmentShader(frag, shaderCtx);
         var fragmentShader = createFragmentShader(fragmentTuple.source);
         success("Shader Created!!");
 
         int program = createProgram(vertexShader, fragmentShader);
-        programData[0] = program;
+        shaderCtx.Program = program;
         success("Program Created!!");
         
         operations += (poly, data) =>
@@ -187,7 +170,7 @@ public class OpenGLManager
     {
         information("Creating Shader...");
 
-        var hash = getHash(source);
+        var hash = source.GetHashCode();
         information($"Hash: {hash}");
 
         if (shaderMap.ContainsKey(hash))
@@ -249,91 +232,40 @@ public class OpenGLManager
         return program;
     }
 
-    private int getHash(string str)
-        => str.GetHashCode();
-
-    private int createBuffer()
-    {
-        var bufferObject = GL.GenBuffer();
-        GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
-        bufferList.Add(bufferObject);
-        return bufferObject;
-    }
-
-    private List<ShaderDependence> getDependences(IEnumerable<ShaderObject> objs)
-    {
-        var dependences = new List<ShaderDependence>();
-        foreach (var obj in objs)
-        {
-            foreach (var dependence in obj.Dependecies)
-            {
-                if (dependences.Contains(dependence))
-                    continue;
-                
-                dependences.Add(dependence);
-            }
-        }
-        return dependences;
-    }
-
     private (string source, Action setup) generateVertexShader(
         Vec3ShaderObject vertexObject,
-        int[] programData
+        ShaderContext ctx
     )
     {
         information($"Generating Shader...");
         var sb = getCodeBuilder();
         Action setup = null;
 
-        var dependencens = vertexObject.Dependencies
-            .Append(Utils._width)
-            .Append(Utils._height)
-            .Distinct(ShaderDependence.Comparer);
+        var deps = vertexObject.Dependencies
+            .Append(Utils.widthDep)
+            .Append(Utils.heightDep);
         
-        var codeDeps = vertexObject.Dependecies
-            .Where(dep => dep is CodeDependence)
-            .Select(dep => dep as CodeDependence);
-
-        foreach (var dependence in dependencens)
+        foreach (var dep in deps)
         {
-            switch (dependence.DependenceType)
-            {
-                case ShaderDependenceType.Uniform:
-                    sb.AppendLine(dependence.GetHeader());
+            dep.AddVertexHeader(sb);
+            dep.AddHeader(sb);
 
-                    setup += delegate
-                    {
-                        setUniform(programData[0], dependence);
-                    };
-                    break;
-                
-                case ShaderDependenceType.Texture:
-                    sb.AppendLine(dependence.GetHeader());
-
-                    setup += delegate
-                    {
-                        setTextureData(programData[0], dependence);
-                    };
-                    break;
-                
-                case ShaderDependenceType.CustomData:
-                    sb.AppendLine(dependence.GetHeader());
-                    break;
-            }
+            setup += dep.AddVertexOperation(ctx);
+            setup += dep.AddOperation(ctx);
         }
-
-        var exp = vertexObject.Expression;
 
         sb.AppendLine();
         sb.AppendLine("void main()");
         sb.AppendLine("{");
-        foreach (var codeDep in codeDeps)
-            sb.AppendLine("\t" + codeDep.GetCode() + ";");
+        foreach (var dep in deps)
+        {
+            dep.AddCode(sb);
+            dep.AddVertexCode(sb);
+        }
 
-        sb.AppendLine($"\tvec3 finalPosition = {exp};");
+        sb.AppendLine($"\tvec3 finalPosition = {vertexObject.Expression};");
         sb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
         sb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
-
         sb.Append("}");
 
         var result = sb.ToString();
@@ -346,7 +278,7 @@ public class OpenGLManager
 
     private (string source, Action setup) generateFragmentShader(
         Vec4ShaderObject fragmentObject,
-        int[] programData
+        ShaderContext ctx
     )
     {
         information($"Generating Shader...");
@@ -354,51 +286,28 @@ public class OpenGLManager
         var sb = getCodeBuilder();
         Action setup = null;
         
-        var dependencens = fragmentObject.Dependecies
-            .Distinct(ShaderDependence.Comparer);
+        var deps = fragmentObject.Dependencies;
         
-        var codeDeps = fragmentObject.Dependecies
-            .Where(dep => dep is CodeDependence)
-            .Select(dep => dep as CodeDependence);
-        
-        foreach (var dependence in dependencens)
+        foreach (var dep in deps)
         {
-            switch (dependence.DependenceType)
-            {
-                case ShaderDependenceType.Uniform:
-                    sb.AppendLine(dependence.GetHeader());
+            dep.AddFragmentHeader(sb);
+            dep.AddHeader(sb);
 
-                    setup += delegate
-                    {
-                        setUniform(programData[0], dependence);
-                    };
-                    break;
-                
-                case ShaderDependenceType.Texture:
-                    sb.AppendLine(dependence.GetHeader());
-
-                    setup += delegate
-                    {
-                        setTextureData(programData[0], dependence);
-                    };
-                    break;
-                
-                case ShaderDependenceType.Variable:
-                    sb.AppendLine(dependence.GetHeader());
-                    break;
-            }
+            setup += dep.AddFragmentOperation(ctx);
+            setup += dep.AddOperation(ctx);
         }
-        
-        var exp = fragmentObject.Expression;
 
         sb.AppendLine();
         sb.AppendLine("out vec4 outColor;");
         sb.AppendLine("void main()");
         sb.AppendLine("{");
-        foreach (var codeDep in codeDeps)
-            sb.AppendLine("\t" + codeDep.GetCode() + ";");
+        foreach (var dep in deps)
+        {
+            dep.AddCode(sb);
+            dep.AddFragmentCode(sb);
+        }
         
-        sb.AppendLine($"\toutColor = {exp};");
+        sb.AppendLine($"\toutColor = {fragmentObject.Expression};");
         sb.Append("}");
 
         var result = sb.ToString();

@@ -19,8 +19,6 @@ using Dependencies;
 public class ShaderContext
 {
     // Global OpenGL resources indexes map
-    static Dictionary<int, int> shaderMap = new();
-    static Dictionary<(int, int), int> programMap = new();
     static Dictionary<ImageResult, int> textureMap = new();
     static List<int> bufferList = new();
     static List<int> vertexArrayList = new();
@@ -31,18 +29,9 @@ public class ShaderContext
     /// </summary>
     public static void FreeAllResources()
     {
-        GL.UseProgram(0);
-        foreach (var program in programMap)
-            GL.DeleteProgram(program.Value);
-        programMap.Clear();
-
         foreach (var buffer in bufferList)
             GL.DeleteBuffer(buffer);
         bufferList.Clear();
-
-        foreach (var shaderKey in shaderMap)
-            GL.DeleteShader(shaderKey.Value);
-        shaderMap.Clear();
 
         foreach (var texture in textureMap)
             GL.DeleteTexture(texture.Value);
@@ -132,7 +121,7 @@ public class ShaderContext
 
         return handle;
     } 
-    
+
     private int createVertexArray(Polygon data)
     {
         int vertexObject = GL.GenVertexArray();
@@ -154,5 +143,68 @@ public class ShaderContext
 
         vertexArrayList.Add(vertexObject);
         return vertexObject;
+    }
+    
+    private int createBuffer()
+    {
+        var bufferObject = GL.GenBuffer();
+        GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
+        bufferList.Add(bufferObject);
+        return bufferObject;
+    }
+
+    private void createResources(Polygon poly)
+    {
+        if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
+            return;
+
+        updateResources(poly, true, true);
+        poly.OnChange += (bufferBreak, layoutBreak) =>
+            updateResources(poly, bufferBreak, layoutBreak);
+    }
+
+    private void bindBuffer(Polygon poly)
+    {
+        GL.BindBuffer(
+            BufferTarget.ArrayBuffer, 
+            poly.Buffer
+        );
+    }
+
+    private void bindVertexArray(Polygon poly)
+    {
+        GL.BindVertexArray(
+            poly.VertexObjectArray
+        );
+    }
+
+    private void updateResources(Polygon poly, bool bufferBreak, bool layoutBreak)
+    {
+        if (bufferBreak)
+        {
+            if (poly.Buffer > -1)
+                GL.DeleteBuffer(poly.Buffer);
+
+            int buffer = createBuffer();
+            poly.Buffer = buffer;
+        }
+        bindBuffer(poly);
+
+        if (layoutBreak)
+        {
+            if (poly.VertexObjectArray > -1)
+                GL.DeleteVertexArray(poly.VertexObjectArray);
+
+            int vertexArray = createVertexArray(poly);
+            poly.VertexObjectArray = vertexArray;
+        }
+        bindVertexArray(poly);
+
+        var data = poly.Data;
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            data.Length * sizeof(float), data, 
+            BufferUsageHint.DynamicDraw
+        );
     }
 }

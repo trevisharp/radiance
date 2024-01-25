@@ -21,7 +21,7 @@ using Exceptions;
 /// </summary>
 public class Render : DynamicObject, ICurryable
 {
-    private OpenGLManager manager;
+    private RenderContext ctx;
     private readonly int extraParameterCount;
     private List<ShaderDependence> dependenceList;
     public int ExtraParameterCount => extraParameterCount;
@@ -61,7 +61,7 @@ public class Render : DynamicObject, ICurryable
         foreach (var pair in data.Zip(dependenceList))
             pair.Second.UpdateData(pair.First);
 
-        manager.Render(poly, data);
+        ctx.Render(poly, data);
         
         result = null;
         return true;
@@ -108,8 +108,7 @@ public class Render : DynamicObject, ICurryable
 
     private void initRender()
     {
-        var ctx = RenderContext.CreateContext();
-        this.manager = ctx.Manager = new OpenGLManager();
+        this.ctx = RenderContext.CreateContext();
 
         var bufferDep = new BufferDependence();
         ctx.Position = new ("pos", ShaderOrigin.VertexShader, [bufferDep]);
