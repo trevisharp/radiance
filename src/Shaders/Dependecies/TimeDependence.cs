@@ -19,5 +19,5 @@ public class TimeDependence : ShaderDependence
         => sb.AppendLine("uniform float t;");
 
     public override Action AddOperation(ShaderContext ctx)
-        => () => ctx.SetUniformFloat("t", secs);
+        => () => ctx.SetFloat("t", secs);
 }

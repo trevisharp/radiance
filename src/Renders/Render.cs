@@ -23,7 +23,7 @@ public class Render : DynamicObject, ICurryable
 {
     private OpenGLManager manager;
     private readonly int extraParameterCount;
-    private List<OldShaderDependence> dependenceList;
+    private List<ShaderDependence> dependenceList;
     public int ExtraParameterCount => extraParameterCount;
 
     public Render(Delegate function)
@@ -59,7 +59,7 @@ public class Render : DynamicObject, ICurryable
         var data = getArgs(args[1..]);
 
         foreach (var pair in data.Zip(dependenceList))
-            pair.Second.UpdateValue(pair.First);
+            pair.Second.UpdateData(pair.First);
 
         manager.Render(poly, data);
         
@@ -85,18 +85,22 @@ public class Render : DynamicObject, ICurryable
     {
         if (parameter.ParameterType == typeof(FloatShaderObject))
         {
-            var dep = new UniformParameterDependence(
-                parameter.Name, "float"
-            );
+            var dep = new UniformFloatDependence(parameter.Name);
             this.dependenceList.Add(dep);
-            return dep;
+
+            return new FloatShaderObject(
+                parameter.Name, ShaderOrigin.Global, [dep]
+            );
         }
 
         if (parameter.ParameterType == typeof(Sampler2DShaderObject))
         {
-            var dep = new TextureDependence();
+            var dep = new TextureDependence(parameter.Name);
             this.dependenceList.Add(dep);
-            return dep;
+            
+            return new Sampler2DShaderObject(
+                parameter.Name, ShaderOrigin.Global, [dep]
+            );
         }
         
         return null;
@@ -105,15 +109,12 @@ public class Render : DynamicObject, ICurryable
     private void initRender()
     {
         var ctx = RenderContext.CreateContext();
-        ctx.Position = new BufferDependence<Vec3ShaderObject>(
-            "pos", null, 0
-        );
-        ctx.Position.Origin = ShaderOrigin.VertexShader;
-
-        ctx.Color = new Vec4ShaderObject("(0.0, 0.0, 0.0, 1.0)");
-        ctx.Color.Origin = ShaderOrigin.FragmentShader;
-        
         this.manager = ctx.Manager = new OpenGLManager();
+
+        var bufferDep = new BufferDependence();
+        ctx.Position = new ("pos", ShaderOrigin.VertexShader, [bufferDep]);
+
+        ctx.Color = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
     }
 
     private object[] getArgs(object[] args)

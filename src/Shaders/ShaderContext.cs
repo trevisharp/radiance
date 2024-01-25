@@ -56,7 +56,7 @@ public class ShaderContext
     public int Program { get; set; }
     public int TextureCount { get; set; }
     
-    public void SetUniformFloat(string name, float value)
+    public void SetFloat(string name, float value)
     {
         var code = GL.GetUniformLocation(Program, name);
         GL.Uniform1(code, value);
