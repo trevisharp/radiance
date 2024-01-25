@@ -32,6 +32,12 @@ public abstract record ShaderObject(
 
     public static T Union<T>(string newExpression, T obj1, T obj2)
         where T : ShaderObject
+        => Union<T, T, T>(newExpression, obj1, obj2);
+
+    public static R Union<T1, T2, R>(string newExpression, T1 obj1, T2 obj2)
+        where T1 : ShaderObject
+        where T2 : ShaderObject
+        where R : ShaderObject
     {
         var deps = obj1.Dependencies.Concat(obj2.Dependencies);
 
@@ -57,9 +63,9 @@ public abstract record ShaderObject(
             obj1.Origin != obj2.Origin;
         if (hasConflitct)
         {
-            (ShaderObject vertObj, ShaderObject fragObj) = 
+            ShaderObject vertObj = 
                 obj1.Origin == VertexShader ?
-                (obj1, obj2) : (obj2, obj1);
+                obj1 : obj2;
 
             var output = new OutputDependence(vertObj);
             
@@ -67,8 +73,20 @@ public abstract record ShaderObject(
         }
 
         var newObj = Activator.CreateInstance(
-            typeof(T), obj1.Type, newExpression, origin, deps
+            typeof(R), newExpression, origin, deps
         );
-        return newObj as T;
+        return newObj as R;
+    }
+
+
+    public static R Transform<T, R>(string newExpression, T obj)
+        where T : ShaderObject
+        where R : ShaderObject
+    {
+        var newObj = Activator.CreateInstance(
+            typeof(R), obj.Type, newExpression,
+            obj.Origin, obj.Dependencies
+        );
+        return newObj as R;
     }
 }

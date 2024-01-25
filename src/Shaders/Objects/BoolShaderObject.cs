@@ -2,7 +2,6 @@
  * Date:    24/01/2024
  */
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Radiance.Shaders.Objects;
 
@@ -17,13 +16,13 @@ public record BoolShaderObject : ShaderObject
         ) : base(ShaderType.Bool, value, origin, deps) { }
 
     public static BoolShaderObject operator &(BoolShaderObject a, BoolShaderObject b)
-        => new ($"{a} && {b}", a.Dependecies.Concat(b.Dependecies));
+        => Union($"({a} & {b})", a, b);
 
     public static BoolShaderObject operator |(BoolShaderObject a, BoolShaderObject b)
-        => new ($"{a.Expression} || {b.Expression}", a.Dependecies.Concat(b.Dependecies));
+        => Union($"({a} || {b})", a, b);
     
     public static BoolShaderObject operator !(BoolShaderObject a)
-        => new ($"!({a.Expression})", a.Dependecies);
+        => Transform<BoolShaderObject, BoolShaderObject>($"(!{a})", a);
 
     public static implicit operator BoolShaderObject(bool value)
         => new (value.ToString(), ShaderOrigin.Global, []);

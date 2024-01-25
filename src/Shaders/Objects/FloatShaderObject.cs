@@ -1,10 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    10/08/2023
+ * Date:    24/01/2024
  */
-#pragma warning disable CS0660
-#pragma warning disable CS0661
-
-using System.Linq;
 using System.Collections.Generic; 
 
 namespace Radiance.Shaders.Objects;
@@ -12,119 +8,61 @@ namespace Radiance.Shaders.Objects;
 /// <summary>
 /// Represent a Float data in shader implementation.
 /// </summary>
-public class FloatShaderObject : ShaderObject
+public record FloatShaderObject : ShaderObject
 {
-    public FloatShaderObject()
-    {
-        this.Expression = "0.0";
-        this.Dependecies = new ShaderDependence[0];
-        this.Type = ShaderType.Float;
-    }
-
-    public FloatShaderObject(string value, params ShaderDependence[] deps)
-    {
-        this.Expression = value;
-        this.Dependecies = deps;
-        this.Type = ShaderType.Float;
-    }
-
-    public FloatShaderObject(string value, IEnumerable<ShaderDependence> deps)
-    {
-        this.Expression = value;
-        this.Dependecies = deps;
-        this.Type = ShaderType.Float;
-    }
+    public FloatShaderObject(
+        string value, ShaderOrigin origin,
+        IEnumerable<ShaderDependence> deps
+        ) : base(ShaderType.Bool, value, origin, deps) { }
 
     public static implicit operator FloatShaderObject(float value)
-        => new (value.ToString().Replace(',', '.'));
+        => new (value.ToString().Replace(',', '.'), ShaderOrigin.Global, []);
         
     public static implicit operator FloatShaderObject(double value)
-        => new (value.ToString().Replace(',', '.'));
+        => new (value.ToString().Replace(',', '.'), ShaderOrigin.Global, []);
         
     public static implicit operator FloatShaderObject(int value)
-        => new (value.ToString());
+        => new (value.ToString(), ShaderOrigin.Global, []);
     
     public static BoolShaderObject operator ==(FloatShaderObject a, FloatShaderObject b)
-    {
-        return new BoolShaderObject(
-            $"({a.Expression} == {b.Expression})",
-            a.Dependecies.Concat(b.Dependecies)
-        );
-    }
+        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
+            $"({a} == {b})", a, b);
     
     public static BoolShaderObject operator !=(FloatShaderObject a, FloatShaderObject b)
-    {
-        return new BoolShaderObject(
-            $"({a.Expression} != {b.Expression})",
-            a.Dependecies.Concat(b.Dependecies)
-        );
-    }
+        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
+            $"({a} != {b})", a, b);
 
     public static BoolShaderObject operator <(FloatShaderObject a, FloatShaderObject b)
-    {
-        return new BoolShaderObject(
-            $"({a.Expression} < {b.Expression})",
-            a.Dependecies.Concat(b.Dependecies)
-        );
-    }
+        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
+            $"({a} < {b})", a, b);
 
     public static BoolShaderObject operator >(FloatShaderObject a, FloatShaderObject b)
-    {
-        return new BoolShaderObject(
-            $"({a.Expression} > {b.Expression})",
-            a.Dependecies.Concat(b.Dependecies)
-        );
-    }
+        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
+            $"({a} > {b})", a, b);
     
     public static BoolShaderObject operator <=(FloatShaderObject a, FloatShaderObject b)
-    {
-        return new BoolShaderObject(
-            $"({a.Expression} <= {b.Expression})",
-            a.Dependecies.Concat(b.Dependecies)
-        );
-    }
+        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
+            $"({a} <= {b})", a, b);
 
     public static BoolShaderObject operator >=(FloatShaderObject a, FloatShaderObject b)
-    {
-        return new BoolShaderObject(
-            $"({a.Expression} >= {b.Expression})",
-            a.Dependecies.Concat(b.Dependecies)
-        );
-    }
+        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
+            $"({a} >= {b})", a, b);
 
-    public static FloatShaderObject operator +(FloatShaderObject x, FloatShaderObject y)
-    {
-        var dependecies = x.Dependecies.Concat(y.Dependecies);
-        return new ($"({x} + {y})", dependecies);
-    }
+    public static FloatShaderObject operator +(FloatShaderObject a, FloatShaderObject b)
+        => Union($"({a} + {b})", a, b);
     
-    public static FloatShaderObject operator -(FloatShaderObject x, FloatShaderObject y)
-    {
-        var dependecies = x.Dependecies.Concat(y.Dependecies);
-        return new ($"({x} - {y})", dependecies);
-    }
+    public static FloatShaderObject operator -(FloatShaderObject a, FloatShaderObject b)
+        => Union($"({a} - {b})", a, b);
     
-    public static FloatShaderObject operator *(FloatShaderObject x, FloatShaderObject y)
-    {
-        var dependecies = x.Dependecies.Concat(y.Dependecies);
-        return new ($"({x} * {y})", dependecies);
-    }
+    public static FloatShaderObject operator *(FloatShaderObject a, FloatShaderObject b)
+        => Union($"({a} * {b})", a, b);
     
-    public static FloatShaderObject operator /(FloatShaderObject x, FloatShaderObject y)
-    {
-        var dependecies = x.Dependecies.Concat(y.Dependecies);
-        return new ($"({x} / {y})", dependecies);
-    }
+    public static FloatShaderObject operator /(FloatShaderObject a, FloatShaderObject b)
+        => Union($"({a} / {b})", a, b);
 
-    public static FloatShaderObject operator +(FloatShaderObject x)
-    {
-        var dependecies = x.Dependecies;
-        return new ($"(+{x})", dependecies);
-    }
+    public static FloatShaderObject operator +(FloatShaderObject a)
+        => Transform<FloatShaderObject, FloatShaderObject>($"(+{a})", a);
     
-    public static FloatShaderObject operator -(FloatShaderObject x)
-    {
-        var dependecies = x.Dependecies;
-        return new ($"(-{x})", dependecies);
-    }
+    public static FloatShaderObject operator -(FloatShaderObject a)
+        => Transform<FloatShaderObject, FloatShaderObject>($"(-{a})", a);
 }
