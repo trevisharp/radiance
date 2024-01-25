@@ -22,8 +22,6 @@ using Shaders.Dependencies;
 /// </summary>
 public static class Utils
 {
-    private static int variableCount = 0;
-
     internal readonly static Polygon square = Rect(1, 1);
     internal readonly static Polygon circle = Ellipse(1, 1, 128);
     internal readonly static TimeDependence _t = new();
@@ -688,130 +686,54 @@ public static class Utils
         => autoVar(func<Vec4ShaderObject, Sampler2DShaderObject, Vec2ShaderObject>("texture", img, pos), "tex");
     
     private static FloatShaderObject var(FloatShaderObject obj, string name)
-    {
-        var dependence = new CodeDependence(
-            obj, name
-        );
-        var variable = new FloatShaderObject(
-            name, obj.Dependecies.Append(dependence)
-        );
-        return variable;
-    }
+        => new (name, obj.Origin, [new VariableDependence(
+            obj.Type.TypeName, name, obj.Expression
+        )]);
 
     private static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
-    {
-        var dependence = new CodeDependence(
-            obj, name
-        );
-        var variable = new Vec2ShaderObject(
-            name, obj.Dependecies.Append(dependence)
-        );
-        return variable;
-    }
+        => new (name, obj.Origin, [new VariableDependence(
+            obj.Type.TypeName, name, obj.Expression
+        )]);
 
     private static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
-    {
-        var dependence = new CodeDependence(
-            obj, name
-        );
-        var variable = new Vec3ShaderObject(
-            name, obj.Dependecies.Append(dependence)
-        );
-        return variable;
-    }
+        => new (name, obj.Origin, [new VariableDependence(
+            obj.Type.TypeName, name, obj.Expression
+        )]);
 
     private static Vec4ShaderObject var(Vec4ShaderObject obj, string name)
-    {
-        var dependence = new CodeDependence(
-            obj, name
-        );
-        var variable = new Vec4ShaderObject(
-            name, obj.Dependecies.Append(dependence)
-        );
-        return variable;
-    }
+        => new (name, obj.Origin, [new VariableDependence(
+            obj.Type.TypeName, name, obj.Expression
+        ), ..obj.Dependencies]);
     
-    private static FloatShaderObject autoVar(FloatShaderObject obj, string name)
-        => var(obj, name + variableCount++);
-
-    private static Vec2ShaderObject autoVar(Vec2ShaderObject obj, string name)
-        => var(obj, name + variableCount++);
-
-    private static Vec3ShaderObject autoVar(Vec3ShaderObject obj, string name)
-        => var(obj, name + variableCount++);
-
-    private static Vec4ShaderObject autoVar(Vec4ShaderObject obj, string name)
-        => var(obj, name + variableCount++);
-
-    private static FloatShaderObject operation<T>(string name, T obj1, T obj2)
-        where T : ShaderObject
-        => func<FloatShaderObject, T, T>(name, obj1, obj2);
-
-    private static FloatShaderObject operation<T>(string name, T obj1, T obj2, T obj3)
-        where T : ShaderObject
-        => func<FloatShaderObject, T, T, T>(name, obj1, obj2, obj3);
-
-    private static FloatShaderObject floatFunc(string name, FloatShaderObject input)
-        => func<FloatShaderObject, FloatShaderObject>(name, input);
-
-    private static R func<R, P1>(
-        string name, 
-        P1 obj1
-    )
-        where R : ShaderObject, new()
-        where P1 : ShaderObject
+    private static FloatShaderObject autoVar(FloatShaderObject obj)
     {
-        var result = new R();
-
-        result.Dependecies = obj1.Dependecies;
-        
-        result.Expression = 
-            buildObject(name, obj1);
-
-        return result;
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
     }
 
-    private static R func<R, P1, P2>(
-        string name, 
-        P1 obj1, P2 obj2
-    )
-        where R : ShaderObject, new()
-        where P1 : ShaderObject
-        where P2 : ShaderObject
+    private static Vec2ShaderObject autoVar(Vec2ShaderObject obj)
     {
-        var result = new R();
-
-        result.Dependecies = 
-            obj1.Dependecies
-            .Concat(obj2.Dependecies);
-        
-        result.Expression = 
-            buildObject(name, obj1, obj2);
-
-        return result;
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
     }
 
-    private static R func<R, P1, P2, P3>(
-        string name, 
-        P1 obj1, P2 obj2, P3 obj3
-    )
-        where R : ShaderObject, new()
-        where P1 : ShaderObject
-        where P2 : ShaderObject
-        where P3 : ShaderObject
+    private static Vec3ShaderObject autoVar(Vec3ShaderObject obj)
     {
-        var result = new R();
-
-        result.Dependecies = 
-            obj1.Dependecies
-            .Concat(obj2.Dependecies)
-            .Concat(obj3.Dependecies);
-        
-        result.Expression = 
-            buildObject(name, obj1, obj2, obj3);
-
-        return result;
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
     }
+
+    private static Vec4ShaderObject autoVar(Vec4ShaderObject obj,)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
+    }
+
+    private static R func<R>(
+        string name, ShaderObject[] objs
+    )
+        where R : ShaderObject
+        => ShaderObject.Union<R>(buildObject(name), objs);
 
     private static string buildObject(
         string funcName,
