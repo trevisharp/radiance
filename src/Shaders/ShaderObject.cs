@@ -12,13 +12,12 @@ using Dependencies;
 /// <summary>
 /// Represents any data in a shader implementation.
 /// </summary>
-public class ShaderObject
-{
-    public ShaderType Type { get; set; }
-    public string Expression { get; set; }
-    public ShaderOrigin Origin { get; set; } = ShaderOrigin.Global;
-    public IEnumerable<ShaderDependence> Dependecies { get; set; }
-
+public record ShaderObject(
+    ShaderType Type,
+    string Expression,
+    ShaderOrigin Origin,
+    IEnumerable<ShaderDependence> Dependencies
+) {
     public static implicit operator ShaderObject(float value) => value;
     public static implicit operator ShaderObject(double value) => (float)value;
     public static implicit operator ShaderObject(int value) => value;

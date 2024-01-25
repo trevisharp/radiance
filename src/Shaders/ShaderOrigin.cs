@@ -1,14 +1,16 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/01/2024
+ * Date:    24/01/2024
  */
 namespace Radiance.Shaders;
 
 /// <summary>
 /// Enumerate the types of origins that a object can have.
 /// </summary>
-public enum ShaderOrigin : byte
+public class ShaderOrigin(string name)
 {
-    FragmentShader = 0b01,
-    VertexShader = 0b10,
-    Global = 0b11
+    public readonly string Name = name;
+
+    public static readonly ShaderOrigin Global = new("global");
+    public static readonly ShaderOrigin VertexShader = new("vertex");
+    public static readonly ShaderOrigin FragmentShader = new("fragment");
 }

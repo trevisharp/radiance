@@ -9,14 +9,11 @@ namespace Radiance.Shaders.Objects;
 /// <summary>
 /// Represent a Bool data in shader implementation.
 /// </summary>
-public class BoolShaderObject : ShaderObject
+public record BoolShaderObject : ShaderObject
 {
-    public BoolShaderObject()
-    {
-        this.Expression = "false";
-        this.Dependecies = new ShaderDependence[0];
-        this.Type = ShaderType.Bool;
-    }
+    public BoolShaderObject() 
+        : base(ShaderType.Bool, "false", ShaderOrigin.Global, [])
+    { }
 
     public BoolShaderObject(string value, params ShaderDependence[] deps)
     {
