@@ -29,40 +29,34 @@ public class FloatShaderObject : ShaderObject
         => new (value.Format(), ShaderOrigin.Global, []);
     
     public static BoolShaderObject operator ==(FloatShaderObject a, FloatShaderObject b)
-        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
-            $"({a} == {b})", a, b);
+        => Union<BoolShaderObject>($"({a} == {b})", a, b);
     
     public static BoolShaderObject operator !=(FloatShaderObject a, FloatShaderObject b)
-        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
-            $"({a} != {b})", a, b);
+        => Union<BoolShaderObject>($"({a} != {b})", a, b);
 
     public static BoolShaderObject operator <(FloatShaderObject a, FloatShaderObject b)
-        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
-            $"({a} < {b})", a, b);
+        => Union<BoolShaderObject>($"({a} < {b})", a, b);
 
     public static BoolShaderObject operator >(FloatShaderObject a, FloatShaderObject b)
-        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
-            $"({a} > {b})", a, b);
+        => Union<BoolShaderObject>($"({a} > {b})", a, b);
     
     public static BoolShaderObject operator <=(FloatShaderObject a, FloatShaderObject b)
-        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
-            $"({a} <= {b})", a, b);
+        => Union<BoolShaderObject>($"({a} <= {b})", a, b);
 
     public static BoolShaderObject operator >=(FloatShaderObject a, FloatShaderObject b)
-        => Union<FloatShaderObject, FloatShaderObject, BoolShaderObject>(
-            $"({a} >= {b})", a, b);
+        => Union<BoolShaderObject>($"({a} >= {b})", a, b);
 
     public static FloatShaderObject operator +(FloatShaderObject a, FloatShaderObject b)
-        => Union($"({a} + {b})", a, b);
+        => Union<FloatShaderObject>($"({a} + {b})", a, b);
     
     public static FloatShaderObject operator -(FloatShaderObject a, FloatShaderObject b)
-        => Union($"({a} - {b})", a, b);
+        => Union<FloatShaderObject>($"({a} - {b})", a, b);
     
     public static FloatShaderObject operator *(FloatShaderObject a, FloatShaderObject b)
-        => Union($"({a} * {b})", a, b);
+        => Union<FloatShaderObject>($"({a} * {b})", a, b);
     
     public static FloatShaderObject operator /(FloatShaderObject a, FloatShaderObject b)
-        => Union($"({a} / {b})", a, b);
+        => Union<FloatShaderObject>($"({a} / {b})", a, b);
 
     public static FloatShaderObject operator +(FloatShaderObject a)
         => Transform<FloatShaderObject, FloatShaderObject>($"(+{a})", a);

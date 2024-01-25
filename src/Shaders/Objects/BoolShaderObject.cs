@@ -16,10 +16,10 @@ public class BoolShaderObject : ShaderObject
         ) : base(ShaderType.Bool, value, origin, deps) { }
 
     public static BoolShaderObject operator &(BoolShaderObject a, BoolShaderObject b)
-        => Union($"({a} & {b})", a, b);
+        => Union<BoolShaderObject>($"({a} & {b})", a, b);
 
     public static BoolShaderObject operator |(BoolShaderObject a, BoolShaderObject b)
-        => Union($"({a} || {b})", a, b);
+        => Union<BoolShaderObject>($"({a} || {b})", a, b);
     
     public static BoolShaderObject operator !(BoolShaderObject a)
         => Transform<BoolShaderObject, BoolShaderObject>($"(!{a})", a);

@@ -63,9 +63,4 @@ public abstract class ShaderDependence
     /// Update the data used by dependence in its operations.
     /// </summary>
     public virtual void UpdateData(object value) { }
-
-    public static implicit operator FloatShaderObject(ShaderDependence dependence)
-    {
-        
-    }
 }

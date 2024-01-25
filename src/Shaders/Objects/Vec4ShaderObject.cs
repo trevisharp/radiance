@@ -45,22 +45,19 @@ public class Vec4ShaderObject : ShaderObject
         );
     
     public static BoolShaderObject operator ==(Vec4ShaderObject a, Vec4ShaderObject b)
-        => Union<Vec4ShaderObject, Vec4ShaderObject, BoolShaderObject>(
-            $"({a} == {b})", a, b);
+        => Union<BoolShaderObject>($"({a} == {b})", a, b);
     
     public static BoolShaderObject operator !=(Vec4ShaderObject a, Vec4ShaderObject b)
-        => Union<Vec4ShaderObject, Vec4ShaderObject, BoolShaderObject>(
-            $"({a} != {b})", a, b);
+        => Union<BoolShaderObject>($"({a} != {b})", a, b);
 
     public static Vec4ShaderObject operator +(Vec4ShaderObject v, Vec4ShaderObject u)
-        => Union($"({v} + {u})", v, u);
+        => Union<Vec4ShaderObject>($"({v} + {u})", v, u);
     
     public static Vec4ShaderObject operator -(Vec4ShaderObject v, Vec4ShaderObject u)
-        => Union($"({v} - {u})", v, u);
+        => Union<Vec4ShaderObject>($"({v} - {u})", v, u);
     
     public static FloatShaderObject operator *(Vec4ShaderObject v, Vec4ShaderObject u)
-        => Union<Vec4ShaderObject, Vec4ShaderObject, FloatShaderObject>(
-            $"({v} == {u})", v, u);
+        => Union<FloatShaderObject>($"({v} == {u})", v, u);
     
     public static Vec4ShaderObject operator +(Vec4ShaderObject v, 
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
@@ -105,23 +102,20 @@ public class Vec4ShaderObject : ShaderObject
     }
 
     public static Vec4ShaderObject operator *(Vec4ShaderObject v, FloatShaderObject a)
-        => Union<Vec4ShaderObject, FloatShaderObject, Vec4ShaderObject>(
-            $"({a} * {v})", v, a);
+        => Union<Vec4ShaderObject>($"({a} * {v})", v, a);
 
     public static Vec4ShaderObject operator *(FloatShaderObject a, Vec4ShaderObject v)
-        => Union<Vec4ShaderObject, FloatShaderObject, Vec4ShaderObject>(
-            $"({a} * {v})", v, a);
+        => Union<Vec4ShaderObject>($"({a} * {v})", v, a);
 
     public static Vec4ShaderObject operator /(Vec4ShaderObject v, FloatShaderObject a)
-        => Union<Vec4ShaderObject, FloatShaderObject, Vec4ShaderObject>(
-            $"({v} / {a})", v, a);
+        => Union<Vec4ShaderObject>($"({v} / {a})", v, a);
     
     public static implicit operator Vec4ShaderObject((float x, float y, float z, float w) tuple)
-        => new ($"vec2({tuple.x.Format()}, {tuple.y.Format()},  {tuple.z.Format()}, {tuple.w.Format()})", ShaderOrigin.Global, []);
+        => new ($"vec4({tuple.x.Format()}, {tuple.y.Format()},  {tuple.z.Format()}, {tuple.w.Format()})", ShaderOrigin.Global, []);
 
     public static implicit operator Vec4ShaderObject(
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
-        => new ($"vec2({tuple.x}, {tuple.y}, {tuple.z}, {tuple.w})", ShaderOrigin.Global, []);
+        => new ($"vec4({tuple.x}, {tuple.y}, {tuple.z}, {tuple.w})", ShaderOrigin.Global, []);
     
     public static Vec4ShaderObject operator +(Vec4ShaderObject x)
         => Transform<Vec4ShaderObject, Vec4ShaderObject>($"(+{x})", x);

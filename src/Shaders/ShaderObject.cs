@@ -34,55 +34,46 @@ public abstract class ShaderObject(
     public static implicit operator ShaderObject((float x, float y) value) => value;
     public static implicit operator ShaderObject((float x, float y, float z) value) => value;
     public static implicit operator ShaderObject((float x, float y, float z, float w) value) => value;
-
-    public static T Union<T>(string newExpression, T obj1, T obj2)
-        where T : ShaderObject
-        => Union<T, T, T>(newExpression, obj1, obj2);
-
-    public static R Union<T1, T2, R>(string newExpression, T1 obj1, T2 obj2)
-        where T1 : ShaderObject
-        where T2 : ShaderObject
+    
+    public static R Union<R>(string newExpression, params ShaderObject[] objs)
         where R : ShaderObject
     {
-        var deps = obj1.Dependencies.Concat(obj2.Dependencies);
+        var deps = objs.SelectMany(x => x.Dependencies);
+        var originInfo = unionOrigin(objs.Select(x => x.Origin));
 
-        var origin = (obj1.Origin, obj2.Origin) switch
+        if (originInfo.hasConflitct)
         {
-            (VertexShader, VertexShader) => VertexShader,
-            (VertexShader, Global) => VertexShader,
-            (Global, VertexShader) => VertexShader,
-
-            (FragmentShader, FragmentShader) => FragmentShader,
-            (FragmentShader, Global) => FragmentShader,
-            (Global, FragmentShader) => FragmentShader,
-
-            (FragmentShader, VertexShader) => FragmentShader,
-            (VertexShader, FragmentShader) => FragmentShader,
-
-            _ => Global
-        };
-
-        bool hasConflitct = 
-            obj1.Origin != Global && 
-            obj2.Origin != Global && 
-            obj1.Origin != obj2.Origin;
-        if (hasConflitct)
-        {
-            ShaderObject vertObj = 
-                obj1.Origin == VertexShader ?
-                obj1 : obj2;
-
-            var output = new OutputDependence(vertObj);
-            
-            deps = deps.Append(output);
+            foreach (var vertObj in objs.Where(x => x.Origin == VertexShader))
+            {
+                var output = new OutputDependence(vertObj);   
+                deps = deps.Append(output);
+            }
         }
 
         var newObj = Activator.CreateInstance(
-            typeof(R), newExpression, origin, deps
+            typeof(R), newExpression, originInfo.origin, deps
         );
         return newObj as R;
     }
 
+    private static (ShaderOrigin origin, bool hasConflitct) unionOrigin(IEnumerable<ShaderOrigin> origins)
+    {
+        var nonGlobal =
+            from origin in origins
+            where origin != Global
+            select origin;
+        
+        var hasVertex = nonGlobal.Contains(VertexShader);
+        var hasFragment = nonGlobal.Contains(FragmentShader);
+
+        if (hasFragment)
+            return (FragmentShader, hasVertex);
+        
+        if (hasVertex)
+            return (VertexShader, false);
+        
+        return (Global, false);
+    }
 
     public static R Transform<T, R>(string newExpression, T obj)
         where T : ShaderObject
