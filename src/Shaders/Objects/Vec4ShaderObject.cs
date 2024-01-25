@@ -115,7 +115,7 @@ public class Vec4ShaderObject : ShaderObject
 
     public static implicit operator Vec4ShaderObject(
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
-        => new ($"vec4({tuple.x}, {tuple.y}, {tuple.z}, {tuple.w})", ShaderOrigin.Global, []);
+        => Union<Vec4ShaderObject>($"vec4({tuple.x}, {tuple.y}, {tuple.z}, {tuple.w})", tuple.x, tuple.y, tuple.z, tuple.w);
     
     public static Vec4ShaderObject operator +(Vec4ShaderObject x)
         => Transform<Vec4ShaderObject, Vec4ShaderObject>($"(+{x})", x);

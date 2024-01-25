@@ -98,7 +98,7 @@ public class Vec2ShaderObject : ShaderObject
         => new ($"vec2({tuple.x.Format()}, {tuple.y.Format()})", ShaderOrigin.Global, []);
 
     public static implicit operator Vec2ShaderObject((FloatShaderObject x, FloatShaderObject y) tuple)
-        => new ($"vec2({tuple.x}, {tuple.y})", ShaderOrigin.Global, []);
+        => Union<Vec2ShaderObject>($"vec2({tuple.x}, {tuple.y})", tuple.x, tuple.y);
     
     public static Vec2ShaderObject operator +(Vec2ShaderObject x)
         => Transform<Vec2ShaderObject, Vec2ShaderObject>($"(+{x})", x);

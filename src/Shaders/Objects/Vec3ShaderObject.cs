@@ -110,7 +110,7 @@ public class Vec3ShaderObject : ShaderObject
 
     public static implicit operator Vec3ShaderObject(
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z) tuple)
-        => new ($"vec3({tuple.x}, {tuple.y}, {tuple.z})", ShaderOrigin.Global, []);
+        => Union<Vec3ShaderObject>($"vec3({tuple.x}, {tuple.y}, {tuple.z})", tuple.x, tuple.y, tuple.z);
     
     public static Vec3ShaderObject operator +(Vec3ShaderObject x)
         => Transform<Vec3ShaderObject, Vec3ShaderObject>($"(+{x})", x);
