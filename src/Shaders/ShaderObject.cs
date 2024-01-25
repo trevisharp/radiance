@@ -45,7 +45,7 @@ public abstract class ShaderObject(
         {
             foreach (var vertObj in objs.Where(x => x.Origin == VertexShader))
             {
-                var output = new OutputDependence(vertObj);   
+                var output = new OutputDependence(vertObj);
                 deps = deps.Append(output);
             }
         }
@@ -80,7 +80,7 @@ public abstract class ShaderObject(
         where R : ShaderObject
     {
         var newObj = Activator.CreateInstance(
-            typeof(R), obj.Type, newExpression,
+            typeof(R), newExpression,
             obj.Origin, obj.Dependencies
         );
         return newObj as R;

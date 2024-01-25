@@ -127,7 +127,11 @@ public static class Utils
         set
         {
             var ctx = RenderContext.GetContext();
-            ctx.Color = value;
+            var variable = new VariableDependence(value);
+            ctx.Color = new Vec4ShaderObject(
+                variable.Name, ShaderOrigin.FragmentShader,
+                [..value.Dependencies, variable]
+            );
         }
     }
     
@@ -680,17 +684,17 @@ public static class Utils
     private static FloatShaderObject var(FloatShaderObject obj, string name)
         => new (name, obj.Origin, [new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        ), ..obj.Dependencies]);
 
     private static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
         => new (name, obj.Origin, [new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        ), ..obj.Dependencies]);
 
     private static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
         => new (name, obj.Origin, [new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        ), ..obj.Dependencies]);
 
     private static Vec4ShaderObject var(Vec4ShaderObject obj, string name)
         => new (name, obj.Origin, [new VariableDependence(
@@ -725,7 +729,7 @@ public static class Utils
         string name, params ShaderObject[] objs
     )
         where R : ShaderObject
-        => ShaderObject.Union<R>(buildObject(name), objs);
+        => ShaderObject.Union<R>(buildObject(name, objs), objs);
 
     private static string buildObject(
         string funcName,

@@ -17,7 +17,7 @@ public class Vec4ShaderObject : ShaderObject
     public Vec4ShaderObject(
         string value, ShaderOrigin origin,
         IEnumerable<ShaderDependence> deps
-        ) : base(ShaderType.Vec3, value, origin, deps) { }
+        ) : base(ShaderType.Vec4, value, origin, deps) { }
 
     public FloatShaderObject this[int index]
         => Transform<Vec4ShaderObject, FloatShaderObject>(

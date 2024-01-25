@@ -99,7 +99,7 @@ public class Render : DynamicObject, ICurryable
             this.dependenceList.Add(dep);
             
             return new Sampler2DShaderObject(
-                parameter.Name, ShaderOrigin.Global, [dep]
+                parameter.Name, ShaderOrigin.FragmentShader, [dep]
             );
         }
         

@@ -103,6 +103,12 @@ public class RenderContext
         start("Creating Program");
         ShaderContext shaderCtx = new ShaderContext();
 
+        foreach (var dep in Position.Dependencies)
+            information(dep.ToString());
+        System.Console.WriteLine();
+        foreach (var dep in Color.Dependencies)
+            information(dep.ToString());
+
         start("Vertex Shader Creation");
         var vertexTuple = generateVertexShader(Position, Color, shaderCtx);
         var vertexShader = createVertexShader(vertexTuple.source);
@@ -262,7 +268,7 @@ public class RenderContext
 
         foreach (var dep in fragmentObject.Dependencies)
         {
-            dep.AddVertexHeader(sb);
+            dep.AddVertexCode(sb);
         }
 
         sb.AppendLine($"\tvec3 finalPosition = {vertexObject.Expression};");

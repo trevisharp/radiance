@@ -10,7 +10,7 @@ var myRender = render((img1, img2) =>
     pos *= 400;
     pos += center;
     
-    var point = (1, 1);
+    var point = (x / width, y / height);
     var text1 = texture(img1, point);
     var text2 = texture(img2, point);
     color = mix(text1, text2, (sin(t) + 1) / 2);
