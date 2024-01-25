@@ -24,9 +24,13 @@ public static class Utils
 {
     internal readonly static Polygon square = Rect(1, 1);
     internal readonly static Polygon circle = Ellipse(1, 1, 128);
-    internal readonly static TimeDependence _t = new();
-    internal readonly static WidthWindowDependence _width = new();
-    internal readonly static HeightWindowDependence _height = new();
+    internal readonly static TimeDependence timeDep = new();
+    internal readonly static FloatShaderObject _t = 
+        new("t", ShaderOrigin.Global, [timeDep]);
+    internal readonly static FloatShaderObject _width =
+        new("width", ShaderOrigin.Global, [new WidthWindowDependence()]);
+    internal readonly static FloatShaderObject _height =
+        new("height", ShaderOrigin.Global, [new HeightWindowDependence()]);
     
     /// <summary>
     /// Clean the entire screen.
@@ -196,7 +200,7 @@ public static class Utils
     /// <summary>
     /// Return the time when t is zero.
     /// </summary>
-    public static DateTime ZeroTime => _t.ZeroTime;
+    public static DateTime ZeroTime => timeDep.ZeroTime;
 
     /// <summary>
     /// Get a circle with radius 1 centralizated in (0, 0, 0)
@@ -482,49 +486,49 @@ public static class Utils
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject cos(FloatShaderObject angle)
-        => floatFunc("cos", angle);
+        => func<FloatShaderObject>("cos", angle);
 
     /// <summary>
     /// Returns the sine of the specified angle.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject sin(FloatShaderObject angle)
-        => floatFunc("sin", angle);
+        => func<FloatShaderObject>("sin", angle);
 
     /// <summary>
     /// Returns the tangent of the specified angle.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject tan(FloatShaderObject angle)
-        => floatFunc("tan", angle);
+        => func<FloatShaderObject>("tan", angle);
 
     /// <summary>
     /// Returns the exponential (e^x) of the specified value.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject exp(FloatShaderObject value)
-        => floatFunc("exp", value);
+        => func<FloatShaderObject>("exp", value);
 
     /// <summary>
     /// Returns the exponential (2^x) of the specified value.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject exp2(FloatShaderObject value)
-        => floatFunc("exp2", value);
+        => func<FloatShaderObject>("exp2", value);
 
     /// <summary>
     /// Returns the logarithm (base e) of the specified value.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject log(FloatShaderObject value)
-        => floatFunc("log", value);
+        => func<FloatShaderObject>("log", value);
 
     /// <summary>
     /// Returns the logarithm (base 2) of the specified value.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject log2(FloatShaderObject value)
-        => floatFunc("log2", value);
+        => func<FloatShaderObject>("log2", value);
 
     /// <summary>
     /// Perform Hermite interpolation between two values.
@@ -534,7 +538,7 @@ public static class Utils
         FloatShaderObject edge0,
         FloatShaderObject edge1,
         FloatShaderObject x
-    )  => operation<FloatShaderObject>("smoothstep", edge0, edge1, x);
+    )  => func<FloatShaderObject>("smoothstep", edge0, edge1, x);
 
     /// <summary>
     /// Generate a step function by comparing two values.
@@ -543,7 +547,7 @@ public static class Utils
     public static FloatShaderObject step(
         FloatShaderObject edge0,
         FloatShaderObject x
-    )  => func<FloatShaderObject, FloatShaderObject, FloatShaderObject>("step", edge0, x);
+    )  => func<FloatShaderObject>("step", edge0, x);
     
     /// <summary>
     /// Generate a step function by comparing two values.
@@ -552,7 +556,7 @@ public static class Utils
     public static Vec2ShaderObject step(
         Vec2ShaderObject edge0,
         Vec2ShaderObject x
-    )  => func<Vec2ShaderObject, Vec2ShaderObject, Vec2ShaderObject>("step", edge0, x);
+    )  => func<Vec2ShaderObject>("step", edge0, x);
     
     /// <summary>
     /// Generate a step function by comparing two values.
@@ -561,106 +565,98 @@ public static class Utils
     public static Vec3ShaderObject step(
         Vec3ShaderObject edge0,
         Vec3ShaderObject x
-    )  => func<Vec3ShaderObject, Vec3ShaderObject, Vec3ShaderObject>("step", edge0, x);
+    )  => func<Vec3ShaderObject>("step", edge0, x);
     
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject length(Vec2ShaderObject vec) 
-        => func<FloatShaderObject, Vec2ShaderObject>("length", vec);
+        => func<FloatShaderObject>("length", vec);
 
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject length(Vec3ShaderObject vec) 
-        => func<FloatShaderObject, Vec3ShaderObject>("length", vec);
+        => func<FloatShaderObject>("length", vec);
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject distance(Vec2ShaderObject p0, Vec2ShaderObject p1)
-        => operation<Vec2ShaderObject>("distance", p0, p1);
+        => func<FloatShaderObject>("distance", p0, p1);
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject distance(Vec3ShaderObject p0, Vec3ShaderObject p1)
-        => operation<Vec3ShaderObject>("distance", p0, p1);
+        => func<FloatShaderObject>("distance", p0, p1);
 
     /// <summary>
     /// Calculate the dot product of two vectors.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject dot(Vec3ShaderObject v0, Vec3ShaderObject v1) 
-        => operation<Vec3ShaderObject>("dot", v0, v1);
+        => func<FloatShaderObject>("dot", v0, v1);
 
     /// <summary>
     /// Calculate the dot product of two vectors.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject dot(Vec2ShaderObject v0, Vec2ShaderObject v1)
-        => operation<Vec2ShaderObject>("dot", v0, v1);
+        => func<FloatShaderObject>("dot", v0, v1);
 
     /// <summary>
     /// Calculate the cross product of two vectors.
     /// Shader Only.
     /// </summary>
     public static Vec3ShaderObject cross(Vec3ShaderObject v0, Vec3ShaderObject v1) 
-        => func<Vec3ShaderObject, Vec3ShaderObject, Vec3ShaderObject>("cross", v0, v1);
+        => func<Vec3ShaderObject>("cross", v0, v1);
     
     /// <summary>
     /// Find the nearest integer to the parameter.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject round(FloatShaderObject angle)
-        => floatFunc("round", angle);
+        => func<FloatShaderObject>("round", angle);
 
     /// <summary>
     /// Find the nearest integer less than or equal to the parameter.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject floor(FloatShaderObject angle)
-        => floatFunc("floor", angle);
+        => func<FloatShaderObject>("floor", angle);
 
     /// <summary>
     /// Find the nearest integer that is greater than or equal to the parameter.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject ceil(FloatShaderObject angle)
-        => floatFunc("ceil", angle);
+        => func<FloatShaderObject>("ceil", angle);
 
     /// <summary>
     /// Find the truncated value of the parameter.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject trunc(FloatShaderObject angle)
-        => floatFunc("trunc", angle);
+        => func<FloatShaderObject>("trunc", angle);
 
     /// <summary>
     /// Return the greater of two values.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject max(FloatShaderObject x, FloatShaderObject y)
-        => func<
-            FloatShaderObject,
-            FloatShaderObject,
-            FloatShaderObject
-            >("max", x, y);
+        => func<FloatShaderObject>("max", x, y);
     
     /// <summary>
     /// Return the lesser of two values.
     /// Shader Only.
     /// </summary>
     public static FloatShaderObject min(FloatShaderObject x, FloatShaderObject y)
-        => func<
-            FloatShaderObject,
-            FloatShaderObject,
-            FloatShaderObject
-            >("min", x, y);
+        => func<FloatShaderObject>("min", x, y);
     
     /// <summary>
     /// Linearly interpolate between two values.
@@ -668,7 +664,7 @@ public static class Utils
     /// </summary>
     public static T mix<T>(T x, T y, FloatShaderObject a) 
         where T : ShaderObject, new()
-        => func<T, T, T, FloatShaderObject>("mix", x, y, a);
+        => func<T>("mix", x, y, a);
 
     /// <summary>
     /// Open a image file to use in your shader.
@@ -683,7 +679,7 @@ public static class Utils
     /// Get a pixel color of a img in a specific position of a texture.
     /// </summary>
     public static Vec4ShaderObject texture(Sampler2DShaderObject img, Vec2ShaderObject pos)
-        => autoVar(func<Vec4ShaderObject, Sampler2DShaderObject, Vec2ShaderObject>("texture", img, pos), "tex");
+        => autoVar(func<Vec4ShaderObject>("texture", img, pos));
     
     private static FloatShaderObject var(FloatShaderObject obj, string name)
         => new (name, obj.Origin, [new VariableDependence(
@@ -723,14 +719,14 @@ public static class Utils
         return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
     }
 
-    private static Vec4ShaderObject autoVar(Vec4ShaderObject obj,)
+    private static Vec4ShaderObject autoVar(Vec4ShaderObject obj)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
     }
 
     private static R func<R>(
-        string name, ShaderObject[] objs
+        string name, params ShaderObject[] objs
     )
         where R : ShaderObject
         => ShaderObject.Union<R>(buildObject(name), objs);
