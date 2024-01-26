@@ -50,10 +50,6 @@ public abstract class ShaderObject(
             }
         }
         
-        Console.WriteLine(string.Join(" + ", objs.Select(x => x.Origin.ToString())) + 
-            $" -> {newExpression} [{originInfo.origin}]");
-        Console.WriteLine();
-
         var newObj = Activator.CreateInstance(
             typeof(R), newExpression, originInfo.origin, deps
         );

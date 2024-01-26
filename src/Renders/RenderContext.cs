@@ -103,12 +103,6 @@ public class RenderContext
         start("Creating Program");
         ShaderContext shaderCtx = new ShaderContext();
 
-        foreach (var dep in Position.Dependencies)
-            information(dep.ToString());
-        System.Console.WriteLine();
-        foreach (var dep in Color.Dependencies)
-            information(dep.ToString());
-
         start("Vertex Shader Creation");
         var vertexTuple = generateVertexShader(Position, Color, shaderCtx);
         var vertexShader = createVertexShader(vertexTuple.source);
@@ -240,7 +234,10 @@ public class RenderContext
 
         var deps = vertexObject.Dependencies
             .Append(Utils.widthDep)
-            .Append(Utils.heightDep);
+            .Append(Utils.heightDep)
+            .Distinct();
+        var fdeps = fragmentObject.Dependencies
+            .Distinct();
         
         foreach (var dep in deps)
         {
@@ -251,7 +248,7 @@ public class RenderContext
             setup += dep.AddOperation(ctx);
         }
 
-        foreach (var dep in fragmentObject.Dependencies)
+        foreach (var dep in fdeps)
         {
             dep.AddVertexHeader(sb);
             setup += dep.AddVertexOperation(ctx);
@@ -266,7 +263,7 @@ public class RenderContext
             dep.AddVertexCode(sb);
         }
 
-        foreach (var dep in fragmentObject.Dependencies)
+        foreach (var dep in fdeps)
         {
             dep.AddVertexCode(sb);
         }
@@ -295,7 +292,10 @@ public class RenderContext
         var sb = getCodeBuilder();
         Action setup = null;
         
-        var deps = fragmentObject.Dependencies;
+        var deps = fragmentObject.Dependencies
+            .Distinct();
+        var vdeps = vertexObject.Dependencies
+            .Distinct();
         
         foreach (var dep in deps)
         {
@@ -306,7 +306,7 @@ public class RenderContext
             setup += dep.AddOperation(ctx);
         }
 
-        foreach (var dep in vertexObject.Dependencies)
+        foreach (var dep in vdeps)
         {
             dep.AddFragmentHeader(sb);
             setup += dep.AddFragmentOperation(ctx);
@@ -322,7 +322,7 @@ public class RenderContext
             dep.AddFragmentCode(sb);
         }
 
-        foreach (var dep in vertexObject.Dependencies)
+        foreach (var dep in vdeps)
         {
             dep.AddFragmentCode(sb);
         }
