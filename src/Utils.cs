@@ -682,47 +682,47 @@ public static class Utils
         => autoVar(func<Vec4ShaderObject>("texture", img, pos));
     
     private static FloatShaderObject var(FloatShaderObject obj, string name)
-        => new (name, obj.Origin, [new VariableDependence(
+        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        ), ..obj.Dependencies]);
+        )]);
 
     private static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
-        => new (name, obj.Origin, [new VariableDependence(
+        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        ), ..obj.Dependencies]);
+        )]);
 
     private static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
-        => new (name, obj.Origin, [new VariableDependence(
+        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        ), ..obj.Dependencies]);
+        )]);
 
     private static Vec4ShaderObject var(Vec4ShaderObject obj, string name)
-        => new (name, obj.Origin, [new VariableDependence(
+        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        ), ..obj.Dependencies]);
+        )]);
     
     private static FloatShaderObject autoVar(FloatShaderObject obj)
     {
         var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
+        return new (variable.Name, obj.Origin, [..obj.Dependencies, variable]);
     }
 
     private static Vec2ShaderObject autoVar(Vec2ShaderObject obj)
     {
         var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
+        return new (variable.Name, obj.Origin, [..obj.Dependencies, variable]);
     }
 
     private static Vec3ShaderObject autoVar(Vec3ShaderObject obj)
     {
         var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
+        return new (variable.Name, obj.Origin, [..obj.Dependencies, variable]);
     }
 
     private static Vec4ShaderObject autoVar(Vec4ShaderObject obj)
     {
         var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [variable, ..obj.Dependencies]);
+        return new (variable.Name, obj.Origin, [..obj.Dependencies, variable]);
     }
 
     private static R func<R>(

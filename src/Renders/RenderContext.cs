@@ -103,14 +103,16 @@ public class RenderContext
         start("Creating Program");
         ShaderContext shaderCtx = new ShaderContext();
 
+        var item = generateShaders(Position, Color, shaderCtx);
+
         start("Vertex Shader Creation");
-        var vertexTuple = generateVertexShader(Position, Color, shaderCtx);
-        var vertexShader = createVertexShader(vertexTuple.source);
+        code(item.vertSrc);
+        var vertexShader = createVertexShader(item.vertSrc);
         success("Shader Created!!");
 
         start("Fragment Shader Creation");
-        var fragmentTuple = generateFragmentShader(Position, Color, shaderCtx);
-        var fragmentShader = createFragmentShader(fragmentTuple.source);
+        code(item.fragSrc);
+        var fragmentShader = createFragmentShader(item.fragSrc);
         success("Shader Created!!");
 
         int program = createProgram(vertexShader, fragmentShader);
@@ -127,11 +129,11 @@ public class RenderContext
 
             shaderCtx.Use(poly);
 
-            if (vertexTuple.setup is not null)
-                vertexTuple.setup();
+            if (item.vertStp is not null)
+                item.vertStp();
 
-            if (fragmentTuple.setup is not null)
-                fragmentTuple.setup();
+            if (item.fragStp is not null)
+                item.fragStp();
 
             GL.DrawArrays(
                 isFill ? PrimitiveType.Triangles : PrimitiveType.LineLoop, 
@@ -220,6 +222,91 @@ public class RenderContext
         
         programMap.Add(programKey, program);
         return program;
+    }
+
+    private (string vertSrc, Action vertStp, 
+        string fragSrc, Action fragStp) generateShaders(
+        Vec3ShaderObject vertObj,
+        Vec4ShaderObject fragObj,
+        ShaderContext ctx
+    )
+    {
+        var vertSb = getCodeBuilder();
+        var fragSb = getCodeBuilder();
+
+        Action vertStp = null;
+        Action fragStp = null;
+
+        var vertDeps = vertObj.Dependencies
+            .Append(Utils.widthDep)
+            .Append(Utils.heightDep)
+            .Distinct();
+        var fragDeps = fragObj.Dependencies
+            .Distinct();
+
+        var allDeps = vertDeps
+            .Concat(fragDeps)
+            .Distinct();
+
+        foreach (var dep in vertDeps)
+        {
+            dep.AddHeader(vertSb);
+            vertStp += dep.AddOperation(ctx);
+        }
+
+        foreach (var dep in fragDeps)
+        {
+            dep.AddHeader(fragSb);
+            vertStp += dep.AddOperation(ctx);
+        }
+        
+        foreach (var dep in allDeps)
+        {
+            dep.AddVertexHeader(vertSb);
+            dep.AddFragmentHeader(fragSb);
+
+            vertStp += dep.AddVertexOperation(ctx);
+            fragStp += dep.AddFragmentOperation(ctx);
+        }
+        
+        fragSb.AppendLine("out vec4 outColor;");
+        initMain(vertSb);
+        initMain(fragSb);
+
+        foreach (var dep in vertDeps)
+        {
+            dep.AddCode(vertSb);
+        }
+
+        foreach (var dep in fragDeps)
+        {
+            dep.AddCode(fragSb);
+        }
+        
+        foreach (var dep in allDeps)
+        {
+            dep.AddVertexCode(vertSb);
+            dep.AddFragmentCode(fragSb);
+        }
+
+        vertSb.AppendLine($"\tvec3 finalPosition = {vertObj};");
+        vertSb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
+        vertSb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
+        fragSb.AppendLine($"\toutColor = {fragObj};");
+        closeMain(vertSb);
+        closeMain(fragSb);
+
+        return (vertSb.ToString(), vertStp, fragSb.ToString(), fragStp);
+
+        void initMain(StringBuilder sb)
+        {
+            sb.AppendLine();
+            sb.AppendLine("void main()");
+            sb.AppendLine("{");
+        }
+
+        void closeMain(StringBuilder sb)
+            => sb.Append('}');
     }
 
     private (string source, Action setup) generateVertexShader(

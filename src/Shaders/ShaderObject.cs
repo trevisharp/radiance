@@ -46,10 +46,12 @@ public abstract class ShaderObject(
             foreach (var vertObj in objs.Where(x => x.Origin == VertexShader))
             {
                 var output = new OutputDependence(vertObj);
+                newExpression = newExpression
+                    .Replace(vertObj.Expression, output.Name);
                 deps = deps.Append(output);
             }
         }
-        
+
         var newObj = Activator.CreateInstance(
             typeof(R), newExpression, originInfo.origin, deps
         );
