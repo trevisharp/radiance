@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/01/2024
+ * Date:    26/01/2024
  */
+using System.Linq;
 using System.Collections.Generic;
 
 using StbImageSharp;
@@ -8,10 +9,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance.Shaders;
 
-using System.Linq;
-using System.Net.Sockets;
 using Data;
-using Dependencies;
 
 /// <summary>
 /// Represents the state of shader generation.
@@ -76,20 +74,17 @@ public class ShaderContext
 
     private int activateImage(ImageResult image)
     {
-        int id = -1;
         int handle = getTextureHandle(image);
         var index = textureUnits.IndexOf(handle);
-
-        id = index > -1 ? index : TextureCount++;
+        int id = index > -1 ? index : TextureCount++;
         
         if (textureUnits.Count < TextureCount)
-        {
             textureUnits.Add(handle);
-            GL.ActiveTexture(TextureUnit.Texture0 + id);
-        }
 
-        textureUnits[id] = handle;
+        GL.ActiveTexture(TextureUnit.Texture0 + id);
         GL.BindTexture(TextureTarget.Texture2D, handle);
+        
+        textureUnits[id] = handle;
         return id;
     }
 

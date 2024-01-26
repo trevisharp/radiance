@@ -307,130 +307,13 @@ public class RenderContext
 
         void closeMain(StringBuilder sb)
             => sb.Append('}');
-    }
-
-    private (string source, Action setup) generateVertexShader(
-        Vec3ShaderObject vertexObject,
-        Vec4ShaderObject fragmentObject,
-        ShaderContext ctx
-    )
-    {
-        information($"Generating Shader...");
-        var sb = getCodeBuilder();
-        Action setup = null;
-
-        var deps = vertexObject.Dependencies
-            .Append(Utils.widthDep)
-            .Append(Utils.heightDep)
-            .Distinct();
-        var fdeps = fragmentObject.Dependencies
-            .Distinct();
         
-        foreach (var dep in deps)
+        StringBuilder getCodeBuilder()
         {
-            dep.AddVertexHeader(sb);
-            dep.AddHeader(sb);
-
-            setup += dep.AddVertexOperation(ctx);
-            setup += dep.AddOperation(ctx);
+            var sb = new StringBuilder();
+            sb.AppendLine($"#version {VersionText}");
+            return sb;
         }
-
-        foreach (var dep in fdeps)
-        {
-            dep.AddVertexHeader(sb);
-            setup += dep.AddVertexOperation(ctx);
-        }
-
-        sb.AppendLine();
-        sb.AppendLine("void main()");
-        sb.AppendLine("{");
-        foreach (var dep in deps)
-        {
-            dep.AddCode(sb);
-            dep.AddVertexCode(sb);
-        }
-
-        foreach (var dep in fdeps)
-        {
-            dep.AddVertexCode(sb);
-        }
-
-        sb.AppendLine($"\tvec3 finalPosition = {vertexObject.Expression};");
-        sb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
-        sb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
-        sb.Append("}");
-
-        var result = sb.ToString();
-
-        information("Vertex Shader:");
-        code(result);
-
-        return (result, setup);
-    }
-
-    private (string source, Action setup) generateFragmentShader(
-        Vec3ShaderObject vertexObject,
-        Vec4ShaderObject fragmentObject,
-        ShaderContext ctx
-    )
-    {
-        information($"Generating Shader...");
-
-        var sb = getCodeBuilder();
-        Action setup = null;
-        
-        var deps = fragmentObject.Dependencies
-            .Distinct();
-        var vdeps = vertexObject.Dependencies
-            .Distinct();
-        
-        foreach (var dep in deps)
-        {
-            dep.AddFragmentHeader(sb);
-            dep.AddHeader(sb);
-
-            setup += dep.AddFragmentOperation(ctx);
-            setup += dep.AddOperation(ctx);
-        }
-
-        foreach (var dep in vdeps)
-        {
-            dep.AddFragmentHeader(sb);
-            setup += dep.AddFragmentOperation(ctx);
-        }
-
-        sb.AppendLine();
-        sb.AppendLine("out vec4 outColor;");
-        sb.AppendLine("void main()");
-        sb.AppendLine("{");
-        foreach (var dep in deps)
-        {
-            dep.AddCode(sb);
-            dep.AddFragmentCode(sb);
-        }
-
-        foreach (var dep in vdeps)
-        {
-            dep.AddFragmentCode(sb);
-        }
-
-        
-        sb.AppendLine($"\toutColor = {fragmentObject.Expression};");
-        sb.Append("}");
-
-        var result = sb.ToString();
-
-        information("Fragment Shader:");
-        code(result);
-
-        return (result, setup);
-    }
-
-    private StringBuilder getCodeBuilder()
-    {
-        var sb = new StringBuilder();
-        sb.AppendLine($"#version {VersionText}");
-        return sb;
     }
 
     private void error(string message = "")
@@ -454,7 +337,7 @@ public class RenderContext
         ConsoleColor back = ConsoleColor.Black,
         int tabIndex = 0,
         bool newline = true
-        )
+    )
     {
         if (!Verbose)
             return;

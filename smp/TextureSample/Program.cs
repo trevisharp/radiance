@@ -18,13 +18,13 @@ var myRender = render((img1, img2) =>
 });
 
 var f1 = open("faustao1.png");
-var faustaoMix = myRender(Circle, f1);
-
 var f2 = open("faustao2.png");
 var f3 = open("faustao3.jpg");
+var faustao = myRender(Circle, f1);
+
 var img = f2;
 
-Window.OnRender += () => faustaoMix(img);
+Window.OnRender += () => faustao(img);
 
 Window.OnKeyDown += (key, mod) =>
 {
