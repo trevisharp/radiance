@@ -12,12 +12,12 @@ namespace Radiance.Shaders.Dependencies;
 public class TimeDependence : ShaderDependence
 {
     DateTime start = DateTime.Now;
-    float secs => (float)(DateTime.Now - start).TotalSeconds;
     public DateTime ZeroTime => start;
+    public float Seconds => (float)(DateTime.Now - start).TotalSeconds;
         
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine("uniform float t;");
 
     public override Action AddOperation(ShaderContext ctx)
-        => () => ctx.SetFloat("t", secs);
+        => () => ctx.SetFloat("t", Seconds);
 }

@@ -196,6 +196,11 @@ public static class Utils
     /// Return the time when t is zero.
     /// </summary>
     public static DateTime ZeroTime => timeDep.ZeroTime;
+
+    /// <summary>
+    /// Return the time in seconds of application.
+    /// </summary>
+    public static float Time => timeDep.Seconds;
     
     /// <summary>
     /// Get a empty polygon.

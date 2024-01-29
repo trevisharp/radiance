@@ -2,38 +2,56 @@
 using System.Linq;
 
 using Radiance;
-using Radiance.Types;
-using Radiance.RenderFunctions;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils;
 
-var start = ZeroTime;
-float cx = 0, cy = 0;
-var data = ellip(0, 0, 1);
-
-IRender getWave(float x, float y)
+var shipRender = render((px) =>
 {
-    gfloat initialTime = (float)(DateTime.Now - start).TotalSeconds;
-    gfloat gx = x;
-    gfloat gy = y;
+    pos *= 5;
+    pos += (px, height / 2, 0);
+    color = red;
+    fill();
+});
 
-    return render(r => {
-        var size = 50 * (t - initialTime);
-        r.Draw(data
-            .transform(v => (size * v.x + gx, size * v.y + gy, v.z))
-            .colorize(white)
-        );
-    });
-}
-
-Window.OnMouseDown += b =>
+var waveRender = render((px, py, init) =>
 {
-    if (b != MouseButton.Left)
+    var size = 34 * (t - init);
+    pos *= size;
+    pos += (px, py, 0);
+    color = white;
+    draw();
+});
+
+float shipSpeed = 4f;
+float shipPosition = 0f;
+Window.OnLoad += () 
+    => shipPosition = 0;
+
+Window.OnRender += () =>
+    shipRender(Circle, shipPosition);
+
+var lastUpdate = DateTime.Now;
+var last = Time;
+var now = Time;
+Window.OnFrame += () =>
+{
+    now = Time;
+    var passed = now - last;
+    shipPosition += shipSpeed * passed;
+    last = now;
+
+    shipSpeed += 3 * passed;
+
+    var frameTime = DateTime.Now - lastUpdate;
+    if (frameTime.TotalMilliseconds < 200)
         return;
-    
-    Window.OnRender += getWave(cx, cy);
-};
+    lastUpdate = DateTime.Now;
 
-Window.OnMouseMove += e => (cx, cy) = e;
+    float px = shipPosition;
+    float py = Window.Height / 2;
+    float secs = Time;
+    Window.OnRender += () =>
+        waveRender(Circle, px, py, secs);
+};
 
 Window.CloseOn(Input.Escape);
 
