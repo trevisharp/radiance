@@ -196,6 +196,11 @@ public static class Utils
     /// Return the time when t is zero.
     /// </summary>
     public static DateTime ZeroTime => timeDep.ZeroTime;
+    
+    /// <summary>
+    /// Get a empty polygon.
+    /// </summary>
+    public static Polygon Empty => new Polygon();
 
     /// <summary>
     /// Get a circle with radius 1 centralizated in (0, 0, 0)
@@ -240,9 +245,9 @@ public static class Utils
         var halfHei = height / 2;
         return new Polygon()
             .Add(x - halfWid, y - halfHei, z)
-            .Add(x - halfHei, y + halfWid, z)
-            .Add(x + halfHei, y + halfWid, z)
-            .Add(x + halfHei, x - halfWid, z);
+            .Add(x - halfWid, y + halfHei, z)
+            .Add(x + halfWid, y + halfHei, z)
+            .Add(x + halfWid, y - halfHei, z);
     }
 
     /// <summary>

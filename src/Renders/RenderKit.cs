@@ -9,22 +9,21 @@ public class RenderKit
 {
     public readonly static RenderKit Shared = new();
 
-    private Render simpleFill = null;
-    public dynamic SimpleFill
+    private Render fill = null;
+    public dynamic Fill
     {
         get
         {
-            if (simpleFill is not null)
-                return simpleFill;
+            if (fill is not null)
+                return fill;
             
-            simpleFill = render((r, g, b, a) =>
+            fill = render((r, g, b, a) =>
             {
-                verbose = true;
                 color = (r, g, b, a);
                 fill();
             });
 
-            return simpleFill;
+            return fill;
         }
     }
 }
