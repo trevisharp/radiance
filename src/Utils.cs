@@ -1,21 +1,16 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/01/2024
+ * Date:    29/01/2024
  */
 using System;
 using System.Text;
-using System.Linq;
 
 namespace Radiance;
 
 using Data;
-
-using Renders;
-
-using Internal;
-
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
+using Renders;
 
 /// <summary>
 /// A facade with all utils to use Radiance features.
@@ -332,6 +327,11 @@ public static class Utils
         
         return result;
     }
+    
+    /// <summary>
+    /// Get a Kit of autoimplemented renders.
+    /// </summary>
+    public static RenderKit Kit => RenderKit.Shared;    
 
     /// <summary>
     /// Create render with shaders based on function recived.

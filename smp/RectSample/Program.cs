@@ -1,56 +1,9 @@
 ﻿using Radiance;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils;
 
-var region = data(
-    (-1, -1, 0),
-    (+1, -1, 0),
-    (-1, +1, 0),
-
-    (+1, +1, 0),
-    (+1, -1, 0),
-    (-1, +1, 0)
-);
-
-var border = data(
-    (-1, -1, 0),
-    (+1, -1, 0),
-    (+1, +1, 0),
-    (-1, +1, 0)
-);
-
-Window.OnRender += r =>
-{
-    /**
-        var size = 50 + 20 * cos(5 * t);
-        var center = (width / 2, height / 2, 0);
-
-        clear(white);
-        
-        pos = center + size * pos;
-        r = cos(t) + 1;
-        g = sin(t) + 1;
-        b = 0;
-        fill();
-        ...
-        pos = center + size * pos;
-        color = black;
-        draw();
-     **/
-    var size = 50 + 20 * cos(5 * t);
-    var center = (width / 2, height / 2, 0);
-
-    r.Clear(white);
-    
-    r.FillTriangles(region
-        .transform(v => center + size * v)
-        .colorize(cos(t) + 1, sin(t) + 1, 0)
-    );
-
-    r.Draw(border
-        .transform(v => center + size * v)
-        .colorize(black)
-    );
-};
+var rect = Rect(50, 50, 0, 500, 500);
+Window.OnRender += () 
+    => Kit.SimpleFill(rect, red);
 
 Window.CloseOn(Input.Escape);
 
