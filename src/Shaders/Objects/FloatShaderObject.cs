@@ -1,13 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    24/01/2024
+ * Date:    29/01/2024
  */
 #pragma warning disable CS0660
 #pragma warning disable CS0661
 
 using System.Collections.Generic;
-using Radiance.Internal;
 
 namespace Radiance.Shaders.Objects;
+
+using Internal;
 
 /// <summary>
 /// Represent a Float data in shader implementation.

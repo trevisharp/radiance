@@ -1,11 +1,10 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/01/2024
+ * Date:    29/01/2024
  */
 using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using System;
 using Data;
 
 /// <summary>
