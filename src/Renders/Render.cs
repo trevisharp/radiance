@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/01/2024
+ * Date:    29/01/2024
  */
 using System;
 using System.Linq;
@@ -13,7 +13,6 @@ using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
 using Data;
-using Internal;
 using Exceptions;
 
 /// <summary>
@@ -50,7 +49,8 @@ public class Render : DynamicObject, ICurryable
         if (poly is null)
             throw new MissingPolygonException();
 
-        if (args.Length < extraParameterCount + 1)
+        int argCount = countArgs(args);
+        if (argCount < extraParameterCount)
         {
             result = this.Curry(args);
             return true;
@@ -115,6 +115,15 @@ public class Render : DynamicObject, ICurryable
 
         ctx.Color = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
     }
+
+    private int countArgs(object[] args)
+        => args.Sum(arg => arg switch
+        {
+            Vec2 => 2,
+            Vec3 => 3,
+            Vec4 => 4,
+            _ => 1
+        });
 
     private object[] getArgs(object[] args)
     {

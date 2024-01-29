@@ -1,9 +1,12 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-var rect = Rect(50, 50, 0, 500, 500);
-Window.OnRender += () 
-    => Kit.SimpleFill(rect, red);
+var rect = Rect(
+    Window.Width / 2,
+    Window.Height / 2,
+    0, 500, 500
+);
+Window.OnRender += () => Kit.SimpleFill(rect, red);
 
 Window.CloseOn(Input.Escape);
 
