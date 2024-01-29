@@ -2,9 +2,9 @@
 using Radiance.Renders;
 using static Radiance.Utils;
 
-RenderContext.Verbose = true;
 var myRender = render(() =>
 {
+    verbose = true;
     clear(black);
     pos += center;
     var scale = (x - 50) / 50;

@@ -62,7 +62,7 @@ public class RenderContext
         shaderMap.Clear();
     }
     
-    public static bool Verbose { get; set; } = false;
+    public bool Verbose { get; set; } = false;
     
     private int globalTabIndex = 0;
     private event Action<Polygon, object[]> operations;

@@ -27,6 +27,20 @@ public static class Utils
     internal readonly static TimeDependence timeDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
+
+    public static bool verbose
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext();
+            return ctx.Verbose;
+        }
+        set
+        {
+            var ctx = RenderContext.GetContext();
+            ctx.Verbose = value;
+        }
+    }
     
     /// <summary>
     /// Clean the entire screen.

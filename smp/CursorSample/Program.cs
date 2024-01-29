@@ -1,45 +1,24 @@
 ﻿using Radiance;
-using Radiance.Types;
-using static Radiance.RadianceUtils;
+using Radiance.Renders;
+using static Radiance.Utils;
 
-gfloat x = 0f;
-gfloat y = 0f;
-
-var screen = data(
-    n, i, i + j,
-    n, j, i + j
-);
-
-Window.OnRender += r =>
+var oncursor = render((cx, cy) =>
 {
-    /**
-        verbose = true;
-        x *= width;
-        y *= height;
-        var point = (x, y, z);
-        var cursor = (cx, cy, 0);
-        var d = distance(point, cursor);
-        var s = (5.0 + 0.01 * sin(10 * t)) / d;
-        r = s;
-        g = s;
-        b = s;
-        draw();
-     **/
-    r.Verbose = true;
-    r.FillTriangles(screen
-        .transform(v => (v.x * width, v.y * height, v.z))
-        .colorize(v => 
-        {
-            var point = (v.x * width, v.y * height, v.z);
-            var cursor = (x, y, 0);
-            var d = distance(point, cursor);
-            var s = (5.0 + 0.01 * sin(10 * t)) / d;
-            return (s, s, s, 1);
-        })
-    );
-};
+    verbose = true;
+    pos *= (width, height, 1);
+    var cursor = (cx, cy, 0);
+    var d = distance(pos, cursor);
+    var s = (5.0 + 0.01 * sin(10 * t)) / d;
+    color = (s, s, s, 1);
+    fill();
+});
 
+float x = 0f;
+float y = 0f;
 Window.OnMouseMove += p => (x, y) = p;
+
+var rect = Rect(1, 1);
+Window.OnRender += () => oncursor(rect, x, y);
 
 Window.CursorVisible = false;
 
