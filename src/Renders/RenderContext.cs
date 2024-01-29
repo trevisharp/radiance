@@ -274,14 +274,10 @@ public class RenderContext
         initMain(fragSb);
 
         foreach (var dep in vertDeps)
-        {
             dep.AddCode(vertSb);
-        }
 
         foreach (var dep in fragDeps)
-        {
             dep.AddCode(fragSb);
-        }
         
         foreach (var dep in allDeps)
         {
@@ -293,6 +289,19 @@ public class RenderContext
         vertSb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
         vertSb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
         fragSb.AppendLine($"\toutColor = {fragObj};");
+
+        foreach (var dep in allDeps)
+        {
+            dep.AddVertexFinalCode(vertSb);
+            dep.AddFragmentFinalCode(fragSb);
+        }
+
+        foreach (var dep in vertDeps)
+            dep.AddFinalCode(vertSb);
+        
+        foreach (var dep in fragDeps)
+            dep.AddFinalCode(fragSb);
+
         closeMain(vertSb);
         closeMain(fragSb);
 

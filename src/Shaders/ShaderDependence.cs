@@ -60,6 +60,21 @@ public abstract class ShaderDependence
     public virtual Action AddFragmentOperation(ShaderContext ctx) => null;
 
     /// <summary>
+    /// Add code in the final of current shader of this dependence.
+    /// </summary>
+    public virtual void AddFinalCode(StringBuilder sb) { }
+
+    /// <summary>
+    /// Add code in the final of vertex shader.
+    /// </summary>
+    public virtual void AddVertexFinalCode(StringBuilder sb) { }
+    
+    /// <summary>
+    /// Add code in the final of fragment shader.
+    /// </summary>
+    public virtual void AddFragmentFinalCode(StringBuilder sb) { }
+    
+    /// <summary>
     /// Update the data used by dependence in its operations.
     /// </summary>
     public virtual void UpdateData(object value) { }

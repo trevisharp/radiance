@@ -27,6 +27,16 @@ public static class Utils
     internal readonly static TimeDependence timeDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
+    internal readonly static PixelDependence pixelDep = new();
+    internal readonly static FloatShaderObject _x = new(
+        "pixelPos.x", ShaderOrigin.FragmentShader, [pixelDep]
+    );
+    internal readonly static FloatShaderObject _y = new(
+        "pixelPos.y", ShaderOrigin.FragmentShader, [pixelDep]
+    );
+    internal readonly static FloatShaderObject _z = new(
+        "pixelPos.z", ShaderOrigin.FragmentShader, [pixelDep]
+    );
 
     public static bool verbose
     {
@@ -88,32 +98,20 @@ public static class Utils
         }
     }
 
-    public static FloatShaderObject x
-    {
-        get
-        {
-            var ctx = RenderContext.GetContext();
-            return ctx.Position.x;
-        }
-    }
+    /// <summary>
+    /// Get the x position of pixel.
+    /// </summary>
+    public static FloatShaderObject x => _x;
 
-    public static FloatShaderObject y
-    {
-        get
-        {
-            var ctx = RenderContext.GetContext();
-            return ctx.Position.y;
-        }
-    }
+    /// <summary>
+    /// Get the y position of pixel.
+    /// </summary>
+    public static FloatShaderObject y => _y;
 
-    public static FloatShaderObject z
-    {
-        get
-        {
-            var ctx = RenderContext.GetContext();
-            return ctx.Position.z;
-        }
-    }
+    /// <summary>
+    /// Get the z position of pixel.
+    /// </summary>
+    public static FloatShaderObject z => _z;
 
     /// <summary>
     /// Get ou update the actual color of a generic point inside drawed area.

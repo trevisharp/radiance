@@ -1,10 +1,9 @@
 ﻿using Radiance;
-using Radiance.Renders;
 using static Radiance.Utils;
 
-RenderContext.Verbose = true;
 var myRender = render((img1, img2) =>
 {
+    verbose = true;
     clear(white);
 
     pos *= 400;

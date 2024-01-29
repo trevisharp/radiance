@@ -1,12 +1,13 @@
 ﻿using Radiance;
-using Radiance.Renders;
 using static Radiance.Utils;
 
 var myRender = render(() =>
 {
     verbose = true;
     clear(black);
+
     pos += center;
+    
     var scale = (x - 50) / 50;
     color = (scale, 0, 1, scale);
     fill();
