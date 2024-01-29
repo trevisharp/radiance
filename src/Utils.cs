@@ -81,10 +81,6 @@ public static class Utils
             var ctx = RenderContext.GetContext();
             return ctx.Position.x;
         }
-        set
-        {
-
-        }
     }
 
     public static FloatShaderObject y
@@ -94,10 +90,6 @@ public static class Utils
             var ctx = RenderContext.GetContext();
             return ctx.Position.y;
         }
-        set
-        {
-
-        }
     }
 
     public static FloatShaderObject z
@@ -106,10 +98,6 @@ public static class Utils
         {
             var ctx = RenderContext.GetContext();
             return ctx.Position.z;
-        }
-        set
-        {
-
         }
     }
 

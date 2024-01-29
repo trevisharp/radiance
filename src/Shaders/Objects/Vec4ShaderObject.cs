@@ -56,8 +56,8 @@ public class Vec4ShaderObject : ShaderObject
     public static Vec4ShaderObject operator -(Vec4ShaderObject v, Vec4ShaderObject u)
         => Union<Vec4ShaderObject>($"({v} - {u})", v, u);
     
-    public static FloatShaderObject operator *(Vec4ShaderObject v, Vec4ShaderObject u)
-        => Union<FloatShaderObject>($"({v} == {u})", v, u);
+    public static Vec4ShaderObject operator *(Vec4ShaderObject v, Vec4ShaderObject u)
+        => Union<Vec4ShaderObject>($"({v} * {u})", v, u);
     
     public static Vec4ShaderObject operator +(Vec4ShaderObject v, 
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
@@ -87,14 +87,14 @@ public class Vec4ShaderObject : ShaderObject
         return v - u;
     }
     
-    public static FloatShaderObject operator *(Vec4ShaderObject v, 
+    public static Vec4ShaderObject operator *(Vec4ShaderObject v, 
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)
     {
         Vec4ShaderObject u = tuple;
         return v * u;
     }
 
-    public static FloatShaderObject operator *(
+    public static Vec4ShaderObject operator *(
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple, Vec4ShaderObject v)
     {
         Vec4ShaderObject u = tuple;
