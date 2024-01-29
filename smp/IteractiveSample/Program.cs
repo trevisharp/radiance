@@ -1,21 +1,18 @@
 ﻿using Radiance;
-using Radiance.Types;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils;
 
-gfloat x = 0;
-gfloat y = 0;
+float px = 0;
+float py = 0;
 
 var horMov = 0f;
 var verMov = 0f;
 
 var maxSpeed = 500;
 
-var region = data(n, i, i + j, j);
-
 Window.OnLoad += delegate
 {
-    x = Window.Width / 2 - 25;
-    y = Window.Height / 2 - 25;
+    px = Window.Width / 2 - 25;
+    py = Window.Height / 2 - 25;
 };
 
 Window.OnFrame += delegate
@@ -30,8 +27,8 @@ Window.OnFrame += delegate
     else if (verMov < -maxSpeed)
         verMov = -maxSpeed;
     
-    x += horMov * dt;
-    y += verMov * dt;
+    px += horMov * dt;
+    py += verMov * dt;
     
     if (horMov > 0)
         horMov -= maxSpeed * dt;
@@ -44,17 +41,17 @@ Window.OnFrame += delegate
         verMov += maxSpeed * dt;
 };
 
-Window.OnRender += r =>
+var simple = render((px, py) =>
 {
-    /**
-        x *= 50 + _x;
-        y *= 50 + _y;
-        draw();
-     **/
-    r.Draw(region
-        .transform(v => (v.x * 50 + x, v.y * 50 + y, v.z))
-    );
-};
+    verbose = true;
+    pos *= 50;
+    pos += (px, py, 0);
+    color = red;
+    draw();
+});
+var rect = Rect(1, 1);
+
+Window.OnRender += () => simple(rect, px, py);
 
 Window.OnKeyDown += (input, modifier) =>
 {
