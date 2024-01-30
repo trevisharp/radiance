@@ -1,14 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/01/2024
+ * Date:    30/01/2024
  */
+using System;
 using System.Linq;
 using System.Dynamic;
 using System.Collections.Generic;
-using System;
-using Radiance.Exceptions;
-using System.ComponentModel;
 
 namespace Radiance.Renders;
+
+using Exceptions;
 
 /// <summary>
 /// Represents a Render with some parameters gived resulting in a
@@ -18,6 +18,7 @@ public class CurryingRender : DynamicObject, ICurryable
 {
     private Render parent;
     private List<object> parameters;
+    private Action actionData;
 
     public Render Parent => parent;
     public IEnumerable<object> GivedParameters => parameters;
@@ -25,8 +26,7 @@ public class CurryingRender : DynamicObject, ICurryable
     public CurryingRender(Render parent, params object[] objects)
     {
         this.parent = parent;
-        this.parameters = new();
-        this.parameters.AddRange(objects);
+        this.parameters = [..objects];
     }
 
     public override bool TryInvoke(InvokeBinder binder, object[] args, out object result)
@@ -44,6 +44,9 @@ public class CurryingRender : DynamicObject, ICurryable
     
     public static implicit operator Action(CurryingRender render)
     {
+        if (render.actionData is not null)
+            return render.actionData;
+        
         var expectedParams = render.parent.ExtraParameterCount + 1;
         var actualParams = render.parameters.Count;
         if (expectedParams < actualParams)
@@ -52,7 +55,8 @@ public class CurryingRender : DynamicObject, ICurryable
         if (expectedParams > actualParams)
             throw new MissingParametersException();
         
-        return () => render.parent.TryInvoke(
+        render.actionData = () => render.parent.TryInvoke(
             null, render.parameters.ToArray(), out _);
+        return render.actionData;
     }
 }

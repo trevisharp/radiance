@@ -17,8 +17,6 @@ using Renders;
 /// </summary>
 public static class Utils
 {
-    internal readonly static Polygon square = Rect(1, 1);
-    internal readonly static Polygon circle = Ellipse(1, 1, 128);
     internal readonly static TimeDependence timeDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
@@ -211,12 +209,12 @@ public static class Utils
     /// Get a circle with radius 1 centralizated in (0, 0, 0)
     /// with 128 sides.
     /// </summary>
-    public static Polygon Circle => circle;
+    public static Polygon Circle => Ellipse(1, 1, 128);
 
     /// <summary>
     /// Get a square with side 1 centralizated in (0, 0, 0).
     /// </summary>
-    public static Polygon Square => square;
+    public static Polygon Square => Rect(1, 1);
 
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.
