@@ -18,6 +18,7 @@ using Exceptions;
 /// </summary>
 public static class Utils
 {
+    internal static Polygon screen = null;
     internal readonly static TimeDependence timeDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
@@ -217,10 +218,18 @@ public static class Utils
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.
     /// </summary>
-    public static readonly Polygon Screen = 
-        Window.IsOpen ?
-        Rect(0, 0, 0, Window.Width, Window.Height).MakeImmutable() :
-        throw new WindowClosedException();
+    public static Polygon Screen
+    {
+        get
+        {
+            screen ??= 
+                Window.IsOpen ?
+                Rect(0, 0, 0, Window.Width, Window.Height).MakeImmutable() :
+                throw new WindowClosedException();
+            
+            return screen;
+        }
+    }
 
     /// <summary>
     /// Create a rectangle with specific width and height

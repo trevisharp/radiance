@@ -12,9 +12,6 @@ public class WindowClosedException : Exception
 {
     public override string Message => 
         """
-            Polygon type can call MakeImmutable() method making the type immutable.
-            A immutable polygon cannot be modified, therefore, it cannot perform the 
-            Add and Append methods.
-            Try perform Clone method to create a mutable copy of the polygon.
+            The window is not open now, so get window data is ilegal.
         """;
 }
