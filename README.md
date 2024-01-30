@@ -667,7 +667,13 @@ public class Player
 
 # Versions
 
-### Radiance v2.0.0 (coming soon)
+### Radiance v2.1.1
+
+ - ![](https://img.shields.io/badge/new-green) Add More properties in Utils class.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix bug in tuple convention.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix bug in Rect function.
+
+### Radiance v2.0.0
 
  - ![](https://img.shields.io/badge/new-green) Add Text writting.
  - ![](https://img.shields.io/badge/new-green) Add Release Shaders to speedup production apps.
