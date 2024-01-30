@@ -142,12 +142,20 @@ public class Polygon
         return this;
     }
 
+    /// <summary>
+    /// Make this polygon immutable avoid data modification.
+    /// </summary>
+    /// <returns></returns>
     public Polygon MakeImmutable()
     {
         isImmutable = true;
         return this;
     }
-
+    
+    /// <summary>
+    /// Copy the polygon data ignoring the mutability state and the
+    /// shader data associated to the polygon.
+    /// </summary>
     public Polygon Clone()
         => new Polygon
         {

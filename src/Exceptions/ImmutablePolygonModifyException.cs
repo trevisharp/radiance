@@ -5,6 +5,9 @@ using System;
 
 namespace Radiance.Exceptions;
 
+/// <summary>
+/// Represents a error that occurs when a immutable polygon has modified.
+/// </summary>
 public class ImmutablePolygonModifyException : Exception
 {
     public override string Message => 
