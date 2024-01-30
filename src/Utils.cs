@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/01/2024
+ * Date:    30/01/2024
  */
 using System;
 using System.Text;
@@ -11,6 +11,7 @@ using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
 using Renders;
+using Exceptions;
 
 /// <summary>
 /// A facade with all utils to use Radiance features.
@@ -21,15 +22,6 @@ public static class Utils
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
     internal readonly static PixelDependence pixelDep = new();
-    internal readonly static FloatShaderObject _x = new(
-        "pixelPos.x", ShaderOrigin.FragmentShader, [pixelDep]
-    );
-    internal readonly static FloatShaderObject _y = new(
-        "pixelPos.y", ShaderOrigin.FragmentShader, [pixelDep]
-    );
-    internal readonly static FloatShaderObject _z = new(
-        "pixelPos.z", ShaderOrigin.FragmentShader, [pixelDep]
-    );
 
     public static bool verbose
     {
@@ -94,17 +86,23 @@ public static class Utils
     /// <summary>
     /// Get the x position of pixel.
     /// </summary>
-    public static FloatShaderObject x => _x;
+    public static readonly FloatShaderObject x = new(
+        "pixelPos.x", ShaderOrigin.FragmentShader, [pixelDep]
+    );
 
     /// <summary>
     /// Get the y position of pixel.
     /// </summary>
-    public static FloatShaderObject y => _y;
+    public static readonly FloatShaderObject y = new(
+        "pixelPos.y", ShaderOrigin.FragmentShader, [pixelDep]
+    );
 
     /// <summary>
     /// Get the z position of pixel.
     /// </summary>
-    public static FloatShaderObject z => _z;
+    public static readonly FloatShaderObject z = new(
+        "pixelPos.z", ShaderOrigin.FragmentShader, [pixelDep]
+    );
 
     /// <summary>
     /// Get ou update the actual color of a generic point inside drawed area.
@@ -136,31 +134,31 @@ public static class Utils
     /// <summary>
     /// Get (1, 0, 0) vector.
     /// </summary>
-    public static Vec3 i => new(1, 0, 0); 
+    public static readonly Vec3 i = new(1, 0, 0); 
     
     /// <summary>
     /// Get (0, 1, 0) vector.
     /// </summary>
-    public static Vec3 j => new(0, 1, 0);
+    public static readonly Vec3 j = new(0, 1, 0);
 
     /// <summary>
     /// Get (0, 0, 1) vector.
     /// </summary>
-    public static Vec3 k => new(0, 0, 1);
+    public static readonly Vec3 k = new(0, 0, 1);
 
     /// <summary>
     /// Get (0, 0, 0) origin vector.
     /// </summary>
-    public static Vec3 origin => new(0, 0, 0);
+    public static readonly Vec3 origin = new(0, 0, 0);
 
-    public static Vec4 red => new(1, 0, 0, 1);
-    public static Vec4 green => new(0, 1, 0, 1);
-    public static Vec4 blue => new(0, 0, 1, 1);
-    public static Vec4 yellow => new(1, 1, 0, 1);
-    public static Vec4 black => new(0, 0, 0, 1);
-    public static Vec4 white => new(1, 1, 1, 1);
-    public static Vec4 cyan => new(0, 1, 1, 1);
-    public static Vec4 magenta => new(1, 0, 1, 1);
+    public static readonly Vec4 red = new(1, 0, 0, 1);
+    public static readonly Vec4 green = new(0, 1, 0, 1);
+    public static readonly Vec4 blue = new(0, 0, 1, 1);
+    public static readonly Vec4 yellow = new(1, 1, 0, 1);
+    public static readonly Vec4 black = new(0, 0, 0, 1);
+    public static readonly Vec4 white = new(1, 1, 1, 1);
+    public static readonly Vec4 cyan = new(0, 1, 1, 1);
+    public static readonly Vec4 magenta = new(1, 0, 1, 1);
 
     /// <summary>
     /// Return the current center point of screen.
@@ -187,7 +185,7 @@ public static class Utils
     /// Return the current time of application.
     /// Shader Only.
     /// </summary>
-    public static FloatShaderObject t =
+    public static readonly FloatShaderObject t =
         new("t", ShaderOrigin.Global, [timeDep]);
 
     /// <summary>
@@ -201,7 +199,7 @@ public static class Utils
     public static float Time => timeDep.Seconds;
     
     /// <summary>
-    /// Get a empty polygon.
+    /// Create and get a new empty polygon.
     /// </summary>
     public static Polygon Empty => new Polygon();
 
@@ -209,17 +207,20 @@ public static class Utils
     /// Get a circle with radius 1 centralizated in (0, 0, 0)
     /// with 128 sides.
     /// </summary>
-    public static Polygon Circle => Ellipse(1, 1, 128);
+    public static readonly Polygon Circle = Ellipse(1, 1, 128).MakeImmutable();
 
     /// <summary>
     /// Get a square with side 1 centralizated in (0, 0, 0).
     /// </summary>
-    public static Polygon Square => Rect(1, 1);
+    public static readonly Polygon Square = Rect(1, 1).MakeImmutable();
 
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.
     /// </summary>
-    public static Polygon Screen => Rect(0, 0, 0, Window.Width, Window.Height);
+    public static readonly Polygon Screen = 
+        Window.IsOpen ?
+        Rect(0, 0, 0, Window.Width, Window.Height).MakeImmutable() :
+        throw new WindowClosedException();
 
     /// <summary>
     /// Create a rectangle with specific width and height

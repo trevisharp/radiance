@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/01/2024
+ * Date:    30/01/2024
  */
 using System;
 using System.Text;
@@ -10,16 +10,20 @@ namespace Radiance.Data;
 
 using Internal;
 using Exceptions;
+using System.Diagnostics.Contracts;
+
 
 /// <summary>
 /// Represents a data that can managed by GPU and drawed in screen.
 /// </summary>
 public class Polygon
 {
+    private bool isImmutable = false;
     private int elementSize = 0;
     private List<LayoutInfo> layouts = new();
     private LinkedList<float> data = new();
     private Polygon triangulationPair = null;
+    
     public Polygon Triangulation
     {
         get
@@ -49,9 +53,12 @@ public class Polygon
 
     public Polygon()
         => AppendLayout(3, "vec3", "pos");
-
+    
     public Polygon Add(float x, float y, float z, params float[] extra)
     {
+        if (isImmutable)
+            throw new ImmutablePolygonModifyException();
+
         data.AddLast(x);
         data.AddLast(y);
         data.AddLast(z);
@@ -86,6 +93,9 @@ public class Polygon
 
     public Polygon Append(int fields)
     {
+        if (isImmutable)
+            throw new ImmutablePolygonModifyException();
+        
         var it = data.First;
 
         while (it != null)
@@ -104,6 +114,9 @@ public class Polygon
 
     public Polygon Append(params Func<float, float, float, float>[] defs)
     {
+        if (isImmutable)
+            throw new ImmutablePolygonModifyException();
+        
         var it = data.First;
 
         while (it != null)
@@ -128,6 +141,20 @@ public class Polygon
         change(true, true);
         return this;
     }
+
+    public Polygon MakeImmutable()
+    {
+        isImmutable = true;
+        return this;
+    }
+
+    public Polygon Clone()
+        => new Polygon
+        {
+            elementSize = this.elementSize,
+            layouts = new(this.layouts),
+            data = new(this.data)
+        };
 
     public event Action<bool, bool> OnChange;
     private void change(bool bufferBreak, bool layoutBreak)
