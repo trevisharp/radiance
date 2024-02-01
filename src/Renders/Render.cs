@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/01/2024
+ * Date:    01/02/2024
  */
 using System;
 using System.Linq;
@@ -50,9 +50,9 @@ public class Render : DynamicObject, ICurryable
             throw new MissingPolygonException();
 
         int argCount = countArgs(args);
-        if (argCount < extraParameterCount)
+        if (argCount < extraParameterCount + 1)
         {
-            result = this.Curry(args);
+            result = Curry(args);
             return true;
         }
 
@@ -60,6 +60,9 @@ public class Render : DynamicObject, ICurryable
 
         foreach (var pair in data.Zip(dependenceList))
             pair.Second.UpdateData(pair.First);
+        
+        if (ctx is null)
+            throw new IlegalRenderMomentException();
 
         ctx.Render(poly, data);
         
