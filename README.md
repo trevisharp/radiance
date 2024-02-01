@@ -667,6 +667,11 @@ public class Player
 
 # Versions
 
+### Radiance v2.1.2
+
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when render call renderization implementations with one parameter less instead make curry operation.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when the render functions is callend outside OnRender event showing the incorrect message error.
+
 ### Radiance v2.1.1
 
  - ![](https://img.shields.io/badge/new-green) Add More properties in Utils class.
