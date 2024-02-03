@@ -1,10 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/01/2024
+ * Date:    03/02/2024
  */
 namespace Radiance.Renders;
 
 using static Radiance.Utils;
 
+/// <summary>
+/// A Kit whit some Render default implementations.
+/// </summary>
 public class RenderKit
 {
     public readonly static RenderKit Shared = new();
@@ -24,6 +27,24 @@ public class RenderKit
             });
 
             return fill;
+        }
+    }
+
+    private Render draw = null;
+    public dynamic Draw
+    {
+        get
+        {
+            if (draw is not null)
+                return draw;
+            
+            draw = render((r, g, b, a) =>
+            {
+                color = (r, g, b, a);
+                draw();
+            });
+
+            return draw;
         }
     }
 }

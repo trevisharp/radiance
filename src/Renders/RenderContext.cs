@@ -98,7 +98,7 @@ public class RenderContext
     public void AddDraw() 
         => baseDraw(false);
 
-    private void baseDraw(bool isFill)
+    private void baseDraw(bool needsTriangulation)
     {
         start("Creating Program");
         ShaderContext shaderCtx = new ShaderContext();
@@ -121,7 +121,7 @@ public class RenderContext
         
         operations += (poly, data) =>
         {
-            if (isFill)
+            if (needsTriangulation)
                 poly = poly.Triangulation;
 
             shaderCtx.CreateResources(poly);
@@ -136,7 +136,7 @@ public class RenderContext
                 item.fragStp();
 
             GL.DrawArrays(
-                isFill ? PrimitiveType.Triangles : PrimitiveType.LineLoop, 
+                needsTriangulation ? PrimitiveType.Triangles : PrimitiveType.LineLoop, 
                 0, poly.Elements
             );
         };
