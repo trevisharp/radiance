@@ -1,7 +1,4 @@
-﻿using System;
-using System.Linq;
-
-using Radiance;
+﻿using Radiance;
 using static Radiance.Utils;
 
 var shipRender = render((px) =>
@@ -29,22 +26,17 @@ Window.OnLoad += ()
 Window.OnRender += () =>
     shipRender(Circle, shipPosition);
 
-var lastUpdate = DateTime.Now;
-var last = Time;
-var now = Time;
+var tmFrame = new Clock();
+var tmWave = new Clock();
 Window.OnFrame += () =>
 {
-    now = Time;
-    var passed = now - last;
-    shipPosition += shipSpeed * passed;
-    last = now;
+    shipPosition += shipSpeed * tmFrame.Time;
+    shipSpeed += 3 * tmFrame.Time;
+    tmFrame.Reset();
 
-    shipSpeed += 3 * passed;
-
-    var frameTime = DateTime.Now - lastUpdate;
-    if (frameTime.TotalMilliseconds < 200)
+    if (tmWave.Time < 0.2)
         return;
-    lastUpdate = DateTime.Now;
+    tmWave.Reset();
 
     float px = shipPosition;
     float py = Window.Height / 2;
@@ -53,6 +45,14 @@ Window.OnFrame += () =>
         waveRender(Circle, px, py, secs);
 };
 
-Window.CloseOn(Input.Escape);
+Window.OnKeyDown += (k, m) =>
+{
+    if (k == Input.Space)
+    {
+        tmFrame.ToogleFreeze();
+        tmWave.ToogleFreeze();
+    }
+};
 
+Window.CloseOn(Input.Escape);
 Window.Open();
