@@ -1,4 +1,6 @@
-﻿using Radiance;
+﻿using System.Collections.Generic;
+using OpenTK.Compute.OpenCL;
+using Radiance;
 using static Radiance.Utils;
 
 var shipRender = render((px) =>
@@ -8,10 +10,9 @@ var shipRender = render((px) =>
     fill();
 });
 
-var waveRender = render((px, py, init) =>
+var waveRender = render((px, py, size) =>
 {
-    var size = 34 * (t - init);
-    pos = size * pos + (px, py, 0);
+    pos = 34 * size * pos + (px, py, 0);
     color = white;
     draw();
 });
@@ -23,6 +24,7 @@ Window.OnRender += () =>
 
 var clkFrame = new Clock();
 var clkWave = new Clock();
+List<Clock> waveClocks = [];
 Window.OnFrame += () =>
 {
     shipPosition += shipSpeed * clkFrame.Time;
@@ -33,14 +35,19 @@ Window.OnFrame += () =>
         return;
     clkWave.Reset();
 
+    var clk = new Clock();
+    waveClocks.Add(clk);
+    var origin = shipPosition;
     Window.OnRender += () =>
-        waveRender(Circle, shipPosition, Window.Height / 2, Time);
+        waveRender(Circle, origin, Window.Height / 2, clk.Time);
 };
 
 Window.OnKeyDown += (k, m) =>
 {
     if (k == Input.Space)
     {
+        foreach (var clk in waveClocks)
+            clk.ToogleFreeze();
         clkFrame.ToogleFreeze();
         clkWave.ToogleFreeze();
     }
