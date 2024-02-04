@@ -667,6 +667,11 @@ public class Player
 
 # Versions
 
+### Radiance v2.2.0
+
+ - ![](https://img.shields.io/badge/new-green) Clock object to easy management of time.
+ - ![](https://img.shields.io/badge/new-green) Add Draw function in Render Kit.
+
 ### Radiance v2.1.2
 
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when render call renderization implementations with one parameter less instead make curry operation.
