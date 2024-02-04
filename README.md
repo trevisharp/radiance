@@ -6,9 +6,7 @@ A library based on OpenTK which is based on OpenGL to program Shaders in C#.
 
  - [Overview](#overview)
  - [How to install](#how-to-install)
- - [Features (For OpenGL Programers)](#features-for-opengl-programers)
- - [Concepts](#concepts)
- - [Examples](#examples)
+ - [Learn by examples](#learn-by-examples)
  - [Versions](#versions)
  - [Next Features](#next-features)
 
@@ -23,9 +21,7 @@ dotnet new console # Create project
 dotnet add package radiance # Install Radiance
 ```
 
-# Features (For OpenGL Programers)
-
-See this examples that contains all Radiance features:
+# Learn by examples
 
 ### Create a window for your apps
 
@@ -45,143 +41,151 @@ Window.OnKeyDown += (input, modifier) =>
 Window.Open(false); // true or ignore parameter for fullscreen
 ```
 
-### Use C# to generate OpenGL Shaders with auto parameters
+### Draw simple objects
 
 ```cs
 using Radiance;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils; // utilities
 
-var region = data(
-    (-1, -1, 0), // or -i -j
-    (+1, -1, 0), // or +i -j
-    (-1, +1, 0), // or -i +j
+var rect = Empty; // empty polygon
+Window.OnLoad += () => 
+    rect = Rect(
+        Window.Width / 2,
+        Window.Height / 2,
+        0, 500, 500
+    ); // use Window information to create polygons
 
-    (+1, +1, 0), // or +i +j
-    (+1, -1, 0), // or +i -j
-    (-1, +1, 0)  // or -i +j
-);
+Window.OnRender += () =>
+    Kit.Fill(rect, red); // use renders to fill the polygon
 
-Window.OnRender += r =>
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Create custom renders and see the generated GLSL code 
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render(() =>
 {
-    var size = 50;
-    var center = (width / 2, height / 2, 0); // create uniforms automatically
+    verbose = true;
+    clear(black);
 
-    r.Clear(white);
+    pos += center;
     
-    r.FillTriangles(region
-        .transform(v => center + size * v) // operation done on the GPU
-        .colorize(blue) // operation done on the GPU
-    );
-};
+    var scale = x / width;
+    color = (scale, 0, 1, 1);
+    fill();
+}).Curry(Rect(500, 500)); // fix parameters to render
 
-Window.CloseOn(Input.Escape);
+bool isVisible = true;
+Window.OnRender += myRender;
 
-Window.Open();
-```
-
-### Use OpenGL resources in C#
-
-```cs
-using Radiance;
-using static Radiance.RadianceUtils;
-
-var region = data(
-    (-1, -1, 0),
-    (+1, -1, 0),
-    (-1, +1, 0),
-
-    (+1, +1, 0),
-    (+1, -1, 0),
-    (-1, +1, 0)
-);
-
-var border = data(
-    (-1, -1, 0),
-    (+1, -1, 0),
-    (+1, +1, 0),
-    (-1, +1, 0)
-);
-
-Window.OnRender += r =>
+Window.OnKeyDown += (key, mod) =>
 {
-    var size = 50 + 20 * cos(5 * t);
-    var center = (width / 2, height / 2, 0);
-
-    r.Clear(white);
+    if (key != Input.Space)
+        return;
     
-    r.FillTriangles(region
-        .transform(v => center + size * v)
-        .colorize(cos(t) + 1, sin(t) + 1, 0)
-    );
+    if (isVisible)
+        Window.OnRender -= myRender;
+    else Window.OnRender += myRender;
 
-    r.Draw(border
-        .transform(v => center + size * v)
-        .colorize(black)
-    );
+    isVisible = !isVisible;
 };
 
 Window.CloseOn(Input.Escape);
-
 Window.Open();
 ```
 
-### Use custom data types and execute all the OpenGL pipeline
+### Use OpenGL functions and interact with cursor
 
 ```cs
 using Radiance;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils;
 
-// Colored Vectors
-var region = data(
-    n | magenta,
-    i | cyan,
-    i + j | magenta,
-
-    n | magenta,
-    j | cyan,
-    i + j | magenta
-);
-
-Window.OnRender += r =>
+var oncursor = render((cx, cy) =>
 {
-    // Work with variables auto added in shaders
-    r.FillTriangles(region
-        .transform((v, c) => (width * v.x, height * v.y, v.z))
-        .colorize((v, c) => c) // auto outputs in vertex and inputs in fragment
-    );
-};
+    verbose = true;
+    pos += (0.5, 0.5, 0);
+    pos *= (width, height, 1);
+
+    var d = distance((x, y), (cx, cy));
+    var s = (5.0 + 0.01 * sin(10 * t)) / d;
+    color = (s, s, s, 1);
+    fill();
+});
+
+float cx = 0f;
+float cy = 0f;
+Window.OnMouseMove += p => (cx, cy) = p;
+
+var rect = Rect(1, 1);
+Window.OnRender += () => oncursor(rect, cx, cy);
+
+Window.CursorVisible = false;
 
 Window.CloseOn(Input.Escape);
-
 Window.Open();
 ```
 
-### Global variables automatically turned into a uniform
+### Fill complex polygons using triangulation
 
 ```cs
 using Radiance;
-using Radiance.Types;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils;
 
-// init global variable
-gfloat x = 0;
-gfloat y = 0;
+var poly = Empty
+    .Add(700, 200, 0)
+    .Add(710, 210, 0)
+    .Add(720, 230, 0)
+    .Add(730, 300, 0)
+    .Add(740, 220, 0)
+    .Add(750, 230, 0)
+    .Add(760, 270, 0)
+    .Add(770, 200, 0)
+    .Add(780, 300, 0)
+    .Add(790, 220, 0)
+    .Add(800, 250, 0)
+    .Add(810, 260, 0)
+    .Add(820, 230, 0)
+    .Add(830, 280, 0)
+    .Add(840, 350, 0)
+    .Add(850, 280, 0)
+    .Add(860, 300, 0)
+    .Add(870, 290, 0)
+    .Add(880, 200, 0)
+    .Add(890, 400, 0)
+    .Add(900, 150, 0);
+
+Window.OnRender += () =>
+    Kit.Fill(poly, red);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Interact with yours renders
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+float px = 0;
+float py = 0;
 
 var horMov = 0f;
 var verMov = 0f;
 
 var maxSpeed = 500;
 
-var region = data(n, i, i + j, j);
-
 Window.OnLoad += delegate
 {
-    // Use global variables normally
-    x = Window.Width / 2 - 25;
-    y = Window.Height / 2 - 25;
+    px = Window.Width / 2 - 25;
+    py = Window.Height / 2 - 25;
 };
 
-// Update values of global values out of OnRender
 Window.OnFrame += delegate
 {
     if (horMov > maxSpeed)
@@ -194,10 +198,8 @@ Window.OnFrame += delegate
     else if (verMov < -maxSpeed)
         verMov = -maxSpeed;
     
-    // dt = deltaTime = time between frames
-    // use dt to avoid speed based on fps
-    x += horMov * dt;
-    y += verMov * dt;
+    px += horMov * dt;
+    py += verMov * dt;
     
     if (horMov > 0)
         horMov -= maxSpeed * dt;
@@ -210,14 +212,18 @@ Window.OnFrame += delegate
         verMov += maxSpeed * dt;
 };
 
-Window.OnRender += r =>
+var simple = render((px, py) =>
 {
-    r.Draw(region
-        .transform(v => (v.x * 50 + x, v.y * 50 + y, v.z))
-    );
-};
+    verbose = true;
+    pos *= 50;
+    pos += (px, py, 0);
+    color = red;
+    draw();
+});
+var rect = Rect(1, 1);
 
-// Update global variables in others events
+Window.OnRender += () => simple(rect, px, py);
+
 Window.OnKeyDown += (input, modifier) =>
 {
     if (input == Input.D)
@@ -234,435 +240,108 @@ Window.OnKeyDown += (input, modifier) =>
 };
 
 Window.CloseOn(Input.Escape);
-
 Window.Open();
 ```
 
-### Use multi Draw operations and analize the process with Verbose Mode
+### Use textures in your apps
 
 ```cs
 using Radiance;
-using Radiance.Types;
-using static Radiance.RadianceUtils;
+using static Radiance.Utils;
 
-var rect = data(
-    n, i, i + j,
-    n, j, i + j
-);
-
-Window.OnRender += r =>
+var myRender = render((img1, img2) =>
 {
-    r.Verbose = true;
-    float N = 40;
-    // Local variables are considered a uniform. You can generate a single
-    // shader code using them. To update the values of l-type variables you
-    // need ouse x++, x-- or x.Update(value). Use x.Value to access the value
-    // of variable.
-    for (lfloat i = 0; i < N; i++)
-    {
-        // Create many prograns/Shaders
-        r.FillTriangles(rect
-            .transform(v => (v.x * 20 * (N - i), v.y * 20 * (N - i), 0))
-            .colorize(i / N, 0, 0)
-        );
-    }
-};
+    verbose = true;
+    clear(white);
 
-Window.CloseOn(Input.Escape);
-
-Window.Open();
-```
-
-### Get cursor position and use all potential of Radiance
-
-```cs
-using Radiance;
-using Radiance.Types;
-using static Radiance.RadianceUtils;
-
-gfloat x = 0f;
-gfloat y = 0f;
-
-var screen = data(
-    n, i, i + j,
-    n, j, i + j
-);
-
-Window.OnRender += r =>
-{
-    r.Verbose = true;
-    r.FillTriangles(screen
-        .transform(v => (v.x * width, v.y * height, v.z))
-        .colorize(v => 
-        {
-            var point = (v.x * width, v.y * height, v.z);
-            var cursor = (x, y, 0);
-            var d = distance(point, cursor);
-            var s = (5.0 + 0.01 * sin(10 * t)) / d;
-            return (s, s, s, 0);
-        })
-    );
-};
-
-Window.OnMouseMove += p => (x, y) = p;
-
-Window.CursorVisible = false;
-
-Window.CloseOn(Input.Escape);
-
-Window.Open();
-```
-
-### Generate simple shapes easily
-
-```cs
-using Radiance;
-using static Radiance.RadianceUtils;
-
-var r1 = rect(50, 50, 200, 100);
-var r2 = ellip(250, 150, 200, 50);
-var r3 = ellip(350, 250, 50, 50, 6);
-
-Window.OnRender += r =>
-{
-    r.Draw(r1);
-    r.Draw(r2);
-    r.Draw(r3);
-};
-
-Window.CloseOn(Input.Escape);
-
-Window.Open();
-```
-
-### Add and Remove RenderFunctions
-
-```cs
-using Radiance;
-using static Radiance.RadianceUtils;
-
-var render1 = render(r =>
-{
-    r.Draw(
-        rect(50, 50, 50, 50)
-        .colorize(v => {
-            var scale = (v.x - 50) / 50;
-            return (scale, 0, 1, 1);
-        })
-    );
+    pos *= 400;
+    pos += center;
+    
+    var point = (x / width, y / height);
+    var text1 = texture(img1, point);
+    var text2 = texture(img2, point);
+    color = mix(text1, text2, (sin(t) + 1) / 2);
+    fill();
 });
 
-var render2 = render(r =>
-{
-    r.Draw(
-        rect(100, 100, 50, 50)
-        .colorize(v => {
-            var scale = (v.y - 100) / 50;
-            return (0, scale, 1, 1);
-        })
-    );
-});
+var f1 = open("faustao1.png");
+var f2 = open("faustao2.png");
+var f3 = open("faustao3.jpg");
+var faustao = myRender(Circle, f1);
 
-Window.OnRender += render1; // Or obj1.Show();
-Window.OnRender += render2; // Or obj2.Show();
+var img = f2;
+Window.OnRender += () => faustao(img);
 
 Window.OnKeyDown += (key, mod) =>
 {
-    switch (key)
-    {
-        case Input.A:
-            render1.Toggle();
-            break;
-
-        case Input.S:
-            render2.Toggle();
-            break;
-        
-        case Input.D:
-            render1.SoftHide();
-            render2.SoftHide();
-            break;
-    }
+    if (key == Input.Space)
+        img = img == f2 ? f3 : f2;
 };
 
 Window.CloseOn(Input.Escape);
-
 Window.Open();
 ```
 
-### Draw Textures
+### Use clock type to manage the time
 
 ```cs
-﻿using Radiance;
-using static Radiance.RadianceUtils;
+using System.Collections.Generic;
+using OpenTK.Compute.OpenCL;
+using Radiance;
+using static Radiance.Utils;
 
-var myRender = render(r =>
+var shipRender = render((px) =>
 {
-    var img = open("pain.png");
-    var mod = 400 * sin(t / 5);
-    r.Clear(white);
-    r.Verbose = true;
-    r.FillTriangles(circle
-        .triangules()
-        .transform(v => (mod * v.x + width / 2, mod * v.y + height / 2, v.z))
-        .colorize(v => texture(img, (mod * v.x / width + 0.5f, mod * v.y / height + 0.5f)))
-    );
+    pos = 5 * pos + (px, height / 2, 0);
+    color = red;
+    fill();
 });
 
-Window.OnRender += myRender;
-
-Window.CloseOn(Input.Escape);
-
-Window.Open();
-```
-
-# Concepts
-
-### Shaders
-
-A Shader is a basic concept of OpenGL. He is a program that runs in GPU and can process position of
-vertex data and color of the pixels in the screen. Radiance generate Shaders code using a language of
-OpenGL the GLSL. We learn more about Shaders in next concepts.
-
-### Shader Object
-
-The Shader Object do not is a concept that realy need be understanded to use Radiance, but is a good
-concept to understand how the tecnology works. A Shader Object represetns a data that can be exist in
-a Shader implementation. When we sum two Shader Objects doing "a + b" actually we just generating a 
-expression in GLSL that execute in GPU in the future.
-
-### Shader Dependence
-
-When we use some objects that can be change betwen frames we generaly use Shader Dependences. These objects
-are referenced by Shader Objects and can be added in Shaders like a dependence of data in program. For example,
-using "using static Radiance.RadianceUtils" you can use the "t" variable: A Shader Dependence of time. Using in
-yours expressions added a uniform, a input variable, in the shaders. Automatically, the time of application will
-be sent to GPU and used by implementations.
-
-### Shader Outputs
-
-We will always have two shaders is our program: A Vertex Shader, that process positions of data and a Fragment
-Shader, that process the colors of pixels. Therefore, exists a pipeline in OpenGL where we need declare output
-and input betwen these two shaders. Radiance will make this process automatically betwen Shader Outputs object.
-
-### IData
-
-IData is a interface implemented by all data types. These data types have the real data of application and can
-be use like a Shader Object with a dependence. Every data type have a default implementation to Vertex Shader
-and Fragment Shader. Using transform function you can update the Vertex Shader. Using colorize function you
-can update the Fragment Shader.
-
-### IRenders
-
-Every function added in the OnRender Event do not be caled every frame, actually. In reality, the function will
-be transformed in a new function that transform our code in calls of OpenGL library and Shader pre computated.
-In this way, our function will be executed only one time, in project setup and never execute again. This is
-important to understand that some implementations do not work like expected. We need use render functions with
-carefoul to avoid unwanted behaviors.
-
-### Radiance Types
-
-A real value that exist in your C# Program and maybe sended to GPU betwen uniform's can be represented with 
-Radiance Types, like gfloat and lfloat. A gfloat or lfloat variable will be transormed into a uniform 
-automatically. Radiance types can be global ou local. On loops, use radiance types to avoid create a high
-quantity of shaders that are similiar but not equal.
-
-# Examples
-
-### Simple Game
-```cs
-using System;
-
-using Radiance;
-using Radiance.Types;
-using static Radiance.Window;
-using static Radiance.RadianceUtils;
-
-Player player = new Player();
-
-Cursor cursor = new Cursor();
-
-Ligth ligth1 = new Ligth();
-Ligth ligth2 = new Ligth();
-Ligth ligth3 = new Ligth();
-Ligth ligth4 = new Ligth();
-Ligth ligth5 = new Ligth();
-Ligth ligth6 = new Ligth();
-
-OnFrame += delegate
+var waveRender = render((px, py, size) =>
 {
-    player.TryCapture(
-        ligth1, ligth2, ligth3, 
-        ligth4, ligth5, ligth6
-    );
-    Console.WriteLine(Fps);
+    pos = 34 * size * pos + (px, py, 0);
+    color = white;
+    draw();
+});
+
+float shipSpeed = 4f;
+float shipPosition = 0f;
+Window.OnRender += () =>
+    shipRender(Circle, shipPosition);
+
+var clkFrame = new Clock();
+var clkWave = new Clock();
+List<Clock> waveClocks = [];
+Window.OnFrame += () =>
+{
+    shipPosition += shipSpeed * clkFrame.Time;
+    shipSpeed += 3 * clkFrame.Time;
+    clkFrame.Reset();
+
+    if (clkWave.Time < 0.2)
+        return;
+    clkWave.Reset();
+
+    var clk = new Clock();
+    waveClocks.Add(clk);
+    var origin = shipPosition;
+    Window.OnRender += () =>
+        waveRender(Circle, origin, Window.Height / 2, clk.Time);
 };
 
-CloseOn(Input.Escape);
-
-CursorVisible = false;
-
-Open();
-
-public class Ligth
+Window.OnKeyDown += (k, m) =>
 {
-    public float X => x.Value;
-    public float Y => y.Value;
-
-    gfloat x = -1;
-    gfloat y = -1;
-    gfloat captured = 1; 
-
-    float nextx = -1;
-    float nexty = -1;
-
-    Player player = null;
-
-    public Ligth()
+    if (k == Input.Space)
     {
-        render(r =>
-        {
-            r.FillTriangles(
-                data(n, i, i + j, n, j, i + j)
-                .transform(v => (50 * v.x + x, 50 * v.y + y, v.z))
-                .colorize(v => 
-                {
-                    var d = distance(v, (0.5, 0.5, 0));
-                    var s = 0.001 / (d * d);
-                    return (s / captured, s, s / captured, s);
-                })
-            );
-        }).Show();
-
-        OnFrame += delegate
-        {
-            Move();
-        };
+        foreach (var clk in waveClocks)
+            clk.ToogleFreeze();
+        clkFrame.ToogleFreeze();
+        clkWave.ToogleFreeze();
     }
+};
 
-    public void Move()
-    {
-        if (x.Value == -1)
-        {
-            x = Random.Shared.NextSingle() * Window.Width;
-            y = Random.Shared.NextSingle() * Window.Height;
-        }
-
-        if (nextx == -1 || nexty == -1)
-        {
-            nextx = player is null ?
-                Random.Shared.NextSingle() * Window.Width :
-                player.X + Random.Shared.NextSingle() * 50 - 25;
-            nexty = player is null ?
-                Random.Shared.NextSingle() * Window.Height :
-                player.Y + Random.Shared.NextSingle() * 50 - 25;
-        }
-
-        var dx = nextx - x.Value;
-        var dy = nexty - y.Value;
-        var d = MathF.Sqrt(dx * dx + dy * dy);
-
-        if (d < (player is not null ? 1 : 10))
-        {
-            nextx = nexty = -1;
-            return;
-        }
-
-        var vx = dx / d + 4 * (Random.Shared.NextSingle() - .5f);
-        var vy = dy / d + 4 * (Random.Shared.NextSingle() - .5f);
-
-        x += 50 * vx * dt * (player is not null ? 6 : 1);
-        y += 50 * vy * dt * (player is not null ? 6 : 1);
-    }
-
-    public void Capture(Player player)
-    {
-        nextx = nexty = -1;
-        this.player = player;
-        captured = 10;
-    }
-}
-
-public class Cursor
-{
-    gfloat x = -1;
-    gfloat y = -1;
-
-    public Cursor()
-    {
-        render(r =>
-        {
-            r.FillTriangles(
-                data(n, i, i + j, n, j, i + j)
-                .transform(v => (50 * v.x + x, 50 * v.y + y, v.z))
-                .colorize(v => 
-                {
-                    var d = distance(v, (0.5, 0.5, 0));
-                    var s = 0.001 / (d * d);
-                    return (s, 0, 0, s);
-                })
-            );
-        }).Show();
-
-        OnMouseMove += p => (x, y) = p;
-    }
-}
-
-public class Player
-{
-    public float X => x.Value;
-    public float Y => y.Value;
-
-    gfloat x = 0;
-    gfloat y = 0;
-
-    float ox;
-    float oy;
-
-    public Player()
-    {
-        render(r => {
-            r.Draw(
-                rect(0, 0, 50, 50)
-                .transform(v => (v.x + x, v.y + y, 0))
-            );
-        }).Show();
-
-        OnMouseMove += p => (ox, oy) = p;
-
-        OnFrame += delegate
-        {
-            var dx = ox - x.Value;
-            var dy = oy - y.Value;
-            var d = MathF.Sqrt(dx * dx + dy * dy);
-
-            if (d < 2)
-                return;
-
-            var vx = dx / d;
-            var vy = dy / d;
-
-            x += 150 * vx * dt;
-            y += 150 * vy * dt;
-        };
-    }
-
-    public void TryCapture(params Ligth[] ligths)
-    {
-        foreach (var ligth in ligths)
-            TryCapture(ligth);
-    }
-
-    public void TryCapture(Ligth ligth)
-    {
-        if (ligth.X > x.Value + 25 || ligth.Y > y.Value + 25 ||
-            ligth.X < x.Value - 25 || ligth.Y < y.Value - 25)
-            return;
-        
-        ligth.Capture(this);
-    }
-
-}
+Window.CloseOn(Input.Escape);
+Window.Open();
 ```
 
 # Versions

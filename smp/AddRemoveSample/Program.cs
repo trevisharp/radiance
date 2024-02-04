@@ -1,5 +1,4 @@
-﻿using System;
-using Radiance;
+﻿using Radiance;
 using static Radiance.Utils;
 
 var myRender = render(() =>
