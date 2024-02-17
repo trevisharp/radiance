@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/01/2024
+ * Date:    17/02/2024
  */
 using System;
 using System.Text;
@@ -29,8 +29,12 @@ public class RenderContext
         var id  = crr.ManagedThreadId;
         if (threadMap.ContainsKey(id))
             threadMap.Remove(id);
-    
-        var ctx = new RenderContext();
+
+        var ctx = new RenderContext
+        {
+            Position = new("pos", ShaderOrigin.VertexShader, [Utils.bufferDep]),
+            Color = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, [])
+        };
         threadMap.Add(id, ctx);
         return ctx;
     }

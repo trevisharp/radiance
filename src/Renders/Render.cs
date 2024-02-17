@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    01/02/2024
+ * Date:    17/02/2024
  */
 using System;
 using System.Linq;
@@ -31,7 +31,7 @@ public class Render : DynamicObject, ICurryable
             function.Method.GetParameters().Length;
         this.dependenceList = new();
         Window.RunOrSchedule(() => {
-            initRender();
+            this.ctx = RenderContext.CreateContext();
             callWithShaderObjects(function);
         });
     }
@@ -107,15 +107,6 @@ public class Render : DynamicObject, ICurryable
         }
         
         return null;
-    }
-
-    private void initRender()
-    {
-        this.ctx = RenderContext.CreateContext();
-
-        ctx.Position = new ("pos", ShaderOrigin.VertexShader, [Utils.bufferDep]);
-
-        ctx.Color = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
     }
 
     private int countArgs(object[] args)
