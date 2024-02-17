@@ -89,21 +89,21 @@ public static class Utils
     /// Get the x position of pixel.
     /// </summary>
     public static readonly FloatShaderObject x = new(
-        "pixelPos.x", ShaderOrigin.FragmentShader, [pixelDep]
+        "pixelPos.x", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
     );
 
     /// <summary>
     /// Get the y position of pixel.
     /// </summary>
     public static readonly FloatShaderObject y = new(
-        "pixelPos.y", ShaderOrigin.FragmentShader, [pixelDep]
+        "pixelPos.y", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
     );
 
     /// <summary>
     /// Get the z position of pixel.
     /// </summary>
     public static readonly FloatShaderObject z = new(
-        "pixelPos.z", ShaderOrigin.FragmentShader, [pixelDep]
+        "pixelPos.z", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
     );
 
     /// <summary>
