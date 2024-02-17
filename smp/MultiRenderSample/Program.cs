@@ -16,7 +16,7 @@ var renderB = render((dx, dy) =>
     fill();
 });
 
-var rect = Rect(100, 100);
+var rect = Data((0, 0, 0), (100, 0, 50), (100, 100, 50), (0, 100, 0));
 Window.OnRender += () => 
 {
     renderA(rect, 0, 0);
