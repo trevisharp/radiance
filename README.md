@@ -348,7 +348,7 @@ Window.Open();
 
 ### Radiance v2.2.1
 
-
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we use x, y, z Utilities to replace pos property and we lose the BufferDependence reference.
 
 ### Radiance v2.2.0
 
