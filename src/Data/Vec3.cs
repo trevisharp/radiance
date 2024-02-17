@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/01/2024
+ * Date:    17/02/2024
  */
 namespace Radiance.Data;
 
@@ -24,6 +24,10 @@ public record Vec3(float X, float Y, float Z)
         => new Vec3(u.X - v.X, u.Y - v.Y, u.Z - v.Z);
     public static float operator *(Vec3 u, Vec3 v)
         => u.X * v.X + u.Y * v.Y + u.Z * v.Z;
+    public static Vec3 operator *(float a, Vec3 v)
+        => new Vec3(a * v.X, a * v.Y, a * v.Z);
+    public static Vec3 operator *(Vec3 v, float a)
+        => new Vec3(a * v.X, a * v.Y, a * v.Z);
     
     public static implicit operator Vec3((float x, float y, float z) tuple)
         => new Vec3(tuple.x, tuple.y, tuple.z);
