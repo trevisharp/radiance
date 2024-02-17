@@ -9,11 +9,11 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
+using Data;
+using Exceptions;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
-using Data;
-using Exceptions;
 
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
@@ -115,6 +115,7 @@ public class Render : DynamicObject, ICurryable
             Vec2 => 2,
             Vec3 => 3,
             Vec4 => 4,
+            float[] arr => arr.Length,
             _ => 1
         });
 
@@ -164,6 +165,11 @@ public class Render : DynamicObject, ICurryable
                 add(vec.Y);
                 add(vec.Z);
                 add(vec.W);
+                break;
+            
+            case float[] subarr:
+                for (int i = 0; i < subarr.Length; i++)
+                    add(subarr[i]);
                 break;
             
             case Texture img:

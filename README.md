@@ -350,6 +350,7 @@ Window.Open();
 
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we use x, y, z Utilities to replace pos property and we lose the BufferDependence reference.
  - ![](https://img.shields.io/badge/update-blue) Improve the diversity of operations using VecN objects.
+ - ![](https://img.shields.io/badge/update-blue) Add currying using float arrays.
 
 ### Radiance v2.2.0
 
