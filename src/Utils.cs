@@ -416,6 +416,96 @@ public static class Utils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static dynamic render(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
+        FloatShaderObject, FloatShaderObject, 
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, FloatShaderObject> function)
+    {
+        if (function is null)
+            throw new ArgumentNullException("function");
+        
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<
         Sampler2DShaderObject> function)
     {
         if (function is null)

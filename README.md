@@ -352,6 +352,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/update-blue) Improve the diversity of operations using VecN objects.
  - ![](https://img.shields.io/badge/update-blue) Add currying using float arrays.
  - ![](https://img.shields.io/badge/update-blue) Now cursor starts in Normal Visible mode.
+ - ![](https://img.shields.io/badge/update-blue) Add more render function overloads.
 
 ### Radiance v2.2.0
 
