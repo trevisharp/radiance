@@ -346,6 +346,10 @@ Window.Open();
 
 # Versions
 
+### Radiance v2.2.1
+
+
+
 ### Radiance v2.2.0
 
  - ![](https://img.shields.io/badge/new-green) Clock object to easy management of time.

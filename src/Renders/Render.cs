@@ -75,7 +75,7 @@ public class Render : DynamicObject, ICurryable
         var parameters = func.Method.GetParameters();
         
         var objs = parameters
-            .Select(p => generateDependence(p))
+            .Select(generateDependence)
             .ToArray();
         
         if (objs.Any(obj => obj is null))
@@ -113,8 +113,7 @@ public class Render : DynamicObject, ICurryable
     {
         this.ctx = RenderContext.CreateContext();
 
-        var bufferDep = new BufferDependence();
-        ctx.Position = new ("pos", ShaderOrigin.VertexShader, [bufferDep]);
+        ctx.Position = new ("pos", ShaderOrigin.VertexShader, [Utils.bufferDep]);
 
         ctx.Color = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
     }

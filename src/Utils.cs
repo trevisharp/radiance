@@ -23,6 +23,7 @@ public static class Utils
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
     internal readonly static PixelDependence pixelDep = new();
+    internal readonly static BufferDependence bufferDep = new();
 
     public static bool verbose
     {
