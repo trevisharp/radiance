@@ -67,7 +67,7 @@ public static class Window
                     WindowState.Normal
             }
         );
-        win.CursorState = CursorState.Grabbed;
+        win.CursorState = CursorState.Normal;
 
         win.Resize += e =>
         {
@@ -200,8 +200,7 @@ public static class Window
     {
         if (IsOpen)
             func();
-        else
-            OnLoad += func;
+        else OnLoad += func;
     }
 
     /// <summary>
