@@ -7,6 +7,7 @@ using System.Collections.Generic;
 
 using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
+using System.Numerics;
 
 namespace Radiance.Internal;
 
@@ -19,7 +20,7 @@ internal static class VectorsOperations
 
     internal static (float a, float b, float c, float d) PlaneRegression(float[] pts)
     {
-        /**
+        /*
         E = S (a*x_i + b*y_i + c*z_i + d)^2 / N
           
           = (a^2 S x_i^2 + b^2 S y_i^2 + c^2 S z_i^2 + N d^2
@@ -41,7 +42,7 @@ internal static class VectorsOperations
           qa = S a_i^2 / N
           pab = S a_i b_i / N
           am = S a_i / N
-        **/
+         */
 
         int N = pts.Length / 3;
         float qx = 0f, qy = 0f, qz = 0f,
@@ -74,20 +75,36 @@ internal static class VectorsOperations
         ym /= N;
         zm /= N;
 
-        var covxy = pxy - xm * ym;
-        var covyz = pyz - ym * zm;
-        var covxz = pxz - xm * zm;
-        var varx = qx - xm * xm;
-        var vary = qy - ym * ym;
-        var varz = qz - zm * zm;
-        
-        var a = (covyz - covxy * covxz) / varx;
-        var b = (covxz - covxy * covyz) / vary;
-        var d = -a * xm - b * ym - zm;
+        /*
+        f(a, b, c, d) =
+            a^2 qx + b^2 qy + c^2 qz
+            + 2ab pxy + 2ac pxz + 2bc pyz 
+                + 2ad xm + 2bd ym + 2cd zm
+                + d^2
 
-        return (a, b, 1f, d);
+        df/da = 2a qx + 2b pxy + 2c pxz + 2dxm = 0
+        df/db = 2b qy + 2a pxy + 2c pyz + 2d ym = 0
+        df/dc = 2c qz + 2a pxz + 2b pyz + 2d zm = 0
+        df/dd = 2a xm + 2b ym + 2c zm + 2d = 0
+
+        a qx  + b pxy + c pxz + d xm = 0
+        a pxy + b qy  + c pyz + d ym = 0
+        a pxz + b pyz + c qz  + d zm = 0
+        a xm  + b ym  + c zm  + d    = 0
+
+        |a| |qx  pxy pxz xm|   |0|
+        |b| |pxy qy  pyz ym| = |0|
+        |c| |pxz pyz qz  zm|   |0|
+        |d| |xm  ym  zm  1 |   |0|
+         */
+        var sol = solve3x3System(
+            qx,  pxy, pxz, xm,
+            pxy, qy,  pyz, ym,
+            pxz, pyz, qz,  zm
+        );
+        return (sol.a, sol.b, sol.c, 0);
     }
-
+    
     /// <summary>
     /// Get a triangulation of a polygon with points in a
     /// clockwise order.
@@ -430,6 +447,11 @@ internal static class VectorsOperations
         }
         
         return result;
+    }
+
+    private static void gaussSeidel(params float[] coefficients)
+    {
+        
     }
 
     private static (float a, float b, float c) solve3x3System(
