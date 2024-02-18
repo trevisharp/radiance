@@ -97,7 +97,7 @@ internal static class VectorsOperations
         |c| |pxz pyz qz  zm|   |0|
         |d| |xm  ym  zm  1 |   |0|
          */
-        var sol = solve3x3System(
+        var sol = gaussSeidel(
             qx,  pxy, pxz, xm,
             pxy, qy,  pyz, ym,
             pxz, pyz, qz,  zm
@@ -449,145 +449,8 @@ internal static class VectorsOperations
         return result;
     }
 
-    private static void gaussSeidel(params float[] coefficients)
+    private static (float a, float b, float c, float d) gaussSeidel(params float[] coefficients)
     {
         
-    }
-
-    private static (float a, float b, float c) solve3x3System(
-        float A1, float B1, float C1, float K1,
-        float A2, float B2, float C2, float K2,
-        float A3, float B3, float C3, float K3
-    )
-    {
-        if (A1 != 0)
-        {
-            /**
-            (1) a = -(K1 + b B1 + c C1) / A1
-            
-            b B2 + c C2 - A2 / A1 * (K1 + b B1 + c C1) + K2 = 0
-            b B3 + c C3 - A3 / A1 * (K1 + b B1 + c C1) + K3 = 0
-
-            b (B2 - B1 * A2 / A1) + c (C2 - C1 * A2 / A1) - K1 * A2 / A1 + K2 = 0
-            b (B3 - B1 * A3 / A1) + c (C3 - C1 * A3 / A1) - K1 * A3 / A1 + K3 = 0
-            **/
-            (float b, float c) = solve2x2System(
-                B2 - B1 * A2 / A1, C2 - C1 * A2 / A1, -K1 * A2 / A1 + K2,
-                B3 - B1 * A3 / A1, C3 - C1 * A3 / A1, -K1 * A3 / A1 + K3
-            );
-            var a =  -(K1 + b * B1 + c * C1) / A1;
-            return (a, b, c);
-        }
-        else if (A2 != 0)
-        {
-            /**
-            (1) a = -(K2 + b B2 + c C2) / A2
-            
-            b B1 + c C1 - A1 / A2 * (K2 + b B2 + c C2) + K1 = 0
-            b B3 + c C3 - A3 / A2 * (K2 + b B2 + c C2) + K3 = 0
-
-            b (B1 - B2 * A1 / A2) + c (C1 - C2 * A1 / A2) - K2 * A1 / A2 + K1 = 0
-            b (B3 - B1 * A3 / A2) + c (C3 - C1 * A3 / A2) - K2 * A3 / A2 + K3  = 0
-            **/
-            (float b, float c) = solve2x2System(
-                B1 - B2 * A1 / A2, C1 - C2 * A1 / A2, -K2 * A1 / A2 + K1,
-                B3 - B1 * A3 / A2, C3 - C1 * A3 / A2, -K2 * A3 / A2 + K3
-            );
-            var a =  -(K2 + b * B2 + c * C2) / A2;
-            return (a, b, c);
-        }
-        else if (A3 != 0)
-        {
-            /**
-            (1) a = -(K3 + b B3 + c C3) / A3
-            
-            b B1 + c C1 - A1 / A3 * (K3 + b B3 + c C3) + K1 = 0
-            b B2 + c C2 - A2 / A3 * (K3 + b B3 + c C3) + K2 = 0
-            
-            b (B1 - B3 A1 / A3) + c (C1 - C3 A1 / A3) - K3 * A1 / A3 + K1 = 0
-            b (B2 - B3 A2 / A3) + c (C2 - C3 A2 / A3) - K3 * A2 / A3 + K2 = 0
-            **/
-            (float b, float c) = solve2x2System(
-                B1 - B3 * A1 / A3, C1 - C3 * A1 / A3, -K3 * A1 / A3 + K1,
-                B2 - B3 * A2 / A3, C2 - C3 * A2 / A3, -K3 * A2 / A3 + K2 
-            );
-            var a = -(K3 + b * B3 + c * C3) / A3;
-            return (a, b, c);
-        }
-        else
-        {
-            (float b, float c) = solve2x2System(
-                B1, C1, K1,
-                B2, C2, K2
-            );
-            return (0, b, c);
-        }
-    }
-
-    private static (float a, float b) solve2x2System(
-        float A1, float B1, float K1,
-        float A2, float B2, float K2
-    )
-    {
-
-        float a = 0, b = 0;
-        if (A1 == 0 && A2 == 0)
-        {
-            a = 0;
-            b = B1 != 0 ?
-                solve1x1System(B1, K1) :
-                solve1x1System(B2, K2);
-        }
-        else if (B1 == 0 && B2 == 0)
-        {
-            a = A1 != 0 ?
-                solve1x1System(A1, K1) :
-                solve1x1System(A2, K2);
-            b = 0;
-        }
-        else if (A1 != 0)
-        {
-            /**
-            a A1 + b B1 + K1 = 0
-            a A2 + b B2 + K2 = 0
-
-            (1) a = (K1 - b B1) / A1
-
-            A2 / A1 (K1 - b B1) + b B2 + K2 = 0
-            (B2 - A2 / A1 B1) b + K2 + A2 / A1 K1 = 0
-            b = -(K2 + A2 / A1 K1) / (B2 - A2 / A1 B1)
-            **/
-            b = -(K2 + A2 / A1 * K1) / (B2 - A2 / A1 * B1);
-            a = (K1 - b * B1) / A1;
-        }
-        else if (A2 != 0)
-        {
-            /**
-            a A1 + b B1 + K1 = 0
-            a A2 + b B2 + K2 = 0
-
-            (1) a = (K2 - b B2) / A2
-
-            A1 / A2 (K2 - b B2) + b B1 + K1 = 0
-            (B1 - A1 / A2 B2) b + K1 + A1 / A2 K2 = 0
-            b = -(K1 + A1 / A2 K2) / (B1 - A1 / A2 B2)
-            **/
-            b = -(K1 + A1 / A2 * K2) / (B1 - A1 / A2 * B2);
-            a = (K2 - b * B2) / A2;
-        }
-        else
-        {
-            a = 0;
-            b = K1 / B1;
-        }
-        return (a, b);
-    }
-
-    private static float solve1x1System(float A, float B)
-    {
-        if (A == 0 || B == 0)
-            return 0;
-        
-        return -B / A;
     }
 }
