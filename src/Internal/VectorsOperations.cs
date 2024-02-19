@@ -97,12 +97,31 @@ internal static class VectorsOperations
         |c| |pxz pyz qz  zm|   |0|
         |d| |xm  ym  zm  1 |   |0|
          */
-        var sol = gaussSeidel(
-            qx,  pxy, pxz, xm,
-            pxy, qy,  pyz, ym,
-            pxz, pyz, qz,  zm
-        );
-        return (sol.a, sol.b, sol.c, 0);
+        float w = 1f / (qx + qy + qz),
+            a = 1f, b = 1f, c = 1f, d = 1f,
+            da = qx + pxy + pxz + xm,
+            db = qy + pxy + pyz + ym,
+            dc = qz + pxz + pyz + zm,
+            dd = xm + ym + zm + 1;
+        
+        for (int i = 0; i < 100; i++)
+        {
+            a -= w * da;
+            b -= w * db;
+            c -= w * dc;
+            d -= w * dd;
+
+            da = a * qx  + b * pxy + c * pxz + d * xm;
+            db = a * pxy + b * qy  + c * pyz + d * ym;
+            dc = a * pxz + b * pyz + c * qz  + d * zm;
+            dd = a * xm  + b * ym  + c * zm  + d;
+
+            var mod = da * da + db * db + dc * dc + dd * dd;
+            if (mod < 0.1f)
+                break;
+        }
+
+        return (a, b, c, d);
     }
     
     /// <summary>
@@ -447,10 +466,5 @@ internal static class VectorsOperations
         }
         
         return result;
-    }
-
-    private static (float a, float b, float c, float d) gaussSeidel(params float[] coefficients)
-    {
-        
     }
 }
