@@ -242,6 +242,8 @@ public class RenderContext
         Action fragStp = null;
 
         var vertDeps = vertObj.Dependencies
+            .Append(Utils.widthDep)
+            .Append(Utils.heightDep)
             .Distinct();
         var fragDeps = fragObj.Dependencies
             .Distinct();
@@ -287,7 +289,9 @@ public class RenderContext
             dep.AddFragmentCode(fragSb);
         }
 
-        vertSb.AppendLine($"\tgl_Position = vec4({vertObj}, 1.0);");
+        vertSb.AppendLine($"\tvec3 finalPosition = {vertObj};");
+        vertSb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
+        vertSb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
         fragSb.AppendLine($"\toutColor = {fragObj};");
 
         foreach (var dep in allDeps)

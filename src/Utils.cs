@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/01/2024
+ * Date:    19/02/2024
  */
 using System;
 using System.Text;
@@ -132,6 +132,16 @@ public static class Utils
     /// Get the time between two frames.
     /// </summary>
     public static float dt => Window.DeltaTime;
+
+    /// <summary>
+    /// A number relatives to 100% to width of viewport.
+    /// </summary>
+    public static float vw => Window.Width;
+
+    /// <summary>
+    /// A number relatives to 100% to height of viewport.
+    /// </summary>
+    public static float vh => Window.Height;
 
     /// <summary>
     /// Get (1, 0, 0) vector.
