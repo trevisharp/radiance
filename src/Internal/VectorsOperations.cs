@@ -352,7 +352,7 @@ internal static class VectorsOperations
                 {
                     v1 = data[j + offsetB];
                     v2 = data[k + offsetB];
-                    if (v1 < v2)
+                    if (v1 <= v2)
                         continue;
                 }
                 

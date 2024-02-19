@@ -2,28 +2,20 @@
 using Radiance.Renders;
 using static Radiance.Utils;
 
-var renderA = render((dx, dy) =>
+var myRender = render(dz =>
 {
-    pos += (dx, dy, 0);
+    pos += (width / 2, height / 2, dz);
     color = white;
     fill();
 });
+var rect = Data(
+    (0, 0, 0), (100, 0, 0),
+    (100, 100, 0), (0, 100, 0)
+);
 
-var renderB = render((dx, dy) =>
-{
-    pos += (dx, dy, 0);
-    color = white;
-    fill();
-});
-
-var rect = Data((0, 0, 0), (100, 0, 50), (100, 100, 50), (0, 100, 0));
-Window.OnRender += () => 
-{
-    renderA(rect, 0, 0);
-    renderB(rect, 100, 100);
-};
-
-Window.CursorVisible = false;
+float z = 0;
+Window.OnKeyDown += (inp, mod) => z++;
+Window.OnRender += () => myRender(rect, z);
 
 Window.CloseOn(Input.Escape);
 Window.Open();

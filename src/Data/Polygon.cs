@@ -30,9 +30,7 @@ public class Polygon
                 return triangulationPair;
             
             var triangules = VectorsOperations
-                .PlanarPolygonTriangulation(
-                    this.Data
-                );
+                .PlanarPolygonTriangulation(Data);
             
             Polygon polygon = new Polygon();
             for (int i = 0; i < triangules.Length; i += 3)
@@ -43,7 +41,7 @@ public class Polygon
                 );
             
             polygon.triangulationPair = polygon;
-            this.triangulationPair = polygon;
+            triangulationPair = polygon;
 
             return triangulationPair;
         }
