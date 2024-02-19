@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/01/2024
+ * Date:    19/02/2024
  */
 using System;
 
@@ -13,5 +13,7 @@ public class WindowClosedException : Exception
     public override string Message => 
         """
             The window is not open now, so get window data is ilegal.
+            Try get values has width and heigth of screen after the Window.Open call.
+            You can do this moving code to Window Load event.
         """;
 }

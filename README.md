@@ -346,6 +346,12 @@ Window.Open();
 
 # Versions
 
+### Radiance v2.3.1
+
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we use 3d points and make a trinagulation.
+  - ![](https://img.shields.io/badge/update-blue) Improve WindowClosedException message.
+ - ![](https://img.shields.io/badge/new-green) Add vw and vh property in Utils class to get the real number of pixel of screen.
+
 ### Radiance v2.3.0
 
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we use x, y, z Utilities to replace pos property and we lose the BufferDependence reference.

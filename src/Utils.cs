@@ -131,17 +131,23 @@ public static class Utils
     /// <summary>
     /// Get the time between two frames.
     /// </summary>
-    public static float dt => Window.DeltaTime;
+    public static float dt =>
+        Window.IsOpen ? Window.DeltaTime :
+        throw new WindowClosedException();
 
     /// <summary>
     /// A number relatives to 100% to width of viewport.
     /// </summary>
-    public static float vw => Window.Width;
+    public static float vw =>
+        Window.IsOpen ? Window.Width :
+        throw new WindowClosedException();
 
     /// <summary>
     /// A number relatives to 100% to height of viewport.
     /// </summary>
-    public static float vh => Window.Height;
+    public static float vh =>
+        Window.IsOpen ? Window.Height :
+        throw new WindowClosedException();
 
     /// <summary>
     /// Get (1, 0, 0) vector.
