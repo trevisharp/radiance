@@ -68,6 +68,36 @@ public static class Utils
     }
 
     /// <summary>
+    /// Fill the direct triangules between the points the polygon in the screen.
+    /// Search for GL_TRIANGLE_FAN for more details.
+    /// </summary>
+    public static void fan()
+    {
+        var ctx = RenderContext.GetContext();
+        ctx.AddFan();
+    }
+
+    /// <summary>
+    /// Connect and fill adjacente points the points the polygon in the screen.
+    /// Search for GL_TRIANGLE_STRIP for more details.
+    /// </summary>
+    public static void strip()
+    {
+        var ctx = RenderContext.GetContext();
+        ctx.AddStrip();
+    }
+
+    /// <summary>
+    /// Connect and fill adjacente points the points the polygon in the screen.
+    /// Search for GL_LINES for more details.
+    /// </summary>
+    public static void lines()
+    {
+        var ctx = RenderContext.GetContext();
+        ctx.AddLines();
+    }
+
+    /// <summary>
     /// Get ou update the actual position of a generic point of the drawed polygon.
     /// Shader Only.
     /// </summary>

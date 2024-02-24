@@ -96,13 +96,31 @@ public class RenderContext
         };
     }
 
-    public void AddFill()
-        => baseDraw(true);
+    public void AddPoints() 
+        => addDrawOperation(PrimitiveType.Points);
 
+    public void AddLines() 
+        => addDrawOperation(PrimitiveType.Lines);
+    
     public void AddDraw() 
-        => baseDraw(false);
+        => addDrawOperation(PrimitiveType.LineLoop);
+    
+    public void AddFill()
+        => addDrawOperation(PrimitiveType.Triangles, true);
+    
+    public void AddTriangules() 
+        => addDrawOperation(PrimitiveType.Triangles);
+    
+    public void AddStrip() 
+        => addDrawOperation(PrimitiveType.TriangleStrip);
+    
+    public void AddFan() 
+        => addDrawOperation(PrimitiveType.TriangleFan);
 
-    private void baseDraw(bool needsTriangulation)
+    private void addDrawOperation(
+        PrimitiveType primitive, 
+        bool needTriangularization = false
+    )
     {
         start("Creating Program");
         ShaderContext shaderCtx = new ShaderContext();
@@ -125,7 +143,7 @@ public class RenderContext
         
         operations += (poly, data) =>
         {
-            if (needsTriangulation)
+            if (needTriangularization)
                 poly = poly.Triangulation;
 
             shaderCtx.CreateResources(poly);
@@ -139,10 +157,7 @@ public class RenderContext
             if (item.fragStp is not null)
                 item.fragStp();
 
-            GL.DrawArrays(
-                needsTriangulation ? PrimitiveType.Triangles : PrimitiveType.LineLoop, 
-                0, poly.Elements
-            );
+            GL.DrawArrays(primitive, 0, poly.Elements);
         };
     }
     
