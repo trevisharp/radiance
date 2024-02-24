@@ -22,6 +22,9 @@ public class Polygon
     private LinkedList<float> data = new();
     private Polygon triangulationPair = null;
     
+    /// <summary>
+    /// Get the triangulation of this polygon.
+    /// </summary>
     public Polygon Triangulation
     {
         get
@@ -50,6 +53,9 @@ public class Polygon
     public Polygon()
         => AppendLayout(3, "vec3", "pos");
     
+    /// <summary>
+    /// Add a point (x, y, z) with extra data fields.
+    /// </summary>
     public Polygon Add(float x, float y, float z, params float[] extra)
     {
         if (isImmutable)
@@ -87,6 +93,9 @@ public class Polygon
         return this;
     }
 
+    /// <summary>
+    /// Add a n fields in every single data point with value 0. 
+    /// </summary>
     public Polygon Append(int fields)
     {
         if (isImmutable)
@@ -108,6 +117,10 @@ public class Polygon
         return this;
     }
 
+    /// <summary>
+    /// Add a n fields in every single data point with value computed
+    /// over (x, y, z) point.
+    /// </summary>
     public Polygon Append(params Func<float, float, float, float>[] defs)
     {
         if (isImmutable)
@@ -141,7 +154,6 @@ public class Polygon
     /// <summary>
     /// Make this polygon immutable avoid data modification.
     /// </summary>
-    /// <returns></returns>
     public Polygon MakeImmutable()
     {
         isImmutable = true;
