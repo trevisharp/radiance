@@ -96,7 +96,7 @@ public class Polygon
     /// <summary>
     /// Add a n fields in every single data point with value 0. 
     /// </summary>
-    public Polygon Append(int fields)
+    public Polygon Append(int fields, params float[] initialValue)
     {
         if (isImmutable)
             throw new ImmutablePolygonModifyException();
@@ -109,7 +109,12 @@ public class Polygon
                 it = it.Next;
             
             for (int i = 0; i < fields; i++)
-                data.AddBefore(it, 0);
+            {
+                var value = 
+                    i < initialValue.Length ?
+                    initialValue[i] : 0;
+                data.AddBefore(it, value);
+            }
         }
         AppendLayout(fields, "noname", "notype", null);
 
