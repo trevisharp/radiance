@@ -10,6 +10,7 @@ using OpenTK.Graphics.OpenGL4;
 namespace Radiance;
 
 using Internal;
+using Radiance.Data;
 
 /// <summary>
 /// Represents the main windows that applications run
@@ -211,6 +212,19 @@ public static class Window
         win.Close();
         win.Dispose();
         IsOpen = false;
+    }
+
+    /// <summary>
+    /// Clear the background without use any render.
+    /// </summary>
+    public static void Clear(Vec4 color)
+    {
+        GL.ClearColor(
+            color.X,
+            color.Y,
+            color.Z,
+            color.W
+        );
     }
 
     /// <summary>
