@@ -33,6 +33,7 @@ public class Render : DynamicObject, ICurryable
         Window.RunOrSchedule(() => {
             this.ctx = RenderContext.CreateContext();
             callWithShaderObjects(function);
+            RenderContext.ClearContext();
         });
     }
 
@@ -45,7 +46,7 @@ public class Render : DynamicObject, ICurryable
         if (args.Length == 0)
             throw new MissingPolygonException();
 
-        var poly = args[0] as Polygon;
+        var poly = args[0] as MutablePolygon;
         if (poly is null)
             throw new MissingPolygonException();
 

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/02/2024
+ * Date:    26/02/2024
  */
 using System;
 using System.Text;
@@ -171,7 +171,7 @@ public class RenderContext
             if (item.fragStp is not null)
                 item.fragStp();
 
-            GL.DrawArrays(primitive, 0, poly.Elements);
+            GL.DrawArrays(primitive, 0, poly.Data.Count() / 3);
         };
     }
     

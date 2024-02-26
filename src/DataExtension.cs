@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/01/2024
+ * Date:    26/02/2024
  */
+using System.Linq;
+
 namespace Radiance;
 
 using Data;
@@ -11,12 +13,12 @@ using Internal;
 /// </summary>
 public static class DataExtension
 {
-    public static Polygon Triangules(this Polygon vectors)
+    public static MutablePolygon Triangules(this MutablePolygon vectors)
     {
         var triangularization = VectorsOperations
-            .PlanarPolygonTriangulation(vectors.Data);
+            .PlanarPolygonTriangulation(vectors.Data.ToArray());
         
-        var result = new Polygon();
+        var result = new MutablePolygon();
         for (int i = 0; i < triangularization.Length; i += 3)
         {
             result.Add(

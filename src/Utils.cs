@@ -249,18 +249,18 @@ public static class Utils
     /// <summary>
     /// Create and get a new empty polygon.
     /// </summary>
-    public static Polygon Empty => new Polygon();
+    public static Polygon Empty => new MutablePolygon();
 
     /// <summary>
     /// Get a circle with radius 1 centralizated in (0, 0, 0)
     /// with 128 sides.
     /// </summary>
-    public static readonly Polygon Circle = Ellipse(1, 1, 128).MakeImmutable();
+    public static readonly Polygon Circle = Ellipse(1, 1, 128).ToImmutable();
 
     /// <summary>
     /// Get a square with side 1 centralizated in (0, 0, 0).
     /// </summary>
-    public static readonly Polygon Square = Rect(1, 1).MakeImmutable();
+    public static readonly Polygon Square = Rect(1, 1).ToImmutable();
 
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.
@@ -271,7 +271,7 @@ public static class Utils
         {
             screen ??= 
                 Window.IsOpen ?
-                Rect(0, 0, 0, Window.Width, Window.Height).MakeImmutable() :
+                Rect(0, 0, 0, Window.Width, Window.Height).ToImmutable() :
                 throw new WindowClosedException();
             
             return screen;
@@ -286,7 +286,7 @@ public static class Utils
     {
         var halfWid = width / 2;
         var halfHei = height / 2;
-        return new Polygon()
+        return new MutablePolygon()
             .Add(-halfWid, -halfHei, 0)
             .Add(-halfHei, halfWid, 0)
             .Add(halfHei, halfWid, 0)
@@ -303,7 +303,7 @@ public static class Utils
     {
         var halfWid = width / 2;
         var halfHei = height / 2;
-        return new Polygon()
+        return new MutablePolygon()
             .Add(x - halfWid, y - halfHei, z)
             .Add(x - halfWid, y + halfHei, z)
             .Add(x + halfWid, y + halfHei, z)
@@ -321,7 +321,7 @@ public static class Utils
         int sizes = 63
     )
     {
-        Polygon result = new Polygon();
+        Polygon result = new MutablePolygon();
 
         float phi = MathF.Tau / sizes;
         if (float.IsNaN(b))
@@ -349,7 +349,7 @@ public static class Utils
         int sizes = 63
     )
     {
-        Polygon result = new Polygon();
+        Polygon result = new MutablePolygon();
 
         float phi = MathF.Tau / sizes;
         if (float.IsNaN(b))
@@ -372,7 +372,7 @@ public static class Utils
     /// </summary>
     public static Polygon Data(params Vec3[] vectors)
     {
-        var result = new Polygon();
+        var result = new MutablePolygon();
 
         foreach (var v in vectors)
             result.Add(v.X, v.Y, v.Z);
@@ -385,7 +385,7 @@ public static class Utils
     /// </summary>
     public static Polygon Data(params Vec2[] vectors)
     {
-        var result = new Polygon();
+        var result = new MutablePolygon();
 
         foreach (var v in vectors)
             result.Add(v.X, v.Y, 0);
