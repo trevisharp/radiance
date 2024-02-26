@@ -304,11 +304,12 @@ public static class Utils
     {
         var halfWid = width / 2;
         var halfHei = height / 2;
-        return new MutablePolygon()
-            .Add(x - halfWid, y - halfHei, z)
-            .Add(x - halfWid, y + halfHei, z)
-            .Add(x + halfWid, y + halfHei, z)
-            .Add(x + halfWid, y - halfHei, z);
+        return [
+            x - halfWid, y - halfHei, z,
+            x - halfWid, y + halfHei, z,
+            x + halfWid, y + halfHei, z,
+            x + halfWid, y - halfHei, z
+        ];
     }
 
     /// <summary>

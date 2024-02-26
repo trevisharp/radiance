@@ -70,8 +70,8 @@ public abstract class Polygon : IEnumerable<float>
         }
     }
 
-    internal int Buffer { get; set; }
-    internal int VertexObjectArray { get; set; }
+    internal int Buffer { get; set; } = -1;
+    internal int VertexObjectArray { get; set; } = -1;
     
     /// <summary>
     /// Get the collection of data points in polygon.
