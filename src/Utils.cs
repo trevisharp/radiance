@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/02/2024
+ * Date:    26/02/2024
  */
 using System;
 using System.Text;
@@ -566,7 +566,7 @@ public static class Utils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static dynamic render(Action<
-        Sampler2DShaderObject, FloatShaderObject> function)
+        FloatShaderObject, Sampler2DShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -578,8 +578,8 @@ public static class Utils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static dynamic render(Action<
-        Sampler2DShaderObject, FloatShaderObject,
-        FloatShaderObject> function)
+        FloatShaderObject, FloatShaderObject,
+        Sampler2DShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -591,8 +591,8 @@ public static class Utils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static dynamic render(Action<
-        Sampler2DShaderObject, FloatShaderObject,
-        FloatShaderObject, FloatShaderObject> function)
+        FloatShaderObject, FloatShaderObject,
+        FloatShaderObject, Sampler2DShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -616,8 +616,8 @@ public static class Utils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static dynamic render(Action<
-        Sampler2DShaderObject, Sampler2DShaderObject,
-        FloatShaderObject> function)
+        FloatShaderObject, Sampler2DShaderObject,
+        Sampler2DShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");
@@ -629,8 +629,8 @@ public static class Utils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static dynamic render(Action<
-        Sampler2DShaderObject, Sampler2DShaderObject,
-        FloatShaderObject, FloatShaderObject> function)
+        FloatShaderObject, FloatShaderObject,
+        Sampler2DShaderObject, Sampler2DShaderObject> function)
     {
         if (function is null)
             throw new ArgumentNullException("function");

@@ -9,7 +9,6 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance.Shaders;
 
-using System;
 using Data;
 
 /// <summary>
