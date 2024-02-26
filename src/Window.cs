@@ -242,9 +242,8 @@ public static class Window
     
     public static float DeltaTime => frameController.DeltaTime;
     public static float Fps => frameController.Fps;
-
-    private static PipelineCollection renderPipeline = [];
-    public static PipelineCollection OnRender => renderPipeline;
+    
+    public static PipelineCollection OnRender { get; set; } = [];
 
     public static event Action OnLoad;
     public static event Action OnUnload;

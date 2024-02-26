@@ -21,6 +21,7 @@ using Shaders.Dependencies;
 /// </summary>
 public class Render : DynamicObject, ICurryable
 {
+    private Delegate function;
     private RenderContext ctx;
     private readonly int extraParameterCount;
     private List<ShaderDependence> dependenceList;
@@ -28,14 +29,10 @@ public class Render : DynamicObject, ICurryable
 
     public Render(Delegate function)
     {
+        this.function = function;
         this.extraParameterCount = 
             function.Method.GetParameters().Length;
         this.dependenceList = new();
-        Window.RunOrSchedule(() => {
-            this.ctx = RenderContext.CreateContext();
-            callWithShaderObjects(function);
-            RenderContext.ClearContext();
-        });
     }
 
     public dynamic Curry(params object[] parameters)
@@ -65,12 +62,19 @@ public class Render : DynamicObject, ICurryable
         
         if (ctx is null)
             throw new IlegalRenderMomentException();
-
-        var pipeline = PipelineContext.GetContext();
-        pipeline.RegisterRenderCall(ctx, poly, data);
+        render(poly, data);
         
         result = null;
         return true;
+    }
+
+    private void render(Polygon poly, object[] data)
+    {
+        var pipeline = PipelineContext.GetContext();
+        var ctx = RenderContext.CreateContext();
+        callWithShaderObjects(function);
+        RenderContext.ClearContext();
+        pipeline.RegisterRenderCall(ctx, poly, data);
     }
 
     private void callWithShaderObjects(Delegate func)
