@@ -16,7 +16,7 @@ public class ImmutablePolygon(IEnumerable<float> data) : Polygon
     private readonly float[] data = data.ToArray();
     public override IEnumerable<float> Data => data;
 
-    public override Polygon Add(float x, float y, float z)
+    protected override void add(float x, float y, float z)
         => throw new ImmutablePolygonModifyException();
 
     public override Polygon Clone()

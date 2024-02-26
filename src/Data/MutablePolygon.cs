@@ -14,12 +14,11 @@ public class MutablePolygon : Polygon
     private LinkedList<float> data = new();
     public override IEnumerable<float> Data => data;
     
-    public override Polygon Add(float x, float y, float z)
+    protected override void add(float x, float y, float z)
     {
         data.AddLast(x);
         data.AddLast(y);
         data.AddLast(z);
-        return this;
     }
 
     public override Polygon Clone()

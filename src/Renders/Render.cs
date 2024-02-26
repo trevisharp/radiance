@@ -46,7 +46,7 @@ public class Render : DynamicObject, ICurryable
         if (args.Length == 0)
             throw new MissingPolygonException();
 
-        var poly = args[0] as MutablePolygon;
+        var poly = args[0] as Polygon;
         if (poly is null)
             throw new MissingPolygonException();
 
