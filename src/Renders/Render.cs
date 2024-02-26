@@ -10,6 +10,7 @@ using System.Collections.Generic;
 namespace Radiance.Renders;
 
 using Data;
+using Pipelines;
 using Exceptions;
 using Shaders;
 using Shaders.Objects;
@@ -65,7 +66,8 @@ public class Render : DynamicObject, ICurryable
         if (ctx is null)
             throw new IlegalRenderMomentException();
 
-        ctx.Render(poly, data);
+        var pipeline = PipelineContext.GetContext();
+        pipeline.RegisterRenderCall(ctx, poly, data);
         
         result = null;
         return true;

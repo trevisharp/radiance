@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/01/2024
+ * Date:    26/02/2024
  */
 using System;
 
@@ -9,8 +9,9 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance;
 
+using Data;
 using Internal;
-using Radiance.Data;
+using Pipelines;
 
 /// <summary>
 /// Represents the main windows that applications run
@@ -105,7 +106,7 @@ public static class Window
             GL.Clear(ClearBufferMask.ColorBufferBit);
             
             if (OnRender is not null)
-                OnRender();
+                OnRender.Render();
 
             win.SwapBuffers();
         };
@@ -242,10 +243,12 @@ public static class Window
     public static float DeltaTime => frameController.DeltaTime;
     public static float Fps => frameController.Fps;
 
+    private static PipelineCollection renderPipeline = [];
+    public static PipelineCollection OnRender => renderPipeline;
+
     public static event Action OnLoad;
     public static event Action OnUnload;
     public static event Action OnFrame;
-    public static event Action OnRender;
 
     public static event Action<Input, Modifier> OnKeyDown;
     public static event Action<Input, Modifier> OnKeyUp;
