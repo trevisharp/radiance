@@ -94,9 +94,23 @@ public class Polygon
     }
 
     /// <summary>
+    /// Add all polygon data to another polygon.
+    /// </summary>
+    public Polygon Add(Polygon other)
+    {
+        if (isImmutable)
+            throw new ImmutablePolygonModifyException();
+        
+        foreach (var value in other.data)
+            data.AddLast(value);
+        
+        return this;
+    }
+
+    /// <summary>
     /// Add a n fields in every single data point with value 0. 
     /// </summary>
-    public Polygon Append(int fields, params float[] initialValue)
+    public Polygon Append(params (string name, object value)[] columns)
     {
         if (isImmutable)
             throw new ImmutablePolygonModifyException();
@@ -108,15 +122,55 @@ public class Polygon
             for (int n = 0; n < elementSize; n++)
                 it = it.Next;
             
-            for (int i = 0; i < fields; i++)
+            for (int i = 0; i < columns.Length; i++)
             {
-                var value = 
-                    i < initialValue.Length ?
-                    initialValue[i] : 0;
-                data.AddBefore(it, value);
+                switch (columns[i].value)
+                {
+                    case float num:
+                        data.AddBefore(it, num);
+                        break;
+                    
+                    case Vec2 vec2:
+                        data.AddBefore(it, vec2.X);
+                        data.AddBefore(it, vec2.Y);
+                        break;
+                    
+                    case Vec3 vec3:
+                        data.AddBefore(it, vec3.X);
+                        data.AddBefore(it, vec3.Y);
+                        data.AddBefore(it, vec3.Z);
+                        break;
+                    
+                    case Vec4 vec4:
+                        data.AddBefore(it, vec4.X);
+                        data.AddBefore(it, vec4.Y);
+                        data.AddBefore(it, vec4.Z);
+                        data.AddBefore(it, vec4.W);
+                        break;
+                }
             }
         }
-        AppendLayout(fields, "noname", "notype", null);
+        foreach (var column in columns)
+            AppendLayout(
+                column.value switch
+                {
+                    float => 1,
+                    Vec2 => 2,
+                    Vec3 => 3,
+                    Vec4 => 4,
+                    _ => throw new InvalidAppendTypeException()
+                },
+                column.name, 
+                column.value switch
+                {
+                    float => "float",
+                    Vec2 => "vec2",
+                    Vec3 => "vec3",
+                    Vec4 => "vec4",
+                    _ => throw new InvalidAppendTypeException()
+                }, 
+                null
+            );
 
         change(true, true);
         return this;

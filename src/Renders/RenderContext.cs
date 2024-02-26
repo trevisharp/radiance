@@ -23,12 +23,12 @@ using Shaders.Objects;
 public class RenderContext
 {
     private static Dictionary<int, RenderContext> threadMap = new();
+
     internal static RenderContext CreateContext()
     {
         var crr = Thread.CurrentThread;
         var id  = crr.ManagedThreadId;
-        if (threadMap.ContainsKey(id))
-            threadMap.Remove(id);
+        deleteContextIfExist(id);
 
         var ctx = new RenderContext
         {
@@ -38,6 +38,14 @@ public class RenderContext
         threadMap.Add(id, ctx);
         return ctx;
     }
+
+    internal static void ClearContext()
+    {
+        var crr = Thread.CurrentThread;
+        var id  = crr.ManagedThreadId;
+        deleteContextIfExist(id);
+    }
+
     internal static RenderContext GetContext()
     {
         var crr = Thread.CurrentThread;
@@ -46,6 +54,12 @@ public class RenderContext
             return threadMap[id];
         
         return null;
+    }
+
+    private static void deleteContextIfExist(int id)
+    {
+        if (threadMap.ContainsKey(id))
+            threadMap.Remove(id);
     }
 
     static Dictionary<int, int> shaderMap = new();
@@ -69,7 +83,7 @@ public class RenderContext
     public bool Verbose { get; set; } = false;
     
     private int globalTabIndex = 0;
-    private event Action<Polygon, object[]> operations;
+    private event Action<Polygon, object[]> pipeline;
 
     public string VersionText { get; set; } = "330 core";
     public Vec3ShaderObject Position { get; set; }
@@ -77,15 +91,15 @@ public class RenderContext
     
     public void Render(Polygon polygon, object[] parameters)
     {
-        if (operations is null)
+        if (pipeline is null)
             return;
         
-        operations(polygon, parameters);
+        pipeline(polygon, parameters);
     }
 
     public void AddClear(Vec4 color)
     {
-        operations += delegate
+        pipeline += delegate
         {
             GL.ClearColor(
                 color.X,
@@ -141,7 +155,7 @@ public class RenderContext
         shaderCtx.Program = program;
         success("Program Created!!");
         
-        operations += (poly, data) =>
+        pipeline += (poly, data) =>
         {
             if (needTriangularization)
                 poly = poly.Triangulation;
