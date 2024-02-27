@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    26/02/2024
+ * Date:    27/02/2024
  */
 using System;
 using System.Collections;
@@ -42,11 +42,5 @@ public class PipelineCollection : IEnumerable<PipelineContext>
 
     public static PipelineCollection operator +(
         PipelineCollection coll, Action renderCode
-    )
-    {
-        var newPipeline = PipelineContext.CreateContext();
-        renderCode();
-        PipelineContext.ClearContext();
-        return coll + newPipeline;
-    }
+    ) => coll + PipelineContext.Create(renderCode);
 }

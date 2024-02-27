@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    26/02/2024
+ * Date:    27/02/2024
  */
+using System;
 using System.Threading;
 using System.Collections.Generic;
 
@@ -25,6 +26,17 @@ public class PipelineContext
         var ctx = new PipelineContext{};
         threadMap.Add(id, ctx);
         return ctx;
+    }
+
+    /// <summary>
+    /// Create a pipeline from a function that use renders.
+    /// </summary>
+    public static PipelineContext Create(Action pipelineFunction)
+    {
+        var newPipeline = CreateContext();
+        pipelineFunction();
+        ClearContext();
+        return newPipeline;
     }
 
     public static void ClearContext()
