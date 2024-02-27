@@ -69,7 +69,7 @@ public abstract class Polygon : IEnumerable<float>
             return triangulationPair;
         }
     }
-
+    
     internal int Buffer { get; set; } = -1;
     internal int VertexObjectArray { get; set; } = -1;
     

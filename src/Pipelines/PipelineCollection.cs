@@ -41,6 +41,6 @@ public class PipelineCollection : IEnumerable<PipelineContext>
     ) => coll.Add(ctx);
 
     public static PipelineCollection operator +(
-        PipelineCollection coll, Action renderCode
-    ) => coll + PipelineContext.Create(renderCode);
+        PipelineCollection coll, Action pipelineFunction
+    ) => coll + new PipelineContext(pipelineFunction);
 }

@@ -22,7 +22,6 @@ using Shaders.Dependencies;
 public class Render : DynamicObject, ICurryable
 {
     private Delegate function;
-    private RenderContext ctx;
     private readonly int extraParameterCount;
     private List<ShaderDependence> dependenceList;
     public int ExtraParameterCount => extraParameterCount;
@@ -60,8 +59,6 @@ public class Render : DynamicObject, ICurryable
         foreach (var pair in data.Zip(dependenceList))
             pair.Second.UpdateData(pair.First);
         
-        if (ctx is null)
-            throw new IlegalRenderMomentException();
         render(poly, data);
         
         result = null;
@@ -71,9 +68,11 @@ public class Render : DynamicObject, ICurryable
     private void render(Polygon poly, object[] data)
     {
         var pipeline = PipelineContext.GetContext();
+        if (pipeline is null)
+            throw new IlegalRenderMomentException();
+        
         var ctx = RenderContext.CreateContext();
         callWithShaderObjects(function);
-        RenderContext.ClearContext();
         pipeline.RegisterRenderCall(ctx, poly, data);
     }
 

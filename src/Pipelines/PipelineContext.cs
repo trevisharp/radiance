@@ -13,37 +13,16 @@ using Renders;
 /// <summary>
 /// Represents a thread-safe pipeline of many renders drawing objects.
 /// </summary>
-public class PipelineContext
+public class PipelineContext(Action pipelineFunction)
 {
     private static Dictionary<int, PipelineContext> threadMap = new();
 
-    public static PipelineContext CreateContext()
+    public static void SetContext(PipelineContext context)
     {
         var crr = Thread.CurrentThread;
         var id  = crr.ManagedThreadId;
         deleteContextIfExist(id);
-
-        var ctx = new PipelineContext{};
-        threadMap.Add(id, ctx);
-        return ctx;
-    }
-
-    /// <summary>
-    /// Create a pipeline from a function that use renders.
-    /// </summary>
-    public static PipelineContext Create(Action pipelineFunction)
-    {
-        var newPipeline = CreateContext();
-        pipelineFunction();
-        ClearContext();
-        return newPipeline;
-    }
-
-    public static void ClearContext()
-    {
-        var crr = Thread.CurrentThread;
-        var id  = crr.ManagedThreadId;
-        deleteContextIfExist(id);
+        threadMap.Add(id, context);
     }
 
     public static PipelineContext GetContext()
@@ -66,7 +45,8 @@ public class PipelineContext
 
     public void Render()
     {
-        
+        SetContext(this);
+        pipelineFunction();
     }
 
     public void RegisterRenderCall(RenderContext render, Polygon poly, object[] data)
