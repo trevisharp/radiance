@@ -1,11 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    26/02/2024
+ * Date:    16/08/2024
  */
 using System;
 
 using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.Desktop;
 
 namespace Radiance;
 
@@ -18,7 +18,7 @@ using Pipelines;
 /// </summary>
 public static class Window
 {
-    private static TimeFrameController frameController = new TimeFrameController();
+    private static readonly TimeFrameController frameController = new();
     private static GameWindow win;
     private static int width = -1;
     private static int height = -1;
@@ -58,22 +58,24 @@ public static class Window
     /// </summary>
     public static void Open(bool fullscreen = true)
     {
-        win = new GameWindow(
+        win = new(
             GameWindowSettings.Default,
             new NativeWindowSettings()
             {
                 ClientSize = (800, 600),
-                WindowState = 
+                WindowState =
                     fullscreen ?
                     WindowState.Fullscreen :
                     WindowState.Normal
             }
-        );
-        win.CursorState = CursorState.Normal;
+        )
+        {
+            CursorState = CursorState.Normal
+        };
 
         win.Resize += e =>
         {
-            updateSize(win);
+            UpdateSize(win);
         };
 
         win.Load += () =>
@@ -86,7 +88,7 @@ public static class Window
                 BlendingFactor.OneMinusSrcAlpha
             );
 
-            updateSize(win);
+            UpdateSize(win);
             
             if (OnLoad is null)
                 return;
@@ -105,8 +107,7 @@ public static class Window
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
             
-            if (OnRender is not null)
-                OnRender.Render();
+            OnRender?.Render();
 
             win.SwapBuffers();
         };
@@ -259,7 +260,7 @@ public static class Window
     public static event Action OnMouseEnter;
     public static event Action OnMouseLeave;
 
-    private static void updateSize(GameWindow win)
+    private static void UpdateSize(GameWindow win)
     {
         if (win is null)
             return;

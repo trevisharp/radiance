@@ -10,13 +10,13 @@ namespace Radiance.Internal;
 /// </summary>
 internal class TimeFrameController
 {
-    DateTime newer = DateTime.Now;
-    DateTime older = DateTime.Now;
+    DateTime newer = DateTime.UtcNow;
+    DateTime older = DateTime.UtcNow;
 
     public void RegisterFrame()
     {
         older = newer;
-        newer = DateTime.Now;
+        newer = DateTime.UtcNow;
     }
 
     public float DeltaTime
