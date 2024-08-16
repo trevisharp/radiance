@@ -1,27 +1,67 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/02/2024
+ * Date:    16/08/2024
  */
+using System;
+
 namespace Radiance;
 
 /// <summary>
 /// A usefull class to manage timer between frames.
 /// </summary>
-public class Clock
+public struct Clock
 {
-    private float lastReset = Utils.Time;
-    private float? holdedTime = null;
-    private float? startFreezedTime = null;
-    private float oldFreezedTime = 0;
-    
-    private float newFreezedTime => IsFreezed ? Utils.Time - startFreezedTime.Value : 0;
-    private float totalFreezedTime => oldFreezedTime + newFreezedTime;
-    private float unfreezedTime => Utils.Time - totalFreezedTime;
-    private float now => holdedTime ?? unfreezedTime;
+    /// <summary>
+    /// Get the initial Utc Time from application.
+    /// </summary>
+    public static readonly DateTime ZeroTime = DateTime.UtcNow;
+
+    /// <summary>
+    /// Get the total seconds of running of application.
+    /// </summary>
+    public static float Seconds => (float)(DateTime.UtcNow - ZeroTime).TotalSeconds;
+
+    /// <summary>
+    /// A global shared reference of a clock object.
+    /// </summary>
+    public readonly static Clock Shared = new();
+
+    private float lastResetStart;
+    private float? holdedTime;
+    private float? startFreezedTime;
+    private float oldFreezedTime;
+
+    public Clock()
+    {
+        lastResetStart = Seconds;
+        holdedTime = null;
+        startFreezedTime = null;
+        oldFreezedTime = 0;
+    }
+
+    /// <summary>
+    /// Get the total time passed from the last Freeze() call.
+    /// </summary>
+    private float LastFreezedTime => IsFreezed ? Seconds - startFreezedTime.Value : 0;
+
+    /// <summary>
+    /// Get the total time that this clock has freezed.
+    /// </summary>
+    private float TotalFreezedTime => oldFreezedTime + LastFreezedTime;
+
+    /// <summary>
+    /// Get the current time considering only unfreezed times.
+    /// </summary>
+    private float UnfreezedTime => Seconds - TotalFreezedTime;
+
+    /// <summary>
+    /// Get the current time. If the clock is holded, return the last hold time.
+    /// </summary>
+    private float Now => holdedTime ?? UnfreezedTime;
     
     /// <summary>
     /// Get current type between now or a holded time and last Reset in seconds.
     /// </summary>
-    public float Time => now - lastReset;
+    public float Time => Now - lastResetStart;
 
     /// <summary>
     /// Return if the Clock is freezed.
@@ -37,7 +77,7 @@ public class Clock
     /// Hold the current time has a now time.
     /// </summary>
     public void Hold()
-        => holdedTime = unfreezedTime;
+        => holdedTime = UnfreezedTime;
 
     /// <summary>
     /// Release the holded time and return to normal time.
@@ -51,7 +91,7 @@ public class Clock
     public void Freeze()
     {
         Unfreeze();
-        startFreezedTime = Utils.Time;
+        startFreezedTime = Seconds;
     }
 
     /// <summary>
@@ -62,7 +102,7 @@ public class Clock
         if (!IsFreezed)
             return;
         
-        oldFreezedTime += Utils.Time - startFreezedTime.Value;
+        oldFreezedTime += Seconds - startFreezedTime.Value;
         startFreezedTime = null;
     }
 
@@ -81,7 +121,7 @@ public class Clock
     /// </summary>
     public void Reset()
     {
-        lastReset = unfreezedTime;
+        lastResetStart = UnfreezedTime;
         Release();
     }
 }
