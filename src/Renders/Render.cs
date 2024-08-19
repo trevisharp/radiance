@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/02/2024
+ * Date:    19/08/2024
  */
 using System;
 using System.Linq;
@@ -12,6 +12,7 @@ namespace Radiance.Renders;
 using Data;
 using Pipelines;
 using Exceptions;
+
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
@@ -19,20 +20,10 @@ using Shaders.Dependencies;
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
 /// </summary>
-public class Render : DynamicObject, ICurryable
+public class Render(Delegate function) : DynamicObject, ICurryable
 {
-    private Delegate function;
-    private readonly int extraParameterCount;
-    private List<ShaderDependence> dependenceList;
-    public int ExtraParameterCount => extraParameterCount;
-
-    public Render(Delegate function)
-    {
-        this.function = function;
-        this.extraParameterCount = 
-            function.Method.GetParameters().Length;
-        this.dependenceList = new();
-    }
+    private readonly List<ShaderDependence> dependenceList = [];
+    public readonly int ExtraParameterCount = function.Method.GetParameters().Length;
 
     public dynamic Curry(params object[] parameters)
         => new CurryingRender(this, parameters);
@@ -43,45 +34,43 @@ public class Render : DynamicObject, ICurryable
         if (args.Length == 0)
             throw new MissingPolygonException();
 
-        var poly = args[0] as Polygon;
-        if (poly is null)
+        if (args[0] is not Polygon poly)
             throw new MissingPolygonException();
 
-        int argCount = countArgs(args);
-        if (argCount < extraParameterCount + 1)
+        int argCount = MeasureParameters(args);
+        if (argCount < ExtraParameterCount + 1)
         {
             result = Curry(args);
             return true;
         }
 
-        var data = getArgs(args[1..]);
+        var data = new object[ExtraParameterCount];
+        DisplayParameters(data, args[1..]);
 
-        foreach (var pair in data.Zip(dependenceList))
-            pair.Second.UpdateData(pair.First);
+        foreach (var (obj, dependence) in data.Zip(dependenceList))
+            dependence.UpdateData(obj);
         
-        render(poly, data);
+        RenderData(poly, data);
         
         result = null;
         return true;
     }
 
-    private void render(Polygon poly, object[] data)
+    private void RenderData(Polygon poly, object[] data)
     {
-        var pipeline = PipelineContext.GetContext();
-        if (pipeline is null)
-            throw new IlegalRenderMomentException();
-        
+        var pipeline = PipelineContext.GetContext()
+            ?? throw new IlegalRenderMomentException();
         var ctx = RenderContext.CreateContext();
-        callWithShaderObjects(function);
+        CallWithShaderObjects(function);
         pipeline.RegisterRenderCall(ctx, poly, data);
     }
 
-    private void callWithShaderObjects(Delegate func)
+    private void CallWithShaderObjects(Delegate func)
     {
         var parameters = func.Method.GetParameters();
         
         var objs = parameters
-            .Select(generateDependence)
+            .Select(GenerateDependence)
             .ToArray();
         
         if (objs.Any(obj => obj is null))
@@ -90,12 +79,12 @@ public class Render : DynamicObject, ICurryable
         func.DynamicInvoke(objs);
     }
 
-    private ShaderObject generateDependence(ParameterInfo parameter)
+    private ShaderObject GenerateDependence(ParameterInfo parameter)
     {
         if (parameter.ParameterType == typeof(FloatShaderObject))
         {
             var dep = new UniformFloatDependence(parameter.Name);
-            this.dependenceList.Add(dep);
+            dependenceList.Add(dep);
 
             return new FloatShaderObject(
                 parameter.Name, ShaderOrigin.Global, [dep]
@@ -105,7 +94,7 @@ public class Render : DynamicObject, ICurryable
         if (parameter.ParameterType == typeof(Sampler2DShaderObject))
         {
             var dep = new TextureDependence(parameter.Name);
-            this.dependenceList.Add(dep);
+            dependenceList.Add(dep);
             
             return new Sampler2DShaderObject(
                 parameter.Name, ShaderOrigin.FragmentShader, [dep]
@@ -115,7 +104,23 @@ public class Render : DynamicObject, ICurryable
         return null;
     }
 
-    private int countArgs(object[] args)
+    /// <summary>
+    /// Fill parameters data on a vector to run a function.
+    /// </summary>
+    private static void DisplayParameters(object[] result, object[] args)
+    {
+        int index = 0;
+        foreach (var arg in args)
+            index = DisplayParameters(arg, result, index);
+        
+        if (index < args.Length)
+            throw new MissingParametersException();
+    }
+
+    /// <summary>
+    /// Measure the size of parameters args when displayed based on size.
+    /// </summary>
+    private static int MeasureParameters(object[] args)
         => args.Sum(arg => arg switch
         {
             Vec2 => 2,
@@ -124,71 +129,72 @@ public class Render : DynamicObject, ICurryable
             float[] arr => arr.Length,
             _ => 1
         });
-
-    private object[] getArgs(object[] args)
-    {
-        int index = 0;
-        var result = new object[extraParameterCount];
-
-        foreach (var arg in args)
-            index = setArgs(arg, result, index);
-        
-        if (index < args.Length)
-            throw new MissingParametersException();
-        
-        return result;
-    }
-
-    private int setArgs(object arg, object[] arr, int index)
+    
+    /// <summary>
+    /// Set arr data from a index based on arg data size.
+    /// </summary>
+    private static int DisplayParameters(object arg, object[] arr, int index)
     {
         switch (arg)
         {
             case float num:
+                verify(1);
                 add(num);
                 break;
             
             case int num:
+                verify(1);
                 add((float)num);
                 break;
             
             case double num:
+                verify(1);
                 add((float)num);
                 break;
                 
             case Vec2 vec:
+                verify(2);
                 add(vec.X);
                 add(vec.Y);
                 break;
                 
             case Vec3 vec:
+                verify(3);
                 add(vec.X);
                 add(vec.Y);
                 add(vec.Z);
                 break;
                 
             case Vec4 vec:
+                verify(4);
                 add(vec.X);
                 add(vec.Y);
                 add(vec.Z);
                 add(vec.W);
                 break;
             
-            case float[] subarr:
-                for (int i = 0; i < subarr.Length; i++)
-                    add(subarr[i]);
+            case float[] subArray:
+                verify(subArray.Length);
+                foreach (var value in subArray)
+                    add(value);
                 break;
             
             case Texture img:
+                verify(1);
                 add(img);
                 break;
         }
         return index;
 
-        void add(object value)
+        void verify(int size)
         {
-            if (index >= arr.Length)
-                throw new SurplusParametersException();
-            arr[index++] = value;
+            if (index + size <= arr.Length)
+                return;
+            
+            throw new SurplusParametersException();
         }
+
+        void add(object value)
+            => arr[index++] = value;
     }
 }

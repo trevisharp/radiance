@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    26/02/2024
+ * Date:    19/08/2024
  */
 using System;
 using System.Text;
@@ -22,17 +22,16 @@ using Shaders.Objects;
 /// </summary>
 public class RenderContext
 {
-    private static Dictionary<int, RenderContext> threadMap = new();
+    private static readonly Dictionary<int, RenderContext> threadMap = [];
 
     internal static RenderContext CreateContext()
     {
-        var crr = Thread.CurrentThread;
-        var id  = crr.ManagedThreadId;
-        deleteContextIfExist(id);
+        var id = GetCurrentThreadId();
+        threadMap.Remove(id);
 
         var ctx = new RenderContext
         {
-            Position = new("pos", ShaderOrigin.VertexShader, [Utils.bufferDep]),
+            Position = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]),
             Color = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, [])
         };
         threadMap.Add(id, ctx);
@@ -41,29 +40,25 @@ public class RenderContext
 
     internal static void ClearContext()
     {
-        var crr = Thread.CurrentThread;
-        var id  = crr.ManagedThreadId;
-        deleteContextIfExist(id);
+        var id = GetCurrentThreadId();
+        threadMap.Remove(id);
     }
 
     internal static RenderContext GetContext()
     {
+        var id = GetCurrentThreadId();
+        return threadMap.TryGetValue(id, out RenderContext value) ? value : null;
+    }
+
+    internal static int GetCurrentThreadId()
+    {
         var crr = Thread.CurrentThread;
         var id  = crr.ManagedThreadId;
-        if (threadMap.ContainsKey(id))
-            return threadMap[id];
-        
-        return null;
+        return id;
     }
 
-    private static void deleteContextIfExist(int id)
-    {
-        if (threadMap.ContainsKey(id))
-            threadMap.Remove(id);
-    }
-
-    static Dictionary<int, int> shaderMap = new();
-    static Dictionary<(int, int), int> programMap = new();
+    static readonly Dictionary<int, int> shaderMap = [];
+    static readonly Dictionary<(int, int), int> programMap = [];
 
     /// <summary>
     /// Unload all OpenGL Resources.
@@ -80,10 +75,10 @@ public class RenderContext
         shaderMap.Clear();
     }
     
-    public bool Verbose { get; set; } = false;
+    public bool IsVerbose { get; set; } = false;
     
     private int globalTabIndex = 0;
-    private event Action<Polygon, object[]> pipeline;
+    private event Action<Polygon, object[]> Pipeline;
 
     public string VersionText { get; set; } = "330 core";
     public Vec3ShaderObject Position { get; set; }
@@ -91,15 +86,15 @@ public class RenderContext
     
     public void Render(Polygon polygon, object[] parameters)
     {
-        if (pipeline is null)
+        if (Pipeline is null)
             return;
         
-        pipeline(polygon, parameters);
+        Pipeline(polygon, parameters);
     }
 
     public void AddClear(Vec4 color)
     {
-        pipeline += delegate
+        Pipeline += delegate
         {
             GL.ClearColor(
                 color.X,
@@ -111,51 +106,51 @@ public class RenderContext
     }
 
     public void AddPoints() 
-        => addDrawOperation(PrimitiveType.Points);
+        => AddDrawOperation(PrimitiveType.Points);
 
     public void AddLines() 
-        => addDrawOperation(PrimitiveType.Lines);
+        => AddDrawOperation(PrimitiveType.Lines);
     
     public void AddDraw() 
-        => addDrawOperation(PrimitiveType.LineLoop);
+        => AddDrawOperation(PrimitiveType.LineLoop);
     
     public void AddFill()
-        => addDrawOperation(PrimitiveType.Triangles, true);
+        => AddDrawOperation(PrimitiveType.Triangles, true);
     
     public void AddTriangules() 
-        => addDrawOperation(PrimitiveType.Triangles);
+        => AddDrawOperation(PrimitiveType.Triangles);
     
     public void AddStrip() 
-        => addDrawOperation(PrimitiveType.TriangleStrip);
+        => AddDrawOperation(PrimitiveType.TriangleStrip);
     
     public void AddFan() 
-        => addDrawOperation(PrimitiveType.TriangleFan);
+        => AddDrawOperation(PrimitiveType.TriangleFan);
 
-    private void addDrawOperation(
+    private void AddDrawOperation(
         PrimitiveType primitive, 
         bool needTriangularization = false
     )
     {
-        start("Creating Program");
+        Start("Creating Program");
         ShaderContext shaderCtx = new ShaderContext();
 
         var item = generateShaders(Position, Color, shaderCtx);
 
-        start("Vertex Shader Creation");
-        code(item.vertSrc);
+        Start("Vertex Shader Creation");
+        Code(item.vertSrc);
         var vertexShader = createVertexShader(item.vertSrc);
-        success("Shader Created!!");
+        Success("Shader Created!!");
 
-        start("Fragment Shader Creation");
-        code(item.fragSrc);
+        Start("Fragment Shader Creation");
+        Code(item.fragSrc);
         var fragmentShader = createFragmentShader(item.fragSrc);
-        success("Shader Created!!");
+        Success("Shader Created!!");
 
         int program = createProgram(vertexShader, fragmentShader);
         shaderCtx.Program = program;
-        success("Program Created!!");
+        Success("Program Created!!");
         
-        pipeline += (poly, data) =>
+        Pipeline += (poly, data) =>
         {
             if (needTriangularization)
                 poly = poly.Triangulation;
@@ -193,20 +188,20 @@ public class RenderContext
 
     private int createShader(OpenTK.Graphics.OpenGL4.ShaderType type, string source)
     {
-        information("Creating Shader...");
+        Information("Creating Shader...");
 
         var hash = source.GetHashCode();
-        information($"Hash: {hash}");
+        Information($"Hash: {hash}");
 
         if (shaderMap.ContainsKey(hash))
         {
-            information("Conflit. Reusing other shader!");
+            Information("Conflit. Reusing other shader!");
             return shaderMap[hash];
         }
 
         var shader = GL.CreateShader(type);
-        information($"Code: {shader}");
-        information($"Compiling Shader...");
+        Information($"Code: {shader}");
+        Information($"Compiling Shader...");
         GL.ShaderSource(shader, source);
         GL.CompileShader(shader);
 
@@ -216,7 +211,7 @@ public class RenderContext
         if (code != (int)All.True)
         {
             var infoLog = GL.GetShaderInfoLog(shader);
-            error($"Error occurred in Shader({shader}) compilation: {infoLog}");
+            Error($"Error occurred in Shader({shader}) compilation: {infoLog}");
             return -1;
         }
 
@@ -232,26 +227,26 @@ public class RenderContext
         if (programMap.ContainsKey(programKey))
         {
             var reusingProgram = programMap[programKey];
-            information($"Reusing Program {reusingProgram}.");
+            Information($"Reusing Program {reusingProgram}.");
             return reusingProgram;
         }
 
         var program = GL.CreateProgram();
         
-        information("Attaching Shaders...");
+        Information("Attaching Shaders...");
         GL.AttachShader(program, vertexShader);
         GL.AttachShader(program, fragmentShader);
         
-        information("Link Program...");
+        Information("Link Program...");
         GL.LinkProgram(program);
 
-        information("Dettaching Program...");
+        Information("Dettaching Program...");
         GL.DetachShader(program, vertexShader);
         GL.DetachShader(program, fragmentShader);
 
         GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
         if (code != (int)All.True)
-            error($"Error occurred Program({program}) linking.");
+            Error($"Error occurred Program({program}) linking.");
         
         programMap.Add(programKey, program);
         return program;
@@ -358,22 +353,22 @@ public class RenderContext
         }
     }
 
-    private void error(string message = "")
-        => verbose(message, ConsoleColor.White, ConsoleColor.Red, globalTabIndex);
+    private void Error(string message = "")
+        => Verbose(message, ConsoleColor.White, ConsoleColor.Red, globalTabIndex);
     
-    private void information(string message = "")
-        => verbose(message, ConsoleColor.Green, ConsoleColor.Black, globalTabIndex);
+    private void Information(string message = "")
+        => Verbose(message, ConsoleColor.Green, ConsoleColor.Black, globalTabIndex);
     
-    private void success(string message = "")
-        => verbose(message + "\n", ConsoleColor.Blue, ConsoleColor.Black, --globalTabIndex);
+    private void Success(string message = "")
+        => Verbose(message + "\n", ConsoleColor.Blue, ConsoleColor.Black, --globalTabIndex);
     
-    private void code(string message = "")
-        => verbose(message, ConsoleColor.DarkYellow, ConsoleColor.Black, globalTabIndex + 1);
+    private void Code(string message = "")
+        => Verbose(message, ConsoleColor.DarkYellow, ConsoleColor.Black, globalTabIndex + 1);
 
-    private void start(string message = "")
-        => verbose("Start: " + message, ConsoleColor.Magenta, ConsoleColor.Black, globalTabIndex++);
+    private void Start(string message = "")
+        => Verbose("Start: " + message, ConsoleColor.Magenta, ConsoleColor.Black, globalTabIndex++);
 
-    private void verbose(
+    private void Verbose(
         string text, 
         ConsoleColor fore = ConsoleColor.White,
         ConsoleColor back = ConsoleColor.Black,
@@ -381,7 +376,7 @@ public class RenderContext
         bool newline = true
     )
     {
-        if (!Verbose)
+        if (!IsVerbose)
             return;
         
         var fullTab = "";

@@ -30,12 +30,12 @@ public static class Utils
         get
         {
             var ctx = RenderContext.GetContext();
-            return ctx.Verbose;
+            return ctx.IsVerbose;
         }
         set
         {
             var ctx = RenderContext.GetContext();
-            ctx.Verbose = value;
+            ctx.IsVerbose = value;
         }
     }
     
