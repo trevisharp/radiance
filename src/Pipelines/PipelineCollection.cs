@@ -12,7 +12,7 @@ namespace Radiance.Pipelines;
 /// </summary>
 public class PipelineCollection : IEnumerable<PipelineContext>
 {
-    private List<PipelineContext> pipelines = new();
+    private readonly List<PipelineContext> pipelines = [];
 
     public PipelineCollection Add(PipelineContext ctx)
     {

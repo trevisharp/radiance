@@ -15,33 +15,29 @@ using Renders;
 /// </summary>
 public class PipelineContext(Action pipelineFunction)
 {
-    private static Dictionary<int, PipelineContext> threadMap = new();
-
-    public static void SetContext(PipelineContext context)
+    private static readonly Dictionary<int, PipelineContext> threadMap = [];
+    
+    internal static int GetCurrentThreadId()
     {
         var crr = Thread.CurrentThread;
         var id  = crr.ManagedThreadId;
-        deleteContextIfExist(id);
+        return id;
+    }
+
+    public static void SetContext(PipelineContext context)
+    {
+        var id  = GetCurrentThreadId();
+        threadMap.Remove(id);
         threadMap.Add(id, context);
     }
 
     public static PipelineContext GetContext()
     {
-        var crr = Thread.CurrentThread;
-        var id  = crr.ManagedThreadId;
-        if (threadMap.ContainsKey(id))
-            return threadMap[id];
-        
-        return null;
+        var id  = GetCurrentThreadId();
+        return threadMap.TryGetValue(id, out PipelineContext value) ? value : null;
     }
 
-    private static void deleteContextIfExist(int id)
-    {
-        if (threadMap.ContainsKey(id))
-            threadMap.Remove(id);
-    }
-
-    private List<RenderInfo> renders = new();
+    private readonly List<RenderInfo> renders = [];
 
     public void Render()
     {
@@ -52,7 +48,7 @@ public class PipelineContext(Action pipelineFunction)
     public void RegisterRenderCall(RenderContext render, Polygon poly, object[] data)
         => renders.Add(new (render, poly, data));
 
-    private record RenderInfo(
+    record RenderInfo(
         RenderContext Render,
         Polygon Polygon,
         object[] Parameters

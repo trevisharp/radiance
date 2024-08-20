@@ -10,6 +10,7 @@ using System.Collections.Generic;
 using static System.Console;
 
 using OpenTK.Graphics.OpenGL4;
+using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace Radiance.Renders;
 
@@ -76,7 +77,7 @@ public class RenderContext
     }
     
     public bool IsVerbose { get; set; } = false;
-    
+
     private int globalTabIndex = 0;
     private event Action<Polygon, object[]> Pipeline;
 
@@ -134,19 +135,19 @@ public class RenderContext
         Start("Creating Program");
         ShaderContext shaderCtx = new ShaderContext();
 
-        var item = generateShaders(Position, Color, shaderCtx);
+        var (vertSource, vertSetup, fragSoruce, fragSetup) = GenerateShaders(Position, Color, shaderCtx);
 
         Start("Vertex Shader Creation");
-        Code(item.vertSrc);
-        var vertexShader = createVertexShader(item.vertSrc);
+        Code(vertSource);
+        var vertexShader = CreateVertexShader(vertSource);
         Success("Shader Created!!");
 
         Start("Fragment Shader Creation");
-        Code(item.fragSrc);
-        var fragmentShader = createFragmentShader(item.fragSrc);
+        Code(fragSoruce);
+        var fragmentShader = CreateFragmentShader(fragSoruce);
         Success("Shader Created!!");
 
-        int program = createProgram(vertexShader, fragmentShader);
+        int program = CreateProgram(vertexShader, fragmentShader);
         shaderCtx.Program = program;
         Success("Program Created!!");
         
@@ -160,44 +161,45 @@ public class RenderContext
 
             shaderCtx.Use(poly);
 
-            if (item.vertStp is not null)
-                item.vertStp();
+            if (vertSetup is not null)
+                vertSetup();
 
-            if (item.fragStp is not null)
-                item.fragStp();
+            if (fragSetup is not null)
+                fragSetup();
 
             GL.DrawArrays(primitive, 0, poly.Data.Count() / 3);
         };
     }
     
-    private int createVertexShader(string source)
+    private int CreateVertexShader(string source)
     {
-        return createShader(
-            OpenTK.Graphics.OpenGL4.ShaderType.VertexShader,
+        return CreateShader(
+            OpenTKShaderType.VertexShader,
             source
         );
     }
     
-    private int createFragmentShader(string source)
+    private int CreateFragmentShader(string source)
     {
-        return createShader(
-            OpenTK.Graphics.OpenGL4.ShaderType.FragmentShader,
+        return CreateShader(
+            OpenTKShaderType.FragmentShader,
             source
         );
     }
 
-    private int createShader(OpenTK.Graphics.OpenGL4.ShaderType type, string source)
+    private int CreateShader(OpenTKShaderType type, string source)
     {
-        Information("Creating Shader...");
+        Information("Getting Shader...");
 
         var hash = source.GetHashCode();
         Information($"Hash: {hash}");
 
-        if (shaderMap.ContainsKey(hash))
+        if (shaderMap.TryGetValue(hash, out int value))
         {
-            Information("Conflit. Reusing other shader!");
-            return shaderMap[hash];
+            Information("Reusing other shader!");
+            return value;
         }
+        Information("Cache miss. Create new shader!");
 
         var shader = GL.CreateShader(type);
         Information($"Code: {shader}");
@@ -218,7 +220,7 @@ public class RenderContext
         return shader;
     }
 
-    private int createProgram(
+    private int CreateProgram(
         int vertexShader, 
         int fragmentShader
     )
@@ -252,11 +254,8 @@ public class RenderContext
         return program;
     }
 
-    private (string vertSrc, Action vertStp, 
-        string fragSrc, Action fragStp) generateShaders(
-        Vec3ShaderObject vertObj,
-        Vec4ShaderObject fragObj,
-        ShaderContext ctx
+    private (string vertSrc, Action vertStp, string fragSrc, Action fragStp) GenerateShaders(
+        Vec3ShaderObject vertObj, Vec4ShaderObject fragObj, ShaderContext ctx
     )
     {
         var vertSb = getCodeBuilder();
