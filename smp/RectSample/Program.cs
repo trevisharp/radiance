@@ -1,5 +1,6 @@
 ﻿using Radiance;
 using static Radiance.Utils;
+using static Radiance.Window;
 
 var myRender = render((r, g, b, a) =>
 {
@@ -7,17 +8,16 @@ var myRender = render((r, g, b, a) =>
     fill();
 });
 
-Window.OnLoad += () => 
+OnLoad += () => 
     myRender = myRender(
         Rect(
-            Window.Width / 2,
-            Window.Height / 2,
+            Width / 2, Height / 2,
             0, 500, 500
         )
     );
 
 var fillColor = red;
-Window.OnKeyDown += (k, m) =>
+OnKeyDown += (k, m) =>
 {
     if (k != Input.Space)
         return;
@@ -25,7 +25,7 @@ Window.OnKeyDown += (k, m) =>
     fillColor = fillColor == red ? blue : red;
 };
 
-Window.OnRender += () => myRender(fillColor);
+OnRender += () => myRender(fillColor);
 
-Window.CloseOn(Input.Escape);
-Window.Open();
+CloseOn(Input.Escape);
+Open();
