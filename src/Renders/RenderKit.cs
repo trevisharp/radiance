@@ -17,11 +17,9 @@ public class RenderKit
     {
         get
         {
-            if (fill is not null)
-                return fill;
-            
-            fill = render((r, g, b, a) =>
+            fill ??= render((r, g, b, a) =>
             {
+                verbose = true;
                 color = (r, g, b, a);
                 fill();
             });
@@ -35,10 +33,7 @@ public class RenderKit
     {
         get
         {
-            if (draw is not null)
-                return draw;
-            
-            draw = render((r, g, b, a) =>
+            draw ??= render((r, g, b, a) =>
             {
                 color = (r, g, b, a);
                 draw();

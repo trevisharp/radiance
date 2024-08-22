@@ -6,8 +6,6 @@ using System.Text;
 
 namespace Radiance.Shaders;
 
-using Objects;
-
 /// <summary>
 /// Represents a dependence .
 /// </summary>

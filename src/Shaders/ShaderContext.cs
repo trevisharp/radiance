@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    26/01/2024
+ * Date:    22/08/2024
  */
 using System.Linq;
 using System.Collections.Generic;
@@ -17,10 +17,10 @@ using Data;
 public class ShaderContext
 {
     // Global OpenGL resources indexes map
-    static Dictionary<ImageResult, int> textureMap = new();
-    static List<int> bufferList = new();
-    static List<int> vertexArrayList = new();
-    static List<int> textureUnits = new();
+    static readonly Dictionary<ImageResult, int> textureMap = [];
+    static readonly List<int> bufferList = [];
+    static readonly List<int> vertexArrayList = [];
+    static readonly List<int> textureUnits = [];
 
     /// <summary>
     /// Unload all OpenGL Resources.
@@ -40,18 +40,31 @@ public class ShaderContext
         vertexArrayList.Clear();
     }
     
+    /// <summary>
+    /// Get or set the OpenGL Program Id associated to this context.
+    /// </summary>
     public int Program { get; set; }
-    public int TextureCount { get; set; }
+
+    /// <summary>
+    /// Get the count of textures loaded on this conctext.
+    /// </summary>
+    public int TextureCount { get; private set; }
     
+    /// <summary>
+    /// Set a uniform with a name to a specific value.
+    /// </summary>
     public void SetFloat(string name, float value)
     {
         var code = GL.GetUniformLocation(Program, name);
         GL.Uniform1(code, value);
     }
 
-    public void SetTextureData(Texture texture, string name)
+    /// <summary>
+    /// Set a image uniform with a name to a specific value.
+    /// </summary>
+    public void SetTextureData(string name, Texture texture)
     {
-        var id = activateImage(texture.ImageData);
+        var id = ActivateImage(texture.ImageData);
         var code = GL.GetUniformLocation(Program, name);
         GL.Uniform1(code, id);
     }
@@ -61,20 +74,20 @@ public class ShaderContext
         if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
             return;
 
-        updateResources(poly, true, true);
+        UpdateResources(poly, true, true);
         poly.OnChange += (bufferBreak, layoutBreak) =>
-            updateResources(poly, bufferBreak, layoutBreak);
+            UpdateResources(poly, bufferBreak, layoutBreak);
     }
 
     public void Use(Polygon poly)
-    {            
-        bindVertexArray(poly);
-        bindBuffer(poly);
+    {
+        BindVertexArray(poly);
+        BindBuffer(poly);
     }
 
-    private int activateImage(ImageResult image)
+    private int ActivateImage(ImageResult image)
     {
-        int handle = getTextureHandle(image);
+        int handle = GetTextureHandle(image);
         var index = textureUnits.IndexOf(handle);
         int id = index > -1 ? index : TextureCount++;
         
@@ -88,17 +101,17 @@ public class ShaderContext
         return id;
     }
 
-    private int getTextureHandle(ImageResult image)
+    private static int GetTextureHandle(ImageResult image)
     {
-        if (textureMap.ContainsKey(image))
-            return textureMap[image];
+        if (textureMap.TryGetValue(image, out int value))
+            return value;
         
-        int handle = initImageData(image);
+        int handle = InitImageData(image);
         textureMap.Add(image, handle);
         return handle;
     }
 
-    private int initImageData(ImageResult image)
+    private static int InitImageData(ImageResult image)
     {
         int handle = GL.GenTexture();
         GL.BindTexture(TextureTarget.Texture2D, handle);
@@ -131,9 +144,10 @@ public class ShaderContext
         GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
         return handle;
-    } 
+    }
 
-    private int createVertexArray(Polygon data)
+    // TODO: Consider multi layout or simplify abstraction
+    private static int CreateVertexArray(Polygon data)
     {
         int vertexObject = GL.GenVertexArray();
         GL.BindVertexArray(vertexObject);
@@ -153,7 +167,7 @@ public class ShaderContext
         return vertexObject;
     }
     
-    private int createBuffer()
+    private static int CreateBuffer()
     {
         var bufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
@@ -161,7 +175,7 @@ public class ShaderContext
         return bufferObject;
     }
 
-    private void bindBuffer(Polygon poly)
+    private static void BindBuffer(Polygon poly)
     {
         GL.BindBuffer(
             BufferTarget.ArrayBuffer, 
@@ -169,34 +183,34 @@ public class ShaderContext
         );
     }
 
-    private void bindVertexArray(Polygon poly)
+    private static void BindVertexArray(Polygon poly)
     {
         GL.BindVertexArray(
             poly.VertexObjectArray
         );
     }
 
-    private void updateResources(Polygon poly, bool bufferBreak, bool layoutBreak)
+    private static void UpdateResources(Polygon poly, bool bufferBreak, bool layoutBreak)
     {
         if (bufferBreak)
         {
             if (poly.Buffer > -1)
                 GL.DeleteBuffer(poly.Buffer);
 
-            int buffer = createBuffer();
+            int buffer = CreateBuffer();
             poly.Buffer = buffer;
         }
-        bindBuffer(poly);
+        BindBuffer(poly);
 
         if (layoutBreak)
         {
             if (poly.VertexObjectArray > -1)
                 GL.DeleteVertexArray(poly.VertexObjectArray);
 
-            int vertexArray = createVertexArray(poly);
+            int vertexArray = CreateVertexArray(poly);
             poly.VertexObjectArray = vertexArray;
         }
-        bindVertexArray(poly);
+        BindVertexArray(poly);
 
         var data = poly.Data.ToArray();
         GL.BufferData(

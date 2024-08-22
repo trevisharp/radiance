@@ -18,7 +18,7 @@ public class TextureDependence(string textureName) : ShaderDependence
         => sb.AppendLine($"uniform sampler2D {textureName};");
 
     public override Action AddOperation(ShaderContext ctx)
-        => () => ctx.SetTextureData(texture, textureName);
+        => () => ctx.SetTextureData(textureName, texture);
 
     public override void UpdateData(object value)
         => this.texture = value as Texture;
