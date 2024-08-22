@@ -76,11 +76,10 @@ public class RenderContext
         shaderMap.Clear();
     }
     
-    public bool IsVerbose { get; set; } = false;
-
     private int globalTabIndex = 0;
     private event Action<Polygon, object[]> Pipeline;
 
+    public bool IsVerbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
     public Vec3ShaderObject Position { get; set; }
     public Vec4ShaderObject Color { get; set; }
@@ -133,7 +132,7 @@ public class RenderContext
     )
     {
         Start("Creating Program");
-        ShaderContext shaderCtx = new ShaderContext();
+        var shaderCtx = new ShaderContext();
 
         var (vertSource, vertSetup, fragSoruce, fragSetup) = GenerateShaders(Position, Color, shaderCtx);
 
@@ -143,7 +142,7 @@ public class RenderContext
         Success("Shader Created!!");
 
         Start("Fragment Shader Creation");
-        Code(fragSoruce);
+        Code(fragSoruce); 
         var fragmentShader = CreateFragmentShader(fragSoruce);
         Success("Shader Created!!");
 
@@ -226,9 +225,8 @@ public class RenderContext
     )
     {
         var programKey = (vertexShader, fragmentShader);
-        if (programMap.ContainsKey(programKey))
+        if (programMap.TryGetValue(programKey, out int reusingProgram))
         {
-            var reusingProgram = programMap[programKey];
             Information($"Reusing Program {reusingProgram}.");
             return reusingProgram;
         }

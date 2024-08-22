@@ -55,7 +55,7 @@ public abstract class Polygon : IEnumerable<float>
             var triangules = VectorsOperations
                 .PlanarPolygonTriangulation(Data.ToArray());
             
-            MutablePolygon polygon = new MutablePolygon();
+            MutablePolygon polygon = [];
             for (int i = 0; i < triangules.Length; i += 3)
                 polygon.Add(
                     triangules[i + 0],

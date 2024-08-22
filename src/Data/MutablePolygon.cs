@@ -11,7 +11,7 @@ namespace Radiance.Data;
 /// </summary>
 public class MutablePolygon : Polygon
 {
-    private LinkedList<float> data = new();
+    private readonly LinkedList<float> data = [];
     public override IEnumerable<float> Data => data;
     
     protected override void add(float x, float y, float z)
