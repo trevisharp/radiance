@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/02/2024
+ * Date:    27/08/2024
  */
 using System;
 using System.Collections;
@@ -40,7 +40,15 @@ public class PipelineCollection : IEnumerable<PipelineContext>
         PipelineCollection coll, PipelineContext ctx
     ) => coll.Add(ctx);
 
+    public static PipelineCollection operator -(
+        PipelineCollection coll, PipelineContext ctx
+    ) => coll.Remove(ctx);
+
     public static PipelineCollection operator +(
         PipelineCollection coll, Action pipelineFunction
     ) => coll + new PipelineContext(pipelineFunction);
+
+    public static PipelineCollection operator -(
+        PipelineCollection coll, Action pipelineFunction
+    ) => coll - new PipelineContext(pipelineFunction);
 }

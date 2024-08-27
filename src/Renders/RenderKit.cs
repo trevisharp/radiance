@@ -19,7 +19,6 @@ public class RenderKit
         {
             fill ??= render((r, g, b, a) =>
             {
-                verbose = true;
                 color = (r, g, b, a);
                 fill();
             });
