@@ -60,8 +60,7 @@ public class Render(Delegate function) : DynamicObject, ICurryable
     {
         var pipeline = PipelineContext.GetContext()
             ?? throw new IlegalRenderMomentException();
-
-        // TODO: Avaliate if the context needs be create every time.
+        
         var ctx = RenderContext.CreateContext();
         CallWithShaderObjects(function);
         pipeline.RegisterRenderCall(ctx, poly, data);

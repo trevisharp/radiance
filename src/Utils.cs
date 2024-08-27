@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    26/02/2024
+ * Date:    28/08/2024
  */
 using System;
 using System.Text;
@@ -29,12 +29,12 @@ public static class Utils
     {
         get
         {
-            var ctx = RenderContext.GetContext();
+            var ctx = GlobalRenderContext.GetContext();
             return ctx.IsVerbose;
         }
         set
         {
-            var ctx = RenderContext.GetContext();
+            var ctx = GlobalRenderContext.GetContext();
             ctx.IsVerbose = value;
         }
     }
@@ -45,7 +45,7 @@ public static class Utils
     /// </summary>
     public static void clear(Vec4 color)
     {
-        var ctx = RenderContext.GetContext();
+        var ctx = GlobalRenderContext.GetContext();
         ctx.AddClear(color);
     }
 
@@ -54,7 +54,7 @@ public static class Utils
     /// </summary>
     public static void draw()
     {
-        var ctx = RenderContext.GetContext();
+        var ctx = GlobalRenderContext.GetContext();
         ctx.AddDraw();
     }
 
@@ -63,7 +63,7 @@ public static class Utils
     /// </summary>
     public static void fill()
     {
-        var ctx = RenderContext.GetContext();
+        var ctx = GlobalRenderContext.GetContext();
         ctx.AddFill();
     }
 
@@ -73,7 +73,7 @@ public static class Utils
     /// </summary>
     public static void fan()
     {
-        var ctx = RenderContext.GetContext();
+        var ctx = GlobalRenderContext.GetContext();
         ctx.AddFan();
     }
 
@@ -83,7 +83,7 @@ public static class Utils
     /// </summary>
     public static void strip()
     {
-        var ctx = RenderContext.GetContext();
+        var ctx = GlobalRenderContext.GetContext();
         ctx.AddStrip();
     }
 
@@ -93,7 +93,7 @@ public static class Utils
     /// </summary>
     public static void lines()
     {
-        var ctx = RenderContext.GetContext();
+        var ctx = GlobalRenderContext.GetContext();
         ctx.AddLines();
     }
 
@@ -105,12 +105,12 @@ public static class Utils
     {
         get
         {
-            var ctx = RenderContext.GetContext();
+            var ctx = GlobalRenderContext.GetContext();
             return ctx.Position;
         }
         set
         {
-            var ctx = RenderContext.GetContext();
+            var ctx = GlobalRenderContext.GetContext();
             ctx.Position = value;
         }
     }
@@ -144,12 +144,12 @@ public static class Utils
     {
         get
         {
-            var ctx = RenderContext.GetContext();
+            var ctx = GlobalRenderContext.GetContext();
             return ctx.Color;
         }
         set
         {
-            var ctx = RenderContext.GetContext();
+            var ctx = GlobalRenderContext.GetContext();
             var variable = new VariableDependence(value);
             ctx.Color = new Vec4ShaderObject(
                 variable.Name, ShaderOrigin.FragmentShader,

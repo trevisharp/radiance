@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/08/2024
+ * Date:    27/08/2024
  */
 using System;
 using System.Text;
@@ -19,64 +19,10 @@ using Shaders;
 using Shaders.Objects;
 
 /// <summary>
-/// A global thread-safe context to shader construction.
+/// A context used to shader construction..
 /// </summary>
 public class RenderContext
 {
-    private static readonly Dictionary<int, RenderContext> threadMap = [];
-
-    internal static RenderContext CreateContext()
-    {
-        var id = GetCurrentThreadId();
-        threadMap.Remove(id);
-
-        var ctx = new RenderContext
-        {
-            Position = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]),
-            Color = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, [])
-        };
-        threadMap.Add(id, ctx);
-        return ctx;
-    }
-
-    internal static void ClearContext()
-    {
-        var id = GetCurrentThreadId();
-        threadMap.Remove(id);
-    }
-
-    internal static RenderContext GetContext()
-    {
-        var id = GetCurrentThreadId();
-        return threadMap.TryGetValue(id, out RenderContext value) ? value : null;
-    }
-
-    internal static int GetCurrentThreadId()
-    {
-        var crr = Thread.CurrentThread;
-        var id  = crr.ManagedThreadId;
-        return id;
-    }
-
-    static readonly Dictionary<int, int> shaderMap = [];
-    static readonly Dictionary<(int, int), int> programMap = [];
-
-    /// <summary>
-    /// Unload all OpenGL Resources.
-    /// </summary>
-    public static void FreeAllResources()
-    {
-        GL.UseProgram(0);
-        foreach (var program in programMap)
-            GL.DeleteProgram(program.Value);
-        programMap.Clear();
-
-        foreach (var shaderKey in shaderMap)
-            GL.DeleteShader(shaderKey.Value);
-        shaderMap.Clear();
-    }
-    
-    private int globalTabIndex = 0;
     private event Action<Polygon, object[]> Pipeline;
 
     public bool IsVerbose { get; set; } = false;
@@ -131,24 +77,14 @@ public class RenderContext
         bool needTriangularization = false
     )
     {
-        Start("Creating Program");
         var shaderCtx = new ShaderContext();
-
-        var (vertSource, vertSetup, fragSoruce, fragSetup) = GenerateShaders(Position, Color, shaderCtx);
-
-        Start("Vertex Shader Creation");
-        Code(vertSource);
-        var vertexShader = CreateVertexShader(vertSource);
-        Success("Shader Created!!");
-
-        Start("Fragment Shader Creation");
-        Code(fragSoruce); 
-        var fragmentShader = CreateFragmentShader(fragSoruce);
-        Success("Shader Created!!");
-
-        int program = CreateProgram(vertexShader, fragmentShader);
+        var (vertSource, vertSetup, fragSoruce, fragSetup) = 
+            GenerateShaders(Position, Color, shaderCtx);
+        
+        var program = RenderProgram.CreateProgram(
+            vertSource, fragSoruce, IsVerbose
+        );
         shaderCtx.Program = program;
-        Success("Program Created!!");
         
         Pipeline += (poly, data) =>
         {
@@ -169,93 +105,17 @@ public class RenderContext
             GL.DrawArrays(primitive, 0, poly.Data.Count() / 3);
         };
     }
-    
-    private int CreateVertexShader(string source)
-    {
-        return CreateShader(
-            OpenTKShaderType.VertexShader,
-            source
-        );
-    }
-    
-    private int CreateFragmentShader(string source)
-    {
-        return CreateShader(
-            OpenTKShaderType.FragmentShader,
-            source
-        );
-    }
-
-    private int CreateShader(OpenTKShaderType type, string source)
-    {
-        Information("Getting Shader...");
-
-        var hash = source.GetHashCode();
-        Information($"Hash: {hash}");
-
-        if (shaderMap.TryGetValue(hash, out int value))
-        {
-            Information("Reusing other shader!");
-            return value;
-        }
-        Information("Cache miss. Create new shader!");
-
-        var shader = GL.CreateShader(type);
-        Information($"Code: {shader}");
-        Information($"Compiling Shader...");
-        GL.ShaderSource(shader, source);
-        GL.CompileShader(shader);
-
-        shaderMap.Add(hash, shader);
-
-        GL.GetShader(shader, ShaderParameter.CompileStatus, out var code);
-        if (code != (int)All.True)
-        {
-            var infoLog = GL.GetShaderInfoLog(shader);
-            Error($"Error occurred in Shader({shader}) compilation: {infoLog}");
-            return -1;
-        }
-
-        return shader;
-    }
-
-    private int CreateProgram(
-        int vertexShader, 
-        int fragmentShader
-    )
-    {
-        var programKey = (vertexShader, fragmentShader);
-        if (programMap.TryGetValue(programKey, out int reusingProgram))
-        {
-            Information($"Reusing Program {reusingProgram}.");
-            return reusingProgram;
-        }
-
-        var program = GL.CreateProgram();
-        
-        Information("Attaching Shaders...");
-        GL.AttachShader(program, vertexShader);
-        GL.AttachShader(program, fragmentShader);
-        
-        Information("Link Program...");
-        GL.LinkProgram(program);
-
-        Information("Dettaching Program...");
-        GL.DetachShader(program, vertexShader);
-        GL.DetachShader(program, fragmentShader);
-
-        GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
-        if (code != (int)All.True)
-            Error($"Error occurred Program({program}) linking.");
-        
-        programMap.Add(programKey, program);
-        return program;
-    }
 
     private (string vertSrc, Action vertStp, string fragSrc, Action fragStp) GenerateShaders(
         Vec3ShaderObject vertObj, Vec4ShaderObject fragObj, ShaderContext ctx
     )
     {
+        StringBuilder getCodeBuilder()
+        {
+            var sb = new StringBuilder();
+            sb.AppendLine($"#version {VersionText}");
+            return sb;
+        }
         var vertSb = getCodeBuilder();
         var fragSb = getCodeBuilder();
 
@@ -295,6 +155,13 @@ public class RenderContext
         }
         
         fragSb.AppendLine("out vec4 outColor;");
+
+        void initMain(StringBuilder sb)
+        {
+            sb.AppendLine();
+            sb.AppendLine("void main()");
+            sb.AppendLine("{");
+        }
         initMain(vertSb);
         initMain(fragSb);
 
@@ -327,66 +194,11 @@ public class RenderContext
         foreach (var dep in fragDeps)
             dep.AddFinalCode(fragSb);
 
+        void closeMain(StringBuilder sb)
+            => sb.Append('}');
         closeMain(vertSb);
         closeMain(fragSb);
 
         return (vertSb.ToString(), vertStp, fragSb.ToString(), fragStp);
-
-        void initMain(StringBuilder sb)
-        {
-            sb.AppendLine();
-            sb.AppendLine("void main()");
-            sb.AppendLine("{");
-        }
-
-        void closeMain(StringBuilder sb)
-            => sb.Append('}');
-        
-        StringBuilder getCodeBuilder()
-        {
-            var sb = new StringBuilder();
-            sb.AppendLine($"#version {VersionText}");
-            return sb;
-        }
-    }
-
-    private void Error(string message = "")
-        => Verbose(message, ConsoleColor.White, ConsoleColor.Red, globalTabIndex);
-    
-    private void Information(string message = "")
-        => Verbose(message, ConsoleColor.Green, ConsoleColor.Black, globalTabIndex);
-    
-    private void Success(string message = "")
-        => Verbose(message + "\n", ConsoleColor.Blue, ConsoleColor.Black, --globalTabIndex);
-    
-    private void Code(string message = "")
-        => Verbose(message, ConsoleColor.DarkYellow, ConsoleColor.Black, globalTabIndex + 1);
-
-    private void Start(string message = "")
-        => Verbose("Start: " + message, ConsoleColor.Magenta, ConsoleColor.Black, globalTabIndex++);
-
-    private void Verbose(
-        string text, 
-        ConsoleColor fore = ConsoleColor.White,
-        ConsoleColor back = ConsoleColor.Black,
-        int tabIndex = 0,
-        bool newline = true
-    )
-    {
-        if (!IsVerbose)
-            return;
-        
-        var fullTab = "";
-        for (int i = 0; i < tabIndex; i++)
-            fullTab += "\t";
-
-        text = fullTab + text.Replace("\n", "\n" + fullTab);
-        
-        ForegroundColor = fore;
-        BackgroundColor = back;
-        Write(text);
-        
-        if (newline)
-            WriteLine();
     }
 }

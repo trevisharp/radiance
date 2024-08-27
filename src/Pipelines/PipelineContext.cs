@@ -26,7 +26,7 @@ public class PipelineContext(Action pipelineFunction)
 
     public static void SetContext(PipelineContext context)
     {
-        var id  = GetCurrentThreadId();
+        var id = GetCurrentThreadId();
         threadMap.Remove(id);
         threadMap.Add(id, context);
     }

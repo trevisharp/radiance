@@ -68,7 +68,7 @@ public class ShaderContext
         var code = GL.GetUniformLocation(Program, name);
         GL.Uniform1(code, id);
     }
-
+    
     public void CreateResources(Polygon poly)
     {
         if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
@@ -160,7 +160,7 @@ public class ShaderContext
         int offset = 0;
         GL.VertexAttribPointer(i, 3, type, false, stride, offset);
         GL.EnableVertexAttribArray(i);
-        offset += 3  * sizeof(float);
+        offset += 3 * sizeof(float);
         i++;
 
         vertexArrayList.Add(vertexObject);
