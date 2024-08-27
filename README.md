@@ -346,6 +346,11 @@ Window.Open();
 
 # Versions
 
+### Radiance v3.0.0
+ - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes.
+ - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
+ - ![](https://img.shields.io/badge/new-green) Add Text writting utilities.
+
 ### Radiance v2.4.0
 
  - ![](https://img.shields.io/badge/update-blue) Improve the use of OpenGL Primitives to improve some operations.
@@ -384,7 +389,6 @@ Window.Open();
 
 ### Radiance v2.0.0
 
- - ![](https://img.shields.io/badge/new-green) Add Text writting.
  - ![](https://img.shields.io/badge/new-green) Add Release Shaders to speedup production apps.
  - ![](https://img.shields.io/badge/new-green) Add Conditional Rendering.
  - ![](https://img.shields.io/badge/new-green) Enable Currying in renders.
