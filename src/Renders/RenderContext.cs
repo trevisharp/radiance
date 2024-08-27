@@ -23,7 +23,7 @@ using Shaders.Objects;
 /// </summary>
 public class RenderContext
 {
-    private event Action<Polygon, object[]> Pipeline;
+    private event Action<Polygon, object[]> DrawOperations;
 
     public bool IsVerbose { get; set; } = false;
     public string VersionText { get; set; } = "330 core";
@@ -32,15 +32,15 @@ public class RenderContext
     
     public void Render(Polygon polygon, object[] parameters)
     {
-        if (Pipeline is null)
+        if (DrawOperations is null)
             return;
         
-        Pipeline(polygon, parameters);
+        DrawOperations(polygon, parameters);
     }
 
     public void AddClear(Vec4 color)
     {
-        Pipeline += delegate
+        DrawOperations += delegate
         {
             GL.ClearColor(
                 color.X,
@@ -86,7 +86,7 @@ public class RenderContext
         );
         shaderCtx.Program = program;
         
-        Pipeline += (poly, data) =>
+        DrawOperations += (poly, data) =>
         {
             if (needTriangularization)
                 poly = poly.Triangulation;

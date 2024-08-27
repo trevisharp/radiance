@@ -60,8 +60,7 @@ public class Render(Delegate function) : DynamicObject, ICurryable
     {
         var pipeline = PipelineContext.GetContext()
             ?? throw new IlegalRenderMomentException();
-        
-        var ctx = RenderContext.CreateContext();
+        var ctx = GlobalRenderContext.CreateContext();
         CallWithShaderObjects(function);
         pipeline.RegisterRenderCall(ctx, poly, data);
     }
