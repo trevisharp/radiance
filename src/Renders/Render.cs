@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/08/2024
+ * Date:    28/08/2024
  */
 using System;
 using System.Linq;
@@ -22,6 +22,7 @@ using Shaders.Dependencies;
 /// </summary>
 public class Render(Delegate function) : DynamicObject, ICurryable
 {
+    private RenderContext context = null;
     private readonly List<ShaderDependence> dependenceList = [];
     public readonly int ExtraParameterCount = function.Method.GetParameters().Length;
 
@@ -58,11 +59,20 @@ public class Render(Delegate function) : DynamicObject, ICurryable
 
     private void RenderData(Polygon poly, object[] data)
     {
+        LoadContextIfFirstRun();
+
         var pipeline = PipelineContext.GetContext()
             ?? throw new IlegalRenderMomentException();
-        var ctx = GlobalRenderContext.CreateContext();
+        pipeline.RegisterRenderCall(context, poly, data);
+    }
+
+    private void LoadContextIfFirstRun()
+    {
+        if (context is null)
+            return;
+        
+        context = GlobalRenderContext.CreateContext();
         CallWithShaderObjects(function);
-        pipeline.RegisterRenderCall(ctx, poly, data);
     }
 
     private void CallWithShaderObjects(Delegate func)
