@@ -4,13 +4,8 @@
 using System;
 using System.Text;
 using System.Linq;
-using System.Threading;
-using System.Collections.Generic;
-
-using static System.Console;
 
 using OpenTK.Graphics.OpenGL4;
-using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace Radiance.Renders;
 

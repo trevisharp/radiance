@@ -47,23 +47,34 @@ public class Render(Delegate function) : DynamicObject, ICurryable
 
         var data = new object[ExtraParameterCount];
         DisplayParameters(data, args[1..]);
-
-        foreach (var (obj, dependence) in data.Zip(dependenceList))
-            dependence.UpdateData(obj);
         
-        RenderData(poly, data);
+        if (!TryRegisterCall(poly, data))
+        {
+            result = Curry(args);
+            return true;
+        }
         
         result = null;
         return true;
     }
 
-    private void RenderData(Polygon poly, object[] data)
+    public void RenderWith(Polygon poly, object[] data)
     {
-        LoadContextIfFirstRun();
+        foreach (var (obj, dependence) in data.Zip(dependenceList))
+            dependence.UpdateData(obj);
+        
+        context.Render(poly, data);
+    }
 
-        var pipeline = PipelineContext.GetContext()
-            ?? throw new IlegalRenderMomentException();
-        pipeline.RegisterRenderCall(context, poly, data);
+    private bool TryRegisterCall(Polygon poly, object[] data)
+    {
+        var pipeline = PipelineContext.GetContext();
+        if (pipeline is null)
+            return false;
+        
+        LoadContextIfFirstRun();
+        pipeline.RegisterRenderCall(this, poly, data);
+        return true;
     }
 
     private void LoadContextIfFirstRun()

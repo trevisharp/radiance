@@ -2,9 +2,10 @@
 using static Radiance.Utils;
 using static Radiance.Window;
 
-var myRender = render((r, g, b, a) =>
+var myRender = render((a, r, g, b) =>
 {
-    color = (r, g, b, a);
+    verbose = true;
+    color = (a, r, g, b);
     fill();
 });
 
@@ -16,7 +17,7 @@ OnLoad += () =>
         )
     );
 
-var fillColor = red;
+var fillColor = blue;
 OnKeyDown += (k, m) =>
 {
     if (k != Input.Space)

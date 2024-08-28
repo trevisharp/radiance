@@ -43,14 +43,8 @@ public class PipelineContext(Action pipelineFunction)
     {
         Load();
 
-        foreach (var render in renders)
-        {
-            var ctx = render.Render;
-            var poly = render.Polygon;
-            var parameters = render.Parameters;
-
-            ctx.Render(poly, parameters);
-        }
+        foreach (var (ctx, poly, parameters) in renders)
+            ctx.RenderWith(poly, parameters);
     }
 
     void Load()
@@ -63,11 +57,11 @@ public class PipelineContext(Action pipelineFunction)
         pipelineFunction();
     }
 
-    public void RegisterRenderCall(RenderContext render, Polygon poly, object[] data)
+    public void RegisterRenderCall(Render render, Polygon poly, object[] data)
         => renders.Add(new (render, poly, data));
 
     record RenderInfo(
-        RenderContext Render,
+        Render Render,
         Polygon Polygon,
         object[] Parameters
     );
