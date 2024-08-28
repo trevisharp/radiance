@@ -4,7 +4,6 @@ using static Radiance.Window;
 
 var myRender = render((a, r, g, b) =>
 {
-    verbose = true;
     color = (a, r, g, b);
     fill();
 });
@@ -17,7 +16,7 @@ OnLoad += () =>
         )
     );
 
-var fillColor = blue;
+var fillColor = red;
 OnKeyDown += (k, m) =>
 {
     if (k != Input.Space)

@@ -29,11 +29,13 @@ dynamic myRender = new Render((
     });
 
 
-var myPoly = new Polygon();
-myPoly.Add(-25, +25, -25);
-myPoly.Add(+25, +25, -25);
-myPoly.Add(+25, +25, +25);
-myPoly.Add(-25, +25, +25);
+var myPoly = new MutablePolygon
+{
+    { -25, +25, -25 },
+    { +25, +25, -25 },
+    { +25, +25, +25 },
+    { -25, +25, +25 }
+};
 
 var r1 = 
     myRender.Curry(myPoly)
@@ -47,11 +49,13 @@ var r1 =
     )
     .Curry(red);
 
-var myPoly2 = new Polygon();
-myPoly2.Add(-25, +25, -25);
-myPoly2.Add(-25, +25, +25);
-myPoly2.Add(-25, -25, +25);
-myPoly2.Add(-25, -25, -25);
+var myPoly2 = new MutablePolygon
+{
+    { -25, +25, -25 },
+    { -25, +25, +25 },
+    { -25, -25, +25 },
+    { -25, -25, -25 }
+};
 
 var r2 = 
     myRender.Curry(myPoly2)
@@ -65,11 +69,13 @@ var r2 =
     )
     .Curry(blue);
 
-var myPoly3 = new Polygon();
-myPoly3.Add(-25, +25, -25);
-myPoly3.Add(-25, -25, -25);
-myPoly3.Add(+25, -25, -25);
-myPoly3.Add(+25, +25, -25);
+var myPoly3 = new MutablePolygon
+{
+    { -25, +25, -25 },
+    { -25, -25, -25 },
+    { +25, -25, -25 },
+    { +25, +25, -25 }
+};
 
 var r3 = 
     myRender.Curry(myPoly3)

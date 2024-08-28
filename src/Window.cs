@@ -56,7 +56,7 @@ public static class Window
     /// <summary>
     /// Open main application window.
     /// </summary>
-    public static void Open(bool fullscreen = true)
+    public static void Open(bool fullscreen = true, bool autoMinimize = true)
     {
         win = new(
             GameWindowSettings.Default,
@@ -66,7 +66,8 @@ public static class Window
                 WindowState =
                     fullscreen ?
                     WindowState.Fullscreen :
-                    WindowState.Normal
+                    WindowState.Normal,
+                AutoIconify = autoMinimize
             }
         )
         {
