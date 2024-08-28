@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/02/2024
+ * Date:    28/08/2024
  */
 using System;
 using System.Threading;
@@ -37,10 +37,28 @@ public class PipelineContext(Action pipelineFunction)
         return threadMap.TryGetValue(id, out PipelineContext value) ? value : null;
     }
 
-    private readonly List<RenderInfo> renders = [];
+    private List<RenderInfo> renders = null;
 
     public void Render()
     {
+        Load();
+
+        foreach (var render in renders)
+        {
+            var ctx = render.Render;
+            var poly = render.Polygon;
+            var parameters = render.Parameters;
+
+            ctx.Render(poly, parameters);
+        }
+    }
+
+    void Load()
+    {
+        if (render is not null)
+            return;
+        render = [];
+
         SetContext(this);
         pipelineFunction();
     }

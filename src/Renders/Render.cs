@@ -68,7 +68,7 @@ public class Render(Delegate function) : DynamicObject, ICurryable
 
     private void LoadContextIfFirstRun()
     {
-        if (context is null)
+        if (context is not null)
             return;
         
         context = GlobalRenderContext.CreateContext();
