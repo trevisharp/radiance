@@ -55,9 +55,9 @@ public class PipelineContext(Action pipelineFunction)
 
     void Load()
     {
-        if (render is not null)
+        if (renders is not null)
             return;
-        render = [];
+        renders = [];
 
         SetContext(this);
         pipelineFunction();

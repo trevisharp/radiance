@@ -19,6 +19,12 @@ public class PipelineCollection : IEnumerable<PipelineContext>
         pipelines.Add(ctx);
         return this;
     }
+    
+    public PipelineCollection Remove(PipelineContext ctx)
+    {
+        pipelines.Remove(ctx);
+        return this;
+    }
 
     public void Render()
     {

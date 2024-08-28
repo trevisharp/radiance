@@ -239,12 +239,12 @@ public static class Utils
     /// <summary>
     /// Return the time when t is zero.
     /// </summary>
-    public static DateTime ZeroTime => timeDep.ZeroTime;
+    public static DateTime ZeroTime => Clock.ZeroTime;
 
     /// <summary>
-    /// Return the time in seconds of application.
+    /// Return the time in seconds of application using the Clock.Shared.
     /// </summary>
-    public static float Time => timeDep.Seconds;
+    public static float Time => Clock.Shared.Time;
     
     /// <summary>
     /// Create and get a new empty polygon.

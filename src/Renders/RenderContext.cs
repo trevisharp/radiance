@@ -79,7 +79,7 @@ public class RenderContext
     {
         var shaderCtx = new ShaderContext();
         var (vertSource, vertSetup, fragSoruce, fragSetup) = 
-            GenerateShaders(Position, Color);
+            GenerateShaders(Position, Color, shaderCtx);
         
         var program = RenderProgram.CreateProgram(
             vertSource, fragSoruce, IsVerbose
@@ -107,7 +107,7 @@ public class RenderContext
     }
 
     private (string vertSrc, Action vertStp, string fragSrc, Action fragStp) GenerateShaders(
-        Vec3ShaderObject vertObj, Vec4ShaderObject fragObj
+        Vec3ShaderObject vertObj, Vec4ShaderObject fragObj, ShaderContext ctx
     )
     {
         StringBuilder getCodeBuilder()
@@ -136,13 +136,13 @@ public class RenderContext
         foreach (var dep in vertDeps)
         {
             dep.AddHeader(vertSb);
-            vertStp += dep.AddOperation(this);
+            vertStp += dep.AddOperation(ctx);
         }
 
         foreach (var dep in fragDeps)
         {
             dep.AddHeader(fragSb);
-            vertStp += dep.AddOperation(this);
+            vertStp += dep.AddOperation(ctx);
         }
         
         foreach (var dep in allDeps)
@@ -150,8 +150,8 @@ public class RenderContext
             dep.AddVertexHeader(vertSb);
             dep.AddFragmentHeader(fragSb);
 
-            vertStp += dep.AddVertexOperation(this);
-            fragStp += dep.AddFragmentOperation(this);
+            vertStp += dep.AddVertexOperation(ctx);
+            fragStp += dep.AddFragmentOperation(ctx);
         }
         
         fragSb.AppendLine("out vec4 outColor;");

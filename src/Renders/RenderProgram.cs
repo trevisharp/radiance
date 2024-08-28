@@ -1,10 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/08/2024
+ * Date:    28/08/2024
  */
 using System;
-using System.Text;
-using System.Linq;
-using System.Threading;
 using System.Collections.Generic;
 
 using static System.Console;
@@ -13,11 +10,6 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace Radiance.Renders;
-
-using Data;
-using Shaders;
-using Shaders.Objects;
-
 /// <summary>
 /// The manager for shaders and programs mapped to OpenGL.
 /// </summary>
@@ -46,13 +38,13 @@ public static class RenderProgram
     /// </summary>
     private static int CreateVertexShader(
         string source,
-        bool verbose = false
+        bool verbose,
         ref int tabIndex)
     {
         Start("Vertex Shader Creation", verbose, ref tabIndex);
         var shader = CreateShader(
             OpenTKShaderType.VertexShader,
-            source, verbose
+            source, verbose, ref tabIndex
         );
         Success("Shader Created!", verbose, ref tabIndex);
         return shader;
@@ -63,10 +55,10 @@ public static class RenderProgram
     /// </summary>
     private static int CreateFragmentShader(
         string source,
-        bool verbose = false
+        bool verbose,
         ref int tabIndex)
     {
-        Start("Creating Fragment Shader...", ref tabIndex);
+        Start("Creating Fragment Shader...", verbose, ref tabIndex);
         var shader = CreateShader(
             OpenTKShaderType.FragmentShader,
             source, verbose, ref tabIndex
@@ -82,7 +74,7 @@ public static class RenderProgram
         ref int tabIndex)
     {
         Information("Getting Shader...", verbose, ref tabIndex);
-        Code(vertSource, verbose, ref tabIndex);
+        Code(source, verbose, ref tabIndex);
 
         var hash = source.GetHashCode();
         Information($"Hash: {hash}", verbose, ref tabIndex);
@@ -119,10 +111,10 @@ public static class RenderProgram
     private static int CreateProgram(
         int vertexShader, 
         int fragmentShader,
-        bool verbose = false,
+        bool verbose,
         ref int tabIndex)
     {
-        Start("Creating Program...", ref tabIndex);
+        Start("Creating Program...", verbose, ref tabIndex);
         var programKey = (vertexShader, fragmentShader);
         if (programMap.TryGetValue(programKey, out int reusingProgram))
         {
@@ -148,7 +140,7 @@ public static class RenderProgram
             Error($"Error occurred Program({program}) linking.", verbose, ref tabIndex);
         
         programMap.Add(programKey, program);
-        Success("Program Created!!", ref tabIndex);
+        Success("Program Created!!", verbose, ref tabIndex);
         return program;
     }
 
@@ -162,28 +154,28 @@ public static class RenderProgram
     )
     {
         int tabIndex = 0;
-        var vertexShader = CreateVertexShader(vertSource, verbose, ref tabIndex);
-        var fragmentShader = CreateFragmentShader(fragSoruce, verbose, ref tabIndex);
+        var vertexShader = CreateVertexShader(vertexSource, verbose, ref tabIndex);
+        var fragmentShader = CreateFragmentShader(fragmentSource, verbose, ref tabIndex);
         int program = CreateProgram(vertexShader, fragmentShader, verbose, ref tabIndex);
         return program;
     }
 
-    private void Error(string message = "", bool verbose = false, ref int tabIndex)
+    static void Error(string message, bool verbose, ref int tabIndex)
         => Verbose(message, ConsoleColor.White, ConsoleColor.Red, tabIndex, verbose);
     
-    private void Information(string message = "", bool verbose = false, ref int tabIndex)
+    static void Information(string message, bool verbose, ref int tabIndex)
         => Verbose(message, ConsoleColor.Green, ConsoleColor.Black, tabIndex, verbose);
     
-    private void Success(string message = "", bool verbose = false, ref int tabIndex)
+    static void Success(string message, bool verbose, ref int tabIndex)
         => Verbose(message + "\n", ConsoleColor.Blue, ConsoleColor.Black, --tabIndex, verbose);
     
-    private void Code(string message = "", bool verbose = false, ref int tabIndex)
+    static void Code(string message, bool verbose, ref int tabIndex)
         => Verbose(message, ConsoleColor.DarkYellow, ConsoleColor.Black, tabIndex + 1, verbose);
 
-    private void Start(string message = "", bool verbose = false, ref int tabIndex)
+    static void Start(string message, bool verbose, ref int tabIndex)
         => Verbose("Start: " + message, ConsoleColor.Magenta, ConsoleColor.Black, tabIndex++, verbose);
 
-    private void Verbose(
+    static void Verbose(
         string text, 
         ConsoleColor fore = ConsoleColor.White,
         ConsoleColor back = ConsoleColor.Black,
