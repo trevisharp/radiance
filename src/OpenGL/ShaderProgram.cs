@@ -12,7 +12,7 @@ namespace Radiance.OpenGL;
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public class ProgramData
+public class ShaderProgram
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];
@@ -41,7 +41,7 @@ public class ProgramData
     /// <summary>
     /// Get or set the OpenGL Program Id associated to this context.
     /// </summary>
-    public int Program { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Get the count of textures loaded on this context.
@@ -53,7 +53,7 @@ public class ProgramData
     /// </summary>
     public void SetFloat(string name, float value)
     {
-        var code = GL.GetUniformLocation(Program, name);
+        var code = GL.GetUniformLocation(Id, name);
         GL.Uniform1(code, value);
     }
 
@@ -63,7 +63,7 @@ public class ProgramData
     public void SetTextureData(string name, Texture texture)
     {
         var id = ActivateImage(texture.ImageData);
-        var code = GL.GetUniformLocation(Program, name);
+        var code = GL.GetUniformLocation(Id, name);
         GL.Uniform1(code, id);
     }
     
