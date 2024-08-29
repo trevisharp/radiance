@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    19/02/2024
+ * Date:    29/08/2024
  */
 using System;
 using System.Linq;
@@ -9,16 +9,19 @@ using System.Runtime.Intrinsics.X86;
 using System.Runtime.Intrinsics.Arm;
 using System.Numerics;
 
-namespace Radiance.Internal;
+namespace Radiance.Data;
 
 /// <summary>
-/// Contains operations to transform vectors data
+/// A class that contains some util and opeartions.
 /// </summary>
-internal static class VectorsOperations
+public static class Operations
 {
     private const int sortTreshold = 8;
 
-    internal static (float a, float b, float c, float d) PlaneRegression(float[] pts)
+    /// <summary>
+    /// Find a plane (ax + by + cz + d = 0) that better match the points
+    /// </summary>
+    public static (float a, float b, float c, float d) PlaneRegression(float[] pts)
     {
         /*
         E = S (a*x_i + b*y_i + c*z_i + d)^2 / N
@@ -128,7 +131,7 @@ internal static class VectorsOperations
     /// Get a triangulation of a polygon with points in a
     /// clockwise order.
     /// </summary>
-    internal static float[] PlanarPolygonTriangulation(float[] pts)
+    public static float[] PlanarPolygonTriangulation(float[] pts)
     {
         var N = pts.Length / 3;
         if (N < 4)
@@ -137,8 +140,8 @@ internal static class VectorsOperations
         var triangules = new List<float>();
         
         var plane = PlaneRegression(pts);
-        var points = toPlanarPoints(pts, plane);
-        var orderMap = sort(points, 5, 3, 4);
+        var points = ToPlanarPoints(pts, plane);
+        var orderMap = Sort(points, 5, 3, 4);
         var edges = new PolygonEdgeCollection(N);
         var status = new OrderedEdgeCollection(points, 3, 4);
         var visited = new bool[N];
@@ -147,13 +150,13 @@ internal static class VectorsOperations
         // TODO
         // monotone subdivision
         
-        monotonePlaneTriangulation(orderMap, 
+        MonotonePlaneTriangulation(orderMap, 
             points, triangules, 5
         );
         return triangules.ToArray();
     }
 
-    private static void monotonePlaneTriangulation(
+    private static void MonotonePlaneTriangulation(
         int[] polyOrderMap, float[] data,
         List<float> triangules, int dataSize
     )
@@ -270,18 +273,18 @@ internal static class VectorsOperations
         }
     }
 
-    private static int[] sort(float[] data, int size, int offsetA, int offsetB = -1)
+    private static int[] Sort(float[] data, int size, int offsetA, int offsetB = -1)
     {
         var orderMap = new int[data.Length / size];
         for (int i = 0, n = 0; i < orderMap.Length; i++, n += size)
             orderMap[i] = n;
 
-        quickSort(data, offsetA, offsetB, size, orderMap, 0, orderMap.Length);
+        QuickSort(data, offsetA, offsetB, size, orderMap, 0, orderMap.Length);
 
         return orderMap;
     }
 
-    private static void quickSort(
+    private static void QuickSort(
         float[] data, int offsetA, int offsetB, int size, 
         int[] map, int start, int end
     )
@@ -289,7 +292,7 @@ internal static class VectorsOperations
         int len = end - start;
         if (len < sortTreshold)
         {
-            slowSort(data, offsetA, offsetB, size, map, start, end);
+            SlowSort(data, offsetA, offsetB, size, map, start, end);
             return;
         }
 
@@ -322,15 +325,12 @@ internal static class VectorsOperations
         if (data[map[j] + offsetA] < pivo)
             j++;
 
-        var oldPivo = map[j];
-        map[j] = map[end - 1];
-        map[end - 1] = oldPivo;
-
-        quickSort(data, offsetA, offsetB, size, map, start, j);
-        quickSort(data, offsetA, offsetB, size, map, j, end);
+        (map[end - 1], map[j]) = (map[j], map[end - 1]);
+        QuickSort(data, offsetA, offsetB, size, map, start, j);
+        QuickSort(data, offsetA, offsetB, size, map, j, end);
     }
 
-    private static void slowSort(
+    private static void SlowSort(
         float[] data, int offsetA, int offsetB, int size, 
         int[] map, int start, int end
     )
@@ -363,7 +363,7 @@ internal static class VectorsOperations
         }
     }
     
-    private static float[] toPlanarPoints(float[] original, (float a, float b, float c, float d) plane)
+    private static float[] ToPlanarPoints(float[] original, (float a, float b, float c, float d) plane)
     {
         var result = new float[5 * original.Length / 3];
         int n = 0;
@@ -466,5 +466,45 @@ internal static class VectorsOperations
         }
         
         return result;
+    }
+
+    internal class PolygonEdgeCollection(int verticesCount)
+    {
+        readonly int last = verticesCount - 1;
+        readonly List<int>[] list = new List<int>[verticesCount];
+
+        internal List<int> GetConnections(int i)
+        {
+            Init(i);
+            return list[i];
+        }
+
+        internal bool IsConnected(int i, int j)
+        {
+            if (i == j)
+                return false;
+            
+            Init(i);
+            return list[i].Contains(j);
+        }
+
+        internal void Connect(int i, int j)
+        {
+            Init(i);
+            Init(j);
+            list[i].Add(j);
+            list[j].Add(i);
+        }
+
+        private void Init(int index)
+        {
+            if (list[index] is not null)
+                return;
+            
+            list[index] = [
+                index == last ? 0 : index + 1,
+                index == 0 ? last : index - 1
+            ];
+        }
     }
 }

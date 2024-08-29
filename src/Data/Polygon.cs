@@ -11,14 +11,14 @@ namespace Radiance.Data;
 /// <summary>
 /// A base type for all polygons and lines.
 /// </summary>
-public abstract class Points : IEnumerable<float>
+public abstract class Polygon : IEnumerable<float>
 {
-    private MutablePolygon triangulationPair = null;
+    private Polygon triangulationPair = null;
 
     /// <summary>
     /// Get the triangulation of this polygon.
     /// </summary>
-    public Points Triangulation
+    public Polygon Triangulation
     {
         get
         {
@@ -54,25 +54,25 @@ public abstract class Points : IEnumerable<float>
     /// <summary>
     /// Add a point in polygon with z = 0.
     /// </summary>
-    public Points Add(Vec2 point)
+    public Polygon Add(Vec2 point)
         => Add(point.X, point.Y, 0);
     
     /// <summary>
     /// Add a point in polygon.
     /// </summary>
-    public Points Add(Vec3 point)
+    public Polygon Add(Vec3 point)
         => Add(point.X, point.Y, point.Z);
     
     /// <summary>
     /// Add a point in polygon with z = 0.
     /// </summary>
-    public Points Add(float x, float y)
+    public Polygon Add(float x, float y)
         => Add(x, y, 0);
     
     /// <summary>
     /// Add a point in polygon.
     /// </summary>
-    public Points Add(float x, float y, float z)
+    public Polygon Add(float x, float y, float z)
     {
         add(x, y, z);
         if (OnChange is not null)
@@ -85,12 +85,12 @@ public abstract class Points : IEnumerable<float>
     /// <summary>
     /// Create a copy of this polygon.
     /// </summary>
-    public abstract Points Clone();
+    public abstract Polygon Clone();
 
     /// <summary>
     /// Get a immutable copy of this polygon.
     /// </summary>
-    public virtual Points ToImmutable()
+    public virtual Polygon ToImmutable()
         => new ImmutablePolygon(Data);
 
     /// <summary>
@@ -104,7 +104,7 @@ public abstract class Points : IEnumerable<float>
     IEnumerator IEnumerable.GetEnumerator()
         => Data.GetEnumerator();
 
-    public static implicit operator Points(List<Vec3> pts)
+    public static implicit operator Polygon(List<Vec3> pts)
     {
         var polygon = new MutablePolygon();
         foreach (var pt in pts)
