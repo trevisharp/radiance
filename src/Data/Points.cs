@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace Radiance.Data;
 
 /// <summary>
-/// A base type for all polygons.
+/// A base type for all polygons and lines.
 /// </summary>
 public abstract class Points : IEnumerable<float>
 {
