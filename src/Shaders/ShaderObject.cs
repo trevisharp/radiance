@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    24/01/2024
+ * Date:    29/08/2024
  */
 using System;
 using System.Linq;
@@ -26,14 +26,6 @@ public abstract class ShaderObject(
 
     public override string ToString()
         => Expression;
-
-    public static implicit operator ShaderObject(float value) => value;
-    public static implicit operator ShaderObject(double value) => (float)value;
-    public static implicit operator ShaderObject(int value) => value;
-    public static implicit operator ShaderObject(bool value) => value;
-    public static implicit operator ShaderObject((float x, float y) value) => value;
-    public static implicit operator ShaderObject((float x, float y, float z) value) => value;
-    public static implicit operator ShaderObject((float x, float y, float z, float w) value) => value;
     
     public static R Union<R>(string newExpression, params ShaderObject[] objs)
         where R : ShaderObject
