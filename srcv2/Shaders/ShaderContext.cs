@@ -46,7 +46,7 @@ public class ShaderContext
     public int Program { get; set; }
 
     /// <summary>
-    /// Get the count of textures loaded on this conctext.
+    /// Get the count of textures loaded on this context.
     /// </summary>
     public int TextureCount { get; private set; }
     
