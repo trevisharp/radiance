@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/08/2024
+ * Date:    29/08/2024
  */
 using System.Linq;
 using System.Collections.Generic;
@@ -12,7 +12,7 @@ namespace Radiance.Shaders;
 using Data;
 
 /// <summary>
-/// Represents the state of shader generation.
+/// Represents the data and state of a shader program.
 /// </summary>
 public class ShaderContext
 {
@@ -43,7 +43,7 @@ public class ShaderContext
     /// <summary>
     /// Get or set the OpenGL Program Id associated to this context.
     /// </summary>
-    public int Program { get; set; }
+    public int Id { get; set; }
 
     /// <summary>
     /// Get the count of textures loaded on this context.
@@ -55,7 +55,7 @@ public class ShaderContext
     /// </summary>
     public void SetFloat(string name, float value)
     {
-        var code = GL.GetUniformLocation(Program, name);
+        var code = GL.GetUniformLocation(Id, name);
         GL.Uniform1(code, value);
     }
 
@@ -65,7 +65,7 @@ public class ShaderContext
     public void SetTextureData(string name, Texture texture)
     {
         var id = ActivateImage(texture.ImageData);
-        var code = GL.GetUniformLocation(Program, name);
+        var code = GL.GetUniformLocation(Id, name);
         GL.Uniform1(code, id);
     }
     

@@ -7,7 +7,7 @@ using System.Text;
 namespace Radiance.Shaders;
 
 /// <summary>
-/// Represents a dependence .
+/// Represents a dependence for shaders creation and execution.
 /// </summary>
 public abstract class ShaderDependence
 {
@@ -45,17 +45,17 @@ public abstract class ShaderDependence
     /// Add operation to be executed to load dependence data in the current
     /// shader of the dependence.
     /// </summary>
-    public virtual Action AddOperation(ShaderContext ctx) => null;
+    public virtual Action AddOperation(ShaderContext ctx) => null!;
     
     /// <summary>
     /// Add operation to be executed to load dependence data vertex shader.
     /// </summary>
-    public virtual Action AddVertexOperation(ShaderContext ctx) => null;
+    public virtual Action AddVertexOperation(ShaderContext ctx) => null!;
     
     /// <summary>
     /// Add operation to be executed to load dependence data fragment shader.
     /// </summary>
-    public virtual Action AddFragmentOperation(ShaderContext ctx) => null;
+    public virtual Action AddFragmentOperation(ShaderContext ctx) => null!;
 
     /// <summary>
     /// Add code in the final of current shader of this dependence.
