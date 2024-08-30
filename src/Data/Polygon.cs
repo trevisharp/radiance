@@ -25,7 +25,7 @@ public abstract class Polygon : IEnumerable<float>
             if (triangulationPair is not null)
                 return triangulationPair;
             
-            var triangules = VectorsOperations
+            var triangules = Operations
                 .PlanarPolygonTriangulation(Data.ToArray());
             
             MutablePolygon polygon = [];
