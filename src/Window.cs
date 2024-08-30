@@ -22,16 +22,14 @@ public static class Window
             throw new ArgumentNullException(nameof(Factory));
     }
 
-    private static BaseWindow? current = null;
-    public static BaseWindow Current
-    {
-        get
-        {
-            current ??= factory.New(true);
-            return current;
-        }
-        set => current = value;
-    }
+    public static BaseWindow New(bool fullscreen = true)
+        => Factory.New(fullscreen);
+    
+    public static void Reset(bool fullscreen)
+        => current = New(fullscreen);
+
+    private static BaseWindow current = New();
+    public static BaseWindow Current => current;
 
     /// <summary>
     /// Return true if screen is Open.
@@ -86,13 +84,7 @@ public static class Window
     /// Set inputs to close the application.
     /// </summary>
     public static void CloseOn(Input input)
-    {
-        OnKeyDown += (e, m) =>
-        {
-            if (e == input && (m & Modifier.ActiveModifier) == 0)
-                Close();
-        };
-    }
+        => Current.CloseOn(input);
     
     /// <summary>
     /// The time between the current and the last frame.
