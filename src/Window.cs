@@ -1,25 +1,47 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    16/08/2024
+ * Date:    30/08/2024
  */
 using System;
 
-using OpenTK.Windowing.Common;
 using OpenTK.Graphics.OpenGL4;
+using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
 namespace Radiance;
 
 using Data;
-using Internal;
-using Pipelines;
 
 /// <summary>
 /// Represents the main windows that applications run
 /// </summary>
 public static class Window
 {
+    class TimeFrameController
+    {
+        DateTime newer = DateTime.UtcNow;
+        DateTime older = DateTime.UtcNow;
+
+        public void RegisterFrame()
+        {
+            older = newer;
+            newer = DateTime.UtcNow;
+        }
+
+        public float DeltaTime
+        {
+            get
+            {
+                var delta = newer - older;
+                var time = delta.TotalSeconds;
+                return (float)time;
+            }
+        }
+
+        public float Fps => 1.0f / DeltaTime;
+    }
+
     private static readonly TimeFrameController frameController = new();
-    private static GameWindow win;
+    private static GameWindow? win;
     private static int width = -1;
     private static int height = -1;
 
@@ -108,7 +130,8 @@ public static class Window
         {
             GL.Clear(ClearBufferMask.ColorBufferBit);
             
-            OnRender?.Render();
+            if (Render is not null)
+                Render();
 
             win.SwapBuffers();
         };
@@ -212,8 +235,8 @@ public static class Window
     /// </summary>
     public static void Close()
     {
-        win.Close();
-        win.Dispose();
+        win?.Close();
+        win?.Dispose();
         IsOpen = false;
     }
 
@@ -245,21 +268,33 @@ public static class Window
     public static float DeltaTime => frameController.DeltaTime;
     public static float Fps => frameController.Fps;
     
-    public static PipelineCollection OnRender { get; set; } = [];
+    // TODO: Pipeline generation process
+    static event Action? Render;
+    public static event Action OnRender
+    {
+        add
+        {
+            Render += value;
+        }
+        remove
+        {
+            Render -= value;
+        }
+    }
 
-    public static event Action OnLoad;
-    public static event Action OnUnload;
-    public static event Action OnFrame;
+    public static event Action? OnLoad;
+    public static event Action? OnUnload;
+    public static event Action? OnFrame;
 
-    public static event Action<Input, Modifier> OnKeyDown;
-    public static event Action<Input, Modifier> OnKeyUp;
+    public static event Action<Input, Modifier>? OnKeyDown;
+    public static event Action<Input, Modifier>? OnKeyUp;
 
-    public static event Action<(float x, float y)> OnMouseMove;
-    public static event Action<MouseButton> OnMouseDown;
-    public static event Action<MouseButton> OnMouseUp;
-    public static event Action<float> OnMouseWhell;
-    public static event Action OnMouseEnter;
-    public static event Action OnMouseLeave;
+    public static event Action<(float x, float y)>? OnMouseMove;
+    public static event Action<MouseButton>? OnMouseDown;
+    public static event Action<MouseButton>? OnMouseUp;
+    public static event Action<float>? OnMouseWhell;
+    public static event Action? OnMouseEnter;
+    public static event Action? OnMouseLeave;
 
     private static void UpdateSize(GameWindow win)
     {

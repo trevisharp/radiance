@@ -41,37 +41,37 @@ public struct Clock
     /// <summary>
     /// Get the total time passed from the last Freeze() call.
     /// </summary>
-    private float LastFreezedTime => IsFreezed ? Seconds - startFreezedTime.Value : 0;
+    readonly float LastFreezedTime => IsFreezed ? Seconds - startFreezedTime!.Value : 0;
 
     /// <summary>
     /// Get the total time that this clock has freezed.
     /// </summary>
-    private float TotalFreezedTime => oldFreezedTime + LastFreezedTime;
+    readonly float TotalFreezedTime => oldFreezedTime + LastFreezedTime;
 
     /// <summary>
     /// Get the current time considering only unfreezed times.
     /// </summary>
-    private float UnfreezedTime => Seconds - TotalFreezedTime;
+    readonly float UnfreezedTime => Seconds - TotalFreezedTime;
 
     /// <summary>
     /// Get the current time. If the clock is holded, return the last hold time.
     /// </summary>
-    private float Now => holdedTime ?? UnfreezedTime;
+    readonly float Now => holdedTime ?? UnfreezedTime;
     
     /// <summary>
     /// Get current type between now or a holded time and last Reset in seconds.
     /// </summary>
-    public float Time => Now - lastResetStart;
+    public readonly float Time => Now - lastResetStart;
 
     /// <summary>
     /// Return if the Clock is freezed.
     /// </summary>
-    public bool IsFreezed => startFreezedTime is not null;
+    public readonly bool IsFreezed => startFreezedTime is not null;
 
     /// <summary>
     /// Return if the Clock is holding a time.
     /// </summary>
-    public bool IsHolded => holdedTime is not null;
+    public readonly bool IsHolded => holdedTime is not null;
 
     /// <summary>
     /// Hold the current time has a now time.
@@ -102,7 +102,7 @@ public struct Clock
         if (!IsFreezed)
             return;
         
-        oldFreezedTime += Seconds - startFreezedTime.Value;
+        oldFreezedTime += Seconds - startFreezedTime!.Value;
         startFreezedTime = null;
     }
 
