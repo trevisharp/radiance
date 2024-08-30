@@ -3,255 +3,84 @@
  */
 using System;
 
-using OpenTK.Graphics.OpenGL4;
-using OpenTK.Windowing.Common;
-using OpenTK.Windowing.Desktop;
-
 namespace Radiance;
 
 using Data;
+using Windows;
+using Windows.OpenGL;
 
 /// <summary>
-/// Represents the main windows that applications run
+/// Global singleton reference to window in use. 
 /// </summary>
 public static class Window
 {
-    class TimeFrameController
+    private static WindowFactory factory = new OpenGLWindowFactory();
+    public static WindowFactory Factory
     {
-        DateTime newer = DateTime.UtcNow;
-        DateTime older = DateTime.UtcNow;
-
-        public void RegisterFrame()
-        {
-            older = newer;
-            newer = DateTime.UtcNow;
-        }
-
-        public float DeltaTime
-        {
-            get
-            {
-                var delta = newer - older;
-                var time = delta.TotalSeconds;
-                return (float)time;
-            }
-        }
-
-        public float Fps => 1.0f / DeltaTime;
+        get => factory;
+        set => factory = value ?? 
+            throw new ArgumentNullException(nameof(Factory));
     }
 
-    private static readonly TimeFrameController frameController = new();
-    private static GameWindow? win;
-    private static int width = -1;
-    private static int height = -1;
+    private static BaseWindow? current = null;
+    public static BaseWindow Current
+    {
+        get
+        {
+            current ??= factory.New(true);
+            return current;
+        }
+        set => current = value;
+    }
 
     /// <summary>
     /// Return true if screen is Open.
     /// </summary>
-    public static bool IsOpen { get; private set; } = false;
+    public static bool IsOpen => Current.IsOpen;
 
     /// <summary>
     /// The width of the screen.
     /// </summary>
-    public static int Width => width;
+    public static int Width => Current.Width;
 
     /// <summary>
     /// The height of the screen.
     /// </summary>
-    public static int Height => height;
+    public static int Height => Current.Height;
 
     /// <summary>
     /// Get and set if the cursor is visible.
     /// </summary>
     public static bool CursorVisible
     {
-        get => win?.CursorState != CursorState.Hidden;
-        set
-        {
-            if (win is null)
-                return;
-            
-            win.CursorState = value ? CursorState.Normal : CursorState.Hidden;
-        }
+        get => Current.CursorVisible;
+        set => Current.CursorVisible = value;
     }
 
     /// <summary>
     /// Open main application window.
     /// </summary>
-    public static void Open(bool fullscreen = true, bool autoMinimize = true)
-    {
-        win = new(
-            GameWindowSettings.Default,
-            new NativeWindowSettings()
-            {
-                ClientSize = (800, 600),
-                WindowState =
-                    fullscreen ?
-                    WindowState.Fullscreen :
-                    WindowState.Normal,
-                AutoIconify = autoMinimize
-            }
-        )
-        {
-            CursorState = CursorState.Normal
-        };
-
-        win.Resize += e =>
-        {
-            UpdateSize(win);
-        };
-
-        win.Load += () =>
-        {
-            IsOpen = true;
-            GL.Enable(EnableCap.Blend);
-            GL.Enable(EnableCap.LineSmooth);
-            GL.BlendFunc(
-                BlendingFactor.SrcAlpha, 
-                BlendingFactor.OneMinusSrcAlpha
-            );
-
-            UpdateSize(win);
-            
-            if (OnLoad is null)
-                return;
-            OnLoad();
-        };
-
-        win.Unload += () =>
-        {
-            if (OnUnload is null)
-                return;
-            
-            OnUnload();
-        };
-
-        win.RenderFrame += e =>
-        {
-            GL.Clear(ClearBufferMask.ColorBufferBit);
-            
-            if (Render is not null)
-                Render();
-
-            win.SwapBuffers();
-        };
-
-        win.UpdateFrame += e =>
-        {
-            frameController.RegisterFrame();
-
-            if (OnFrame is null)
-                return;
-            
-            OnFrame();
-        };
-
-        win.KeyDown += e =>
-        {
-            if (OnKeyDown is null)
-                return;
-
-            Input input = (Input)e.Key;
-            Modifier modifier = (Modifier)e.Modifiers;
-            OnKeyDown(input, modifier);
-        };
-
-        win.KeyUp += e =>
-        {
-            if (OnKeyUp is null)
-                return;
-
-            Input input = (Input)e.Key;
-            Modifier modifier = (Modifier)e.Modifiers;
-            OnKeyUp(input, modifier);
-        };
-
-        win.MouseDown += e =>
-        {
-            if (OnMouseDown is null)
-                return;
-            
-            MouseButton button = (MouseButton)e.Button;
-            OnMouseDown(button);
-        };
-
-        win.MouseUp += e =>
-        {
-            if (OnMouseUp is null)
-                return;
-            
-            MouseButton button = (MouseButton)e.Button;
-            OnMouseUp(button);
-        };
-
-        win.MouseMove += e =>
-        {
-            if (OnMouseMove is null)
-                return;
-            
-            OnMouseMove((e.X, Height - e.Y));
-        };
-
-        win.MouseWheel += e =>
-        {
-            if (OnMouseWhell is null)
-                return;
-            
-            OnMouseWhell(e.OffsetY);
-        };
-
-        win.MouseEnter += () =>
-        {
-            if (OnMouseEnter is null)
-                return;
-            
-            OnMouseEnter();
-        };
-
-        win.MouseLeave += () =>
-        {
-            if (OnMouseLeave is null)
-                return;
-            
-            OnMouseLeave();
-        };
-        
-        win.Run();
-    }
+    public static void Open(bool fullscreen = true)
+        => Current.Open(fullscreen);
 
     /// <summary>
     /// Run a function only if the window is open, else
     /// schedule execution.
     /// </summary>
     public static void RunOrSchedule(Action func)
-    {
-        if (IsOpen)
-            func();
-        else OnLoad += func;
-    }
+        => Current.RunOrSchedule(func);
 
     /// <summary>
     /// Close main application window.
     /// </summary>
     public static void Close()
-    {
-        win?.Close();
-        win?.Dispose();
-        IsOpen = false;
-    }
+        => Current.Close();
 
     /// <summary>
     /// Clear the background without use any render.
     /// </summary>
     public static void Clear(Vec4 color)
-    {
-        GL.ClearColor(
-            color.X,
-            color.Y,
-            color.Z,
-            color.W
-        );
-    }
+        => Current.Clear(color);
 
     /// <summary>
     /// Set inputs to close the application.
@@ -265,46 +94,86 @@ public static class Window
         };
     }
     
-    public static float DeltaTime => frameController.DeltaTime;
-    public static float Fps => frameController.Fps;
+    /// <summary>
+    /// The time between the current and the last frame.
+    /// </summary>
+    public static float DeltaTime => Current.DeltaTime;
+
+    /// <summary>
+    /// Current Frames Per Second for this application.
+    /// </summary>
+    public static float Fps => Current.Fps;
     
-    // TODO: Pipeline generation process
-    static event Action? Render;
     public static event Action OnRender
     {
-        add
-        {
-            Render += value;
-        }
-        remove
-        {
-            Render -= value;
-        }
+        add => Current.OnRender += value;
+        remove => Current.OnRender -= value;
     }
 
-    public static event Action? OnLoad;
-    public static event Action? OnUnload;
-    public static event Action? OnFrame;
-
-    public static event Action<Input, Modifier>? OnKeyDown;
-    public static event Action<Input, Modifier>? OnKeyUp;
-
-    public static event Action<(float x, float y)>? OnMouseMove;
-    public static event Action<MouseButton>? OnMouseDown;
-    public static event Action<MouseButton>? OnMouseUp;
-    public static event Action<float>? OnMouseWhell;
-    public static event Action? OnMouseEnter;
-    public static event Action? OnMouseLeave;
-
-    private static void UpdateSize(GameWindow win)
+    public static event Action OnLoad
     {
-        if (win is null)
-            return;
-        
-        var size = (System.Drawing.Size)win.Size;
+        add => Current.OnLoad += value;
+        remove => Current.OnLoad -= value;
+    }
 
-        width = size.Width;
-        height = size.Height;
-        GL.Viewport(0, 0, width, height);
+    public static event Action OnUnload
+    {
+        add => Current.OnUnload += value;
+        remove => Current.OnUnload -= value;
+    }
+
+    public static event Action OnFrame
+    {
+        add => Current.OnFrame += value;
+        remove => Current.OnFrame -= value;
+    }
+
+    public static event Action<Input, Modifier> OnKeyDown
+    {
+        add => Current.OnKeyDown += value;
+        remove => Current.OnKeyDown -= value;
+    }
+
+    public static event Action<Input, Modifier> OnKeyUp
+    {
+        add => Current.OnKeyUp += value;
+        remove => Current.OnKeyUp -= value;
+    }
+    
+
+    public static event Action<(float x, float y)> OnMouseMove
+    {
+        add => Current.OnMouseMove += value;
+        remove => Current.OnMouseMove -= value;
+    }
+    
+    public static event Action<MouseButton> OnMouseDown
+    {
+        add => Current.OnMouseDown += value;
+        remove => Current.OnMouseDown -= value;
+    }
+    
+    public static event Action<MouseButton> OnMouseUp
+    {
+        add => Current.OnMouseUp += value;
+        remove => Current.OnMouseUp -= value;
+    }
+    
+    public static event Action<float> OnMouseWhell
+    {
+        add => Current.OnMouseWhell += value;
+        remove => Current.OnMouseWhell -= value;
+    }
+    
+    public static event Action OnMouseEnter
+    {
+        add => Current.OnMouseEnter += value;
+        remove => Current.OnMouseEnter -= value;
+    }
+    
+    public static event Action OnMouseLeave
+    {
+        add => Current.OnMouseLeave += value;
+        remove => Current.OnMouseLeave -= value;
     }
 }
