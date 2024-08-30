@@ -521,8 +521,9 @@ public static class Operations
                 crr = crr.Previous;
             }
 
-            var first = edges.First.Value;
-            return (first.vi, first.vj);
+            var first = edges.First!;
+            var value = first.Value;
+            return (value.vi, value.vj);
         }
 
         internal void RemoveEdge(int vi, int vj)

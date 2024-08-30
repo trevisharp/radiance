@@ -13,7 +13,7 @@ namespace Radiance.Data;
 /// </summary>
 public abstract class Polygon : IEnumerable<float>
 {
-    private Polygon triangulationPair = null;
+    private Polygon triangulationPair = null!;
 
     /// <summary>
     /// Get the triangulation of this polygon.
@@ -74,13 +74,13 @@ public abstract class Polygon : IEnumerable<float>
     /// </summary>
     public Polygon Add(float x, float y, float z)
     {
-        add(x, y, z);
+        AddPoint(x, y, z);
         if (OnChange is not null)
             OnChange(true, true);
         return this;
     }
 
-    protected abstract void add(float x, float y, float z);
+    protected abstract void AddPoint(float x, float y, float z);
     
     /// <summary>
     /// Create a copy of this polygon.
@@ -96,7 +96,7 @@ public abstract class Polygon : IEnumerable<float>
     /// <summary>
     /// Event called when data is changed.
     /// </summary>
-    public Action<bool, bool> OnChange;
+    public Action<bool, bool>? OnChange;
 
     public IEnumerator<float> GetEnumerator()
         => Data.GetEnumerator();
