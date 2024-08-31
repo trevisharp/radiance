@@ -19,7 +19,24 @@ using Shaders.Dependencies;
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
 /// </summary>
-public class Render
+public class Render(
+    Delegate function,
+    params object[] curryingArguments
+    ) : DynamicObject
 {
+    public override bool TryInvoke(
+        InvokeBinder binder,
+        object?[]? args,
+        out object? result)
+    {
+        throw new NotImplementedException();
+    }
 
+    public Render Curry(params object[] args)
+        => new(function, [ ..curryingArguments, ..args ]);
+
+    public static implicit operator Action(Render render)
+    {
+        throw new NotImplementedException();
+    }
 }
