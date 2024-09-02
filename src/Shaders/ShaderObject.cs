@@ -46,8 +46,8 @@ public abstract class ShaderObject(
 
         var newObj = Activator.CreateInstance(
             typeof(R), newExpression, originInfo.origin, deps
-        );
-        return newObj as R;
+        ) as R;
+        return newObj!;
     }
 
     private static (ShaderOrigin origin, bool hasConflitct) unionOrigin(IEnumerable<ShaderOrigin> origins)
@@ -76,7 +76,7 @@ public abstract class ShaderObject(
         var newObj = Activator.CreateInstance(
             typeof(R), newExpression,
             obj.Origin, obj.Dependencies
-        );
-        return newObj as R;
+        ) as R;
+        return newObj!;
     }
 }

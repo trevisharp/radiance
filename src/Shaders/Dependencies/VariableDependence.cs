@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Internal;
+using CodeGen;
 
 /// <summary>
 /// Represents dependence of a variable definition in shader code.

@@ -13,7 +13,7 @@ using Data;
 /// </summary>
 public class TextureDependence(string textureName) : ShaderDependence
 {
-    private Texture texture = null;
+    private Texture texture = null!;
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform sampler2D {textureName};");
 
@@ -21,5 +21,5 @@ public class TextureDependence(string textureName) : ShaderDependence
         => () => ctx.SetTextureData(textureName, texture);
 
     public override void UpdateData(object value)
-        => this.texture = value as Texture;
+        => texture = (value as Texture)!;
 }
