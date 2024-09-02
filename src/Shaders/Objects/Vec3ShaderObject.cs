@@ -3,11 +3,11 @@
  */
 #pragma warning disable CS0660
 #pragma warning disable CS0661
+
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace Radiance.Shaders.Objects;
-
-using Internal;
 
 /// <summary>
 /// Represent a Vec3 data in shader implementation.
@@ -106,7 +106,8 @@ public class Vec3ShaderObject : ShaderObject
         => Union<Vec3ShaderObject>($"({v} / {a})", v, a);
     
     public static implicit operator Vec3ShaderObject((float x, float y, float z) tuple)
-        => new ($"vec3({tuple.x.Format()}, {tuple.y.Format()},  {tuple.z.Format()})", ShaderOrigin.Global, []);
+        => new ($"vec3({tuple.x.ToString(CultureInfo.InvariantCulture)}, {tuple.y.ToString(CultureInfo.InvariantCulture)}, " + 
+            $"{tuple.z.ToString(CultureInfo.InvariantCulture)})", ShaderOrigin.Global, []);
 
     public static implicit operator Vec3ShaderObject(
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z) tuple)

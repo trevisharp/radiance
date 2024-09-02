@@ -3,11 +3,11 @@
  */
 #pragma warning disable CS0660
 #pragma warning disable CS0661
+
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace Radiance.Shaders.Objects;
-
-using Internal;
 
 /// <summary>
 /// Represent a Vec2 data in shader implementation.
@@ -95,7 +95,7 @@ public class Vec2ShaderObject : ShaderObject
         => Union<Vec2ShaderObject>($"({v} / {a})", v, a);
     
     public static implicit operator Vec2ShaderObject((float x, float y) tuple)
-        => new ($"vec2({tuple.x.Format()}, {tuple.y.Format()})", ShaderOrigin.Global, []);
+        => new ($"vec2({tuple.x.ToString(CultureInfo.InvariantCulture)}, {tuple.y.ToString(CultureInfo.InvariantCulture)})", ShaderOrigin.Global, []);
 
     public static implicit operator Vec2ShaderObject((FloatShaderObject x, FloatShaderObject y) tuple)
         => Union<Vec2ShaderObject>($"vec2({tuple.x}, {tuple.y})", tuple.x, tuple.y);

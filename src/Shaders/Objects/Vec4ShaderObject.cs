@@ -3,11 +3,11 @@
  */
 #pragma warning disable CS0660
 #pragma warning disable CS0661
+
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace Radiance.Shaders.Objects;
-
-using Internal;
 
 /// <summary>
 /// Represent a Vec4 data in shader implementation.
@@ -111,7 +111,8 @@ public class Vec4ShaderObject : ShaderObject
         => Union<Vec4ShaderObject>($"({v} / {a})", v, a);
     
     public static implicit operator Vec4ShaderObject((float x, float y, float z, float w) tuple)
-        => new ($"vec4({tuple.x.Format()}, {tuple.y.Format()},  {tuple.z.Format()}, {tuple.w.Format()})", ShaderOrigin.Global, []);
+        => new ($"vec4({tuple.x.ToString(CultureInfo.InvariantCulture)}, {tuple.y.ToString(CultureInfo.InvariantCulture)}, " 
+            +$"{tuple.z.ToString(CultureInfo.InvariantCulture)}, {tuple.w.ToString(CultureInfo.InvariantCulture)})", ShaderOrigin.Global, []);
 
     public static implicit operator Vec4ShaderObject(
         (FloatShaderObject x, FloatShaderObject y, FloatShaderObject z, FloatShaderObject w) tuple)

@@ -4,11 +4,10 @@
 #pragma warning disable CS0660
 #pragma warning disable CS0661
 
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace Radiance.Shaders.Objects;
-
-using Internal;
 
 /// <summary>
 /// Represent a Float data in shader implementation.
@@ -21,13 +20,13 @@ public class FloatShaderObject : ShaderObject
         ) : base(ShaderType.Bool, value, origin, deps) { }
 
     public static implicit operator FloatShaderObject(float value)
-        => new (value.Format(), ShaderOrigin.Global, []);
+        => new (value.ToString(CultureInfo.InvariantCulture), ShaderOrigin.Global, []);
         
     public static implicit operator FloatShaderObject(double value)
-        => new (value.Format(), ShaderOrigin.Global, []);
+        => new (value.ToString(CultureInfo.InvariantCulture), ShaderOrigin.Global, []);
         
     public static implicit operator FloatShaderObject(int value)
-        => new (value.Format(), ShaderOrigin.Global, []);
+        => new (value.ToString(CultureInfo.InvariantCulture), ShaderOrigin.Global, []);
     
     public static BoolShaderObject operator ==(FloatShaderObject a, FloatShaderObject b)
         => Union<BoolShaderObject>($"({a} == {b})", a, b);
