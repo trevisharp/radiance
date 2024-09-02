@@ -10,24 +10,12 @@ using CodeGen;
 /// <summary>
 /// Represents dependence of a variable definition in shader code.
 /// </summary>
-public class VariableDependence : ShaderDependence
+public class VariableDependence(string type, string name, string expr) : ShaderDependence
 {
-    public string Name => this.name;
+    public string Name => name;
+    private readonly string type = type, name = name, expr = expr;
 
-    string type, name, expr;
-    public VariableDependence(string type, string name, string expr)
-    {
-        this.type = type;
-        this.name = name;
-        this.expr = expr;
-    }
-
-    public VariableDependence(string type, string expr)
-    {
-        this.type = type;
-        this.name = AutoVariableName.Next(type);
-        this.expr = expr;
-    }
+    public VariableDependence(string type, string expr) : this(type, AutoVariableName.Next(type), expr) { }
 
     public VariableDependence(ShaderObject obj)
         : this(obj.Type.TypeName, obj.Expression) {}
