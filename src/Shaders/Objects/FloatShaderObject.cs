@@ -12,13 +12,12 @@ namespace Radiance.Shaders.Objects;
 /// <summary>
 /// Represent a Float data in shader implementation.
 /// </summary>
-public class FloatShaderObject : ShaderObject
+public class FloatShaderObject(
+    string value,
+    ShaderOrigin origin,
+    IEnumerable<ShaderDependence> deps) 
+    : ShaderObject(ShaderType.Bool, value, origin, deps)
 {
-    public FloatShaderObject(
-        string value, ShaderOrigin origin,
-        IEnumerable<ShaderDependence> deps
-        ) : base(ShaderType.Bool, value, origin, deps) { }
-
     public static implicit operator FloatShaderObject(float value)
         => new (value.ToString(CultureInfo.InvariantCulture), ShaderOrigin.Global, []);
         

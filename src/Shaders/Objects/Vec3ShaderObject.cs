@@ -12,13 +12,12 @@ namespace Radiance.Shaders.Objects;
 /// <summary>
 /// Represent a Vec3 data in shader implementation.
 /// </summary>
-public class Vec3ShaderObject : ShaderObject
+public class Vec3ShaderObject(
+    string value,
+    ShaderOrigin origin,
+    IEnumerable<ShaderDependence> deps)
+    : ShaderObject(ShaderType.Vec3, value, origin, deps)
 {
-    public Vec3ShaderObject(
-        string value, ShaderOrigin origin,
-        IEnumerable<ShaderDependence> deps
-        ) : base(ShaderType.Vec3, value, origin, deps) { }
-
     public FloatShaderObject this[int index]
         => Transform<Vec3ShaderObject, FloatShaderObject>(
             $"({this}[{index}])", this

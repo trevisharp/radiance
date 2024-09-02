@@ -12,13 +12,12 @@ namespace Radiance.Shaders.Objects;
 /// <summary>
 /// Represent a Vec2 data in shader implementation.
 /// </summary>
-public class Vec2ShaderObject : ShaderObject
+public class Vec2ShaderObject(
+    string value,
+    ShaderOrigin origin,
+    IEnumerable<ShaderDependence> deps) 
+    : ShaderObject(ShaderType.Vec2, value, origin, deps)
 {
-    public Vec2ShaderObject(
-        string value, ShaderOrigin origin,
-        IEnumerable<ShaderDependence> deps
-        ) : base(ShaderType.Vec2, value, origin, deps) { }
-
     public FloatShaderObject this[int index]
         => Transform<Vec2ShaderObject, FloatShaderObject>(
             $"({this}[{index}])", this
