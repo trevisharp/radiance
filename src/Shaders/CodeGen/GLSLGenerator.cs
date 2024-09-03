@@ -8,7 +8,6 @@ using System.Linq;
 namespace Radiance.Shaders.CodeGen;
 
 using Objects;
-using Dependencies;
 
 /// <summary>
 /// Tools to generate GL Shader Language Code.
@@ -16,7 +15,7 @@ using Dependencies;
 public class GLSLGenerator
 {
     public string VersionText { get; set; } = "330 core";
-        private (string vertSrc, Action vertStp, string fragSrc, Action fragStp) GenerateShaders(
+        private (string vertSrc, Action? vertStp, string fragSrc, Action? fragStp) GenerateShaders(
             Vec3ShaderObject vertObj, Vec4ShaderObject fragObj, ShaderContext ctx
         )
     {
@@ -29,8 +28,8 @@ public class GLSLGenerator
         var vertSb = getCodeBuilder();
         var fragSb = getCodeBuilder();
 
-        Action vertStp = null;
-        Action fragStp = null;
+        Action? vertStp = null;
+        Action? fragStp = null;
 
         var vertDeps = vertObj.Dependencies
             .Append(Utils.widthDep)
