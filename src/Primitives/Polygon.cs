@@ -6,7 +6,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Radiance.Data;
+namespace Radiance.Primitives;
 
 /// <summary>
 /// A base type for all polygons and lines.

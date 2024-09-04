@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    29/08/2024
  */
-namespace Radiance.Data;
+namespace Radiance.Primitives;
 
 using Shaders;
 using Shaders.Objects;

@@ -3,7 +3,7 @@
  */
 using System.Collections.Generic;
 
-namespace Radiance.Data;
+namespace Radiance.Primitives;
 
 /// <summary>
 /// A class that contains some util and opeartions.

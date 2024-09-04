@@ -5,7 +5,7 @@ using System.IO;
 
 using StbImageSharp;
 
-namespace Radiance.Data;
+namespace Radiance.Primitives;
 
 /// <summary>
 /// Represents a texture used by shaders.

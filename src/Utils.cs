@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance;
 
-using Data;
+using Primitives;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;

@@ -5,7 +5,7 @@ using System;
 
 namespace Radiance;
 
-using Data;
+using Primitives;
 using Windows;
 using Windows.OpenGL;
 

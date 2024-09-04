@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Data;
+using Primitives;
 
 /// <summary>
 /// Represents a dependece of a Sampler2D used by textures in OpenGL.

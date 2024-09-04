@@ -7,7 +7,7 @@ using OpenTK.Windowing.Desktop;
 
 namespace Radiance.Windows.OpenGL;
 
-using Data;
+using Primitives;
 
 /// <summary>
 /// A Implemetation of OpenGL window

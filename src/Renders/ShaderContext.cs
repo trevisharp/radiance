@@ -9,7 +9,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance.Shaders;
 
-using Data;
+using Primitives;
 
 /// <summary>
 /// Represents the data and state of a shader program.

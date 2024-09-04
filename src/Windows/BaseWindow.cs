@@ -5,7 +5,7 @@ using System;
 
 namespace Radiance.Windows;
 
-using Data;
+using Primitives;
 
 /// <summary>
 /// A Base class for all window implementations.

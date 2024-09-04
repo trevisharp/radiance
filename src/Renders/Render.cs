@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
-using Data;
+using Primitives;
 using Exceptions;
 
 using Shaders;

@@ -9,7 +9,7 @@ using System.Collections.Generic;
 namespace Radiance.Contexts;
 
 /// <summary>
-/// A Thread-Safe context data object.
+/// A Thread-Safe global context data object.
 /// </summary>
 public abstract class Context
 {

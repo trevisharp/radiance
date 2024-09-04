@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Radiance.Data;
+namespace Radiance.Primitives;
 
 using Exceptions;
 

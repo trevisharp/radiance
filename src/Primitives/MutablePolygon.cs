@@ -4,7 +4,7 @@
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Radiance.Data;
+namespace Radiance.Primitives;
 
 /// <summary>
 /// Represents a data that can managed by GPU and drawed in screen.
