@@ -21,7 +21,7 @@ using Shaders.Dependencies;
 /// </summary>
 public class Render(
     Delegate function,
-    params object[] curryingArguments
+    params object?[] curryingArguments
     ) : DynamicObject
 {
     public override bool TryInvoke(
@@ -29,10 +29,25 @@ public class Render(
         object?[]? args,
         out object? result)
     {
+        var parameters = function.Method.GetParameters();
+        object[] arguments = [
+            ..curryingArguments, ..args
+        ];
+        if (arguments.Length < parameters.Length)
+        {
+            result = Curry(args ?? []);
+            return true;
+        }
+
+        if (arguments.Length > parameters.Length)
+            throw new Exception(); // TODO: Use custom exception
+        
+        
+
         throw new NotImplementedException();
     }
 
-    public Render Curry(params object[] args)
+    public Render Curry(params object?[] args)
         => new(function, [ ..curryingArguments, ..args ]);
 
     public static implicit operator Action(Render render)
