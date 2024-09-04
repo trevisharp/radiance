@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/09/2024
+ * Date:    03/09/2024
  */
 using System;
 using System.Text;
@@ -14,10 +14,24 @@ using Objects;
 /// </summary>
 public class GLSLGenerator
 {
+    public record ShaderPair(
+        string VertexCode, Action? VertexSetup,
+        string FragmentCode, Action? FragmentSetup
+    );
+
+    /// <summary>
+    /// Get or Set the GSLS Version. The default value is '330 core'
+    /// </summary>
     public string VersionText { get; set; } = "330 core";
-        private (string vertSrc, Action? vertStp, string fragSrc, Action? fragStp) GenerateShaders(
-            Vec3ShaderObject vertObj, Vec4ShaderObject fragObj, ShaderContext ctx
-        )
+    
+    /// <summary>
+    /// Generate a pair of vertex and fragment GLSL Shaders based on Position Shader Object,
+    /// a Color Shader Object and a ShaderContext.
+    /// </summary>
+    public ShaderPair GenerateShaders(
+        Vec3ShaderObject vertObj,
+        Vec4ShaderObject fragObj,
+        ShaderContext ctx)
     {
         StringBuilder getCodeBuilder()
         {
@@ -108,7 +122,6 @@ public class GLSLGenerator
         closeMain(vertSb);
         closeMain(fragSb);
 
-        return (vertSb.ToString(), vertStp, fragSb.ToString(), fragStp);
+        return new(vertSb.ToString(), vertStp, fragSb.ToString(), fragStp);
     }
-
 }
