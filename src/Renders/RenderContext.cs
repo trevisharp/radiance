@@ -55,10 +55,8 @@ public class RenderContext
             ? ctx : null;
     }
 
-    public record RenderCall(
-        Render Render,
-        object[] Arguments
-    );
+    public record RenderCall(Render Render, object[] Arguments);
+    public record RenderEnd(Render Render);
 
     public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]);
 
@@ -68,6 +66,9 @@ public class RenderContext
 
     public void RegisterCall(Render render, object[] arguments)
         => CallHistory.Add(new RenderCall(render, arguments));
+    
+    public void RegisterEndRender(Render render)
+        => CallHistory.Add(new RenderEnd(render));
 
     public void AddClear(Vec4 color)
     {

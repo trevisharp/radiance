@@ -75,6 +75,8 @@ public class Render(
 
         ctx.RegisterCall(this, arguments);
         CallWithShaderObjects(function);
+        ctx.RegisterEndRender(this);
+
         result = null;
         return true;
     }
