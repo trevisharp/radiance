@@ -97,35 +97,6 @@ public static class Utils
         throw new WindowClosedException();
 
     /// <summary>
-    /// Get (1, 0, 0) vector.
-    /// </summary>
-    public static readonly Vec3 i = new(1, 0, 0); 
-    
-    /// <summary>
-    /// Get (0, 1, 0) vector.
-    /// </summary>
-    public static readonly Vec3 j = new(0, 1, 0);
-
-    /// <summary>
-    /// Get (0, 0, 1) vector.
-    /// </summary>
-    public static readonly Vec3 k = new(0, 0, 1);
-
-    /// <summary>
-    /// Get (0, 0, 0) origin vector.
-    /// </summary>
-    public static readonly Vec3 origin = new(0, 0, 0);
-
-    public static readonly Vec4 red = new(1, 0, 0, 1);
-    public static readonly Vec4 green = new(0, 1, 0, 1);
-    public static readonly Vec4 blue = new(0, 0, 1, 1);
-    public static readonly Vec4 yellow = new(1, 1, 0, 1);
-    public static readonly Vec4 black = new(0, 0, 0, 1);
-    public static readonly Vec4 white = new(1, 1, 1, 1);
-    public static readonly Vec4 cyan = new(0, 1, 1, 1);
-    public static readonly Vec4 magenta = new(1, 0, 1, 1);
-
-    /// <summary>
     /// Return the current center point of screen.
     /// Shader Only.
     /// </summary>
