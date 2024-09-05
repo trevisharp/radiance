@@ -1,13 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    04/09/2024
  */
+using System;
 using System.Threading;
 using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
-using System;
-using Radiance.Primitives;
+using Primitives;
 using Shaders;
 using Shaders.Objects;
 
@@ -55,9 +55,6 @@ public class RenderContext
             ? ctx : null;
     }
 
-    public record RenderCall(Render Render, object[] Arguments);
-    public record RenderEnd(Render Render);
-
     public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]);
 
     public Vec4ShaderObject Color { get; set; } = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
@@ -71,32 +68,29 @@ public class RenderContext
         => CallHistory.Add(new RenderEnd(render));
 
     public void AddClear(Vec4 color)
-    {
-        throw new NotImplementedException();
-    }
+        => CallHistory.Add(new Clear(color));
 
     public void AddDraw()
-    {
-        throw new NotImplementedException();
-    }
+        => CallHistory.Add(new Draw())
 
     public void AddFill()
-    {
-        throw new NotImplementedException();
-    }
+        => CallHistory.Add(new Fill());
 
     public void AddStrip()
-    {
-        throw new NotImplementedException();
-    }
+        => CallHistory.Add(new Strip());
 
     public void AddFan()
-    {
-        throw new NotImplementedException();
-    }
+        => CallHistory.Add(new Fan());
 
     public void AddLines()
-    {
-        throw new NotImplementedException();
-    }
+        => CallHistory.Add(new Lines());
+
+    public record RenderCall(Render Render, object[] Arguments);
+    public record RenderEnd(Render Render);
+    public record Clear(Vec4 color);
+    public record Draw;
+    public record Fill;
+    public record Strip;
+    public record Fan;
+    public record Lines;
 }
