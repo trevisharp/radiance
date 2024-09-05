@@ -55,5 +55,8 @@ public class RenderContext
         object[] Arguments
     );
 
-    public List<RenderCall> CallHistory = [];
+    public List<RenderCall> CallHistory { get; private set; } = [];
+
+    public void RegisterCall(Render render, object[] arguments)
+        => CallHistory.Add(new RenderCall(render, arguments));
 }

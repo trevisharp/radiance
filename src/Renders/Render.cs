@@ -5,13 +5,11 @@ using System;
 using System.Linq;
 using System.Dynamic;
 using System.Reflection;
-using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
 using Primitives;
 using Exceptions;
-
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
@@ -24,10 +22,28 @@ public class Render(
     params object?[] curryingArguments
     ) : DynamicObject
 {
+    /// <summary>
+    /// Create a shader to represent the render.
+    /// </summary>
     public void Load()
     {
+        RenderContext.OpenContext();
 
+        var ctx = RenderContext.GetContext()!;
+        ctx.RegisterCall(this, []);
+        CallWithShaderObjects(function);
+
+        foreach (var x in ctx.CallHistory)
+            System.Console.WriteLine(x);
+
+        RenderContext.CloseContext();
     }
+
+    /// <summary>
+    /// Currying parameters to create a new render.
+    /// </summary>
+    public Render Curry(params object?[] args)
+        => new(function, [ ..curryingArguments, ..args ]);
 
     public override bool TryInvoke(
         InvokeBinder binder,
@@ -55,31 +71,32 @@ public class Render(
         var ctx = RenderContext.GetContext();
         if (ctx is null)
         {
-            TrueRender();
-            result = null;
-            return true;
+            throw new NotImplementedException();
+            // result = null;
+            // return true;
         }
 
-        FakeRender(out result);
+        ctx.RegisterCall(this, arguments);
+        CallWithShaderObjects(function);
+        result = null;
         return true;
     }
-
-    public Render Curry(params object?[] args)
-        => new(function, [ ..curryingArguments, ..args ]);
-
-    public static implicit operator Action(Render render)
+    
+    /// <summary>
+    /// Call the function using shader objects to analyze behaviour.
+    /// </summary>
+    static void CallWithShaderObjects(Delegate func)
     {
-        throw new NotImplementedException();
-    }
+        var parameters = func.Method.GetParameters();
+        
+        var objs = parameters
+            .Select(GenerateDependence)
+            .ToArray();
+        
+        if (objs.Any(obj => obj is null))
+            throw new InvalidRenderException();
 
-    void FakeRender(out object? result)
-    {
-        throw new NotImplementedException();
-    }
-
-    void TrueRender()
-    {
-        throw new NotImplementedException();
+        func.DynamicInvoke(objs);
     }
 
     /// <summary>
@@ -132,7 +149,7 @@ public class Render(
             index = DisplayParameters(arg, result, index);
         
         if (index < args.Length)
-            throw new Exception(); // TODO: Use custom exception
+            throw new ExcessOfArgumentsException();
     }
     
     /// <summary>
