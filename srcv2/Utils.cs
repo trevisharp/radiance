@@ -18,16 +18,6 @@ public static class Utils
     }
     
     /// <summary>
-    /// Clean the entire screen.
-    /// Shader Only.
-    /// </summary>
-    public static void clear(Vec4 color)
-    {
-        var ctx = GlobalRenderContext.GetContext();
-        ctx.AddClear(color);
-    }
-    
-    /// <summary>
     /// Get the time between two frames.
     /// </summary>
     public static float dt =>

@@ -7,6 +7,7 @@ using System.Collections.Generic;
 namespace Radiance.Renders;
 
 using System;
+using Radiance.Primitives;
 using Shaders;
 using Shaders.Objects;
 
@@ -67,6 +68,11 @@ public class RenderContext
 
     public void RegisterCall(Render render, object[] arguments)
         => CallHistory.Add(new RenderCall(render, arguments));
+
+    public void AddClear(Vec4 color)
+    {
+        throw new NotImplementedException();
+    }
 
     public void AddDraw()
     {
