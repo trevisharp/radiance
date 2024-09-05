@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
+using System;
 using Shaders;
 using Shaders.Objects;
 
@@ -62,8 +63,33 @@ public class RenderContext
 
     public Vec4ShaderObject Color { get; set; } = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
 
-    public List<RenderCall> CallHistory { get; private set; } = [];
+    public List<object> CallHistory { get; private set; } = [];
 
     public void RegisterCall(Render render, object[] arguments)
         => CallHistory.Add(new RenderCall(render, arguments));
+
+    public void AddDraw()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddFill()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddStrip()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddFan()
+    {
+        throw new NotImplementedException();
+    }
+
+    public void AddLines()
+    {
+        throw new NotImplementedException();
+    }
 }

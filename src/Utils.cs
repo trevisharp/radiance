@@ -133,6 +133,59 @@ public static class Utils
     }
     
     /// <summary>
+    /// /// Draw the polygon in the screen.
+    /// </summary>
+    public static void draw()
+    {
+        var ctx = RenderContext.GetContext()
+            ?? throw new ShaderOnlyResourceException();
+        ctx.AddDraw();
+    }
+
+    /// <summary>
+    /// Fill the polygon in the screen.
+    /// </summary>
+    public static void fill()
+    {
+        var ctx = RenderContext.GetContext()
+            ?? throw new ShaderOnlyResourceException();
+        ctx.AddFill();
+    }
+
+    /// <summary>
+    /// Fill the direct triangules between the points the polygon in the screen.
+    /// Search for GL_TRIANGLE_FAN for more details.
+    /// </summary>
+    public static void fan()
+    {
+        var ctx = RenderContext.GetContext()
+            ?? throw new ShaderOnlyResourceException();
+        ctx.AddFan();
+    }
+
+    /// <summary>
+    /// Connect and fill adjacente points the points the polygon in the screen.
+    /// Search for GL_TRIANGLE_STRIP for more details.
+    /// </summary>
+    public static void strip()
+    {
+        var ctx = RenderContext.GetContext()
+            ?? throw new ShaderOnlyResourceException();
+        ctx.AddStrip();
+    }
+
+    /// <summary>
+    /// Connect and fill adjacente points the points the polygon in the screen.
+    /// Search for GL_LINES for more details.
+    /// </summary>
+    public static void lines()
+    {
+        var ctx = RenderContext.GetContext()
+            ?? throw new ShaderOnlyResourceException();
+        ctx.AddLines();
+    }
+
+    /// <summary>
     /// Returns the cosine of the specified angle.
     /// Shader Only.
     /// </summary>

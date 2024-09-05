@@ -26,54 +26,6 @@ public static class Utils
         var ctx = GlobalRenderContext.GetContext();
         ctx.AddClear(color);
     }
-
-    /// <summary>
-    /// Draw the polygon in the screen.
-    /// </summary>
-    public static void draw()
-    {
-        var ctx = GlobalRenderContext.GetContext();
-        ctx.AddDraw();
-    }
-
-    /// <summary>
-    /// Fill the polygon in the screen.
-    /// </summary>
-    public static void fill()
-    {
-        var ctx = GlobalRenderContext.GetContext();
-        ctx.AddFill();
-    }
-
-    /// <summary>
-    /// Fill the direct triangules between the points the polygon in the screen.
-    /// Search for GL_TRIANGLE_FAN for more details.
-    /// </summary>
-    public static void fan()
-    {
-        var ctx = GlobalRenderContext.GetContext();
-        ctx.AddFan();
-    }
-
-    /// <summary>
-    /// Connect and fill adjacente points the points the polygon in the screen.
-    /// Search for GL_TRIANGLE_STRIP for more details.
-    /// </summary>
-    public static void strip()
-    {
-        var ctx = GlobalRenderContext.GetContext();
-        ctx.AddStrip();
-    }
-
-    /// <summary>
-    /// Connect and fill adjacente points the points the polygon in the screen.
-    /// Search for GL_LINES for more details.
-    /// </summary>
-    public static void lines()
-    {
-        var ctx = GlobalRenderContext.GetContext();
-        ctx.AddLines();
-    }
     
     /// <summary>
     /// Get the time between two frames.
