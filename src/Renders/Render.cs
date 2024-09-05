@@ -33,9 +33,6 @@ public class Render(
         ctx.RegisterCall(this, []);
         CallWithShaderObjects(function);
 
-        foreach (var x in ctx.CallHistory)
-            System.Console.WriteLine(x);
-
         RenderContext.CloseContext();
     }
 
