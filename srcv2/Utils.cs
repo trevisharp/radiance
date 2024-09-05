@@ -2,8 +2,6 @@ public static class Utils
 {
     internal static Polygon screen = null;
     internal readonly static TimeDependence timeDep = new();
-    internal readonly static PixelDependence pixelDep = new();
-    internal readonly static BufferDependence bufferDep = new();
 
     public static bool verbose
     {
@@ -75,67 +73,6 @@ public static class Utils
     {
         var ctx = GlobalRenderContext.GetContext();
         ctx.AddLines();
-    }
-
-    /// <summary>
-    /// Get ou update the actual position of a generic point of the drawed polygon.
-    /// Shader Only.
-    /// </summary>
-    public static Vec3ShaderObject pos
-    {
-        get
-        {
-            var ctx = GlobalRenderContext.GetContext();
-            return ctx.Position;
-        }
-        set
-        {
-            var ctx = GlobalRenderContext.GetContext();
-            ctx.Position = value;
-        }
-    }
-
-    /// <summary>
-    /// Get the x position of pixel.
-    /// </summary>
-    public static readonly FloatShaderObject x = new(
-        "pixelPos.x", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
-    );
-
-    /// <summary>
-    /// Get the y position of pixel.
-    /// </summary>
-    public static readonly FloatShaderObject y = new(
-        "pixelPos.y", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
-    );
-
-    /// <summary>
-    /// Get the z position of pixel.
-    /// </summary>
-    public static readonly FloatShaderObject z = new(
-        "pixelPos.z", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
-    );
-
-    /// <summary>
-    /// Get ou update the actual color of a generic point inside drawed area.
-    /// Shader Only.
-    /// </summary>
-    public static Vec4ShaderObject color
-    {
-        get
-        {
-            var ctx = GlobalRenderContext.GetContext();
-            return ctx.Color;
-        }
-        set
-        {
-            var ctx = GlobalRenderContext.GetContext();
-            var variable = new VariableDependence(value);
-            ctx.Color = new Vec4ShaderObject(
-                variable.Name, ShaderOrigin.FragmentShader,
-                [..value.Dependencies, variable]
-            );
-        }
     }
     
     /// <summary>

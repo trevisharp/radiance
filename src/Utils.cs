@@ -20,6 +20,8 @@ using Shaders.Dependencies;
 /// </summary>
 public static class Utils
 {
+    internal readonly static PixelDependence pixelDep = new();
+    internal readonly static BufferDependence bufferDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
 
@@ -34,6 +36,71 @@ public static class Utils
         render.Load();
 
         return render;
+    }
+
+    /// <summary>
+    /// Get ou update the actual position of a generic point of the drawed polygon.
+    /// Shader Only.
+    /// </summary>
+    public static Vec3ShaderObject pos
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext()
+                ?? throw new ShaderOnlyResourceException();
+            return ctx.Position;
+        }
+        set
+        {
+            var ctx = RenderContext.GetContext()
+                ?? throw new ShaderOnlyResourceException();
+            ctx.Position = value;
+        }
+    }
+
+    /// <summary>
+    /// Get the x position of pixel.
+    /// </summary>
+    public static readonly FloatShaderObject x = new(
+        "pixelPos.x", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
+    );
+
+    /// <summary>
+    /// Get the y position of pixel.
+    /// </summary>
+    public static readonly FloatShaderObject y = new(
+        "pixelPos.y", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
+    );
+
+    /// <summary>
+    /// Get the z position of pixel.
+    /// </summary>
+    public static readonly FloatShaderObject z = new(
+        "pixelPos.z", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
+    );
+
+    /// <summary>
+    /// Get ou update the actual color of a generic point inside drawed area.
+    /// Shader Only.
+    /// </summary>
+    public static Vec4ShaderObject color
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext()
+                ?? throw new ShaderOnlyResourceException();
+            return ctx.Color;
+        }
+        set
+        {
+            var ctx = RenderContext.GetContext()
+                ?? throw new ShaderOnlyResourceException();
+            var variable = new VariableDependence(value);
+            ctx.Color = new Vec4ShaderObject(
+                variable.Name, ShaderOrigin.FragmentShader,
+                [..value.Dependencies, variable]
+            );
+        }
     }
     
     /// <summary>

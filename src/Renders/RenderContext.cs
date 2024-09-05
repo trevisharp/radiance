@@ -6,6 +6,9 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
+using Shaders;
+using Shaders.Objects;
+
 /// <summary>
 /// A Thread-Safe global context data object.
 /// </summary>
@@ -54,6 +57,10 @@ public class RenderContext
         Render Render,
         object[] Arguments
     );
+
+    public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]);
+
+    public Vec4ShaderObject Color { get; set; } = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
 
     public List<RenderCall> CallHistory { get; private set; } = [];
 
