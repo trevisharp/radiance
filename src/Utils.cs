@@ -20,11 +20,19 @@ using Shaders.Dependencies;
 /// </summary>
 public static class Utils
 {
+    /***********************/
+    /* DEPENDENCE UTILS    */
+    /***********************/
+
     internal readonly static PixelDependence pixelDep = new();
     internal readonly static BufferDependence bufferDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
     
+    /***********************/
+    /* PRIMITIVE UTILS     */
+    /***********************/
+
     /// <summary>
     /// Get (1, 0, 0) vector.
     /// </summary>
@@ -53,6 +61,143 @@ public static class Utils
     public static readonly Vec4 white = new(1, 1, 1, 1);
     public static readonly Vec4 cyan = new(0, 1, 1, 1);
     public static readonly Vec4 magenta = new(1, 0, 1, 1);
+    
+    /// <summary>
+    /// Create and get a new empty polygon.
+    /// </summary>
+    public static Polygon Empty => new MutablePolygon();
+
+    /// <summary>
+    /// Get a circle with radius 1 centralizated in (0, 0, 0)
+    /// with 128 sides.
+    /// </summary>
+    public static readonly Polygon Circle = Ellipse(1, 1, 128).ToImmutable();
+
+    /// <summary>
+    /// Get a square with side 1 centralizated in (0, 0, 0).
+    /// </summary>
+    public static readonly Polygon Square = Rect(1, 1).ToImmutable();
+
+    /// <summary>
+    /// Create a rectangle with specific width and height
+    /// centralized on (0, 0, 0) cordinate.
+    /// </summary>
+    public static MutablePolygon Rect(float width, float height)
+    {
+        var halfWid = width / 2;
+        var halfHei = height / 2;
+        return [
+            (-halfWid, -halfHei, 0),
+            (-halfHei, halfWid, 0),
+            (halfHei, halfWid, 0),
+            (halfHei, -halfWid, 0)
+        ];
+    }
+
+    /// <summary>
+    /// Create a rectangle with specific width and height
+    /// centralized on (x, y, z) cordinate.
+    /// </summary>
+    public static MutablePolygon Rect(
+        float x, float y, float z,
+        float width, float height)
+    {
+        var halfWid = width / 2;
+        var halfHei = height / 2;
+        return [
+            (x - halfWid, y - halfHei, z),
+            (x - halfWid, y + halfHei, z),
+            (x + halfWid, y + halfHei, z),
+            (x + halfWid, y - halfHei, z)
+        ];
+    }
+
+    /// <summary>
+    /// Create a ellipse with specific a and b radius
+    /// centralized on (x, y, z) cordinate with a specific
+    /// quantity of sides.
+    /// </summary>
+    public static MutablePolygon Ellipse(
+        float x, float y, float z,
+        float a, float b = float.NaN,
+        int sizes = 63
+    )
+    {
+        var result = new MutablePolygon();
+
+        float phi = MathF.Tau / sizes;
+        if (float.IsNaN(b))
+            b = a;
+
+        for (int k = 0; k < sizes; k++)
+        {
+            result.Add(
+                a * MathF.Cos(phi * k) + x,
+                b * MathF.Sin(-phi * k) + y,
+                z
+            );
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Create a ellipse with specific a and b radius
+    /// centralized on (0, 0, 0) cordinate with a specific
+    /// quantity of sides.
+    /// </summary>
+    public static MutablePolygon Ellipse(
+        float a, float b = float.NaN,
+        int sizes = 63
+    )
+    {
+        var result = new MutablePolygon();
+
+        float phi = MathF.Tau / sizes;
+        if (float.IsNaN(b))
+            b = a;
+
+        for (int k = 0; k < sizes; k++)
+        {
+            result.Add(
+                a * MathF.Cos(phi * k),
+                b * MathF.Sin(-phi * k),
+                0
+            );
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Create a polygon based in recived data.
+    /// </summary>
+    public static MutablePolygon Data(params Vec3[] vectors)
+    {
+        var result = new MutablePolygon();
+
+        foreach (var v in vectors)
+            result.Add(v.X, v.Y, v.Z);
+        
+        return result;
+    }
+    
+    /// <summary>
+    /// Create a polygon based in recived data.
+    /// </summary>
+    public static MutablePolygon Data(params Vec2[] vectors)
+    {
+        var result = new MutablePolygon();
+
+        foreach (var v in vectors)
+            result.Add(v.X, v.Y, 0);
+        
+        return result;
+    }
+
+    /***********************/
+    /* RENDER UTILS        */
+    /***********************/
 
     /// <summary>
     /// Create render with shaders based on function recived.
@@ -66,6 +211,10 @@ public static class Utils
 
         return render;
     }
+
+    /***********************/
+    /* SHADER ONLY UTILS   */
+    /***********************/
 
     /// <summary>
     /// Get ou update the actual position of a generic point of the drawed polygon.

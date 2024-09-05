@@ -47,19 +47,19 @@ public class Render(
         object?[]? args,
         out object? result)
     {
-        var parameters = function.Method.GetParameters();
+        var parameterCount = function.Method.GetParameters().Length + 1;
         object[] arguments = [
             ..curryingArguments, ..args
         ];
         var argumentCount = MeasureArguments(arguments);
 
-        if (argumentCount < parameters.Length)
+        if (argumentCount < parameterCount)
         {
             result = Curry(args ?? []);
             return true;
         }
 
-        if (argumentCount > parameters.Length)
+        if (argumentCount > parameterCount)
             throw new ExcessOfArgumentsException();
         
         if (arguments.Length > 0 && arguments[0] is not Polygon)

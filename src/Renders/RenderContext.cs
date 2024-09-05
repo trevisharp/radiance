@@ -7,9 +7,9 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
-using Primitives;
 using Shaders;
 using Shaders.Objects;
+using Primitives;
 
 /// <summary>
 /// A Thread-Safe global context data object.
@@ -41,6 +41,14 @@ public class RenderContext
     /// </summary>
     public static void CloseContext()
     {
+        if (GetContext() is null)
+            return;
+
+        foreach (var x in GetContext().CallHistory)
+        {
+            Console.WriteLine(x);
+        }
+
         var id = GetCurrentThreadId();
         threadMap.Remove(id);
     }
@@ -71,7 +79,7 @@ public class RenderContext
         => CallHistory.Add(new Clear(color));
 
     public void AddDraw()
-        => CallHistory.Add(new Draw())
+        => CallHistory.Add(new Draw());
 
     public void AddFill()
         => CallHistory.Add(new Fill());

@@ -3,15 +3,16 @@ using static Radiance.Utils;
 
 var otherRender = render(() =>
 {
-    pos = (100 * x, 100 * y, z);
+    pos = (x, 2 * y, z);
     color = red;
+    fill();
 });
 
 var myRender = render(() =>
 {
-    otherRender();
-    otherRender();
-    otherRender();
+    otherRender(Square);
+    otherRender(Square);
+    otherRender(Square);
 });
 
 Window.CloseOn(Input.Escape);
