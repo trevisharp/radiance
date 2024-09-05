@@ -49,4 +49,11 @@ public class RenderContext
         return threadMap.TryGetValue(id, out var ctx)
             ? ctx : null;
     }
+
+    public record RenderCall(
+        Render Render,
+        object[] Arguments
+    );
+
+    public List<RenderCall> CallHistory = [];
 }

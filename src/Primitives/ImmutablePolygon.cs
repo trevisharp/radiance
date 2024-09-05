@@ -17,7 +17,7 @@ public class ImmutablePolygon(IEnumerable<float> data) : Polygon
     public override IEnumerable<float> Data => data;
 
     protected override void AddPoint(float x, float y, float z)
-        => throw new ImmutablePolygonModifyException();
+        => throw new MissingPolygonException();
 
     public override Polygon Clone()
         => this;
