@@ -47,6 +47,7 @@ public class Render(
         object?[]? args,
         out object? result)
     {
+        var ctx = RenderContext.GetContext();
         var parameterCount = function.Method.GetParameters().Length + 1;
         object[] arguments = [
             ..curryingArguments, ..args
@@ -62,15 +63,22 @@ public class Render(
         if (argumentCount > parameterCount)
             throw new ExcessOfArgumentsException();
         
-        if (arguments.Length > 0 && arguments[0] is not Polygon)
+        if (arguments[0] is not Polygon poly)
             throw new MissingPolygonException();
         
-        var ctx = RenderContext.GetContext();
         if (ctx is null)
         {
-            throw new NotImplementedException();
-            // result = null;
-            // return true;
+            FrameContext.OpenContext();
+            var frameCtx = FrameContext.GetContext()!;
+            frameCtx.PolygonStack.Push(poly);
+
+            // TODO: Run
+
+            frameCtx.PolygonStack.Pop();
+            FrameContext.CloseContext();
+            
+            result = null;
+            return true;
         }
 
         ctx.RegisterCall(this, arguments);

@@ -212,9 +212,43 @@ public static class Utils
         return render;
     }
 
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<FloatShaderObject> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        
+        var render = new Render(function);
+        render.Load();
+
+        return render;
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<FloatShaderObject, FloatShaderObject> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        
+        var render = new Render(function);
+        render.Load();
+
+        return render;
+    }
+
     /***********************/
     /* SHADER ONLY UTILS   */
     /***********************/
+
+    /// <summary>
+    /// Get the parent render polygon.
+    /// </summary>
+    public static Polygon poly
+    {
+        get => Empty; // TODO
+    }
 
     /// <summary>
     /// Get ou update the actual position of a generic point of the drawed polygon.
