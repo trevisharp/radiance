@@ -11,7 +11,7 @@ using Shaders;
 using Shaders.CodeGen;
 using Shaders.Objects;
 using Contexts;
-using Contexts.OpenGL;
+using Contexts.OpenGL4;
 using Primitives;
 
 /// <summary>
@@ -20,6 +20,7 @@ using Primitives;
 public class RenderContext
 {
     public static ShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
+    public static ProgramContextBuilder ProgramContextBuilder { get; set; } = new OpenGL4ProgramContextBuilder();
     
     static readonly Dictionary<int, RenderContext> threadMap = [];
 
@@ -69,6 +70,8 @@ public class RenderContext
     /// </summary>
     public string VersionText { get; set; } = "330 core";
 
+    public readonly ProgramContext ProgramContext = ProgramContextBuilder.Build();
+
     public bool Verbose { get; set; } = false;
 
     public Action<Polygon, object[]>? DrawOperations { get; set; }
@@ -80,17 +83,7 @@ public class RenderContext
     public List<object> CallHistory { get; private set; } = [];
 
     public void AddClear(Vec4 color)
-    {
-        // DrawOperations += delegate
-        // {
-        //     GL.ClearColor(
-        //         color.X,
-        //         color.Y,
-        //         color.Z,
-        //         color.W
-        //     );
-        // };
-    }
+        => DrawOperations += (_, _) => ProgramContext.Clear(color);
 
     public void AddPoints() 
         => AddDrawOperation(PrimitiveType.Points);
@@ -148,4 +141,5 @@ public class RenderContext
             // GL.DrawArrays(primitive, 0, poly.Data.Count() / 3);
         };
     }
+    
 }

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 using StbImageSharp;
 using OpenTK.Graphics.OpenGL4;
 
-namespace Radiance.Contexts.OpenGL;
+namespace Radiance.Contexts.OpenGL4;
 
 using Primitives;
 

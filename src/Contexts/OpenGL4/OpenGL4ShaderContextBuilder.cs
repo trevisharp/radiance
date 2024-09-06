@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/09/2024
  */
-namespace Radiance.Contexts.OpenGL;
+namespace Radiance.Contexts.OpenGL4;
 
 /// <summary>
 /// A Builder for a ShaderContext.

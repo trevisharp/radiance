@@ -22,6 +22,10 @@ public class Render(
     params object?[] curryingArguments
     ) : DynamicObject
 {
+    /// <summary>
+    /// The event called when the render is ready to draw.
+    /// </summary>
+    public event Action<Polygon, object[]>? OnRender;
 
     /// <summary>
     /// Create a shader to represent the render.
@@ -54,6 +58,15 @@ public class Render(
         ];
         var argumentCount = MeasureArguments(arguments);
 
+        if (argumentCount == 0)
+        {
+            result = this;
+            return true;
+        }
+        
+        if (arguments[0] is not Polygon poly)
+            throw new MissingPolygonException();
+
         if (argumentCount < parameterCount)
         {
             result = Curry(args ?? []);
@@ -62,9 +75,6 @@ public class Render(
 
         if (argumentCount > parameterCount)
             throw new ExcessOfArgumentsException();
-        
-        if (arguments[0] is not Polygon poly)
-            throw new MissingPolygonException();
         
         if (ctx is null)
         {

@@ -61,22 +61,13 @@ public static class Utils
     /* PRIMITIVE UTILS                    */
     /**************************************/
     
-    internal static Polygon screen = null!;
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.
     /// </summary>
-    public static Polygon Screen
-    {
-        get
-        {
-            screen ??= 
-                Window.IsOpen ?
-                Rect(0, 0, 0, Window.Width, Window.Height).ToImmutable() :
-                throw new WindowClosedException();
-            
-            return screen;
-        }
-    }
+    public static Polygon Screen => 
+        Window.IsOpen ?
+        Rect(0, 0, 0, Window.Width, Window.Height).ToImmutable() :
+        throw new WindowClosedException();
 
     /// <summary>
     /// Get (1, 0, 0) vector.
