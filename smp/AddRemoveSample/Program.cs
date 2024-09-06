@@ -4,8 +4,7 @@ using static Radiance.Utils;
 var myFill = render((dx, dy) =>
 {
     pos = (50 * x + dx, 50 * y + dy, z);
-    color = red;
-    fill();
+    Kit.Fill(poly, red);
 });
 
 var myLine = render((dx, dy) =>
@@ -25,8 +24,8 @@ var myRender = render((dx, dy) =>
 
 Window.OnFrame += () =>
 {
-    myRender(Square, 200, 200);
-    myRender(Circle, 700, 700);
+    myRender(Square, 100, 100);
+    myRender(Circle, 650, 650);
 
 };
 

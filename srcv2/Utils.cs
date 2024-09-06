@@ -7,17 +7,6 @@ public static class Utils
     /// Shader Only.
     /// </summary>
     public static Vec3ShaderObject center => var((width / 2, height / 2, 0), "center");
-    
-
-    /// <summary>
-    /// Return the time when t is zero.
-    /// </summary>
-    public static DateTime ZeroTime => Clock.ZeroTime;
-
-    /// <summary>
-    /// Return the time in seconds of application using the Clock.Shared.
-    /// </summary>
-    public static float Time => Clock.Shared.Time;
 
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.
@@ -34,11 +23,7 @@ public static class Utils
             return screen;
         }
     }
-    
-    /// <summary>
-    /// Get a Kit of autoimplemented renders.
-    /// </summary>
-    public static RenderKit Kit => RenderKit.Shared;    
+
 
     /// <summary>
     /// Create render with shaders based on function recived.

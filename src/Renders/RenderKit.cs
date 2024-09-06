@@ -12,7 +12,7 @@ public class RenderKit
 {
     public readonly static RenderKit Shared = new();
 
-    private Render fill = null;
+    private Render fill = null!;
     public dynamic Fill
     {
         get
@@ -27,7 +27,7 @@ public class RenderKit
         }
     }
 
-    private Render draw = null;
+    private Render draw = null!;
     public dynamic Draw
     {
         get
