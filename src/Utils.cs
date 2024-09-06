@@ -82,34 +82,32 @@ public static class Utils
     /// Create a rectangle with specific width and height
     /// centralized on (0, 0, 0) cordinate.
     /// </summary>
-    public static MutablePolygon Rect(float width, float height)
+    public static Polygon Rect(float width, float height)
     {
         var halfWid = width / 2;
         var halfHei = height / 2;
-        return [
-            (-halfWid, -halfHei, 0),
-            (-halfHei, halfWid, 0),
-            (halfHei, halfWid, 0),
-            (halfHei, -halfWid, 0)
-        ];
+        return Empty
+            .Add(-halfWid, -halfHei, 0f)
+            .Add(-halfHei, halfWid, 0f)
+            .Add(halfHei, halfWid, 0f)
+            .Add(halfHei, -halfWid, 0f);
     }
 
     /// <summary>
     /// Create a rectangle with specific width and height
     /// centralized on (x, y, z) cordinate.
     /// </summary>
-    public static MutablePolygon Rect(
+    public static Polygon Rect(
         float x, float y, float z,
         float width, float height)
     {
         var halfWid = width / 2;
         var halfHei = height / 2;
-        return [
-            (x - halfWid, y - halfHei, z),
-            (x - halfWid, y + halfHei, z),
-            (x + halfWid, y + halfHei, z),
-            (x + halfWid, y - halfHei, z)
-        ];
+        return Empty
+            .Add(x - halfWid, y - halfHei, z)
+            .Add(x - halfWid, y + halfHei, z)
+            .Add(x + halfWid, y + halfHei, z)
+            .Add(x + halfWid, y - halfHei, z);
     }
 
     /// <summary>

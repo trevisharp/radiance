@@ -52,22 +52,10 @@ public abstract class Polygon : IEnumerable<float>
     public abstract IEnumerable<float> Data { get; }
     
     /// <summary>
-    /// Add a point in polygon with z = 0.
-    /// </summary>
-    public Polygon Add(Vec2 point)
-        => Add(point.X, point.Y, 0);
-    
-    /// <summary>
     /// Add a point in polygon.
     /// </summary>
     public Polygon Add(Vec3 point)
         => Add(point.X, point.Y, point.Z);
-    
-    /// <summary>
-    /// Add a point in polygon with z = 0.
-    /// </summary>
-    public Polygon Add(float x, float y)
-        => Add(x, y, 0);
     
     /// <summary>
     /// Add a point in polygon.
