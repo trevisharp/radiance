@@ -1,24 +1,33 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-
-var otherRender = render((dx, dy) =>
+var myFill = render((dx, dy) =>
 {
     pos = (50 * x + dx, 50 * y + dy, z);
     color = red;
     fill();
 });
 
-var myRender = render(() =>
+var myLine = render((dx, dy) =>
 {
-    otherRender(poly, 100, 100);
-    otherRender(poly, 200, 100);
-    otherRender(poly, 150, 150);
+    for (int i = 0; i < 10; i += 2)
+        myFill(poly, dx + 50 * i, dy);
+});
+
+var myRender = render((dx, dy) =>
+{
+    for (int i = 0; i < 10; i++)
+        myLine(poly, 
+            dx + (i % 2 == 0 ? 0 : 50), 
+            dy + 50 * i
+        );
 });
 
 Window.OnFrame += () =>
 {
-    myRender(Square);
+    myRender(Square, 200, 200);
+    myRender(Circle, 700, 700);
+
 };
 
 Window.CloseOn(Input.Escape);
