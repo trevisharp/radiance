@@ -22,9 +22,6 @@ public class Render(
     params object?[] curryingArguments
     ) : DynamicObject
 {
-    public Vec3ShaderObject? Position { get; set; }
-
-    public Vec4ShaderObject? Color { get; set; }
 
     /// <summary>
     /// Create a shader to represent the render.
@@ -34,11 +31,7 @@ public class Render(
         RenderContext.OpenContext();
 
         var ctx = RenderContext.GetContext()!;
-        ctx.RegisterCall(this, []);
         CallWithShaderObjects(function);
-
-        Position = ctx.Position;
-        Color = ctx.Color;
 
         RenderContext.CloseContext();
     }
@@ -88,9 +81,7 @@ public class Render(
             return true;
         }
 
-        ctx.RegisterCall(this, arguments);
         CallWithShaderObjects(function);
-        ctx.RegisterEndRender(this);
 
         result = null;
         return true;

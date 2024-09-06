@@ -79,16 +79,6 @@ public class RenderContext
 
     public List<object> CallHistory { get; private set; } = [];
 
-    public void RegisterCall(Render render, object[] arguments)
-    {
-
-    }
-    
-    public void RegisterEndRender(Render render)
-    {
-
-    }
-
     public void AddClear(Vec4 color)
     {
         // DrawOperations += delegate

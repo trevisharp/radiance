@@ -16,16 +16,15 @@ using Shaders.Objects;
 using Shaders.Dependencies;
 
 using Float = Shaders.Objects.FloatShaderObject;
-using System.Linq.Expressions;
 
 /// <summary>
 /// A facade with all utils to use Radiance features.
 /// </summary>
 public static class Utils
 {
-    /***********************/
-    /* DEPENDENCE UTILS    */
-    /***********************/
+    /***************************************/
+    /* DEPENDENCE UTILS                    */
+    /***************************************/
 
     internal readonly static TimeDependence timeDep = new();
     internal readonly static PixelDependence pixelDep = new();
@@ -33,9 +32,9 @@ public static class Utils
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
 
-    /***********************/
-    /* WINDOWS UTILS       */
-    /***********************/
+    /**************************************/
+    /* WINDOWS UTILS                      */
+    /**************************************/
     
     /// <summary>
     /// Get the time between two frames.
@@ -58,9 +57,9 @@ public static class Utils
         Window.IsOpen ? Window.Height :
         throw new WindowClosedException();
     
-    /***********************/
-    /* PRIMITIVE UTILS     */
-    /***********************/
+    /**************************************/
+    /* PRIMITIVE UTILS                    */
+    /**************************************/
 
     /// <summary>
     /// Get (1, 0, 0) vector.
@@ -222,9 +221,9 @@ public static class Utils
         return result;
     }
 
-    /***********************/
-    /* RENDER UTILS        */
-    /***********************/
+    /*****************************************************/
+    /* RENDER UTILS                                      */
+    /*****************************************************/
     
     /// <summary>
     /// Get a Kit of autoimplemented renders.
@@ -296,9 +295,9 @@ public static class Utils
         return render;
     }
 
-    /***********************/
-    /* SHADER ONLY UTILS   */
-    /***********************/
+    /****************************************/
+    /* SHADER ONLY UTILS                    */
+    /****************************************/
 
     /// <summary>
     /// Return the current width of screen.
@@ -329,6 +328,9 @@ public static class Utils
         get => Empty; // TODO
     }
 
+    /// <summary>
+    /// Get or set if the current render is in verbose mode.
+    /// </summary>
     public static bool verbose
     {
         get
@@ -346,7 +348,10 @@ public static class Utils
         }
     }
 
-    public static void repeat(Func<int> repeatCount, Action<Float> expression)
+    /// <summary>
+    /// Reduce many render calls in a unique call.
+    /// </summary>
+    public static void reduce(Func<int> repeatCount, Action<Float> expression)
     {
         throw new NotImplementedException();
     }
