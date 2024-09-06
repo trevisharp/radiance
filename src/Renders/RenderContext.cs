@@ -98,7 +98,7 @@ public class RenderContext
 
     public record RenderCall(Render Render, object[] Arguments);
     public record RenderEnd(Render Render);
-    public record Clear(Vec4 color);
+    public record Clear(Vec4 Color);
     public record Draw;
     public record Fill;
     public record Strip;

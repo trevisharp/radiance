@@ -345,6 +345,11 @@ public static class Utils
         }
     }
 
+    public static void repeat()
+    {
+        
+    }
+
     /// <summary>
     /// Get ou update the actual position of a generic point of the drawed polygon.
     /// Shader Only.
