@@ -71,7 +71,7 @@ public abstract class BaseWindow
     /// <summary>
     /// Open main application window.
     /// </summary>
-    public abstract void Open(bool fullscreen = true);
+    public abstract void Open();
 
     /// <summary>
     /// Run a function only if the window is open, else

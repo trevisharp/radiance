@@ -58,9 +58,9 @@ public static class Window
     /// <summary>
     /// Open main application window.
     /// </summary>
-    public static void Open(bool fullscreen = true)
-        => Current.Open(fullscreen);
-
+    public static void Open()
+        => Current.Open();
+    
     /// <summary>
     /// Run a function only if the window is open, else
     /// schedule execution.

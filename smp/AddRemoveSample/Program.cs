@@ -1,6 +1,7 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
+
 var otherRender = render((dx, dy) =>
 {
     pos = (50 * x + dx, 50 * y + dy, z);

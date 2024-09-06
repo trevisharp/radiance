@@ -6,5 +6,5 @@ namespace Radiance.Windows.OpenGL;
 public class OpenGLWindowFactory : WindowFactory
 {
     public override BaseWindow New(bool fullscreen)
-        => new OpenGLWindow();
+        => new OpenGLWindow(fullscreen);
 }

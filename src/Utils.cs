@@ -28,6 +28,31 @@ public static class Utils
     internal readonly static BufferDependence bufferDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
+
+    /***********************/
+    /* WINDOWS UTILS       */
+    /***********************/
+    
+    /// <summary>
+    /// Get the time between two frames.
+    /// </summary>
+    public static float dt =>
+        Window.IsOpen ? Window.DeltaTime :
+        throw new WindowClosedException();
+
+    /// <summary>
+    /// A number relatives to 100% to width of viewport.
+    /// </summary>
+    public static float vw =>
+        Window.IsOpen ? Window.Width :
+        throw new WindowClosedException();
+
+    /// <summary>
+    /// A number relatives to 100% to height of viewport.
+    /// </summary>
+    public static float vh =>
+        Window.IsOpen ? Window.Height :
+        throw new WindowClosedException();
     
     /***********************/
     /* PRIMITIVE UTILS     */

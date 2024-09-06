@@ -12,7 +12,7 @@ using Primitives;
 /// <summary>
 /// A Implemetation of OpenGL window
 /// </summary>
-public class OpenGLWindow : BaseWindow
+public class OpenGLWindow(bool fullscreen) : BaseWindow
 {
     private static GameWindow? win;
     
@@ -40,7 +40,7 @@ public class OpenGLWindow : BaseWindow
         );
     }
 
-    public override void Open(bool fullscreen = true)
+    public override void Open()
     {
         win = new(
             GameWindowSettings.Default,
