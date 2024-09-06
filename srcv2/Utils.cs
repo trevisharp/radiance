@@ -1,7 +1,6 @@
 public static class Utils
 {
     internal static Polygon screen = null;
-    internal readonly static TimeDependence timeDep = new();
 
     public static bool verbose
     {
@@ -23,27 +22,6 @@ public static class Utils
     /// </summary>
     public static Vec3ShaderObject center => var((width / 2, height / 2, 0), "center");
     
-
-    /// <summary>
-    /// Return the current width of screen.
-    /// Shader Only.
-    /// </summary>
-    public static readonly FloatShaderObject width =
-        new("width", ShaderOrigin.Global, [widthDep]);
-
-    /// <summary>
-    /// Return the current height of screen.
-    /// Shader Only.
-    /// </summary>
-    public static readonly FloatShaderObject height =
-        new("height", ShaderOrigin.Global, [heightDep]);
-
-    /// <summary>
-    /// Return the current time of application.
-    /// Shader Only.
-    /// </summary>
-    public static readonly FloatShaderObject t =
-        new("t", ShaderOrigin.Global, [timeDep]);
 
     /// <summary>
     /// Return the time when t is zero.

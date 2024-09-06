@@ -24,6 +24,7 @@ public static class Utils
     /* DEPENDENCE UTILS    */
     /***********************/
 
+    internal readonly static TimeDependence timeDep = new();
     internal readonly static PixelDependence pixelDep = new();
     internal readonly static BufferDependence bufferDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
@@ -264,6 +265,27 @@ public static class Utils
     /***********************/
     /* SHADER ONLY UTILS   */
     /***********************/
+
+    /// <summary>
+    /// Return the current width of screen.
+    /// Shader Only.
+    /// </summary>
+    public static readonly FloatShaderObject width =
+        new("width", ShaderOrigin.Global, [widthDep]);
+
+    /// <summary>
+    /// Return the current height of screen.
+    /// Shader Only.
+    /// </summary>
+    public static readonly FloatShaderObject height =
+        new("height", ShaderOrigin.Global, [heightDep]);
+
+    /// <summary>
+    /// Return the current time of application.
+    /// Shader Only.
+    /// </summary>
+    public static readonly FloatShaderObject t =
+        new("t", ShaderOrigin.Global, [timeDep]);
 
     /// <summary>
     /// Get the parent render polygon.
