@@ -16,6 +16,7 @@ using Shaders.Objects;
 using Shaders.Dependencies;
 
 using Float = Shaders.Objects.FloatShaderObject;
+using System.Linq.Expressions;
 
 /// <summary>
 /// A facade with all utils to use Radiance features.
@@ -345,9 +346,9 @@ public static class Utils
         }
     }
 
-    public static void repeat()
+    public static void repeat(Func<int> repeatCount, Action<Float> expression)
     {
-        
+        throw new NotImplementedException();
     }
 
     /// <summary>

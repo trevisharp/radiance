@@ -6,6 +6,8 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
+using Renders;
+
 /// <summary>
 /// Represents a dependence of the time of the application based
 /// on Clock.Shared reference.

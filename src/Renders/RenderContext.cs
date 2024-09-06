@@ -45,11 +45,6 @@ public class RenderContext
         if (ctx is null)
             return;
 
-        foreach (var x in ctx.CallHistory)
-        {
-            Console.WriteLine(x);
-        }
-
         var id = GetCurrentThreadId();
         threadMap.Remove(id);
     }
@@ -64,7 +59,10 @@ public class RenderContext
             ? ctx : null;
     }
 
+
     public bool Verbose { get; set; } = false;
+
+    public Action<Polygon, object[]>? DrawOperations { get; set; }
 
     public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]);
 

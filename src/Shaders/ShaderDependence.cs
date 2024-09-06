@@ -6,6 +6,8 @@ using System.Text;
 
 namespace Radiance.Shaders;
 
+using Renders;
+
 /// <summary>
 /// Represents a dependence for shaders creation and execution.
 /// </summary>

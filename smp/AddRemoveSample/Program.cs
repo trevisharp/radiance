@@ -6,25 +6,31 @@ var myFill = render((dx, dy) =>
     pos = (50 * x + dx, 50 * y + dy, z);
     color = red;
     fill();
+
+    color = black;
+    pos = (x, y, z - 1);
+    draw();
 });
 
 var myLine = render((dx, dy) =>
 {
-    for (int i = 0; i < 10; i += 2)
-        myFill(poly, dx + 50 * i, dy);
+    repeat(
+        () => 5, 
+        i => myFill(poly, dx + 100 * i, dy)
+    );
 });
 
 var myRender = render((dx, dy) =>
 {
-    for (int i = 0; i < 10; i++)
-        myLine(poly, 
-            dx + (i % 2 == 0 ? 0 : 50), 
-            dy + 50 * i
-        );
+    repeat(
+        () => 10,
+        i => myLine(poly, dx, dy + 50 * i)
+    );
 });
 
 Window.OnFrame += () =>
 {
+    clear(white);
     myRender(Square, 100, 100);
     myRender(Circle, 650, 650);
 

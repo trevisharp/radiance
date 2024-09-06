@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace Radiance.Shaders.CodeGen;
 
+using Renders;
 using Objects;
 
 /// <summary>
