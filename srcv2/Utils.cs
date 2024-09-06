@@ -2,20 +2,6 @@ public static class Utils
 {
     internal static Polygon screen = null;
 
-    public static bool verbose
-    {
-        get
-        {
-            var ctx = GlobalRenderContext.GetContext();
-            return ctx.IsVerbose;
-        }
-        set
-        {
-            var ctx = GlobalRenderContext.GetContext();
-            ctx.IsVerbose = value;
-        }
-    }
-
     /// <summary>
     /// Return the current center point of screen.
     /// Shader Only.

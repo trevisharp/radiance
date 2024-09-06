@@ -41,10 +41,11 @@ public class RenderContext
     /// </summary>
     public static void CloseContext()
     {
-        if (GetContext() is null)
+        var ctx = GetContext();
+        if (ctx is null)
             return;
 
-        foreach (var x in GetContext().CallHistory)
+        foreach (var x in ctx.CallHistory)
         {
             Console.WriteLine(x);
         }
@@ -62,6 +63,8 @@ public class RenderContext
         return threadMap.TryGetValue(id, out var ctx)
             ? ctx : null;
     }
+
+    public bool Verbose { get; set; } = false;
 
     public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]);
 

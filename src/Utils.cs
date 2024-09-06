@@ -295,6 +295,23 @@ public static class Utils
         get => Empty; // TODO
     }
 
+    public static bool verbose
+    {
+        get
+        {
+            var ctx = RenderContext.GetContext();
+            return ctx?.Verbose ?? false;
+        }
+        set
+        {
+            var ctx = RenderContext.GetContext();
+            if (ctx is null)
+                return;
+            
+            ctx.Verbose = value;
+        }
+    }
+
     /// <summary>
     /// Get ou update the actual position of a generic point of the drawed polygon.
     /// Shader Only.
