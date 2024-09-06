@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Renders;
+using Contexts;
 
 /// <summary>
 /// Represents a dependence of the height of the screen.

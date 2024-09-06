@@ -8,7 +8,10 @@ using System.Collections.Generic;
 namespace Radiance.Renders;
 
 using Shaders;
+using Shaders.CodeGen;
 using Shaders.Objects;
+using Contexts;
+using Contexts.OpenGL;
 using Primitives;
 
 /// <summary>
@@ -16,6 +19,8 @@ using Primitives;
 /// </summary>
 public class RenderContext
 {
+    public static ShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
+    
     static readonly Dictionary<int, RenderContext> threadMap = [];
 
     static int GetCurrentThreadId()
@@ -59,6 +64,10 @@ public class RenderContext
             ? ctx : null;
     }
 
+    /// <summary>
+    /// Get or Set the GSLS Version. The default value is '330 core'
+    /// </summary>
+    public string VersionText { get; set; } = "330 core";
 
     public bool Verbose { get; set; } = false;
 
@@ -71,35 +80,82 @@ public class RenderContext
     public List<object> CallHistory { get; private set; } = [];
 
     public void RegisterCall(Render render, object[] arguments)
-        => CallHistory.Add(new RenderCall(render, arguments));
+    {
+
+    }
     
     public void RegisterEndRender(Render render)
-        => CallHistory.Add(new RenderEnd(render));
+    {
+
+    }
 
     public void AddClear(Vec4 color)
-        => CallHistory.Add(new Clear(color));
+    {
+        // DrawOperations += delegate
+        // {
+        //     GL.ClearColor(
+        //         color.X,
+        //         color.Y,
+        //         color.Z,
+        //         color.W
+        //     );
+        // };
+    }
 
-    public void AddDraw()
-        => CallHistory.Add(new Draw());
+    public void AddPoints() 
+        => AddDrawOperation(PrimitiveType.Points);
 
+    public void AddLines() 
+        => AddDrawOperation(PrimitiveType.Lines);
+    
+    public void AddDraw() 
+        => AddDrawOperation(PrimitiveType.LineLoop);
+    
     public void AddFill()
-        => CallHistory.Add(new Fill());
+        => AddDrawOperation(PrimitiveType.Triangles, true);
+    
+    public void AddTriangules() 
+        => AddDrawOperation(PrimitiveType.Triangles);
+    
+    public void AddStrip() 
+        => AddDrawOperation(PrimitiveType.TriangleStrip);
+    
+    public void AddFan() 
+        => AddDrawOperation(PrimitiveType.TriangleFan);
+        
+    private void AddDrawOperation(
+        PrimitiveType primitive, 
+        bool needTriangularization = false
+    )
+    {
+        var shaderCtx = ShaderContextBuilder.Build();
 
-    public void AddStrip()
-        => CallHistory.Add(new Strip());
+        var generator = new GLSLGenerator(VersionText);
+        var (vertSource, vertSetup, fragSoruce, fragSetup) = 
+            generator.GenerateShaders(Position, Color, shaderCtx);
+        
+        // var program = RenderProgram.CreateProgram(
+        //     vertSource, fragSoruce, Verbose
+        // );
+        // shaderCtx.Program = program;
+        
+        DrawOperations += (poly, data) =>
+        {
+            if (needTriangularization)
+                poly = poly.Triangulation;
 
-    public void AddFan()
-        => CallHistory.Add(new Fan());
+            shaderCtx.CreateResources(poly);
+            // GL.UseProgram(program);
 
-    public void AddLines()
-        => CallHistory.Add(new Lines());
+            // shaderCtx.Use(poly);
 
-    public record RenderCall(Render Render, object[] Arguments);
-    public record RenderEnd(Render Render);
-    public record Clear(Vec4 Color);
-    public record Draw;
-    public record Fill;
-    public record Strip;
-    public record Fan;
-    public record Lines;
+            // if (vertSetup is not null)
+            //     vertSetup();
+
+            // if (fragSetup is not null)
+            //     fragSetup();
+
+            // GL.DrawArrays(primitive, 0, poly.Data.Count() / 3);
+        };
+    }
 }

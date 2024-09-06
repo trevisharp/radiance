@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Renders;
+using Contexts;
 
 /// <summary>
 /// Represent a parameter in a function used to create a render.

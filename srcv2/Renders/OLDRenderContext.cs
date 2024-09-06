@@ -35,37 +35,7 @@ public class RenderContext
 
     public void AddClear(Vec4 color)
     {
-        DrawOperations += delegate
-        {
-            GL.ClearColor(
-                color.X,
-                color.Y,
-                color.Z,
-                color.W
-            );
-        };
     }
-
-    public void AddPoints() 
-        => AddDrawOperation(PrimitiveType.Points);
-
-    public void AddLines() 
-        => AddDrawOperation(PrimitiveType.Lines);
-    
-    public void AddDraw() 
-        => AddDrawOperation(PrimitiveType.LineLoop);
-    
-    public void AddFill()
-        => AddDrawOperation(PrimitiveType.Triangles, true);
-    
-    public void AddTriangules() 
-        => AddDrawOperation(PrimitiveType.Triangles);
-    
-    public void AddStrip() 
-        => AddDrawOperation(PrimitiveType.TriangleStrip);
-    
-    public void AddFan() 
-        => AddDrawOperation(PrimitiveType.TriangleFan);
 
     private void AddDrawOperation(
         PrimitiveType primitive, 

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/08/2024
+ * Date:    06/09/2024
  */
 using System.Linq;
 using System.Collections.Generic;
@@ -7,14 +7,14 @@ using System.Collections.Generic;
 using StbImageSharp;
 using OpenTK.Graphics.OpenGL4;
 
-namespace Radiance.Renders;
+namespace Radiance.Contexts.OpenGL;
 
 using Primitives;
 
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public class ShaderContext
+public class OpenGL4ShaderContext : ShaderContext
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];
@@ -50,26 +50,19 @@ public class ShaderContext
     /// </summary>
     public int TextureCount { get; private set; }
     
-    /// <summary>
-    /// Set a uniform with a name to a specific value.
-    /// </summary>
-    public void SetFloat(string name, float value)
+    public override void SetFloat(string name, float value)
     {
         var code = GL.GetUniformLocation(Id, name);
         GL.Uniform1(code, value);
     }
-
-    /// <summary>
-    /// Set a image uniform with a name to a specific value.
-    /// </summary>
-    public void SetTextureData(string name, Texture texture)
+    public override void SetTextureData(string name, Texture texture)
     {
         var id = ActivateImage(texture.ImageData);
         var code = GL.GetUniformLocation(Id, name);
         GL.Uniform1(code, id);
     }
     
-    public void CreateResources(Polygon poly)
+    public override void CreateResources(Polygon poly)
     {
         if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
             return;
@@ -79,7 +72,7 @@ public class ShaderContext
             UpdateResources(poly, bufferBreak, layoutBreak);
     }
 
-    public void Use(Polygon poly)
+    public override void Use(Polygon poly)
     {
         BindVertexArray(poly);
         BindBuffer(poly);
