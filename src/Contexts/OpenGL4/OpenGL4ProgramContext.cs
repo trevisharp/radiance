@@ -56,6 +56,9 @@ public class OpenGL4ProgramContext : ProgramContext
         );
     }
 
+    public override void UseProgram(int program)
+        => GL.UseProgram(program);
+
     /// <summary>
     /// Compile a Vertex Shader and get his id.
     /// </summary>

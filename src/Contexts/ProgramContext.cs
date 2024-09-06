@@ -20,6 +20,7 @@ public abstract class ProgramContext
         bool verbose = false
     );
     public abstract void Clear(Vec4 color);
+    public abstract void UseProgram(int program);
 
     protected static void Error(string message, bool verbose, ref int tabIndex)
         => Verbose(message, ConsoleColor.White, ConsoleColor.Red, tabIndex, verbose);

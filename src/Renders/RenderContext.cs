@@ -117,10 +117,9 @@ public class RenderContext
         var (vertSource, vertSetup, fragSoruce, fragSetup) = 
             generator.GenerateShaders(Position, Color, shaderCtx);
         
-        // var program = RenderProgram.CreateProgram(
-        //     vertSource, fragSoruce, Verbose
-        // );
-        // shaderCtx.Program = program;
+        var program = ProgramContext.CreateProgram(
+            vertSource, fragSoruce, Verbose
+        );
         
         DrawOperations += (poly, data) =>
         {
@@ -128,7 +127,7 @@ public class RenderContext
                 poly = poly.Triangulation;
 
             shaderCtx.CreateResources(poly);
-            // GL.UseProgram(program);
+            ProgramContext.UseProgram(program);
 
             // shaderCtx.Use(poly);
 
