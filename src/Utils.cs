@@ -16,6 +16,7 @@ using Shaders.Objects;
 using Shaders.Dependencies;
 
 using Float = Shaders.Objects.FloatShaderObject;
+using Sampler = Shaders.Objects.Sampler2DShaderObject;
 
 /// <summary>
 /// A facade with all utils to use Radiance features.
@@ -291,6 +292,19 @@ public static class Utils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static dynamic render(Action<Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        
+        var render = new Render(function);
+        render.Load();
+
+        return render;
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler> function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         

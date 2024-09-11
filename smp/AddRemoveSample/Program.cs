@@ -8,9 +8,9 @@ var myFill = render((dx, dy) =>
     color = red;
     fill();
 
-    color = black;
-    pos = (x, y, z - 1);
-    draw();
+    // color = black;
+    // pos = (x, y, z - 1);
+    // draw();
 });
 
 // var myLine = render((dx, dy) =>
@@ -32,7 +32,7 @@ var myFill = render((dx, dy) =>
 Window.OnFrame += () =>
 {
     myFill(Square, 100, 100);
-    myFill(Circle, 650, 650);
+    // myFill(Circle, 650, 650);
 };
 
 Window.CloseOn(Input.Escape);

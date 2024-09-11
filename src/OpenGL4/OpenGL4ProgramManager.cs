@@ -60,12 +60,10 @@ public class OpenGL4ProgramManager : ProgramManager
         bool verbose,
         ref int tabIndex)
     {
-        Start("Vertex Shader Creation", verbose, ref tabIndex);
         var shaderId = CreateShader(
             OpenTKShaderType.VertexShader,
             shader, verbose, ref tabIndex
         );
-        Success("Shader Created!", verbose, ref tabIndex);
         return shaderId;
     }
     
@@ -77,12 +75,10 @@ public class OpenGL4ProgramManager : ProgramManager
         bool verbose,
         ref int tabIndex)
     {
-        Start("Creating Fragment Shader...", verbose, ref tabIndex);
         var shaderId = CreateShader(
             OpenTKShaderType.FragmentShader,
             shader, verbose, ref tabIndex
         );
-        Success("Shader Created!", verbose, ref tabIndex);
         return shaderId;
     }
 
@@ -92,12 +88,9 @@ public class OpenGL4ProgramManager : ProgramManager
         bool verbose,
         ref int tabIndex)
     {
-        Information("Getting Shader...", verbose, ref tabIndex);
         if (shaderMap.TryGetValue(shader.Hash, out int value))
-        {
-            Information("Reusing other shader!", verbose, ref tabIndex);
             return value;
-        }
+        
         Information("Cache miss. Create new shader!", verbose, ref tabIndex);
         
         Code(shader.Code, verbose, ref tabIndex);
@@ -132,14 +125,11 @@ public class OpenGL4ProgramManager : ProgramManager
         bool verbose,
         ref int tabIndex)
     {
-        Start("Creating Program...", verbose, ref tabIndex);
         var programKey = (vertexShader, fragmentShader);
         if (programMap.TryGetValue(programKey, out int reusingProgram))
-        {
-            Information($"Reusing Program {reusingProgram}.", verbose, ref tabIndex);
             return reusingProgram;
-        }
 
+        Start("Creating Program...", verbose, ref tabIndex);
         var program = GL.CreateProgram();
         
         Information("Attaching Shaders...", verbose, ref tabIndex);
