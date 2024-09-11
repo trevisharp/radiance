@@ -50,7 +50,10 @@ public class OpenGL4ProgramManager : ProgramManager
         => GL.ClearColor(color.X, color.Y, color.Z, color.W);
 
     public override void UseProgram(int program)
-        => GL.UseProgram(program);
+    {
+        System.Console.WriteLine($"GL.UseProgram: {program}");
+        GL.UseProgram(program);
+    }
 
     /// <summary>
     /// Compile a Vertex Shader and get his id.

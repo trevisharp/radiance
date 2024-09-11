@@ -17,5 +17,5 @@ public class WidthWindowDependence : ShaderDependence
         => sb.AppendLine("uniform float width;");
 
     public override Action AddOperation(ShaderManager ctx)
-        => () => ctx.SetFloat("width", (float)Window.Width);
+        => () => ctx.SetFloat("width", Window.Width);
 }

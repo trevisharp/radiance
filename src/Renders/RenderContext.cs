@@ -140,5 +140,4 @@ public class RenderContext
             shaderManager.Draw(primitive, poly);
         };
     }
-    
 }

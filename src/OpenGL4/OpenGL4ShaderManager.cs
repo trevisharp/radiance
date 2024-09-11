@@ -76,12 +76,13 @@ public class OpenGL4ManagerContext : ShaderManager
     public override void Use(Polygon poly)
     {
         BindVertexArray(poly);
-        BindBuffer(poly);
+        // BindBuffer(poly);
     }
 
     public override void Draw(PrimitiveType primitiveType, Polygon poly)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
+        System.Console.WriteLine("GL.DrawArrays");
         GL.DrawArrays(openTKType, 0, poly.Data.Count() / 3);
     }
 
@@ -145,12 +146,33 @@ public class OpenGL4ManagerContext : ShaderManager
 
         return handle;
     }
+    
+    private static int CreateBuffer()
+    {
+        var bufferObject = GL.GenBuffer();
+        System.Console.WriteLine($"GL.GenBuffer: {bufferObject}");
+        System.Console.WriteLine($"GL.BindBuffer: {bufferObject}");
+        GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
+        bufferList.Add(bufferObject);
+        return bufferObject;
+    }
+
+    private static void BindBuffer(Polygon poly)
+    {
+        System.Console.WriteLine($"GL.BindBuffer: {poly.Buffer}");
+        GL.BindBuffer(
+            BufferTarget.ArrayBuffer, 
+            poly.Buffer
+        );
+    }
 
     // TODO: Consider multi layout or simplify abstraction
     private static int CreateVertexArray(Polygon data)
     {
         int vertexObject = GL.GenVertexArray();
+        System.Console.WriteLine($"GL.GenVertexArray({vertexObject})");
         GL.BindVertexArray(vertexObject);
+        System.Console.WriteLine($"GL.BindVertexArray({vertexObject})");
 
         int total = 3;
         var stride = total * sizeof(float);
@@ -158,6 +180,8 @@ public class OpenGL4ManagerContext : ShaderManager
 
         int i = 0;
         int offset = 0;
+        System.Console.WriteLine($"GL.VertexAttribPointer({i}, {3}, {type}, false, {stride}, {offset})");
+        System.Console.WriteLine($"GL.EnableVertexAttribArray({i})");
         GL.VertexAttribPointer(i, 3, type, false, stride, offset);
         GL.EnableVertexAttribArray(i);
         offset += 3 * sizeof(float);
@@ -166,25 +190,10 @@ public class OpenGL4ManagerContext : ShaderManager
         vertexArrayList.Add(vertexObject);
         return vertexObject;
     }
-    
-    private static int CreateBuffer()
-    {
-        var bufferObject = GL.GenBuffer();
-        GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
-        bufferList.Add(bufferObject);
-        return bufferObject;
-    }
-
-    private static void BindBuffer(Polygon poly)
-    {
-        GL.BindBuffer(
-            BufferTarget.ArrayBuffer, 
-            poly.Buffer
-        );
-    }
 
     private static void BindVertexArray(Polygon poly)
     {
+        System.Console.WriteLine($"GL.BindVertexArray({poly.VertexObjectArray})");
         GL.BindVertexArray(
             poly.VertexObjectArray
         );
@@ -194,29 +203,32 @@ public class OpenGL4ManagerContext : ShaderManager
     {
         if (bufferBreak)
         {
+            System.Console.WriteLine(bufferBreak);
             if (poly.Buffer > -1)
                 GL.DeleteBuffer(poly.Buffer);
 
             int buffer = CreateBuffer();
             poly.Buffer = buffer;
         }
-        BindBuffer(poly);
+        else BindBuffer(poly);
+        
+        var data = poly.Data.ToArray();
+        System.Console.WriteLine($"GL.BufferData(BufferTarget.ArrayBuffer, {data.Length} * sizeof(float), data, BufferUsageHint.DynamicDraw)");
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            data.Length * sizeof(float), data, 
+            BufferUsageHint.DynamicDraw
+        );
 
         if (layoutBreak)
         {
+            System.Console.WriteLine(layoutBreak);
             if (poly.VertexObjectArray > -1)
                 GL.DeleteVertexArray(poly.VertexObjectArray);
 
             int vertexArray = CreateVertexArray(poly);
             poly.VertexObjectArray = vertexArray;
         }
-        BindVertexArray(poly);
-
-        var data = poly.Data.ToArray();
-        GL.BufferData(
-            BufferTarget.ArrayBuffer,
-            data.Length * sizeof(float), data, 
-            BufferUsageHint.DynamicDraw
-        );
+        else BindVertexArray(poly);
     }
 }
