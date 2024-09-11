@@ -76,13 +76,13 @@ public class OpenGL4ManagerContext : ShaderManager
     public override void Use(Polygon poly)
     {
         BindVertexArray(poly);
-        // BindBuffer(poly);
+        BindBuffer(poly);
     }
 
     public override void Draw(PrimitiveType primitiveType, Polygon poly)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
-        System.Console.WriteLine("GL.DrawArrays");
+        System.Console.WriteLine($"GL.DrawArrays({openTKType}, 0, {poly.Data.Count() / 3})");
         GL.DrawArrays(openTKType, 0, poly.Data.Count() / 3);
     }
 
@@ -150,9 +150,9 @@ public class OpenGL4ManagerContext : ShaderManager
     private static int CreateBuffer()
     {
         var bufferObject = GL.GenBuffer();
-        System.Console.WriteLine($"GL.GenBuffer: {bufferObject}");
-        System.Console.WriteLine($"GL.BindBuffer: {bufferObject}");
         GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
+        System.Console.WriteLine($"GL.GenBuffer() = {bufferObject}");
+        System.Console.WriteLine($"GL.BindBuffer({bufferObject})");
         bufferList.Add(bufferObject);
         return bufferObject;
     }
@@ -170,7 +170,7 @@ public class OpenGL4ManagerContext : ShaderManager
     private static int CreateVertexArray(Polygon data)
     {
         int vertexObject = GL.GenVertexArray();
-        System.Console.WriteLine($"GL.GenVertexArray({vertexObject})");
+        System.Console.WriteLine($"GL.GenVertexArray() = {vertexObject}");
         GL.BindVertexArray(vertexObject);
         System.Console.WriteLine($"GL.BindVertexArray({vertexObject})");
 
@@ -203,9 +203,12 @@ public class OpenGL4ManagerContext : ShaderManager
     {
         if (bufferBreak)
         {
-            System.Console.WriteLine(bufferBreak);
+            System.Console.WriteLine(layoutBreak);
             if (poly.Buffer > -1)
+            {
+                System.Console.WriteLine($"GL.DeleteBuffer({poly.Buffer})");
                 GL.DeleteBuffer(poly.Buffer);
+            }
 
             int buffer = CreateBuffer();
             poly.Buffer = buffer;
