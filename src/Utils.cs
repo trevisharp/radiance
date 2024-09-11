@@ -22,20 +22,17 @@ using Float = Shaders.Objects.FloatShaderObject;
 /// </summary>
 public static class Utils
 {
-    /***************************************/
-    /* DEPENDENCE UTILS                    */
-    /***************************************/
-
+    #region  DEPENDENCE UTILS
     internal readonly static TimeDependence timeDep = new();
     internal readonly static PixelDependence pixelDep = new();
     internal readonly static BufferDependence bufferDep = new();
     internal readonly static WidthWindowDependence widthDep = new();
     internal readonly static HeightWindowDependence heightDep = new();
 
-    /**************************************/
-    /* WINDOWS UTILS                      */
-    /**************************************/
-    
+    #endregion
+
+    #region WINDOWS UTILS
+
     /// <summary>
     /// Get the time between two frames.
     /// </summary>
@@ -57,9 +54,9 @@ public static class Utils
         Window.IsOpen ? Window.Height :
         throw new WindowClosedException();
     
-    /**************************************/
-    /* PRIMITIVE UTILS                    */
-    /**************************************/
+    #endregion
+    
+    #region  PRIMITIVE UTILS
     
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.
@@ -229,9 +226,9 @@ public static class Utils
         return result;
     }
 
-    /*****************************************************/
-    /* RENDER UTILS                                      */
-    /*****************************************************/
+    #endregion
+
+    #region RENDER UTILS
     
     /// <summary>
     /// Get a Kit of autoimplemented renders.
@@ -303,9 +300,9 @@ public static class Utils
         return render;
     }
 
-    /****************************************/
-    /* SHADER ONLY UTILS                    */
-    /****************************************/
+    #endregion
+
+    #region SHADER ONLY UTILS
 
     /// <summary>
     /// Return the current width of screen.
@@ -766,4 +763,6 @@ public static class Utils
             
         return sb.ToString();
     }
+
+    #endregion
 }
