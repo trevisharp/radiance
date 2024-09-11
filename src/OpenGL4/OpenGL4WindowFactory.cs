@@ -1,9 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    30/08/2024
  */
-namespace Radiance.Windows.OpenGL;
+namespace Radiance.OpenGL4;
 
-public class OpenGLWindowFactory : WindowFactory
+using Windows;
+
+public class OpenGL4WindowFactory : WindowFactory
 {
     public override BaseWindow New(bool fullscreen)
         => new OpenGLWindow(fullscreen);

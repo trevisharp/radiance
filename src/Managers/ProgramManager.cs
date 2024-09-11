@@ -4,7 +4,7 @@
 using System;
 using static System.Console;
 
-namespace Radiance.Contexts;
+namespace Radiance.Managers;
 
 using Primitives;
 using Radiance.Shaders.CodeGen;
@@ -12,7 +12,7 @@ using Radiance.Shaders.CodeGen;
 /// <summary>
 /// The manager for shaders and programs.
 /// </summary>
-public abstract class ProgramContext
+public abstract class ProgramManager
 {
     public abstract void FreeAllResources();
     public abstract int CreateProgram(

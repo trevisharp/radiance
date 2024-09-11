@@ -5,16 +5,16 @@ using System;
 
 namespace Radiance;
 
-using Primitives;
+using OpenGL4;
 using Windows;
-using Windows.OpenGL;
+using Primitives;
 
 /// <summary>
 /// Global singleton reference to window in use. 
 /// </summary>
 public static class Window
 {
-    private static WindowFactory factory = new OpenGLWindowFactory();
+    private static WindowFactory factory = new OpenGL4WindowFactory();
     public static WindowFactory Factory
     {
         get => factory;

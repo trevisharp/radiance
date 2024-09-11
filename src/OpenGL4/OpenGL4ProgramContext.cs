@@ -6,15 +6,16 @@ using System.Collections.Generic;
 using OpenTK.Graphics.OpenGL4;
 using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
-namespace Radiance.Contexts.OpenGL4;
+namespace Radiance.OpenGL4;
 
+using Managers;
 using Primitives;
-using Radiance.Shaders.CodeGen;
+using Shaders.CodeGen;
 
 /// <summary>
 /// The manager for shaders and programs mapped to OpenGL4.
 /// </summary>
-public class OpenGL4ProgramContext : ProgramContext
+public class OpenGL4ProgramManager : ProgramManager
 {
     static readonly Dictionary<int, int> shaderMap = [];
     static readonly Dictionary<(int, int), int> programMap = [];

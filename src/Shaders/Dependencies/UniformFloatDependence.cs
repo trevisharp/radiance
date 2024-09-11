@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Contexts;
+using Managers;
 
 /// <summary>
 /// Represent a parameter in a function used to create a render.
@@ -17,7 +17,7 @@ public class UniformFloatDependence(string name) : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform float {name};");
 
-    public override Action AddOperation(ShaderContext ctx)
+    public override Action AddOperation(ShaderManager ctx)
         => () => ctx.SetFloat(name, value);
 
     public override void UpdateData(object value)

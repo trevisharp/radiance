@@ -5,8 +5,9 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
-namespace Radiance.Windows.OpenGL;
+namespace Radiance.OpenGL4;
 
+using Windows;
 using Primitives;
 
 /// <summary>

@@ -7,11 +7,11 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
+using OpenGL4;
 using Shaders;
 using Shaders.CodeGen;
 using Shaders.Objects;
-using Contexts;
-using Contexts.OpenGL4;
+using Managers;
 using Primitives;
 
 /// <summary>
@@ -19,8 +19,8 @@ using Primitives;
 /// </summary>
 public class RenderContext
 {
-    public static ShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
-    public static ProgramContextBuilder ProgramContextBuilder { get; set; } = new OpenGL4ProgramContextBuilder();
+    public static ShaderManagerBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
+    public static ProgramManagerBuilder ProgramContextBuilder { get; set; } = new OpenGL4ProgramContextBuilder();
     
     static readonly Dictionary<int, RenderContext> threadMap = [];
 
@@ -34,12 +34,15 @@ public class RenderContext
     /// <summary>
     /// Open a new context for this thread.
     /// </summary>
-    public static void OpenContext()
+    public static RenderContext OpenContext()
     {
         CloseContext();
 
+        var openedContext = new RenderContext();
         var id = GetCurrentThreadId();
-        threadMap.Add(id, new());
+        threadMap.Add(id, openedContext);
+
+        return openedContext;
     }
 
     /// <summary>
@@ -70,7 +73,7 @@ public class RenderContext
     /// </summary>
     public string VersionText { get; set; } = "330 core";
 
-    public readonly ProgramContext ProgramContext = ProgramContextBuilder.Build();
+    public readonly ProgramManager ProgramContext = ProgramContextBuilder.Build();
 
     public bool Verbose { get; set; } = false;
 

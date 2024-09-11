@@ -7,14 +7,15 @@ using System.Collections.Generic;
 using StbImageSharp;
 using OpenTK.Graphics.OpenGL4;
 
-namespace Radiance.Contexts.OpenGL4;
+namespace Radiance.OpenGL4;
 
+using Managers;
 using Primitives;
 
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public class OpenGL4ShaderContext : ShaderContext
+public class OpenGL4ShaderContext : ShaderManager
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];

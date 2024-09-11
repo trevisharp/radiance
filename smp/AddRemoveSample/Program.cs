@@ -30,10 +30,8 @@ var myFill = render((dx, dy) =>
 
 Window.OnFrame += () =>
 {
-    clear(white);
     myFill(Square, 100, 100);
     myFill(Circle, 650, 650);
-
 };
 
 Window.CloseOn(Input.Escape);

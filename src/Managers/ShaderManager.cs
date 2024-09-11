@@ -1,14 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/09/2024
  */
-namespace Radiance.Contexts;
+namespace Radiance.Managers;
 
 using Primitives;
 
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public abstract class ShaderContext
+public abstract class ShaderManager
 {
     /// <summary>
     /// Set a uniform with a name to a specific value.

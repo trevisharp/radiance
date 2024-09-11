@@ -32,9 +32,8 @@ public class Render(
     /// </summary>
     public void Load()
     {
-        RenderContext.OpenContext();
-
-        var ctx = RenderContext.GetContext()!;
+        var ctx = RenderContext.OpenContext();
+        
         CallWithShaderObjects(function);
 
         RenderContext.CloseContext();

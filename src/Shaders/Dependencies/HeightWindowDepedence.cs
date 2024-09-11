@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Contexts;
+using Managers;
 
 /// <summary>
 /// Represents a dependence of the height of the screen.
@@ -16,6 +16,6 @@ public class HeightWindowDependence : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine("uniform float height;");
 
-    public override Action AddOperation(ShaderContext ctx)
+    public override Action AddOperation(ShaderManager ctx)
         => () => ctx.SetFloat("height", Window.Height);
 }
