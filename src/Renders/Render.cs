@@ -33,8 +33,10 @@ public class Render(
     public void Load()
     {
         var ctx = RenderContext.OpenContext();
-        
+
         CallWithShaderObjects(function);
+
+        OnRender += ctx.DrawOperations;
 
         RenderContext.CloseContext();
     }
@@ -81,7 +83,8 @@ public class Render(
             var frameCtx = FrameContext.GetContext()!;
             frameCtx.PolygonStack.Push(poly);
 
-            // TODO: Run
+            if (OnRender is not null)
+                OnRender(poly, arguments[1..]);
 
             frameCtx.PolygonStack.Pop();
             FrameContext.CloseContext();

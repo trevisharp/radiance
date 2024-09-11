@@ -29,4 +29,9 @@ public abstract class ShaderManager
     /// Start to use a Polygon.
     /// </summary>
     public abstract void Use(Polygon poly);
+
+    /// <summary>
+    /// Draw Arrays in the selected buffer.
+    /// </summary>
+    public abstract void Draw(PrimitiveType primitiveType, Polygon poly);
 }

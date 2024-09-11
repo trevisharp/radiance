@@ -3,6 +3,7 @@ using static Radiance.Utils;
 
 var myFill = render((dx, dy) =>
 {
+    verbose = true;
     pos = (50 * x + dx, 50 * y + dy, z);
     color = red;
     fill();

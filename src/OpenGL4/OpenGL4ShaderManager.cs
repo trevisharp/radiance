@@ -15,7 +15,7 @@ using Primitives;
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public class OpenGL4ShaderContext : ShaderManager
+public class OpenGL4ManagerContext : ShaderManager
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];
@@ -77,6 +77,12 @@ public class OpenGL4ShaderContext : ShaderManager
     {
         BindVertexArray(poly);
         BindBuffer(poly);
+    }
+
+    public override void Draw(PrimitiveType primitiveType, Polygon poly)
+    {
+        var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
+        GL.DrawArrays(openTKType, 0, poly.Data.Count() / 3);
     }
 
     private int ActivateImage(ImageResult image)

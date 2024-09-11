@@ -5,7 +5,7 @@ namespace Radiance.OpenGL4;
 
 using Managers;
 
-public class OpenGL4ProgramContextBuilder : ProgramManagerBuilder
+public class OpenGL4ProgramManagerBuilder : ProgramManagerBuilder
 {
     public override ProgramManager Build()
         => new OpenGL4ProgramManager();

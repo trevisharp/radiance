@@ -19,8 +19,8 @@ using Primitives;
 /// </summary>
 public class RenderContext
 {
-    public static ShaderManagerBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
-    public static ProgramManagerBuilder ProgramContextBuilder { get; set; } = new OpenGL4ProgramContextBuilder();
+    public static ShaderManagerBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderManagerBuilder();
+    public static ProgramManagerBuilder ProgramContextBuilder { get; set; } = new OpenGL4ProgramManagerBuilder();
     
     static readonly Dictionary<int, RenderContext> threadMap = [];
 
@@ -114,10 +114,10 @@ public class RenderContext
         bool needTriangularization = false
     )
     {
-        var shaderCtx = ShaderContextBuilder.Build();
+        var shaderManager = ShaderContextBuilder.Build();
 
         var generator = new GLSLGenerator(VersionText);
-        var pair = generator.GenerateShaders(Position, Color, shaderCtx);
+        var pair = generator.GenerateShaders(Position, Color, shaderManager);
         
         DrawOperations += (poly, data) =>
         {
@@ -126,18 +126,18 @@ public class RenderContext
             if (needTriangularization)
                 poly = poly.Triangulation;
 
-            shaderCtx.CreateResources(poly);
+            shaderManager.CreateResources(poly);
             ProgramContext.UseProgram(program);
 
-            // shaderCtx.Use(poly);
+            shaderManager.Use(poly);
 
-            // if (vertSetup is not null)
-            //     vertSetup();
+            if (pair.VertexShader.Setup is not null)
+                pair.VertexShader.Setup();
 
-            // if (fragSetup is not null)
-            //     fragSetup();
+            if (pair.FragmentShader.Setup is not null)
+                pair.FragmentShader.Setup();
 
-            // GL.DrawArrays(primitive, 0, poly.Data.Count() / 3);
+            shaderManager.Draw(primitive, poly);
         };
     }
     

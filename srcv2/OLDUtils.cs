@@ -9,7 +9,7 @@ public static class Utils
             throw new ArgumentNullException("function");
         
         return new Render(function);
-    }
+    }   
 
     /// <summary>
     /// Create render with shaders based on function recived.

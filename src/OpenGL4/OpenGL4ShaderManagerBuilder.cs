@@ -8,8 +8,8 @@ using Managers;
 /// <summary>
 /// A Builder for a ShaderContext.
 /// </summary>
-public class OpenGL4ShaderContextBuilder : ShaderManagerBuilder
+public class OpenGL4ShaderManagerBuilder : ShaderManagerBuilder
 {
     public override ShaderManager Build()
-        => new OpenGL4ShaderContext();
+        => new OpenGL4ManagerContext();
 }
