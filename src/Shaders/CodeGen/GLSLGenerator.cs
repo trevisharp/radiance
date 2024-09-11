@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/09/2024
+ * Date:    11/09/2024
  */
 using System;
 using System.Text;
@@ -15,10 +15,6 @@ using Objects;
 /// </summary>
 public class GLSLGenerator(string version)
 {
-    public record ShaderPair(
-        string VertexCode, Action? VertexSetup,
-        string FragmentCode, Action? FragmentSetup
-    );
 
     /// <summary>
     /// Get or Set the GSLS Version.
@@ -123,6 +119,12 @@ public class GLSLGenerator(string version)
         closeMain(vertSb);
         closeMain(fragSb);
 
-        return new(vertSb.ToString(), vertStp, fragSb.ToString(), fragStp);
+        var vertexCode = vertSb.ToString();
+        var vertexShader = new Shader(vertexCode, vertexCode.GetHashCode(), vertStp);
+
+        var fragmentCode = fragSb.ToString();
+        var fragmentShader = new Shader(fragmentCode, fragmentCode.GetHashCode(), fragStp);
+
+        return new(vertexShader, fragmentShader);
     }
 }

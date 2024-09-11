@@ -7,6 +7,7 @@ using static System.Console;
 namespace Radiance.Contexts;
 
 using Primitives;
+using Radiance.Shaders.CodeGen;
 
 /// <summary>
 /// The manager for shaders and programs.
@@ -15,8 +16,7 @@ public abstract class ProgramContext
 {
     public abstract void FreeAllResources();
     public abstract int CreateProgram(
-        string vertexSource,
-        string fragmentSource,
+        ShaderPair pair,
         bool verbose = false
     );
     public abstract void Clear(Vec4 color);

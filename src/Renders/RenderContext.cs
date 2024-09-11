@@ -114,15 +114,12 @@ public class RenderContext
         var shaderCtx = ShaderContextBuilder.Build();
 
         var generator = new GLSLGenerator(VersionText);
-        var (vertSource, vertSetup, fragSoruce, fragSetup) = 
-            generator.GenerateShaders(Position, Color, shaderCtx);
-        
-        var program = ProgramContext.CreateProgram(
-            vertSource, fragSoruce, Verbose
-        );
+        var pair = generator.GenerateShaders(Position, Color, shaderCtx);
         
         DrawOperations += (poly, data) =>
         {
+            var program = ProgramContext.CreateProgram(pair, Verbose);
+
             if (needTriangularization)
                 poly = poly.Triangulation;
 
