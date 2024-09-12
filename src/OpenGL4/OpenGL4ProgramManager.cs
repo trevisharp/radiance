@@ -51,7 +51,7 @@ public class OpenGL4ProgramManager : ProgramManager
 
     public override void UseProgram(int program)
     {
-        System.Console.WriteLine($"GL.UseProgram: {program}");
+        System.Console.WriteLine($"GL.UseProgram({program})");
         GL.UseProgram(program);
     }
 
@@ -142,7 +142,7 @@ public class OpenGL4ProgramManager : ProgramManager
         Information("Link Program...", verbose, ref tabIndex);
         GL.LinkProgram(program);
 
-        Information("Dettaching Program...", verbose, ref tabIndex);
+        Information("Dettaching Shaders...", verbose, ref tabIndex);
         GL.DetachShader(program, vertexShader);
         GL.DetachShader(program, fragmentShader);
 

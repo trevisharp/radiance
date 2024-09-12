@@ -58,7 +58,7 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
             CursorState = CursorState.Normal
         };
 
-        win.Resize += e =>
+        win.FramebufferResize += e =>
         {
             UpdateSize(win);
         };

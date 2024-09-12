@@ -50,11 +50,16 @@ public class OpenGL4ManagerContext : ShaderManager
     /// Get the count of textures loaded on this context.
     /// </summary>
     public int TextureCount { get; private set; }
-    
+
+    public override void SetProgram(int program)
+        => Id = program;
+
     public override void SetFloat(string name, float value)
     {
         var code = GL.GetUniformLocation(Id, name);
+        System.Console.WriteLine($"GL.GetUniformLocation({Id}, {name}) = {code}");
         GL.Uniform1(code, value);
+        System.Console.WriteLine($"GL.Uniform1({code}, {value})");
     }
     public override void SetTextureData(string name, Texture texture)
     {
@@ -152,14 +157,14 @@ public class OpenGL4ManagerContext : ShaderManager
         var bufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
         System.Console.WriteLine($"GL.GenBuffer() = {bufferObject}");
-        System.Console.WriteLine($"GL.BindBuffer({bufferObject})");
+        System.Console.WriteLine($"GL.BindBuffer(BufferTarget.ArrayBuffer, {bufferObject})");
         bufferList.Add(bufferObject);
         return bufferObject;
     }
 
     private static void BindBuffer(Polygon poly)
     {
-        System.Console.WriteLine($"GL.BindBuffer: {poly.Buffer}");
+        System.Console.WriteLine($"GL.BindBuffer(BufferTarget.ArrayBuffer, {poly.Buffer})");
         GL.BindBuffer(
             BufferTarget.ArrayBuffer, 
             poly.Buffer
@@ -203,7 +208,6 @@ public class OpenGL4ManagerContext : ShaderManager
     {
         if (bufferBreak)
         {
-            System.Console.WriteLine(layoutBreak);
             if (poly.Buffer > -1)
             {
                 System.Console.WriteLine($"GL.DeleteBuffer({poly.Buffer})");
@@ -225,7 +229,6 @@ public class OpenGL4ManagerContext : ShaderManager
 
         if (layoutBreak)
         {
-            System.Console.WriteLine(layoutBreak);
             if (poly.VertexObjectArray > -1)
                 GL.DeleteVertexArray(poly.VertexObjectArray);
 

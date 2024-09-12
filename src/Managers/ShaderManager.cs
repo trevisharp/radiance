@@ -11,6 +11,11 @@ using Primitives;
 public abstract class ShaderManager
 {
     /// <summary>
+    /// Associate a program id to this shader.
+    /// </summary>
+    public abstract void SetProgram(int program);
+
+    /// <summary>
     /// Set a uniform with a name to a specific value.
     /// </summary>
     public abstract void SetFloat(string name, float value);

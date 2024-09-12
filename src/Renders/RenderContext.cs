@@ -122,6 +122,7 @@ public class RenderContext
         DrawOperations += (poly, data) =>
         {
             var program = ProgramContext.CreateProgram(pair, Verbose);
+            shaderManager.SetProgram(program);
 
             if (needTriangularization)
                 poly = poly.Triangulation;

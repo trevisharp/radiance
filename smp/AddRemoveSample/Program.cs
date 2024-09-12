@@ -4,7 +4,7 @@ using static Radiance.Utils;
 var myFill = render((dx, dy) =>
 {
     verbose = true;
-    pos = (50 * x + dx, 50 * y + dy, z);
+    pos = 50 * pos + (dx, dy, 0);
     color = red;
     fill();
 
