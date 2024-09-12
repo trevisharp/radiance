@@ -26,7 +26,7 @@ public class Render(
     /// <summary>
     /// The event called when the render is ready to draw.
     /// </summary>
-    public event Action<Polygon, object[]>? OnRender;
+    protected Action<Polygon, object[]>? OnRender;
 
     /// <summary>
     /// Create a shader to represent the render.
@@ -37,7 +37,7 @@ public class Render(
 
         CallWithShaderObjects(function);
 
-        OnRender += ctx.DrawOperations;
+        OnRender += ctx.RenderActions;
 
         RenderContext.CloseContext();
     }
@@ -91,6 +91,9 @@ public class Render(
         return true;
     }
 
+    /// <summary>
+    /// Call the function passing real data and running the draw pipeline.
+    /// </summary>
     static void CallWithRealData(Action<Polygon, object[]>? render, Polygon poly, int parameterCount, object[] arguments)
     {
         if (Window.Phase == WindowPhase.None)

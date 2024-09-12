@@ -44,6 +44,11 @@ public abstract class BaseWindow
     public WindowPhase Phase { get; protected set; } = WindowPhase.None;
 
     /// <summary>
+    /// Get or Set if the window is active and will call events.
+    /// </summary>
+    public bool Active { get; set; } = true;
+
+    /// <summary>
     /// The time between the current and the last frame.
     /// </summary>
     public float DeltaTime => frameController.DeltaTime;
@@ -116,27 +121,12 @@ public abstract class BaseWindow
         };
     }
     
-    // TODO: Pipeline generation process
-    event Action? RenderActions;
-    public event Action OnRender
-    {
-        add
-        {
-            RenderActions += value;
-        }
-        remove
-        {
-            RenderActions -= value;
-        }
-    }
-
+    public event Action? OnRender;
     public event Action? OnLoad;
     public event Action? OnUnload;
     public event Action? OnFrame;
-
     public event Action<Input, Modifier>? OnKeyDown;
     public event Action<Input, Modifier>? OnKeyUp;
-
     public event Action<(float x, float y)>? OnMouseMove;
     public event Action<MouseButton>? OnMouseDown;
     public event Action<MouseButton>? OnMouseUp;
@@ -149,12 +139,18 @@ public abstract class BaseWindow
         if (OnMouseLeave is null)
             return;
         
+        if (!Active)
+            return;
+        
         OnMouseLeave();
     }
 
     protected void MouseEnter()
     {
         if (OnMouseEnter is null)
+            return;
+        
+        if (!Active)
             return;
         
         OnMouseEnter();
@@ -165,12 +161,18 @@ public abstract class BaseWindow
         if (OnMouseWhell is null)
             return;
         
+        if (!Active)
+            return;
+        
         OnMouseWhell(offset);
     }
 
     protected void MouseMove(float x, float y)
     {
         if (OnMouseMove is null)
+            return;
+        
+        if (!Active)
             return;
         
         OnMouseMove((x, y));
@@ -181,12 +183,18 @@ public abstract class BaseWindow
         if (OnMouseUp is null)
             return;
         
+        if (!Active)
+            return;
+        
         OnMouseUp(buttons);
     }
 
     protected void MouseDown(MouseButton buttons)
     {
         if (OnMouseDown is null)
+            return;
+        
+        if (!Active)
             return;
         
         OnMouseDown(buttons);
@@ -197,12 +205,18 @@ public abstract class BaseWindow
         if (OnKeyDown is null)
             return;
         
+        if (!Active)
+            return;
+        
         OnKeyDown(input, modifier);
     }
     
     protected void KeyUp(Input input, Modifier modifier)
     {
         if (OnKeyUp is null)
+            return;
+        
+        if (!Active)
             return;
         
         OnKeyUp(input, modifier);
@@ -213,16 +227,24 @@ public abstract class BaseWindow
         if (OnFrame is null)
             return;
         
+        if (!Active)
+            return;
+        
+        Phase = WindowPhase.OnFrame;
         OnFrame();
+        Phase = WindowPhase.None;
     }
 
     protected void Render()
     {
-        if (RenderActions is null)
+        if (OnRender is null)
+            return;
+        
+        if (!Active)
             return;
         
         Phase = WindowPhase.OnRender;
-        RenderActions();
+        OnRender();
         Phase = WindowPhase.None;
     }
 
@@ -231,7 +253,9 @@ public abstract class BaseWindow
         if (OnLoad is null)
             return;
         
+        Phase = WindowPhase.OnLoad;
         OnLoad();
+        Phase = WindowPhase.None;
     }
 
     protected void Unload()
@@ -239,6 +263,8 @@ public abstract class BaseWindow
         if (OnUnload is null)
             return;
         
+        Phase = WindowPhase.OnUnload;
         OnUnload();
+        Phase = WindowPhase.None;
     }
 }

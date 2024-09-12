@@ -74,7 +74,7 @@ public class RenderContext
 
     public bool Verbose { get; set; } = false;
 
-    public Action<Polygon, object[]>? DrawOperations { get; set; }
+    public Action<Polygon, object[]>? RenderActions { get; set; }
 
     public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]);
 
@@ -83,7 +83,7 @@ public class RenderContext
     public List<object> CallHistory { get; private set; } = [];
 
     public void AddClear(Vec4 color)
-        => DrawOperations += (_, _) => ProgramContext.Clear(color);
+        => RenderActions += (_, _) => ProgramContext.Clear(color);
 
     public void AddPoints() 
         => AddDrawOperation(PrimitiveType.Points);
@@ -116,7 +116,7 @@ public class RenderContext
         var generator = CodeGeneratorBuilder.Build();
         var pair = generator.GenerateShaders(Position, Color, shaderManager);
         
-        DrawOperations += (poly, data) =>
+        RenderActions += (poly, data) =>
         {
             var program = ProgramContext.CreateProgram(pair, Verbose);
             shaderManager.SetProgram(program);

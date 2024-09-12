@@ -8,6 +8,9 @@ namespace Radiance.Windows;
 /// </summary>
 public enum WindowPhase
 {
-    None = 0,
-    OnRender = 1
+    None,
+    OnLoad,
+    OnUnload,
+    OnRender, 
+    OnFrame 
 }

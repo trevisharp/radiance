@@ -1,14 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    05/09/2024
  */
-using System;
 using System.Threading;
 using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
-using Shaders;
-using Shaders.Objects;
 using Primitives;
 
 /// <summary>

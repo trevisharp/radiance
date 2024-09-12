@@ -31,7 +31,7 @@ public abstract class ShaderObject(
         where R : ShaderObject
     {
         var deps = objs.SelectMany(x => x.Dependencies);
-        var originInfo = unionOrigin(objs.Select(x => x.Origin));
+        var originInfo = UnionOrigin(objs.Select(x => x.Origin));
 
         if (originInfo.hasConflitct)
         {
@@ -50,7 +50,7 @@ public abstract class ShaderObject(
         return newObj!;
     }
 
-    private static (ShaderOrigin origin, bool hasConflitct) unionOrigin(IEnumerable<ShaderOrigin> origins)
+    static (ShaderOrigin origin, bool hasConflitct) UnionOrigin(IEnumerable<ShaderOrigin> origins)
     {
         var nonGlobal =
             from origin in origins
