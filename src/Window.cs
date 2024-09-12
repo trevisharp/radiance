@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/08/2024
+ * Date:    12/09/2024
  */
 using System;
 
@@ -10,7 +10,7 @@ using Windows;
 using Primitives;
 
 /// <summary>
-/// Global singleton reference to window in use. 
+/// Global singleton reference to main window in use. 
 /// </summary>
 public static class Window
 {
@@ -30,6 +30,11 @@ public static class Window
 
     private static BaseWindow current = New();
     public static BaseWindow Current => current;
+
+    /// <summary>
+    /// Get the phase of render pipeline from this window.
+    /// </summary>
+    public static WindowPhase Phase => Current.Phase;
 
     /// <summary>
     /// Return true if screen is Open.

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/08/2024
+ * Date:    12/09/2024
  */
 using System;
 
@@ -37,6 +37,11 @@ public abstract class BaseWindow
     }
 
     protected readonly TimeFrameController frameController = new();
+
+    /// <summary>
+    /// Get the phase of render pipeline from this window.
+    /// </summary>
+    public WindowPhase Phase { get; protected set; } = WindowPhase.None;
 
     /// <summary>
     /// The time between the current and the last frame.
@@ -216,7 +221,9 @@ public abstract class BaseWindow
         if (RenderActions is null)
             return;
         
+        Phase = WindowPhase.OnRender;
         RenderActions();
+        Phase = WindowPhase.None;
     }
 
     protected void Load()

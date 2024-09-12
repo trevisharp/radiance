@@ -13,6 +13,7 @@ using Exceptions;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
+using Windows;
 
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
@@ -79,19 +80,7 @@ public class Render(
         
         if (ctx is null)
         {
-            FrameContext.OpenContext();
-            var frameCtx = FrameContext.GetContext()!;
-            frameCtx.PolygonStack.Push(poly);
-
-            var extraArgs = new object[parameterCount];
-            DisplayParameters(extraArgs, arguments[1..]);
-
-            if (OnRender is not null)
-                OnRender(poly, extraArgs);
-
-            frameCtx.PolygonStack.Pop();
-            FrameContext.CloseContext();
-            
+            CallWithRealData(OnRender, poly, parameterCount, arguments);
             result = null;
             return true;
         }
@@ -100,6 +89,27 @@ public class Render(
 
         result = null;
         return true;
+    }
+
+    static void CallWithRealData(Action<Polygon, object[]>? render, Polygon poly, int parameterCount, object[] arguments)
+    {
+        if (Window.Phase == WindowPhase.None)
+            throw new OutOfRenderException();
+
+        FrameContext.OpenContext();
+        var frameCtx = FrameContext.GetContext()!;
+        frameCtx.PolygonStack.Push(poly);
+
+        var extraArgs = new object[parameterCount];
+        DisplayParameters(extraArgs, arguments[1..]);
+
+        if (render is null)
+            return;
+        render(poly, extraArgs);
+
+        frameCtx.PolygonStack.Pop();
+        FrameContext.CloseContext();
+        
     }
     
     /// <summary>

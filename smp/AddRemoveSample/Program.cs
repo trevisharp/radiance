@@ -7,9 +7,8 @@ var myFill = render((dx, dy) =>
     color = red;
     fill();
 
-    // color = black;
-    // pos = (x, y, z - 1);
-    // draw();
+    color = white;
+    draw();
 });
 
 // var myLine = render((dx, dy) =>
