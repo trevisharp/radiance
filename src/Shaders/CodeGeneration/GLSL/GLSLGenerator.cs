@@ -5,7 +5,7 @@ using System;
 using System.Text;
 using System.Linq;
 
-namespace Radiance.Shaders.CodeGen;
+namespace Radiance.Shaders.CodeGeneration.GLSL;
 
 using Managers;
 using Objects;
@@ -13,13 +13,13 @@ using Objects;
 /// <summary>
 /// Tools to generate GL Shader Language Code.
 /// </summary>
-public class GLSLGenerator(string version)
+public class GLSLGenerator : ICodeGenerator
 {
 
     /// <summary>
     /// Get or Set the GSLS Version.
     /// </summary>
-    public string VersionText { get; set; } = version;
+    public string VersionText { get; set; } = "330 core";
     
     /// <summary>
     /// Generate a pair of vertex and fragment GLSL Shaders based on Position Shader Object,

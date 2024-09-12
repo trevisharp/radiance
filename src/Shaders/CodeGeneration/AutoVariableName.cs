@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    02/09/2024
  */
-namespace Radiance.Shaders.CodeGen;
+namespace Radiance.Shaders.CodeGeneration;
 
 /// <summary>
 /// Used to manage and generate automatically variable names.

@@ -7,7 +7,7 @@ using static System.Console;
 namespace Radiance.Managers;
 
 using Primitives;
-using Radiance.Shaders.CodeGen;
+using Radiance.Shaders.CodeGeneration;
 
 /// <summary>
 /// The manager for shaders and programs.

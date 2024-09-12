@@ -5,7 +5,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using CodeGen;
+using CodeGeneration;
 
 /// <summary>
 /// Represents a dependence of output data from Vertex Shader to Fragment Shader.

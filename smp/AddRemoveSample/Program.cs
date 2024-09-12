@@ -3,7 +3,7 @@ using static Radiance.Utils;
 
 var myFill = render((dx, dy) =>
 {
-    pos = 50 * pos + (dx, dy, 0);
+    pos = 150 * pos + (dx, dy, 0);
     color = red;
     fill();
 
@@ -30,7 +30,6 @@ var myFill = render((dx, dy) =>
 
 Window.OnRender += () =>
 {
-    myFill(Square, 100, 100);
     myFill(Square, 100, 100);
     // myFill(Circle, 650, 650);
 };

@@ -9,8 +9,9 @@ namespace Radiance.Renders;
 
 using OpenGL4;
 using Shaders;
-using Shaders.CodeGen;
 using Shaders.Objects;
+using Shaders.CodeGeneration;
+using Shaders.CodeGeneration.GLSL;
 using Managers;
 using Primitives;
 
@@ -21,6 +22,7 @@ public class RenderContext
 {
     public static ShaderManagerBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderManagerBuilder();
     public static ProgramManagerBuilder ProgramContextBuilder { get; set; } = new OpenGL4ProgramManagerBuilder();
+    public static ICodeGeneratorBuilder CodeGeneratorBuilder { get; set; } = new GLSLGeneratorBuilder();
     
     static readonly Dictionary<int, RenderContext> threadMap = [];
 
@@ -68,11 +70,6 @@ public class RenderContext
             ? ctx : null;
     }
 
-    /// <summary>
-    /// Get or Set the GSLS Version. The default value is '330 core'
-    /// </summary>
-    public string VersionText { get; set; } = "330 core";
-
     public readonly ProgramManager ProgramContext = ProgramContextBuilder.Build();
 
     public bool Verbose { get; set; } = false;
@@ -116,7 +113,7 @@ public class RenderContext
     {
         var shaderManager = ShaderContextBuilder.Build();
 
-        var generator = new GLSLGenerator(VersionText);
+        var generator = CodeGeneratorBuilder.Build();
         var pair = generator.GenerateShaders(Position, Color, shaderManager);
         
         DrawOperations += (poly, data) =>

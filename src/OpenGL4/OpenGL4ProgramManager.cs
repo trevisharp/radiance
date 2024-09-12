@@ -10,7 +10,7 @@ namespace Radiance.OpenGL4;
 
 using Managers;
 using Primitives;
-using Shaders.CodeGen;
+using Shaders.CodeGeneration;
 
 /// <summary>
 /// The manager for shaders and programs mapped to OpenGL4.
