@@ -57,9 +57,7 @@ public class OpenGL4ManagerContext : ShaderManager
     public override void SetFloat(string name, float value)
     {
         var code = GL.GetUniformLocation(Id, name);
-        System.Console.WriteLine($"GL.GetUniformLocation({Id}, {name}) = {code}");
         GL.Uniform1(code, value);
-        System.Console.WriteLine($"GL.Uniform1({code}, {value})");
     }
     public override void SetTextureData(string name, Texture texture)
     {
@@ -87,7 +85,6 @@ public class OpenGL4ManagerContext : ShaderManager
     public override void Draw(PrimitiveType primitiveType, Polygon poly)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
-        System.Console.WriteLine($"GL.DrawArrays({openTKType}, 0, {poly.Data.Count() / 3})");
         GL.DrawArrays(openTKType, 0, poly.Data.Count() / 3);
     }
 
@@ -156,15 +153,12 @@ public class OpenGL4ManagerContext : ShaderManager
     {
         var bufferObject = GL.GenBuffer();
         GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
-        System.Console.WriteLine($"GL.GenBuffer() = {bufferObject}");
-        System.Console.WriteLine($"GL.BindBuffer(BufferTarget.ArrayBuffer, {bufferObject})");
         bufferList.Add(bufferObject);
         return bufferObject;
     }
 
     private static void BindBuffer(Polygon poly)
     {
-        System.Console.WriteLine($"GL.BindBuffer(BufferTarget.ArrayBuffer, {poly.Buffer})");
         GL.BindBuffer(
             BufferTarget.ArrayBuffer, 
             poly.Buffer
@@ -175,9 +169,7 @@ public class OpenGL4ManagerContext : ShaderManager
     private static int CreateVertexArray(Polygon data)
     {
         int vertexObject = GL.GenVertexArray();
-        System.Console.WriteLine($"GL.GenVertexArray() = {vertexObject}");
         GL.BindVertexArray(vertexObject);
-        System.Console.WriteLine($"GL.BindVertexArray({vertexObject})");
 
         int total = 3;
         var stride = total * sizeof(float);
@@ -185,8 +177,6 @@ public class OpenGL4ManagerContext : ShaderManager
 
         int i = 0;
         int offset = 0;
-        System.Console.WriteLine($"GL.VertexAttribPointer({i}, {3}, {type}, false, {stride}, {offset})");
-        System.Console.WriteLine($"GL.EnableVertexAttribArray({i})");
         GL.VertexAttribPointer(i, 3, type, false, stride, offset);
         GL.EnableVertexAttribArray(i);
         offset += 3 * sizeof(float);
@@ -198,7 +188,6 @@ public class OpenGL4ManagerContext : ShaderManager
 
     private static void BindVertexArray(Polygon poly)
     {
-        System.Console.WriteLine($"GL.BindVertexArray({poly.VertexObjectArray})");
         GL.BindVertexArray(
             poly.VertexObjectArray
         );
@@ -210,7 +199,6 @@ public class OpenGL4ManagerContext : ShaderManager
         {
             if (poly.Buffer > -1)
             {
-                System.Console.WriteLine($"GL.DeleteBuffer({poly.Buffer})");
                 GL.DeleteBuffer(poly.Buffer);
             }
 
@@ -220,7 +208,6 @@ public class OpenGL4ManagerContext : ShaderManager
         else BindBuffer(poly);
         
         var data = poly.Data.ToArray();
-        System.Console.WriteLine($"GL.BufferData(BufferTarget.ArrayBuffer, {data.Length} * sizeof(float), data, BufferUsageHint.DynamicDraw)");
         GL.BufferData(
             BufferTarget.ArrayBuffer,
             data.Length * sizeof(float), data,

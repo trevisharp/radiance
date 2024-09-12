@@ -51,7 +51,6 @@ public class OpenGL4ProgramManager : ProgramManager
 
     public override void UseProgram(int program)
     {
-        System.Console.WriteLine($"GL.UseProgram({program})");
         GL.UseProgram(program);
     }
 

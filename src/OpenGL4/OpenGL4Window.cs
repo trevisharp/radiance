@@ -86,7 +86,6 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
             
             Render();
 
-            System.Console.WriteLine();
             win.SwapBuffers();
         };
 
