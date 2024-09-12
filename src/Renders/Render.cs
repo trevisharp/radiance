@@ -53,7 +53,7 @@ public class Render(
         out object? result)
     {
         var ctx = RenderContext.GetContext();
-        var parameterCount = function.Method.GetParameters().Length + 1;
+        var parameterCount = function.Method.GetParameters().Length;
         object[] arguments = [
             ..curryingArguments, ..args
         ];
@@ -68,13 +68,13 @@ public class Render(
         if (arguments[0] is not Polygon poly)
             throw new MissingPolygonException();
 
-        if (argumentCount < parameterCount)
+        if (argumentCount < parameterCount + 1)
         {
             result = Curry(args ?? []);
             return true;
         }
 
-        if (argumentCount > parameterCount)
+        if (argumentCount > parameterCount + 1)
             throw new ExcessOfArgumentsException();
         
         if (ctx is null)
@@ -83,8 +83,11 @@ public class Render(
             var frameCtx = FrameContext.GetContext()!;
             frameCtx.PolygonStack.Push(poly);
 
+            var extraArgs = new object[parameterCount];
+            DisplayParameters(extraArgs, arguments[1..]);
+
             if (OnRender is not null)
-                OnRender(poly, arguments[1..]);
+                OnRender(poly, extraArgs);
 
             frameCtx.PolygonStack.Pop();
             FrameContext.CloseContext();

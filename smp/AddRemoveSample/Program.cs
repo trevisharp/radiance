@@ -29,7 +29,7 @@ var myFill = render((dx, dy) =>
 //     );
 // });
 
-Window.OnFrame += () =>
+Window.OnRender += () =>
 {
     myFill(Square, 100, 100);
     // myFill(Circle, 650, 650);

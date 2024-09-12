@@ -223,7 +223,7 @@ public class OpenGL4ManagerContext : ShaderManager
         System.Console.WriteLine($"GL.BufferData(BufferTarget.ArrayBuffer, {data.Length} * sizeof(float), data, BufferUsageHint.DynamicDraw)");
         GL.BufferData(
             BufferTarget.ArrayBuffer,
-            data.Length * sizeof(float), data, 
+            data.Length * sizeof(float), data,
             BufferUsageHint.DynamicDraw
         );
 
