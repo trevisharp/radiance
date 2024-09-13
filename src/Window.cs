@@ -101,73 +101,108 @@ public static class Window
     /// </summary>
     public static float Fps => Current.Fps;
     
+    /// <summary>
+    /// Occurs when the render pipeline is activated.
+    /// </summary>
     public static event Action OnRender
     {
         add => Current.OnRender += value;
         remove => Current.OnRender -= value;
     }
 
+    /// <summary>
+    /// Occurs when the window is loading to open.
+    /// </summary>
     public static event Action OnLoad
     {
         add => Current.OnLoad += value;
         remove => Current.OnLoad -= value;
     }
 
+    /// <summary>
+    /// Occurs when the window is loading to close.
+    /// </summary>
     public static event Action OnUnload
     {
         add => Current.OnUnload += value;
         remove => Current.OnUnload -= value;
     }
 
+    /// <summary>
+    /// Occurs before the render event. This event not draw new information on screen.
+    /// </summary>
     public static event Action OnFrame
     {
         add => Current.OnFrame += value;
         remove => Current.OnFrame -= value;
     }
 
+    /// <summary>
+    /// Occurs when the user press a key.
+    /// </summary>
     public static event Action<Input, Modifier> OnKeyDown
     {
         add => Current.OnKeyDown += value;
         remove => Current.OnKeyDown -= value;
     }
 
+    /// <summary>
+    /// Occurs when the user release a key.
+    /// </summary>
     public static event Action<Input, Modifier> OnKeyUp
     {
         add => Current.OnKeyUp += value;
         remove => Current.OnKeyUp -= value;
     }
-    
 
+    /// <summary>
+    /// Occures when the user move the cursor.
+    /// </summary>
     public static event Action<(float x, float y)> OnMouseMove
     {
         add => Current.OnMouseMove += value;
         remove => Current.OnMouseMove -= value;
     }
     
+    /// <summary>
+    /// Occures when the user press the cursor button.
+    /// </summary>
     public static event Action<MouseButton> OnMouseDown
     {
         add => Current.OnMouseDown += value;
         remove => Current.OnMouseDown -= value;
     }
     
+    /// <summary>
+    /// Occures when the user release the cursor button.
+    /// </summary>
     public static event Action<MouseButton> OnMouseUp
     {
         add => Current.OnMouseUp += value;
         remove => Current.OnMouseUp -= value;
     }
     
+    /// <summary>
+    /// Occurs when the user move the mouse wheel.
+    /// </summary>
     public static event Action<float> OnMouseWhell
     {
         add => Current.OnMouseWhell += value;
         remove => Current.OnMouseWhell -= value;
     }
     
+    /// <summary>
+    /// Occurs when the cursor enters the screen.
+    /// </summary>
     public static event Action OnMouseEnter
     {
         add => Current.OnMouseEnter += value;
         remove => Current.OnMouseEnter -= value;
     }
     
+    /// <summary>
+    /// Occurs when the cursor leaves the screen.
+    /// </summary>
     public static event Action OnMouseLeave
     {
         add => Current.OnMouseLeave += value;
