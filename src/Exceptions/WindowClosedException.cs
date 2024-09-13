@@ -5,9 +5,9 @@ using System;
 
 namespace Radiance.Exceptions;
 
-public class WindowClosedException : Exception
+public class WindowClosedException : RadianceException
 {
-    public override string Message =>
+    public override string ErrorMessage =>
         """
         Windows is closed and the deltatime cannot be readed.
         """;

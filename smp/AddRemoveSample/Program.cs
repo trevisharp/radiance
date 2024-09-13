@@ -32,7 +32,7 @@ var drawSquare = myFill(Square);
 
 Window.OnRender += () =>
 {
-    myFill(Square, 100, 100);
+    myFill(Square, "100", 100);
     // myFill(Circle, 650, 650);
 };
 

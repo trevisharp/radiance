@@ -5,9 +5,9 @@ using System;
 
 namespace Radiance.Exceptions;
 
-public class ExcessOfArgumentsException : Exception
+public class ExcessOfArgumentsException : RadianceException
 {
-    public override string Message => 
+    public override string ErrorMessage =>
         """
         A render is called with more arguments than parameters.
         Remember that a type like Vec3 counts as 3 arguments.

@@ -8,9 +8,9 @@ namespace Radiance.Exceptions;
 /// <summary>
 /// Represents a error that occurs when a immutable polygon has modified.
 /// </summary>
-public class ImmutablePolygonModifyException : Exception
+public class ImmutablePolygonModifyException : RadianceException
 {
-    public override string Message => 
+    public override string ErrorMessage =>
         """
         Polygon type can call MakeImmutable() method making the type immutable.
         A immutable polygon cannot be modified, therefore, it cannot perform the 

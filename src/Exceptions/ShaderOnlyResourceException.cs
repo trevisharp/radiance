@@ -5,9 +5,9 @@ using System;
 
 namespace Radiance.Exceptions;
 
-public class ShaderOnlyResourceException : Exception
+public class ShaderOnlyResourceException : RadianceException
 {
-    public override string Message => 
+    public override string ErrorMessage =>
         """
         This resource only be called inside of a render.
         """;

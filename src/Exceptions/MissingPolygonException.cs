@@ -5,9 +5,9 @@ using System;
 
 namespace Radiance.Exceptions;
 
-public class MissingPolygonException : Exception
+public class MissingPolygonException : RadianceException
 {
-    public override string Message => 
+    public override string ErrorMessage =>
         """
         A render need be called with a polygon as first argument.
         """;

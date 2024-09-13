@@ -5,9 +5,9 @@ using System;
 
 namespace Radiance.Exceptions;
 
-public class InvalidRenderException : Exception
+public class InvalidRenderException : RadianceException
 {
-    public override string Message => 
+    public override string ErrorMessage =>
         """
         All parameters of a Render Delegate need be from type FloatShaderObject or TextureShaderObject.
         """;
