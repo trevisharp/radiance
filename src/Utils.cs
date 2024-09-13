@@ -24,6 +24,7 @@ using Sampler = Shaders.Objects.Sampler2DShaderObject;
 public static class Utils
 {
     #region  DEPENDENCE UTILS
+    
     internal readonly static TimeDependence timeDep = new();
     internal readonly static PixelDependence pixelDep = new();
     internal readonly static BufferDependence bufferDep = new();

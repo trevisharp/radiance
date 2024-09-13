@@ -12,6 +12,14 @@ var myFill = render((dx, dy) =>
     draw();
 });
 
+var star = render(() =>
+{
+    var d = distance((x, y), (width / 2, height / 2));
+    var s = (t * t + 0.05 * sin(10 * t)) / d;
+    color = (s, s, s, 1);
+    fill();
+});
+
 var drawSquare = myFill(Square);
 drawSquare.Load();
 
