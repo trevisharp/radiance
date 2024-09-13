@@ -9,6 +9,6 @@ public class ShaderOnlyResourceException : Exception
 {
     public override string Message => 
         """
-            This resource only be called inside of a render.
+        This resource only be called inside of a render.
         """;
 }

@@ -9,7 +9,7 @@ public class OutOfRenderException : Exception
 {
     public override string Message => 
         """
-            A call of a render with all parameters outside the OnRender is ilegal.
-            To make a curry with all paramters use .Curry(params) to avoid conflicts between curry action and call action.
+        A call of a render with all parameters outside the OnRender is ilegal.
+        To make a curry with all paramters use .Curry(params) to avoid conflicts between curry action and call action.
         """;
 }

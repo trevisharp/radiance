@@ -35,7 +35,7 @@ public class Render(
     {
         var ctx = RenderContext.OpenContext();
 
-        CallWithShaderObjects(function);
+        CallWithShaderObjects();
 
         OnRender += ctx.RenderActions;
 
@@ -66,7 +66,7 @@ public class Render(
             return true;
         }
         
-        if (arguments[0] is not Polygon poly)
+        if (arguments[0] is not Polygon)
             throw new MissingPolygonException();
 
         if (argumentCount < parameterCount + 1)
@@ -80,12 +80,12 @@ public class Render(
         
         if (ctx is null)
         {
-            CallWithRealData(OnRender, poly, parameterCount, arguments);
+            CallWithRealData(arguments, parameterCount);
             result = null;
             return true;
         }
 
-        CallWithShaderObjects(function);
+        CallWithShaderObjects();
 
         result = null;
         return true;
@@ -94,21 +94,22 @@ public class Render(
     /// <summary>
     /// Call the function passing real data and running the draw pipeline.
     /// </summary>
-    static void CallWithRealData(Action<Polygon, object[]>? render, Polygon poly, int parameterCount, object[] arguments)
+    void CallWithRealData(object[] arguments, int parameterCount)
     {
         if (Window.Phase == WindowPhase.None)
             throw new OutOfRenderException();
-
-        FrameContext.OpenContext();
-        var frameCtx = FrameContext.GetContext()!;
+        
+        if (arguments[0] is not Polygon poly)
+            throw new MissingPolygonException();
+        
+        var frameCtx = FrameContext.OpenContext();
         frameCtx.PolygonStack.Push(poly);
 
         var extraArgs = new object[parameterCount];
         DisplayParameters(extraArgs, arguments[1..]);
 
-        if (render is null)
-            return;
-        render(poly, extraArgs);
+        if (OnRender is not null)
+            OnRender(poly, extraArgs);
 
         frameCtx.PolygonStack.Pop();
         FrameContext.CloseContext();
@@ -118,9 +119,9 @@ public class Render(
     /// <summary>
     /// Call the function using shader objects to analyze behaviour.
     /// </summary>
-    static void CallWithShaderObjects(Delegate func)
+    void CallWithShaderObjects()
     {
-        var parameters = func.Method.GetParameters();
+        var parameters = function.Method.GetParameters();
         
         var objs = parameters
             .Select(GenerateDependence)
@@ -129,7 +130,7 @@ public class Render(
         if (objs.Any(obj => obj is null))
             throw new InvalidRenderException();
 
-        func.DynamicInvoke(objs);
+        function.DynamicInvoke(objs);
     }
 
     /// <summary>
@@ -190,67 +191,34 @@ public class Render(
     /// </summary>
     static int DisplayParameters(object arg, object[] arr, int index)
     {
-        switch (arg)
+        return arg switch
         {
-            case float num:
-                verify(1);
-                add(num);
-                break;
-            
-            case int num:
-                verify(1);
-                add((float)num);
-                break;
-            
-            case double num:
-                verify(1);
-                add((float)num);
-                break;
-                
-            case Vec2 vec:
-                verify(2);
-                add(vec.X);
-                add(vec.Y);
-                break;
-                
-            case Vec3 vec:
-                verify(3);
-                add(vec.X);
-                add(vec.Y);
-                add(vec.Z);
-                break;
-                
-            case Vec4 vec:
-                verify(4);
-                add(vec.X);
-                add(vec.Y);
-                add(vec.Z);
-                add(vec.W);
-                break;
-            
-            case float[] subArray:
-                verify(subArray.Length);
-                foreach (var value in subArray)
-                    add(value);
-                break;
-            
-            case Texture img:
-                verify(1);
-                add(img);
-                break;
-            
-            default:
-                throw new Exception(); // TODO: Use custom exception
-        }
+            Vec4 vec => verifyAndAdd(vec.X, vec.Y, vec.Z, vec.W),
+            Vec3 vec => verifyAndAdd(vec.X, vec.Y, vec.Z),
+            Vec2 vec => verifyAndAdd(vec.X, vec.Y),
+            Texture img => verifyAndAdd(img),
+            float num => verifyAndAdd(num),
+            int num => verifyAndAdd((float)num),
+            double num => verifyAndAdd((float)num),
+            float[] sub => verifyAndAdd([..sub]),
+            _ => throw new InvalidPrimitiveException(arg)
+        };
 
-        return index;
+        int verifyAndAdd(params object[] objs)
+        {
+            verify(objs.Length);
+            foreach (var obj in objs)
+                add(obj);
+            
+            return index;
+        }
 
         void verify(int size)
         {
             if (index + size <= arr.Length)
                 return;
             
-            throw new Exception(); // TODO: Use custom exception
+            throw new ExcessOfArgumentsException();
         }
 
         void add(object value)

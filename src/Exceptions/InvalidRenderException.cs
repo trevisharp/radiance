@@ -9,6 +9,6 @@ public class InvalidRenderException : Exception
 {
     public override string Message => 
         """
-            All parameters of a Render Delegate need be from type FloatShaderObject or TextureShaderObject.
+        All parameters of a Render Delegate need be from type FloatShaderObject or TextureShaderObject.
         """;
 }

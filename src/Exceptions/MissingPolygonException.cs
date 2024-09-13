@@ -9,6 +9,6 @@ public class MissingPolygonException : Exception
 {
     public override string Message => 
         """
-            A render need be called with a polygon as first argument.
+        A render need be called with a polygon as first argument.
         """;
 }

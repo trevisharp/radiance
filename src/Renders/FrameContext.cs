@@ -25,12 +25,15 @@ public class FrameContext
     /// <summary>
     /// Open a new context for this thread.
     /// </summary>
-    public static void OpenContext()
+    public static FrameContext OpenContext()
     {
         CloseContext();
 
+        var opened = new FrameContext();
         var id = GetCurrentThreadId();
-        threadMap.Add(id, new());
+        threadMap.Add(id, opened);
+
+        return opened;
     }
 
     /// <summary>
