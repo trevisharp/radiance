@@ -14,6 +14,7 @@ using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
 using Managers;
 using Primitives;
+using System.Linq;
 
 /// <summary>
 /// A Thread-Safe global context data object.

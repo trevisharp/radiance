@@ -13,6 +13,7 @@ var myFill = render((dx, dy) =>
 });
 
 var drawSquare = myFill(Square);
+drawSquare.Load();
 
 // var myLine = render((dx, dy) =>
 // {
@@ -32,7 +33,7 @@ var drawSquare = myFill(Square);
 
 Window.OnRender += () =>
 {
-    myFill(Square, "100", 100);
+    drawSquare(100, 100);
     // myFill(Circle, 650, 650);
 };
 

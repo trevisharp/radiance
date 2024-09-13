@@ -459,3 +459,13 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Many functions of GLSL like cos, sin distance, round, smoothstep and others...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
+
+ ### TODO
+
+Currying não funciona devido ao fato de que o Load precisa ser chamado; Outro bug é o fato de não ter um lugar bom para
+salvar as RenderActions. A chamada de um render é de certo modo ambiguo. Por um lado ele pode ser uma chamada abstrata
+como de um render dentro de outro, ou como um 'repeat', ou ele está sendo chamado e deve-se considerar as RenderActions.
+Indentificar como as chamadas dos render ficam registradas associadas aos corretos render actions deve permitir a solução
+de todos esses problemas. Deve-se considerar um cenário muito comum também, por exemplo, botões. Uma aplicação tem vários
+botões que são renderizados com o exato mesmo shader, isso significa que o mesmo irá reutilizar os programas e usar o
+buffer de profundidade para garantir usa apresentação.
