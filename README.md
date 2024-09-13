@@ -347,7 +347,7 @@ Window.Open();
 # Versions
 
 ### Radiance v3.0.0
- - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes.
+ - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
  - ![](https://img.shields.io/badge/new-green) Add Text writting utilities.
 

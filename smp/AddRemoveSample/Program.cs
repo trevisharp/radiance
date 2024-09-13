@@ -11,6 +11,8 @@ var myFill = render((dx, dy) =>
     draw();
 });
 
+var drawSquare = myFill(Square);
+
 // var myLine = render((dx, dy) =>
 // {
 //     repeat(
@@ -29,7 +31,7 @@ var myFill = render((dx, dy) =>
 
 Window.OnRender += () =>
 {
-    myFill(Square, 100, 100);
+    drawSquare(100, 100);
     // myFill(Circle, 650, 650);
 };
 
