@@ -14,7 +14,6 @@ using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
 using Managers;
 using Primitives;
-using System.Linq;
 
 /// <summary>
 /// A Thread-Safe global context data object.
@@ -73,37 +72,82 @@ public class RenderContext
 
     public readonly ProgramManager ProgramContext = ProgramContextBuilder.Build();
 
+    /// <summary>
+    /// Get or set if the context is in verbose mode.
+    /// </summary>
     public bool Verbose { get; set; } = false;
 
+    /// <summary>
+    /// Get or set the actions in this render context.
+    /// </summary>
     public Action<Polygon, object[]>? RenderActions { get; set; }
 
+    /// <summary>
+    /// Get or set the shader object representing the position transformation.
+    /// </summary>
     public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]);
 
+    /// <summary>
+    /// Get or set the shader object representing the color transformation.
+    /// </summary>
     public Vec4ShaderObject Color { get; set; } = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
 
-    public List<object> CallHistory { get; private set; } = [];
-
+    /// <summary>
+    /// Call render pipeline for this render context.
+    /// </summary>
+    public void Render(Polygon polygon, object[] arguments)
+    {
+        if (RenderActions is null)
+            return;
+        
+        RenderActions(polygon, arguments);
+    }
+    
+    /// <summary>
+    /// Add a clear opeartion to this render context.
+    /// </summary>
     public void AddClear(Vec4 color)
         => RenderActions += (_, _) => ProgramContext.Clear(color);
 
+    /// <summary>
+    /// Add a draw points opeartion to this render context.
+    /// </summary>
     public void AddPoints() 
         => AddDrawOperation(PrimitiveType.Points);
 
+    /// <summary>
+    /// Add a draw lines opeartion to this render context.
+    /// </summary>
     public void AddLines() 
         => AddDrawOperation(PrimitiveType.Lines);
     
+    /// <summary>
+    /// Add a draw line loop to this render context.
+    /// </summary>
     public void AddDraw() 
         => AddDrawOperation(PrimitiveType.LineLoop);
     
+    /// <summary>
+    /// Add a draw triangules opeartion with triangularization to this render context.
+    /// </summary>
     public void AddFill()
         => AddDrawOperation(PrimitiveType.Triangles, true);
     
+    /// <summary>
+    /// Add a draw triangules opeartion to this render context.
+    /// </summary>
     public void AddTriangules() 
         => AddDrawOperation(PrimitiveType.Triangles);
     
+    /// <summary>
+    /// Add a draw triangules strip opeartion to this render context.
+    /// </summary>
     public void AddStrip() 
         => AddDrawOperation(PrimitiveType.TriangleStrip);
     
+    /// <summary>
+    /// Add a draw triangules fan opeartion to this render context.
+    /// </summary>
     public void AddFan() 
         => AddDrawOperation(PrimitiveType.TriangleFan);
         

@@ -26,19 +26,19 @@ public class Render(
     /// <summary>
     /// The event called when the render is ready to draw.
     /// </summary>
-    protected Action<Polygon, object[]>? OnRender;
+    protected RenderContext? Context;
 
     /// <summary>
     /// Create a shader to represent the render.
     /// </summary>
     public void Load()
     {
+        if (Context is not null)
+            return;
+
         var ctx = RenderContext.OpenContext();
-
         CallWithShaderObjects();
-
-        OnRender += ctx.RenderActions;
-
+        Context = ctx;
         RenderContext.CloseContext();
     }
 
@@ -46,7 +46,11 @@ public class Render(
     /// Currying parameters to create a new render.
     /// </summary>
     public Render Curry(params object?[] args)
-        => new(function, [ ..curryingArguments, ..args ]);
+    {
+        return new(function, [ ..curryingArguments, ..args ]) {
+            Context = Context
+        };
+    }
 
     public override bool TryInvoke(
         InvokeBinder binder,
@@ -108,8 +112,8 @@ public class Render(
         var extraArgs = new object[parameterCount];
         DisplayParameters(extraArgs, arguments[1..]);
 
-        if (OnRender is not null)
-            OnRender(poly, extraArgs);
+        if (Context is not null && Context.RenderActions is not null)
+            Context.RenderActions(poly, extraArgs);
 
         frameCtx.PolygonStack.Pop();
         FrameContext.CloseContext();
