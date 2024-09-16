@@ -23,7 +23,7 @@ using Sampler = Shaders.Objects.Sampler2DShaderObject;
 /// </summary>
 public static class Utils
 {
-    #region  DEPENDENCE UTILS
+    #region DEPENDENCE UTILS
     
     internal readonly static TimeDependence timeDep = new();
     internal readonly static PixelDependence pixelDep = new();
@@ -58,7 +58,7 @@ public static class Utils
     
     #endregion
     
-    #region  PRIMITIVE UTILS
+    #region PRIMITIVE UTILS
     
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.

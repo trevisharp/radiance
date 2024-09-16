@@ -469,3 +469,10 @@ Indentificar como as chamadas dos render ficam registradas associadas aos corret
 de todos esses problemas. Deve-se considerar um cenário muito comum também, por exemplo, botões. Uma aplicação tem vários
 botões que são renderizados com o exato mesmo shader, isso significa que o mesmo irá reutilizar os programas e usar o
 buffer de profundidade para garantir usa apresentação.
+
+Agora com o Currying funcionando e o Render represetnado o Render de forma simplistica, talvez a função Load deveria ser
+lazy e só chamada se tivermos certeza que o render é realmente chamado. Considerar abordagens com RenderCollections e até
+mesmo métodos Linq para facilitar o gerenciamente inteligente de renders. Por fim ainda falta a destinação correta dos
+dados de chamada para as dependências. Isso inclui o pensamento de que ao fazer um curry nós podemos indicar que alguns
+dados podem ser constantes para todas as chamdas e são possíveis dados de buffer enquanto outros dados são possíveis dados
+de uniforms.

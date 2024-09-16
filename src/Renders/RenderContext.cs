@@ -14,6 +14,7 @@ using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
 using Managers;
 using Primitives;
+using System.Net.WebSockets;
 
 /// <summary>
 /// A Thread-Safe global context data object.
@@ -101,6 +102,12 @@ public class RenderContext
             return;
         
         RenderActions(polygon, arguments);
+
+        foreach (var dep in Position.Dependencies)
+        {
+            System.Console.WriteLine(dep);
+        }
+        System.Console.WriteLine();
     }
     
     /// <summary>

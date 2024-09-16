@@ -89,6 +89,7 @@ public class Render(
             return true;
         }
 
+        // TODO: Inner render implementation
         CallWithShaderObjects();
 
         result = null;
@@ -100,7 +101,7 @@ public class Render(
     /// </summary>
     void CallWithRealData(object[] arguments, int parameterCount)
     {
-        if (Window.Phase == WindowPhase.None)
+        if (Window.Phase != WindowPhase.OnRender)
             throw new OutOfRenderException();
         
         if (arguments[0] is not Polygon poly)
@@ -112,12 +113,11 @@ public class Render(
         var extraArgs = new object[parameterCount];
         DisplayParameters(extraArgs, arguments[1..]);
 
-        if (Context is not null && Context.RenderActions is not null)
-            Context.RenderActions(poly, extraArgs);
+        if (Context is not null)
+            Context.Render(poly, extraArgs);
 
         frameCtx.PolygonStack.Pop();
         FrameContext.CloseContext();
-        
     }
     
     /// <summary>

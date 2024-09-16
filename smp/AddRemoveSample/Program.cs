@@ -21,7 +21,6 @@ var star = render(() =>
 });
 
 var drawSquare = myFill(Square);
-drawSquare.Load();
 
 // var myLine = render((dx, dy) =>
 // {
