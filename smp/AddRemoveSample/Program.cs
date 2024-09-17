@@ -3,7 +3,6 @@ using static Radiance.Utils;
 
 var myFill = render((dx, dy) =>
 {
-    verbose = true;
     pos = 150 * pos + (dx, dy, 0);
     color = red;
     fill();
@@ -20,7 +19,7 @@ var star = render(() =>
     fill();
 });
 
-var drawSquare = myFill(Square, 100);
+var drawSquare = myFill(Square, 1000);
 
 // var myLine = render((dx, dy) =>
 // {
@@ -41,7 +40,7 @@ var drawSquare = myFill(Square, 100);
 Window.OnRender += () =>
 {
     drawSquare(100);
-    // myFill(Circle, 650, 650);
+    myFill(Circle, 650, 650);
 };
 
 Window.CloseOn(Input.Escape);

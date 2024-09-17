@@ -474,5 +474,5 @@ Agora com o Currying funcionando e o Render represetnado o Render de forma simpl
 lazy e só chamada se tivermos certeza que o render é realmente chamado. Considerar abordagens com RenderCollections e até
 mesmo métodos Linq para facilitar o gerenciamente inteligente de renders. Por fim ainda falta a destinação correta dos
 dados de chamada para as dependências. Isso inclui o pensamento de que ao fazer um curry nós podemos indicar que alguns
-dados podem ser constantes para todas as chamdas e são possíveis dados de buffer enquanto outros dados são possíveis dados
+dados podem ser constantes para todas as chamadas e são possíveis dados de buffer enquanto outros dados são possíveis dados
 de uniforms.
