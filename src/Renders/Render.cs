@@ -46,18 +46,13 @@ public class Render(
     /// Currying parameters to create a new render.
     /// </summary>
     public Render Curry(params object?[] args)
-    {
-        return new(function, [ ..curryingArguments, ..args ]) {
-            Context = Context
-        };
-    }
+        => new(function, [ ..curryingArguments, ..args ]);
 
     public override bool TryInvoke(
         InvokeBinder binder,
         object?[]? args,
         out object? result)
     {
-        var ctx = RenderContext.GetContext();
         var parameterCount = function.Method.GetParameters().Length;
         object[] arguments = [
             ..curryingArguments, ..args
@@ -82,8 +77,10 @@ public class Render(
         if (argumentCount > parameterCount + 1)
             throw new ExcessOfArgumentsException();
         
+        var ctx = RenderContext.GetContext();
         if (ctx is null)
         {
+            Load();
             CallWithRealData(arguments, parameterCount);
             result = null;
             return true;
@@ -99,7 +96,7 @@ public class Render(
     /// <summary>
     /// Call the function passing real data and running the draw pipeline.
     /// </summary>
-    void CallWithRealData(object[] arguments, int parameterCount)
+    protected void CallWithRealData(object[] arguments, int parameterCount)
     {
         if (Window.Phase != WindowPhase.OnRender)
             throw new OutOfRenderException();
@@ -113,8 +110,7 @@ public class Render(
         var extraArgs = new object[parameterCount];
         DisplayParameters(extraArgs, arguments[1..]);
 
-        if (Context is not null)
-            Context.Render(poly, extraArgs);
+        Context?.Render(poly, extraArgs);
 
         frameCtx.PolygonStack.Pop();
         FrameContext.CloseContext();
@@ -123,16 +119,14 @@ public class Render(
     /// <summary>
     /// Call the function using shader objects to analyze behaviour.
     /// </summary>
-    void CallWithShaderObjects()
+    protected void CallWithShaderObjects()
     {
         var parameters = function.Method.GetParameters();
         
+        // TODO: REMOVE DISPLAY ARGS
         var objs = parameters
-            .Select(GenerateDependence)
+            .Select((p, i) => GenerateDependence(p, i, curryingArguments.Skip(1).ToArray()))
             .ToArray();
-        
-        if (objs.Any(obj => obj is null))
-            throw new InvalidRenderException();
 
         function.DynamicInvoke(objs);
     }
@@ -140,34 +134,38 @@ public class Render(
     /// <summary>
     /// Generate a Shader object with dependencies based on ParameterInfo.
     /// </summary>
-    static ShaderObject? GenerateDependence(ParameterInfo parameter)
+    protected static ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
         var name = parameter.Name!;
-
-        if (parameter.ParameterType == typeof(FloatShaderObject))
-        {
-            var dep = new UniformFloatDependence(name);
-            return new FloatShaderObject(
-                name, ShaderOrigin.Global, [dep]
-            );
-        }
-
-        if (parameter.ParameterType == typeof(Sampler2DShaderObject))
-        {
-            var dep = new TextureDependence(name);
-            return new Sampler2DShaderObject(
-                name, ShaderOrigin.FragmentShader, [dep]
-            );
-        }
         
-        return null;
+        var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
+        var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
+        var isConstant = index < curriedValues.Length;
+
+        return (isFloat, isTexture, isConstant) switch
+        {
+            (true, false, false) => new FloatShaderObject(
+                name, ShaderOrigin.Global, [ new UniformFloatDependence(name) ]
+            ),
+
+            (false, true, _) => new Sampler2DShaderObject(
+                name, ShaderOrigin.FragmentShader, [ new TextureDependence(name) ]
+            ),
+
+            (true, false, true) => new FloatShaderObject(
+                ShaderObject.ToShaderExpression(curriedValues[index]),
+                ShaderOrigin.Global, []
+            ),
+
+            _ => throw new InvalidRenderException(parameter)
+        };
     }
 
     /// <summary>
     /// Measure the size of parameters args when displayed based on size.
     /// </summary>
-    static int MeasureArguments(object[] args)
+    protected static int MeasureArguments(object[] args)
         => args.Sum(arg => arg switch
         {
             Vec2 or Vec2ShaderObject => 2,
@@ -180,7 +178,7 @@ public class Render(
     /// <summary>
     /// Fill parameters data on a vector to run a function.
     /// </summary>
-    static void DisplayParameters(object[] result, object[] args)
+    protected static void DisplayParameters(object[] result, object[] args)
     {
         int index = 0;
         foreach (var arg in args)
@@ -193,7 +191,7 @@ public class Render(
     /// <summary>
     /// Set arr data from a index based on arg data size.
     /// </summary>
-    static int DisplayParameters(object arg, object[] arr, int index)
+    protected static int DisplayParameters(object arg, object[] arr, int index)
     {
         return arg switch
         {

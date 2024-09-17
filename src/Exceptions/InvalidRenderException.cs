@@ -1,14 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/09/2024
+ * Date:    17/09/2024
  */
-using System;
+using System.Reflection;
 
 namespace Radiance.Exceptions;
 
-public class InvalidRenderException : RadianceException
+public class InvalidRenderException(ParameterInfo parameter) : RadianceException
 {
     public override string ErrorMessage =>
-        """
-        All parameters of a Render Delegate need be from type FloatShaderObject or TextureShaderObject.
+        $"""
+        The parameter {parameter.Name} has a invalid type {parameter.ParameterType} or cannot be curryied.
         """;
 }

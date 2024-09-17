@@ -102,12 +102,6 @@ public class RenderContext
             return;
         
         RenderActions(polygon, arguments);
-
-        foreach (var dep in Position.Dependencies)
-        {
-            System.Console.WriteLine(dep);
-        }
-        System.Console.WriteLine();
     }
     
     /// <summary>

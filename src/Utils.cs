@@ -245,8 +245,6 @@ public static class Utils
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         
         var render = new Render(function);
-        render.Load();
-
         return render;
     }
 
@@ -258,8 +256,6 @@ public static class Utils
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         
         var render = new Render(function);
-        render.Load();
-
         return render;
     }
 
@@ -271,8 +267,6 @@ public static class Utils
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         
         var render = new Render(function);
-        render.Load();
-
         return render;
     }
 
@@ -284,8 +278,6 @@ public static class Utils
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         
         var render = new Render(function);
-        render.Load();
-
         return render;
     }
 
@@ -297,8 +289,6 @@ public static class Utils
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         
         var render = new Render(function);
-        render.Load();
-
         return render;
     }
 
@@ -310,8 +300,6 @@ public static class Utils
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         
         var render = new Render(function);
-        render.Load();
-
         return render;
     }
 

@@ -20,7 +20,7 @@ var star = render(() =>
     fill();
 });
 
-var drawSquare = myFill(Square);
+var drawSquare = myFill(Square, 100);
 
 // var myLine = render((dx, dy) =>
 // {
@@ -40,7 +40,7 @@ var drawSquare = myFill(Square);
 
 Window.OnRender += () =>
 {
-    drawSquare(100, 100);
+    drawSquare(100);
     // myFill(Circle, 650, 650);
 };
 

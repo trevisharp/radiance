@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/08/2024
+ * Date:    17/09/2024
  */
 using System;
 using System.Linq;
@@ -7,7 +7,9 @@ using System.Collections.Generic;
 
 namespace Radiance.Shaders;
 
+using System.Globalization;
 using Dependencies;
+using Radiance.Exceptions;
 using static ShaderOrigin;
 
 /// <summary>
@@ -78,5 +80,17 @@ public abstract class ShaderObject(
             obj.Origin, obj.Dependencies
         ) as R;
         return newObj!;
+    }
+
+    public static string ToShaderExpression(object? obj)
+    {
+        return obj switch
+        {
+            float value => value.ToString(CultureInfo.InvariantCulture),
+            double value => value.ToString(CultureInfo.InvariantCulture),
+            int value => value.ToString(CultureInfo.InvariantCulture),
+            bool value => value.ToString(),
+            _ => throw new InvalidShaderExpressionException(obj)
+        };
     }
 }
