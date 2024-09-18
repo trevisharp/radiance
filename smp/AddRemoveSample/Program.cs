@@ -11,15 +11,13 @@ var myFill = render((dx, dy) =>
     draw();
 });
 
-var star = render(() =>
+var star = render((dx, dy) =>
 {
-    var d = distance((x, y), (width / 2, height / 2));
-    var s = (t * t + 0.05 * sin(10 * t)) / d;
+    var d = distance((x, y), (dx, dy));
+    var s = (10 + 0.05 * sin(10 * t)) / d;
     color = (s, s, s, 1);
     fill();
 });
-
-var drawSquare = myFill(Square, 1000);
 
 // var myLine = render((dx, dy) =>
 // {
@@ -37,10 +35,12 @@ var drawSquare = myFill(Square, 1000);
 //     );
 // });
 
+float cx = 0, cy = 0;
+Window.OnMouseMove += p => (cx, cy) = p;
+
 Window.OnRender += () =>
 {
-    drawSquare(100);
-    myFill(Circle, 650, 650);
+    star(Screen, cx, cy);
 };
 
 Window.CloseOn(Input.Escape);
