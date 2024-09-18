@@ -64,9 +64,12 @@ public static class Utils
     /// Get a rectangle with size of opened screen centralizated in center of screen.
     /// </summary>
     public static Polygon Screen => 
-        Window.IsOpen ?
-        Rect(0, 0, 0, Window.Width, Window.Height).ToImmutable() :
-        throw new WindowClosedException();
+        Window.IsOpen ? Rect(
+            Window.Width / 2, 
+            Window.Height / 2, 0, 
+            Window.Width, 
+            Window.Height
+        ) : throw new WindowClosedException();
 
     /// <summary>
     /// Get (1, 0, 0) vector.

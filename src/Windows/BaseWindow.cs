@@ -243,6 +243,9 @@ public abstract class BaseWindow
         if (!Active)
             return;
         
+        if (!IsOpen)
+            return;
+        
         Phase = WindowPhase.OnRender;
         OnRender();
         Phase = WindowPhase.None;
