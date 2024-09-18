@@ -1,10 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/09/2024
+ * Date:    18/09/2024
  */
 using System;
 using System.Linq;
 using System.Dynamic;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
@@ -27,6 +28,7 @@ public class Render(
     /// The event called when the render is ready to draw.
     /// </summary>
     protected RenderContext? Context;
+    protected ShaderDependence?[]? dependences;
 
     /// <summary>
     /// Create a shader to represent the render.
@@ -46,7 +48,7 @@ public class Render(
     /// Currying parameters to create a new render.
     /// </summary>
     public Render Curry(params object?[] args)
-        => new(function, [ ..curryingArguments, ..args ]);
+        => new(function, [ ..curryingArguments, ..DisplayValues(args) ]);
 
     public override bool TryInvoke(
         InvokeBinder binder,
@@ -55,11 +57,10 @@ public class Render(
     {
         var parameterCount = function.Method.GetParameters().Length;
         object[] arguments = [
-            ..curryingArguments, ..args
+            ..curryingArguments, ..DisplayValues(args ?? [])
         ];
-        var argumentCount = MeasureArguments(arguments);
 
-        if (argumentCount == 0)
+        if (arguments.Length == 0)
         {
             result = this;
             return true;
@@ -68,35 +69,31 @@ public class Render(
         if (arguments[0] is not Polygon)
             throw new MissingPolygonException();
 
-        if (argumentCount < parameterCount + 1)
+        if (arguments.Length < parameterCount + 1)
         {
             result = Curry(args ?? []);
             return true;
         }
 
-        if (argumentCount > parameterCount + 1)
+        if (arguments.Length > parameterCount + 1)
             throw new ExcessOfArgumentsException();
         
         var ctx = RenderContext.GetContext();
         if (ctx is null)
         {
             Load();
-            CallWithRealData(arguments, parameterCount);
+            CallWithRealData(arguments);
             result = null;
             return true;
         }
-
-        // TODO: Inner render implementation
-        CallWithShaderObjects();
-
-        result = null;
-        return true;
+        
+        throw new NotImplementedException("Inner render call are not implemented yet");
     }
 
     /// <summary>
     /// Call the function passing real data and running the draw pipeline.
     /// </summary>
-    protected void CallWithRealData(object[] arguments, int parameterCount)
+    protected void CallWithRealData(object[] arguments)
     {
         if (Window.Phase != WindowPhase.OnRender)
             throw new OutOfRenderException();
@@ -107,8 +104,15 @@ public class Render(
         var frameCtx = FrameContext.OpenContext();
         frameCtx.PolygonStack.Push(poly);
 
-        var extraArgs = new object[parameterCount];
-        DisplayParameters(extraArgs, arguments[1..]);
+        var extraArgs = DisplayValues(arguments[1..]);
+
+        foreach (var (arg, dep) in extraArgs.Zip(dependences!))
+        {
+            if (dep is null)
+                continue;
+            
+            dep.UpdateData(arg);
+        }
 
         Context?.Render(poly, extraArgs);
 
@@ -123,9 +127,12 @@ public class Render(
     {
         var parameters = function.Method.GetParameters();
         
-        // TODO: REMOVE DISPLAY ARGS
         var objs = parameters
             .Select((p, i) => GenerateDependence(p, i, curryingArguments.Skip(1).ToArray()))
+            .ToArray();
+        
+        dependences = objs
+            .Select(obj => obj.Dependencies.FirstOrDefault())
             .ToArray();
 
         function.DynamicInvoke(objs);
@@ -137,15 +144,15 @@ public class Render(
     protected static ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
-        var name = parameter.Name!;
         
+        var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
         var isConstant = index < curriedValues.Length;
 
         return (isFloat, isTexture, isConstant) switch
         {
-            (true, false, false) => new FloatShaderObject(
+            (true, false, _) => new FloatShaderObject(
                 name, ShaderOrigin.Global, [ new UniformFloatDependence(name) ]
             ),
 
@@ -153,77 +160,39 @@ public class Render(
                 name, ShaderOrigin.FragmentShader, [ new TextureDependence(name) ]
             ),
 
-            (true, false, true) => new FloatShaderObject(
-                ShaderObject.ToShaderExpression(curriedValues[index]),
-                ShaderOrigin.Global, []
-            ),
-
             _ => throw new InvalidRenderException(parameter)
         };
     }
 
     /// <summary>
-    /// Measure the size of parameters args when displayed based on size.
-    /// </summary>
-    protected static int MeasureArguments(object[] args)
-        => args.Sum(arg => arg switch
-        {
-            Vec2 or Vec2ShaderObject => 2,
-            Vec3 or Vec3ShaderObject => 3,
-            Vec4 or Vec4ShaderObject => 4,
-            float[] arr => arr.Length,
-            _ => 1
-        });
-
-    /// <summary>
     /// Fill parameters data on a vector to run a function.
     /// </summary>
-    protected static void DisplayParameters(object[] result, object[] args)
+    protected static object[] DisplayValues(object?[] args)
     {
-        int index = 0;
+        List<object> result = [];
+
         foreach (var arg in args)
-            index = DisplayParameters(arg, result, index);
-        
-        if (index < args.Length)
-            throw new ExcessOfArgumentsException();
-    }
-    
-    /// <summary>
-    /// Set arr data from a index based on arg data size.
-    /// </summary>
-    protected static int DisplayParameters(object arg, object[] arr, int index)
-    {
-        return arg switch
         {
-            Vec4 vec => verifyAndAdd(vec.X, vec.Y, vec.Z, vec.W),
-            Vec3 vec => verifyAndAdd(vec.X, vec.Y, vec.Z),
-            Vec2 vec => verifyAndAdd(vec.X, vec.Y),
-            Texture img => verifyAndAdd(img),
-            float num => verifyAndAdd(num),
-            int num => verifyAndAdd((float)num),
-            double num => verifyAndAdd((float)num),
-            float[] sub => verifyAndAdd([..sub]),
-            _ => throw new InvalidPrimitiveException(arg)
-        };
-
-        int verifyAndAdd(params object[] objs)
-        {
-            verify(objs.Length);
-            foreach (var obj in objs)
-                add(obj);
-            
-            return index;
+            _ = arg switch
+            {
+                Polygon poly => add(poly),
+                Vec3 vec => add(vec.X, vec.Y, vec.Z),
+                Vec2 vec => add(vec.X, vec.Y),
+                Texture img => add(img),
+                float num => add(num),
+                int num => add((float)num),
+                double num => add((float)num),
+                float[] sub => add([..sub]),
+                _ => throw new InvalidPrimitiveException(arg)
+            };
         }
 
-        void verify(int size)
-        {
-            if (index + size <= arr.Length)
-                return;
-            
-            throw new ExcessOfArgumentsException();
-        }
+        return [.. result];
 
-        void add(object value)
-            => arr[index++] = value;
+        bool add(params object[] objs)
+        {
+            result.AddRange(objs);
+            return true;
+        }
     }
 }

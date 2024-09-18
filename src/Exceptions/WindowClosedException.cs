@@ -9,6 +9,6 @@ public class WindowClosedException : RadianceException
 {
     public override string ErrorMessage =>
         """
-        Windows is closed and the deltatime cannot be readed.
+        Windows is closed and properties like deltatime and size cannot be readed.
         """;
 }
