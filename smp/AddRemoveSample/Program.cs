@@ -1,4 +1,5 @@
-﻿using Radiance;
+﻿using System;
+using Radiance;
 using static Radiance.Utils;
 
 var bounce = render((radius, speed) =>
@@ -39,6 +40,12 @@ Window.OnLoad += () => star = star(Screen, open("dynkas.jpg"));
 float cx = 0, cy = 0, size = 1f;
 Window.OnMouseMove += p => (cx, cy) = p;
 Window.OnMouseWhell += whell => size = float.Max(size + whell, 1f);
+
+Window.OnKeyDown += (key, mod) =>
+{
+    if (key == Input.Space)
+        Clock.Shared.ToogleFreeze();
+};
 
 Window.OnRender += () => 
 {

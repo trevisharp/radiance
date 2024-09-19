@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    16/08/2024
+ * Date:    19/09/2024
  */
 using System;
 
@@ -8,7 +8,7 @@ namespace Radiance;
 /// <summary>
 /// A usefull class to manage timer between frames.
 /// </summary>
-public struct Clock
+public class Clock
 {
     /// <summary>
     /// Get the initial Utc Time from application.
@@ -41,37 +41,37 @@ public struct Clock
     /// <summary>
     /// Get the total time passed from the last Freeze() call.
     /// </summary>
-    readonly float LastFreezedTime => IsFreezed ? Seconds - startFreezedTime!.Value : 0;
+    float LastFreezedTime => IsFreezed ? Seconds - startFreezedTime!.Value : 0;
 
     /// <summary>
     /// Get the total time that this clock has freezed.
     /// </summary>
-    readonly float TotalFreezedTime => oldFreezedTime + LastFreezedTime;
+    float TotalFreezedTime => oldFreezedTime + LastFreezedTime;
 
     /// <summary>
     /// Get the current time considering only unfreezed times.
     /// </summary>
-    readonly float UnfreezedTime => Seconds - TotalFreezedTime;
+    float UnfreezedTime => Seconds - TotalFreezedTime;
 
     /// <summary>
     /// Get the current time. If the clock is holded, return the last hold time.
     /// </summary>
-    readonly float Now => holdedTime ?? UnfreezedTime;
+    float Now => holdedTime ?? UnfreezedTime;
     
     /// <summary>
     /// Get current type between now or a holded time and last Reset in seconds.
     /// </summary>
-    public readonly float Time => Now - lastResetStart;
+    public float Time => Now - lastResetStart;
 
     /// <summary>
     /// Return if the Clock is freezed.
     /// </summary>
-    public readonly bool IsFreezed => startFreezedTime is not null;
+    public bool IsFreezed => startFreezedTime is not null;
 
     /// <summary>
     /// Return if the Clock is holding a time.
     /// </summary>
-    public readonly bool IsHolded => holdedTime is not null;
+    public bool IsHolded => holdedTime is not null;
 
     /// <summary>
     /// Hold the current time has a now time.
