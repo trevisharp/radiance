@@ -7,6 +7,7 @@ namespace Radiance.Shaders.Dependencies;
 
 /// <summary>
 /// Represents a dependece of a rand implementation based on fract code.
+/// Source: https://thebookofshaders.com/13/
 /// </summary>
 public class RandDependence : ShaderDependence
 {
