@@ -246,9 +246,7 @@ public static class Utils
     public static dynamic render(Action function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        
-        var render = new Render(function);
-        return render;
+        return new Render(function);
     }
 
     /// <summary>
@@ -257,9 +255,7 @@ public static class Utils
     public static dynamic render(Action<Float> function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        
-        var render = new Render(function);
-        return render;
+        return new Render(function);
     }
 
     /// <summary>
@@ -268,9 +264,7 @@ public static class Utils
     public static dynamic render(Action<Float, Float> function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        
-        var render = new Render(function);
-        return render;
+        return new Render(function);
     }
 
     /// <summary>
@@ -279,9 +273,7 @@ public static class Utils
     public static dynamic render(Action<Float, Float, Float> function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        
-        var render = new Render(function);
-        return render;
+        return new Render(function);
     }
 
     /// <summary>
@@ -290,9 +282,7 @@ public static class Utils
     public static dynamic render(Action<Float, Float, Float, Float> function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        
-        var render = new Render(function);
-        return render;
+        return new Render(function);
     }
 
     /// <summary>
@@ -301,9 +291,88 @@ public static class Utils
     public static dynamic render(Action<Sampler> function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        
-        var render = new Render(function);
-        return render;
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Sampler> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Sampler, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Sampler, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Sampler, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Sampler, Sampler, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
     }
 
     #endregion
