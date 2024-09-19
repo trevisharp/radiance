@@ -19,13 +19,19 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
     
     public override int Width { get; protected set; }
     public override int Height { get; protected set; }
+
+    CursorState cursorVisisble = CursorState.Normal;
     public override bool CursorVisible
     {
-        get => win?.CursorState != CursorState.Hidden;
+        get => (win?.CursorState ?? cursorVisisble) != CursorState.Hidden;
         set
         {
+            var state = value ? CursorState.Normal : CursorState.Hidden;
             if (win is null)
+            {
+                cursorVisisble = state;
                 return;
+            }
             
             win.CursorState = value ? CursorState.Normal : CursorState.Hidden;
         }
@@ -55,7 +61,7 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
             }
         )
         {
-            CursorState = CursorState.Normal
+            CursorState = cursorVisisble
         };
 
         win.FramebufferResize += e =>
