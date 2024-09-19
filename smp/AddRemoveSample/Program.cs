@@ -10,7 +10,7 @@ var bounceFill = render((speed) =>
     f(speed);
     pos *= (100, 100, 0);
     pos += (width / 2, height / 2, 0);
-    bounce(poly, 50, speed);
+    bounce(50, speed);
     color = red;
     fill();
 });

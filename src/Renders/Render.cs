@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/09/2024
+ * Date:    19/09/2024
  */
 using System;
 using System.Linq;
@@ -9,12 +9,12 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
-using Primitives;
-using Exceptions;
+using Windows;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
-using Windows;
+using Primitives;
+using Exceptions;
 
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
@@ -59,6 +59,15 @@ public class Render(
         object?[]? args,
         out object? result)
     {
+        var ctx = RenderContext.GetContext();
+
+        if (ctx is not null)
+        {
+            MakeSubCall(args ?? []);
+            result = null;
+            return true;
+        }
+
         var parameterCount = function.Method.GetParameters().Length;
         object[] arguments = [
             ..curryingArguments, ..DisplayValues(args ?? [])
@@ -82,17 +91,10 @@ public class Render(
         if (arguments.Length > parameterCount + 1)
             throw new ExcessOfArgumentsException();
         
-        var ctx = RenderContext.GetContext();
-        if (ctx is null)
-        {
-            Load();
-            CallWithRealData(arguments);
-            result = null;
-            return true;
-        }
-        
-
-        throw new NotImplementedException("Inner render call are not implemented yet");
+        Load();
+        CallWithRealData(arguments);
+        result = null;
+        return true;
     }
 
     /// <summary>
@@ -144,6 +146,20 @@ public class Render(
     }
 
     /// <summary>
+    /// Run this render inside another render.
+    /// </summary>
+    protected void MakeSubCall(object?[] input)
+    {
+        var parameters = function.Method.GetParameters();
+        var arguments = DisplayShaderObjects([ ..curryingArguments, ..input ]);
+
+        if (parameters.Length != arguments.Length)
+            throw new SubRenderArgumentCountException(parameters.Length, arguments.Length);
+
+        function.DynamicInvoke(arguments);
+    }
+
+    /// <summary>
     /// Generate a Shader object with dependencies based on ParameterInfo.
     /// </summary>
     protected static ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
@@ -175,7 +191,46 @@ public class Render(
     }
 
     /// <summary>
-    /// Fill parameters data on a vector to run a function.
+    /// Fill parameters data on a shader object vector.
+    /// </summary>
+    protected static ShaderObject[] DisplayShaderObjects(object?[] args)
+    {
+        List<ShaderObject> result = [];
+
+        foreach (var arg in args)
+        {
+            _ = arg switch
+            {
+                FloatShaderObject fso => add(fso),
+                Sampler2DShaderObject sso => add(sso),
+
+                float value => add(new FloatShaderObject(
+                    ShaderObject.ToShaderExpression(value), ShaderOrigin.Global, [ ]
+                )),
+
+                double value => add(new FloatShaderObject(
+                    ShaderObject.ToShaderExpression(value), ShaderOrigin.Global, [ ]
+                )),
+
+                int value => add(new FloatShaderObject(
+                    ShaderObject.ToShaderExpression(value), ShaderOrigin.Global, [ ]
+                )),
+
+                _ => throw new InvalidPrimitiveException(arg)
+            };
+        }
+
+        return [.. result];
+
+        bool add(params ShaderObject[] objs)
+        {
+            result.AddRange(objs);
+            return true;
+        }
+    }
+
+    /// <summary>
+    /// Fill parameters data on a vector.
     /// </summary>
     protected static object[] DisplayValues(object?[] args)
     {

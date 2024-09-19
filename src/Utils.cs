@@ -411,14 +411,6 @@ public static class Utils
         new("t", ShaderOrigin.Global, [timeDep]);
 
     /// <summary>
-    /// Get the parent render polygon.
-    /// </summary>
-    public static Polygon poly
-    {
-        get => Empty; // TODO
-    }
-
-    /// <summary>
     /// Get or set if the current render is in verbose mode.
     /// </summary>
     public static bool verbose
