@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    30/08/2024
  */
+using System.Drawing;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -15,7 +16,8 @@ using Primitives;
 /// </summary>
 public class OpenGLWindow(bool fullscreen) : BaseWindow
 {
-    private static GameWindow? win;
+    private GameWindow? win;
+    private bool canRender = true;
     
     public override int Width { get; protected set; }
     public override int Height { get; protected set; }
@@ -88,6 +90,9 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
 
         win.RenderFrame += e =>
         {
+            if (!canRender)
+                return;
+
             GL.Clear(ClearBufferMask.ColorBufferBit);
             
             Render();
@@ -132,7 +137,8 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
         if (win is null)
             return;
         
-        var size = (System.Drawing.Size)win.Size;
+        var size = (Size)win.Size;
+        canRender = size != Size.Empty;
 
         Width = size.Width;
         Height = size.Height;
