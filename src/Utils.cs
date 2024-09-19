@@ -23,6 +23,16 @@ using Sampler = Shaders.Objects.Sampler2DShaderObject;
 /// </summary>
 public static class Utils
 {
+    #region TYPE UTILS
+
+    /// <summary>
+    /// A function to indicate the type of the parameter on render functions.
+    /// Use when the compiler cannot identify a type of a parameter.
+    /// </summary>
+    public static Float f(Float value) => value;
+
+    #endregion
+
     #region DEPENDENCE UTILS
     
     internal readonly static TimeDependence timeDep = new();
