@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/08/2024
+ * Date:    19/09/2024
  */
 using System.Drawing;
 using OpenTK.Graphics.OpenGL4;

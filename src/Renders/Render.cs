@@ -28,7 +28,7 @@ public class Render(
     /// The event called when the render is ready to draw.
     /// </summary>
     protected RenderContext? Context;
-    protected ShaderDependence?[]? dependences;
+    protected ShaderDependence?[]? Dependences;
 
     /// <summary>
     /// Create a shader to represent the render.
@@ -48,7 +48,11 @@ public class Render(
     /// Currying parameters to create a new render.
     /// </summary>
     public Render Curry(params object?[] args)
-        => new(function, [ ..curryingArguments, ..DisplayValues(args) ]);
+        => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
+        {
+            Context = Context,
+            Dependences = Dependences
+        };
 
     public override bool TryInvoke(
         InvokeBinder binder,
@@ -106,7 +110,7 @@ public class Render(
 
         var extraArgs = DisplayValues(arguments[1..]);
 
-        foreach (var (arg, dep) in extraArgs.Zip(dependences!))
+        foreach (var (arg, dep) in extraArgs.Zip(Dependences!))
         {
             if (dep is null)
                 continue;
@@ -131,7 +135,7 @@ public class Render(
             .Select((p, i) => GenerateDependence(p, i, curryingArguments.Skip(1).ToArray()))
             .ToArray();
         
-        dependences = objs
+        Dependences = objs
             .Select(obj => obj.Dependencies.FirstOrDefault())
             .ToArray();
 
