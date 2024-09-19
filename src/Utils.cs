@@ -35,6 +35,7 @@ public static class Utils
 
     #region DEPENDENCE UTILS
     
+    internal readonly static RandDependence randDep = new();
     internal readonly static TimeDependence timeDep = new();
     internal readonly static PixelDependence pixelDep = new();
     internal readonly static BufferDependence bufferDep = new();
@@ -706,29 +707,36 @@ public static class Utils
     /// Find the nearest integer to the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float round(Float angle)
-        => func<Float>("round", angle);
+    public static Float round(Float value)
+        => func<Float>("round", value);
 
     /// <summary>
     /// Find the nearest integer less than or equal to the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float floor(Float angle)
-        => func<Float>("floor", angle);
+    public static Float floor(Float value)
+        => func<Float>("floor", value);
 
     /// <summary>
     /// Find the nearest integer that is greater than or equal to the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float ceil(Float angle)
-        => func<Float>("ceil", angle);
+    public static Float ceil(Float value)
+        => func<Float>("ceil", value);
 
     /// <summary>
     /// Find the truncated value of the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float trunc(Float angle)
-        => func<Float>("trunc", angle);
+    public static Float trunc(Float value)
+        => func<Float>("trunc", value);
+
+    /// <summary>
+    /// Find the truncated value of the parameter.
+    /// Shader Only.
+    /// </summary>
+    public static Float fract(Float value)
+        => func<Float>("fract", value);
 
     /// <summary>
     /// Return the greater of two values.
@@ -743,6 +751,13 @@ public static class Utils
     /// </summary>
     public static Float min(Float x, Float y)
         => func<Float>("min", x, y);
+    
+    /// <summary>
+    /// Return the lesser of two values.
+    /// Shader Only.
+    /// </summary>
+    public static Float rand(Vec2ShaderObject point)
+        => autoVar(func<Float>("rand", point), randDep);
     
     /// <summary>
     /// Linearly interpolate between two values.
@@ -764,7 +779,7 @@ public static class Utils
     /// <summary>
     /// Get a pixel color of a img in a specific position of a texture.
     /// </summary>
-    public static Vec4ShaderObject texture(Sampler2DShaderObject img, Vec2ShaderObject pos)
+    public static Vec4ShaderObject texture(Sampler img, Vec2ShaderObject pos)
         => autoVar(func<Vec4ShaderObject>("texture", img, pos));
     
     static Float var(Float obj, string name)
@@ -787,28 +802,28 @@ public static class Utils
             obj.Type.TypeName, name, obj.Expression
         )]);
     
-    static Float autoVar(Float obj)
+    static Float autoVar(Float obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [..obj.Dependencies, variable]);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable , ..otherDeps]);
     }
 
-    static Vec2ShaderObject autoVar(Vec2ShaderObject obj)
+    static Vec2ShaderObject autoVar(Vec2ShaderObject obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [..obj.Dependencies, variable]);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
     }
 
-    static Vec3ShaderObject autoVar(Vec3ShaderObject obj)
+    static Vec3ShaderObject autoVar(Vec3ShaderObject obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [..obj.Dependencies, variable]);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
     }
 
-    static Vec4ShaderObject autoVar(Vec4ShaderObject obj)
+    static Vec4ShaderObject autoVar(Vec4ShaderObject obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [..obj.Dependencies, variable]);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
     }
 
     static R func<R>(string name, params ShaderObject[] objs)

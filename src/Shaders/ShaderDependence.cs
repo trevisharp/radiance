@@ -32,6 +32,11 @@ public abstract class ShaderDependence
     /// Add header in the current shader of this dependence.
     /// </summary>
     public virtual void AddHeader(StringBuilder sb) { }
+
+    /// <summary>
+    /// Add extra code in the current shader of this dependence.
+    /// </summary>
+    public virtual void AddExtraCode(StringBuilder sb) { }
     
     /// <summary>
     /// Add header in the vertex shader.

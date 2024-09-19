@@ -76,6 +76,12 @@ public class GLSLGenerator : ICodeGenerator
         
         fragSb.AppendLine("out vec4 outColor;");
 
+        foreach (var dep in vertDeps)
+            dep.AddExtraCode(vertSb);
+
+        foreach (var dep in fragDeps)
+            dep.AddExtraCode(fragSb);
+
         void initMain(StringBuilder sb)
         {
             sb.AppendLine();

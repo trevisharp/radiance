@@ -5,13 +5,19 @@ var bounce = render((radius, speed) =>
     pos += (radius * cos(speed * t), radius * sin(speed * t), 0)
 );
 
+var colorify = render(() =>
+{
+    color = (rand((x, y)), rand((x, y)), rand((x, y)), 1f);
+});
+
 var bounceFill = render((speed) =>
 {
+    verbose = true;
     f(speed);
     pos *= (100, 100, 0);
     pos += (width / 2, height / 2, 0);
     bounce(50, speed);
-    color = red;
+    colorify();
     fill();
 });
 

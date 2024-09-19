@@ -13,5 +13,5 @@ public class Sampler2DShaderObject : ShaderObject
     public Sampler2DShaderObject(
         string value, ShaderOrigin origin,
         IEnumerable<ShaderDependence> deps
-        ) : base(ShaderType.Vec3, value, origin, deps) { }
+        ) : base(ShaderType.Sampler, value, origin, deps) { }
 }

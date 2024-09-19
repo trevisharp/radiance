@@ -15,4 +15,5 @@ public class ShaderType(string typeName)
     public static readonly ShaderType Vec3 = new("vec3");
     public static readonly ShaderType Vec4 = new("vec4");
     public static readonly ShaderType Bool = new("bool");
+    public static readonly ShaderType Sampler = new("sampler2D");
 }

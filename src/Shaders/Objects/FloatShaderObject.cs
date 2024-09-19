@@ -16,7 +16,7 @@ public class FloatShaderObject(
     string value,
     ShaderOrigin origin,
     IEnumerable<ShaderDependence> deps) 
-    : ShaderObject(ShaderType.Bool, value, origin, deps)
+    : ShaderObject(ShaderType.Float, value, origin, deps)
 {
     public static implicit operator FloatShaderObject(float value)
         => new (value.ToString(CultureInfo.InvariantCulture), ShaderOrigin.Global, []);
