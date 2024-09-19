@@ -91,7 +91,7 @@ public class Render(
             return true;
         }
         
-        
+
         throw new NotImplementedException("Inner render call are not implemented yet");
     }
 
@@ -157,8 +157,13 @@ public class Render(
 
         return (isFloat, isTexture, isConstant) switch
         {
-            (true, false, _) => new FloatShaderObject(
+            (true, false, false) => new FloatShaderObject(
                 name, ShaderOrigin.Global, [ new UniformFloatDependence(name) ]
+            ),
+
+            (true, false, true) => new FloatShaderObject(
+                name, ShaderOrigin.FragmentShader, [ new ConstantDependence(name, 
+                    curriedValues[index] is float value ? value : throw new Exception($"{curriedValues[index]} is not a float.")) ]
             ),
 
             (false, true, _) => new Sampler2DShaderObject(
