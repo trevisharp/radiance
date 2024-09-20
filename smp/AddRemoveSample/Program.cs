@@ -7,7 +7,7 @@ var bounce = render((radius, speed) =>
 );
 
 var randColor = render(() => {
-    color = (rand((x, y)), rand((x, y)), rand((x, y)), 1f);
+    color = (noise((x, y)), noise((x, y)), noise((x, y)), 1f);
 });
 
 var resize = render((size) => {
@@ -15,6 +15,7 @@ var resize = render((size) => {
 });
 
 var centralize = render(() => {
+    verbose = true;
     pos += (width / 2, height / 2, 0);
 });
 

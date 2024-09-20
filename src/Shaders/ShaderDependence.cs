@@ -16,6 +16,7 @@ using Dependencies;
 public abstract class ShaderDependence
 {
     public readonly static RandFunctionDependence RandDep = new();
+    public readonly static NoiseFunctionDependence NoiseDep = new();
     public readonly static TimeDependence TimeDep = new();
     public readonly static PixelDependence PixelDep = new();
     public readonly static BufferDependence BufferDep = new();
@@ -26,7 +27,7 @@ public abstract class ShaderDependence
     /// Add other dependences associated to this dependences.
     /// </summary>
     /// <returns></returns>
-    public virtual IEnumerable<ShaderDependence> AddDependence() => [];
+    public virtual IEnumerable<ShaderDependence> AddDependences() => [];
 
     /// <summary>
     /// Add code in the current shader of this dependence.

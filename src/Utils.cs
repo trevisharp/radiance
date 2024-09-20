@@ -17,6 +17,7 @@ using Shaders.Dependencies;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
+using Radiance.Shaders.CodeGeneration;
 
 /// <summary>
 /// A facade with all utils to use Radiance features.
@@ -35,12 +36,6 @@ public static class Utils
 
     #region DEPENDENCE UTILS
     
-    internal readonly static RandDependence randDep = new();
-    internal readonly static TimeDependence timeDep = new();
-    internal readonly static PixelDependence pixelDep = new();
-    internal readonly static BufferDependence bufferDep = new();
-    internal readonly static WidthWindowDependence widthDep = new();
-    internal readonly static HeightWindowDependence heightDep = new();
 
     #endregion
 
@@ -395,21 +390,21 @@ public static class Utils
     /// Shader Only.
     /// </summary>
     public static readonly Float width =
-        new("width", ShaderOrigin.Global, [widthDep]);
+        new("width", ShaderOrigin.Global, [ShaderDependence.WidthDep]);
 
     /// <summary>
     /// Return the current height of screen.
     /// Shader Only.
     /// </summary>
     public static readonly Float height =
-        new("height", ShaderOrigin.Global, [heightDep]);
+        new("height", ShaderOrigin.Global, [ShaderDependence.HeightDep]);
 
     /// <summary>
     /// Return the current time of application.
     /// Shader Only.
     /// </summary>
     public static readonly Float t =
-        new("t", ShaderOrigin.Global, [timeDep]);
+        new("t", ShaderOrigin.Global, [ShaderDependence.TimeDep]);
 
     /// <summary>
     /// Get or set if the current render is in verbose mode.
@@ -463,21 +458,21 @@ public static class Utils
     /// Get the x position of pixel.
     /// </summary>
     public static readonly Float x = new(
-        "pixelPos.x", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
+        "pixelPos.x", ShaderOrigin.FragmentShader, [ShaderDependence.PixelDep, ShaderDependence.BufferDep]
     );
 
     /// <summary>
     /// Get the y position of pixel.
     /// </summary>
     public static readonly Float y = new(
-        "pixelPos.y", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
+        "pixelPos.y", ShaderOrigin.FragmentShader, [ShaderDependence.PixelDep, ShaderDependence.BufferDep]
     );
 
     /// <summary>
     /// Get the z position of pixel.
     /// </summary>
     public static readonly Float z = new(
-        "pixelPos.z", ShaderOrigin.FragmentShader, [pixelDep, bufferDep]
+        "pixelPos.z", ShaderOrigin.FragmentShader, [ShaderDependence.PixelDep, ShaderDependence.BufferDep]
     );
 
     /// <summary>
@@ -753,11 +748,20 @@ public static class Utils
         => func<Float>("min", x, y);
     
     /// <summary>
-    /// Return the lesser of two values.
+    /// Return a random value based ona point.
+    /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
     public static Float rand(Vec2ShaderObject point)
-        => autoVar(func<Float>("rand", point), randDep);
+        => autoVar(func<Float>("rand", point), ShaderDependence.RandDep);
+    
+    /// <summary>
+    /// Return the lesser of two values.
+    /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
+    /// Shader Only.
+    /// </summary>
+    public static Float noise(Vec2ShaderObject point)
+        => autoVar(func<Float>("noise", point), ShaderDependence.NoiseDep);
     
     /// <summary>
     /// Linearly interpolate between two values.

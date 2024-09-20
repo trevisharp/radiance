@@ -7,6 +7,7 @@ using System.Linq;
 
 namespace Radiance.Shaders.CodeGeneration.GLSL;
 
+using System.Collections.Generic;
 using Managers;
 using Objects;
 
@@ -43,11 +44,18 @@ public class GLSLGenerator : ICodeGenerator
         Action? fragStp = null;
 
         var vertDeps = vertObj.Dependencies
-            .Append(Utils.widthDep)
-            .Append(Utils.heightDep)
-            .Distinct();
+            .Append(ShaderDependence.WidthDep)
+            .Append(ShaderDependence.HeightDep)
+            .ToList();
+        vertDeps = ExpandDeps(vertDeps)
+            .Distinct()
+            .ToList();
+        
         var fragDeps = fragObj.Dependencies
-            .Distinct();
+            .ToList();
+        fragDeps = ExpandDeps(fragDeps)
+            .Distinct()
+            .ToList();
 
         var allDeps = vertDeps
             .Concat(fragDeps)
@@ -77,10 +85,10 @@ public class GLSLGenerator : ICodeGenerator
         fragSb.AppendLine("out vec4 outColor;");
 
         foreach (var dep in vertDeps)
-            dep.AddExtraCode(vertSb);
+            dep.AddFunctions(vertSb);
 
         foreach (var dep in fragDeps)
-            dep.AddExtraCode(fragSb);
+            dep.AddFunctions(fragSb);
 
         void initMain(StringBuilder sb)
         {
@@ -132,5 +140,25 @@ public class GLSLGenerator : ICodeGenerator
         var fragmentShader = new Shader(fragmentCode, fragmentCode.GetHashCode(), fragStp);
 
         return new(vertexShader, fragmentShader);
+    }
+
+    static List<ShaderDependence> ExpandDeps(List<ShaderDependence> dependences)
+    {
+        // TODO: Avaliate dependency cycles.
+        var stack = new Stack<ShaderDependence>();
+        foreach (var dep in dependences)
+            stack.Push(dep);
+        
+        while (stack.Count > 0)
+        {
+            var dep = stack.Pop();
+            dependences.Insert(0, dep);
+
+            var newDeps = dep.AddDependences();
+            foreach (var newDep in newDeps)
+                stack.Push(newDep);
+        }
+
+        return dependences;
     }
 }

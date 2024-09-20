@@ -86,7 +86,7 @@ public class RenderContext
     /// <summary>
     /// Get or set the shader object representing the position transformation.
     /// </summary>
-    public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ Utils.bufferDep ]);
+    public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ ShaderDependence.BufferDep ]);
 
     /// <summary>
     /// Get or set the shader object representing the color transformation.
