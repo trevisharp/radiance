@@ -3,16 +3,31 @@
  */
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Radiance.Shaders;
 
 using Managers;
+using Dependencies;
 
 /// <summary>
 /// Represents a dependence for shaders creation and execution.
 /// </summary>
 public abstract class ShaderDependence
 {
+    public readonly static RandFunctionDependence RandDep = new();
+    public readonly static TimeDependence TimeDep = new();
+    public readonly static PixelDependence PixelDep = new();
+    public readonly static BufferDependence BufferDep = new();
+    public readonly static WidthWindowDependence WidthDep = new();
+    public readonly static HeightWindowDependence HeightDep = new();
+
+    /// <summary>
+    /// Add other dependences associated to this dependences.
+    /// </summary>
+    /// <returns></returns>
+    public virtual IEnumerable<ShaderDependence> AddDependence() => [];
+
     /// <summary>
     /// Add code in the current shader of this dependence.
     /// </summary>
@@ -36,7 +51,7 @@ public abstract class ShaderDependence
     /// <summary>
     /// Add extra code in the current shader of this dependence.
     /// </summary>
-    public virtual void AddExtraCode(StringBuilder sb) { }
+    public virtual void AddFunctions(StringBuilder sb) { }
     
     /// <summary>
     /// Add header in the vertex shader.
