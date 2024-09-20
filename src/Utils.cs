@@ -34,11 +34,6 @@ public static class Utils
 
     #endregion
 
-    #region DEPENDENCE UTILS
-    
-
-    #endregion
-
     #region WINDOWS UTILS
 
     /// <summary>
@@ -244,7 +239,15 @@ public static class Utils
     /// <summary>
     /// Get a Kit of autoimplemented renders.
     /// </summary>
-    public static RenderKit Kit => RenderKit.Shared;    
+    public static RenderKit kit => RenderKit.Shared;
+
+    /// <summary>
+    /// Reduce many render calls in a unique call.
+    /// </summary>
+    public static void reduce(Func<int> repeatCount, Action<Float> expression)
+    {
+        throw new NotImplementedException();
+    }
 
     /// <summary>
     /// Create render with shaders based on function recived.
@@ -424,14 +427,6 @@ public static class Utils
             
             ctx.Verbose = value;
         }
-    }
-
-    /// <summary>
-    /// Reduce many render calls in a unique call.
-    /// </summary>
-    public static void reduce(Func<int> repeatCount, Action<Float> expression)
-    {
-        throw new NotImplementedException();
     }
 
     /// <summary>

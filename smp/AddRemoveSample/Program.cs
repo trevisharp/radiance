@@ -1,5 +1,4 @@
-﻿using System;
-using Radiance;
+﻿using Radiance;
 using static Radiance.Utils;
 
 var bounce = render((radius, speed) =>
@@ -10,19 +9,11 @@ var randColor = render(() => {
     color = (noise((x, y)), noise((x, y)), noise((x, y)), 1f);
 });
 
-var resize = render((size) => {
-    pos *= (size, size, 1);
-});
-
-var centralize = render(() => {
-    pos += (width / 2, height / 2, 0);
-});
-
 var bounceFill = render((speed) =>
 {
     f(speed);
-    resize(300);
-    centralize();
+    kit.Centralize();
+    kit.Zoom(width / 2, height / 2, 300);
     bounce(120, speed);
     randColor();
     fill();

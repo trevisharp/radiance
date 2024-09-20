@@ -34,7 +34,7 @@ Window.OnKeyDown += (input, modifier) =>
     bool dontHasMod = (modifier & Modifier.ActiveModifier) == 0;
     if (input == Input.Escape && !dontHasMod)
         Window.Close();
-}
+};
 // Or use:
 // Window.CloseOn(Input.Escape);
 
@@ -348,6 +348,10 @@ Window.Open();
 
 ### Radiance v3.0.0
  - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
+ - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
+ - ![](https://img.shields.io/badge/new-green) New default shaders on RenderKit.
+ - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
+  - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
  - ![](https://img.shields.io/badge/new-green) Add Text writting utilities.
 
@@ -459,20 +463,3 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Many functions of GLSL like cos, sin distance, round, smoothstep and others...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
-
- ### TODO
-
-Currying não funciona devido ao fato de que o Load precisa ser chamado; Outro bug é o fato de não ter um lugar bom para
-salvar as RenderActions. A chamada de um render é de certo modo ambiguo. Por um lado ele pode ser uma chamada abstrata
-como de um render dentro de outro, ou como um 'repeat', ou ele está sendo chamado e deve-se considerar as RenderActions.
-Indentificar como as chamadas dos render ficam registradas associadas aos corretos render actions deve permitir a solução
-de todos esses problemas. Deve-se considerar um cenário muito comum também, por exemplo, botões. Uma aplicação tem vários
-botões que são renderizados com o exato mesmo shader, isso significa que o mesmo irá reutilizar os programas e usar o
-buffer de profundidade para garantir usa apresentação.
-
-Agora com o Currying funcionando e o Render represetnado o Render de forma simplistica, talvez a função Load deveria ser
-lazy e só chamada se tivermos certeza que o render é realmente chamado. Considerar abordagens com RenderCollections e até
-mesmo métodos Linq para facilitar o gerenciamente inteligente de renders. Por fim ainda falta a destinação correta dos
-dados de chamada para as dependências. Isso inclui o pensamento de que ao fazer um curry nós podemos indicar que alguns
-dados podem ser constantes para todas as chamadas e são possíveis dados de buffer enquanto outros dados são possíveis dados
-de uniforms.
