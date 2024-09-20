@@ -15,7 +15,6 @@ var resize = render((size) => {
 });
 
 var centralize = render(() => {
-    verbose = true;
     pos += (width / 2, height / 2, 0);
 });
 

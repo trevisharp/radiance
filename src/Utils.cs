@@ -756,12 +756,20 @@ public static class Utils
         => autoVar(func<Float>("rand", point), ShaderDependence.RandDep);
     
     /// <summary>
-    /// Return the lesser of two values.
+    /// Return a noise for a point.
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
     public static Float noise(Vec2ShaderObject point)
         => autoVar(func<Float>("noise", point), ShaderDependence.NoiseDep);
+    
+    /// <summary>
+    /// Return the Fractal Brownian Motion.
+    /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
+    /// Shader Only.
+    /// </summary>
+    public static Float brownian(Vec2ShaderObject point)
+        => autoVar(func<Float>("fbm", point), ShaderDependence.BrownianDep);
     
     /// <summary>
     /// Linearly interpolate between two values.

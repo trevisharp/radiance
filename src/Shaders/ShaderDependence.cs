@@ -17,6 +17,7 @@ public abstract class ShaderDependence
 {
     public readonly static RandFunctionDependence RandDep = new();
     public readonly static NoiseFunctionDependence NoiseDep = new();
+    public readonly static BrownianFunctionDependence BrownianDep = new();
     public readonly static TimeDependence TimeDep = new();
     public readonly static PixelDependence PixelDep = new();
     public readonly static BufferDependence BufferDep = new();

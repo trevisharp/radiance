@@ -14,7 +14,6 @@ using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
 using Managers;
 using Primitives;
-using System.Net.WebSockets;
 
 /// <summary>
 /// A Thread-Safe global context data object.
