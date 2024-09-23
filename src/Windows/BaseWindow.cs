@@ -261,6 +261,8 @@ public abstract class BaseWindow
         if (OnLoad is null)
             return;
         
+        ZBufferEnable = true;
+        
         Phase = WindowPhase.OnLoad;
         OnLoad();
         Phase = WindowPhase.None;
@@ -270,8 +272,6 @@ public abstract class BaseWindow
     {
         if (OnUnload is null)
             return;
-        
-        ZBufferEnable = true;
         
         Phase = WindowPhase.OnUnload;
         OnUnload();
