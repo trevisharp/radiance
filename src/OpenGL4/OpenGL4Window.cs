@@ -18,6 +18,7 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
 {
     private GameWindow? win;
     private bool canRender = true;
+    private ClearBufferMask clearMask = ClearBufferMask.ColorBufferBit;
     
     public override int Width { get; protected set; }
     public override int Height { get; protected set; }
@@ -36,6 +37,27 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
             }
             
             win.CursorState = value ? CursorState.Normal : CursorState.Hidden;
+        }
+    }
+
+    bool zBuffer = false;
+    public override bool ZBufferEnable
+    {
+        get => zBuffer;
+        set
+        {
+            zBuffer = value;
+            if (zBuffer)
+            {
+                GL.Enable(EnableCap.DepthTest);
+                clearMask = ClearBufferMask.ColorBufferBit 
+                    | ClearBufferMask.DepthBufferBit;
+            }
+            else
+            {
+                GL.Disable(EnableCap.DepthTest);
+                clearMask = ClearBufferMask.ColorBufferBit;
+            }
         }
     }
 
@@ -93,7 +115,7 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
             if (!canRender)
                 return;
 
-            GL.Clear(ClearBufferMask.ColorBufferBit);
+            GL.Clear(clearMask);
             
             Render();
 

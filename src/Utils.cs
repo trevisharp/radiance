@@ -17,7 +17,6 @@ using Shaders.Dependencies;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
-using Radiance.Shaders.CodeGeneration;
 
 /// <summary>
 /// A facade with all utils to use Radiance features.

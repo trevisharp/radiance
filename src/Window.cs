@@ -102,6 +102,15 @@ public static class Window
     public static float Fps => Current.Fps;
     
     /// <summary>
+    /// Get or set of the Z-Buffer (Depth buffer) is enable.
+    /// </summary>
+    public static bool ZBufferEnable
+    {
+        get => Current.ZBufferEnable;
+        set => Current.ZBufferEnable = value;
+    }
+    
+    /// <summary>
     /// Occurs when the render pipeline is activated.
     /// </summary>
     public static event Action OnRender

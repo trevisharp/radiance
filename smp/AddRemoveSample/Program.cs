@@ -1,32 +1,15 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-var bounce = render((radius, speed) =>
-    pos += (radius * cos(speed * t), radius * sin(speed * t), 0)
-);
-
-var randColor = render(() => {
-    color = (noise((x, y)), noise((x, y)), noise((x, y)), 1f);
-});
-
-var bounceFill = render((speed) =>
+var drawRect = render((z, delta, r, g) =>
 {
-    f(speed);
     kit.Centralize();
-    kit.Zoom(width / 2, height / 2, 300);
-    bounce(120, speed);
-    randColor();
+    pos = (pos.x + delta, pos.y + delta, z);
+    color = (r, g, 0, 1);
     fill();
 });
+drawRect = drawRect(Rect(0, 0, 0, 100, 100));
 
-var star = render((im, cx, cy, size) =>
-{
-    var d = distance((x, y), (cx, cy));
-    var s = size * (1 + 0.05 * sin(10 * t)) / d;
-    color = mix(black, texture(im, (x / width, y / height)), min(s, 1));
-    fill();
-});
-Window.OnLoad += () => star = star(Screen, open("dynkas.jpg"));
 
 float cx = 0, cy = 0, size = 1f;
 Window.OnMouseMove += p => (cx, cy) = p;
@@ -35,13 +18,14 @@ Window.OnMouseWhell += whell => size = float.Max(size + whell, 1f);
 Window.OnKeyDown += (key, mod) =>
 {
     if (key == Input.Space)
-        Clock.Shared.ToogleFreeze();
+        Window.ZBufferEnable = !Window.ZBufferEnable;
 };
 
 Window.OnRender += () => 
 {
-    // star(cx, cy, size);
-    bounceFill(Square, 2);
+    drawRect(-.5, 20, 0, 1);
+    drawRect(0, 40, 1, 1);
+    drawRect(.5, 0, 1, 0);
 };
 
 Window.CursorVisible = false;

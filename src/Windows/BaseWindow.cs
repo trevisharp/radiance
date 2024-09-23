@@ -74,9 +74,14 @@ public abstract class BaseWindow
     public abstract int Height { get; protected set; }
 
     /// <summary>
-    /// Get and set if the cursor is visible.
+    /// Get or set if the cursor is visible.
     /// </summary>
     public abstract bool CursorVisible { get; set; }
+
+    /// <summary>
+    /// Get or set of the Z-Buffer (Depth buffer) is enable.
+    /// </summary>
+    public abstract bool ZBufferEnable { get; set; }
 
     /// <summary>
     /// Open main application window.
@@ -265,6 +270,8 @@ public abstract class BaseWindow
     {
         if (OnUnload is null)
             return;
+        
+        ZBufferEnable = true;
         
         Phase = WindowPhase.OnUnload;
         OnUnload();
