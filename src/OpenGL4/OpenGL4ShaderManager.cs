@@ -9,6 +9,7 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance.OpenGL4;
 
+using System;
 using Managers;
 using Primitives;
 
@@ -20,7 +21,7 @@ public class OpenGL4ManagerContext : ShaderManager
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];
     static readonly List<int> bufferList = [];
-    static readonly List<int> vertexArrayList = [];
+    static readonly List<int> objectList = [];
     static readonly List<int> textureUnits = [];
 
     /// <summary>
@@ -36,9 +37,9 @@ public class OpenGL4ManagerContext : ShaderManager
             GL.DeleteTexture(texture.Value);
         textureMap.Clear();
 
-        foreach (var vertexArray in vertexArrayList)
+        foreach (var vertexArray in objectList)
             GL.DeleteVertexArray(vertexArray);
-        vertexArrayList.Clear();
+        objectList.Clear();
     }
     
     /// <summary>
@@ -79,16 +80,6 @@ public class OpenGL4ManagerContext : ShaderManager
         var id = ActivateImage(texture.ImageData);
         var code = GL.GetUniformLocation(Id, name);
         GL.Uniform1(code, id);
-    }
-    
-    public override void CreateResources(Polygon poly)
-    {
-        if (poly.VertexObjectArray > -1 && poly.Buffer > -1)
-            return;
-
-        UpdateResources(poly, true, true);
-        poly.OnChange += (bufferBreak, layoutBreak) =>
-            UpdateResources(poly, bufferBreak, layoutBreak);
     }
 
     public override void Use(Polygon poly)
@@ -132,7 +123,13 @@ public class OpenGL4ManagerContext : ShaderManager
     private void GenerateVertexArrayObject()
     {
         ObjectId = GL.GenVertexArray();
-        vertexArrayList.Add(ObjectId);
+        objectList.Add(ObjectId);
+    }
+
+    private static void DeleteVerteArrayObject(int objectId)
+    {
+        GL.DeleteVertexArray(objectId);
+        objectList.Remove(objectId);
     }
 
     private int ActivateImage(ImageResult image)
@@ -204,43 +201,28 @@ public class OpenGL4ManagerContext : ShaderManager
         return bufferObject;
     }
 
+    private static void DeleteBuffer(int bufferId)
+    {
+        GL.DeleteBuffer(bufferId);
+        bufferList.Remove(bufferId);
+    }
+
     private static void BindBuffer(Polygon poly)
     {
+        throw new NotImplementedException();
         GL.BindBuffer(
             BufferTarget.ArrayBuffer, 
-            poly.Buffer
+            -1
         );
     }
 
-    private static void UpdateResources(Polygon poly, bool bufferBreak, bool layoutBreak)
+    private static void SetBufferData(int bufferId, Polygon poly)
     {
-        if (bufferBreak)
-        {
-            if (poly.Buffer > -1)
-            {
-                GL.DeleteBuffer(poly.Buffer);
-            }
-
-            int buffer = CreateBuffer();
-            poly.Buffer = buffer;
-        }
-        else BindBuffer(poly);
-        
         var data = poly.Data.ToArray();
         GL.BufferData(
             BufferTarget.ArrayBuffer,
             data.Length * sizeof(float), data,
             BufferUsageHint.DynamicDraw
         );
-
-        if (layoutBreak)
-        {
-            if (poly.VertexObjectArray > -1)
-                GL.DeleteVertexArray(poly.VertexObjectArray);
-
-            int vertexArray = CreateVertexArray(poly);
-            poly.VertexObjectArray = vertexArray;
-        }
-        else BindVertexArray(poly);
     }
 }
