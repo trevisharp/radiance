@@ -93,7 +93,7 @@ public class OpenGL4ManagerContext : ShaderManager
 
     public override void Use(Polygon poly)
     {
-        BindVertexArray(poly);
+        BindVerteArrayObject();
         BindBuffer(poly);
     }
 
@@ -209,34 +209,6 @@ public class OpenGL4ManagerContext : ShaderManager
         GL.BindBuffer(
             BufferTarget.ArrayBuffer, 
             poly.Buffer
-        );
-    }
-
-    // TODO: Consider multi layout or simplify abstraction
-    private static int CreateVertexArray(Polygon data)
-    {
-        int vertexObject = GL.GenVertexArray();
-        GL.BindVertexArray(vertexObject);
-
-        int total = 3;
-        var stride = total * sizeof(float);
-        var type = VertexAttribPointerType.Float;
-
-        int i = 0;
-        int offset = 0;
-        GL.VertexAttribPointer(i, 3, type, false, stride, offset);
-        GL.EnableVertexAttribArray(i);
-        offset += 3 * sizeof(float);
-        i++;
-
-        vertexArrayList.Add(vertexObject);
-        return vertexObject;
-    }
-
-    private static void BindVertexArray(Polygon poly)
-    {
-        GL.BindVertexArray(
-            poly.VertexObjectArray
         );
     }
 

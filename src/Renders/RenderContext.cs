@@ -160,18 +160,16 @@ public class RenderContext
 
         var generator = CodeGeneratorBuilder.Build();
         var pair = generator.GenerateShaders(Position, Color, shaderManager);
+
+        var program = ProgramContext.CreateProgram(pair, Verbose);
+        shaderManager.SetProgram(program);
         
         RenderActions += (poly, data) =>
         {
-            var program = ProgramContext.CreateProgram(pair, Verbose);
-            shaderManager.SetProgram(program);
-
             if (needTriangularization)
                 poly = poly.Triangulation;
 
-            shaderManager.CreateResources(poly);
             ProgramContext.UseProgram(program);
-
             shaderManager.Use(poly);
 
             if (pair.VertexShader.Setup is not null)

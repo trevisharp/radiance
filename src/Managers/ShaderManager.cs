@@ -30,11 +30,6 @@ public abstract class ShaderManager : IDisposable
     /// 
     /// </summary>
     public abstract void AddLayout(int size);
-    
-    /// <summary>
-    /// Create a Resource from a Polygon.
-    /// </summary>
-    public abstract void CreateResources(Polygon poly);
 
     /// <summary>
     /// Start to use a Polygon.
