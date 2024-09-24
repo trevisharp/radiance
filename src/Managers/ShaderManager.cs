@@ -3,12 +3,13 @@
  */
 namespace Radiance.Managers;
 
+using System;
 using Primitives;
 
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public abstract class ShaderManager
+public abstract class ShaderManager : IDisposable
 {
     /// <summary>
     /// Associate a program id to this shader.
@@ -24,6 +25,11 @@ public abstract class ShaderManager
     /// Set a image uniform with a name to a specific value.
     /// </summary>
     public abstract void SetTextureData(string name, Texture texture);
+
+    /// <summary>
+    /// 
+    /// </summary>
+    public abstract void AddLayout(int size);
     
     /// <summary>
     /// Create a Resource from a Polygon.
@@ -39,4 +45,9 @@ public abstract class ShaderManager
     /// Draw Arrays in the selected buffer.
     /// </summary>
     public abstract void Draw(PrimitiveType primitiveType, Polygon poly);
+
+    /// <summary>
+    /// Releasing all resources associateds to this shader.
+    /// </summary>
+    public abstract void Dispose();
 }

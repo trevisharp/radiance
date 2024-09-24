@@ -2,6 +2,7 @@
  * Date:    26/02/2024
  */
 using System.Text;
+using Radiance.Managers;
 
 namespace Radiance.Shaders.Dependencies;
 
@@ -11,8 +12,8 @@ namespace Radiance.Shaders.Dependencies;
 public class BufferDependence : ShaderDependence
 {
     public override void AddVertexHeader(StringBuilder sb)
-    {
-        sb.AppendLine($"layout (location = 0) in vec3 pos;");
-        return;
-    }
+        => sb.AppendLine($"layout (location = 0) in vec3 pos;");
+
+    public override void AddConfiguration(ShaderManager ctx)
+        => ctx.AddLayout(3);
 }

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    24/01/2024
+ * Date:    24/09/2024
  */
 using System;
 using System.Text;
@@ -27,7 +27,6 @@ public abstract class ShaderDependence
     /// <summary>
     /// Add other dependences associated to this dependences.
     /// </summary>
-    /// <returns></returns>
     public virtual IEnumerable<ShaderDependence> AddDependences() => [];
 
     /// <summary>
@@ -64,6 +63,11 @@ public abstract class ShaderDependence
     /// Add header in the fragment shader.
     /// </summary>
     public virtual void AddFragmentHeader(StringBuilder sb) { }
+
+    /// <summary>
+    /// Add a configuration applied only once on shader definition.
+    /// </summary>
+    public virtual void AddConfiguration(ShaderManager ctx) { }
 
     /// <summary>
     /// Add operation to be executed to load dependence data in the current

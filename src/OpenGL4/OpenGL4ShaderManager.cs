@@ -51,6 +51,21 @@ public class OpenGL4ManagerContext : ShaderManager
     /// </summary>
     public int TextureCount { get; private set; }
 
+    /// <summary>
+    /// Get the Vertex Array Object Id associated with this Shader.
+    /// </summary>
+    public int ObjectId { get; private set; } = -1;
+
+    /// <summary>
+    /// Get the total count of layout defineds on Vertex Array Object. 
+    /// </summary>
+    public int LayoutCount { get; private set; } = 0;
+
+    /// <summary>
+    /// Get the total offset of layouts.
+    /// </summary>
+    public int Offset { get; private set; } = 0;
+
     public override void SetProgram(int program)
         => Id = program;
 
@@ -86,6 +101,38 @@ public class OpenGL4ManagerContext : ShaderManager
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
         GL.DrawArrays(openTKType, 0, poly.Data.Count() / 3);
+    }
+
+    public override void AddLayout(int size)
+    {
+        BindVerteArrayObject();
+
+        var stride = size * sizeof(float);
+        var type = VertexAttribPointerType.Float;
+
+        GL.VertexAttribPointer(LayoutCount, 3, type, false, stride, Offset);
+        GL.EnableVertexAttribArray(LayoutCount);
+        Offset += 3 * sizeof(float);
+        LayoutCount++;
+    }
+
+    public override void Dispose()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    private void BindVerteArrayObject()
+    {
+        if (ObjectId == -1)
+            GenerateVertexArrayObject();
+        
+        GL.BindVertexArray(ObjectId);
+    }
+
+    private void GenerateVertexArrayObject()
+    {
+        ObjectId = GL.GenVertexArray();
+        vertexArrayList.Add(ObjectId);
     }
 
     private int ActivateImage(ImageResult image)
