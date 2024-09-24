@@ -1,6 +1,6 @@
 # Radiance
 
-A library based on OpenTK which is based on OpenGL to program Shaders in C#.
+An OpenGL/OpenTK-based library 2D foccused to program shaders easily in C#.
 
 # Table of Contents
 
