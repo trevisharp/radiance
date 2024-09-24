@@ -8,14 +8,14 @@ Window.OnMouseMove += p => (cx, cy) = p;
 float sx = 0f, sy = 0;
 float vx = 0f, vy = 0;
 float speed = 0;
-const float acceleartion = 1f;
-const float friction = .9f;
+const float acceleartion = 10f;
+const float friction = .5f;
 
 var myRender = render((cx, cy, speed) =>
 {
-    pos *= 100;
+    pos *= 90 + 10 * sin(5 * t);
     pos += (cx, cy, 0);
-    color = mix(blue, red, speed / 1000);
+    color = mix(blue, red, (sin(5 * t) + 1) / 2);
     fill();
 });
 
@@ -28,14 +28,14 @@ Window.OnFrame += () =>
     vy += acceleartion * dy * dt;
     speed = MathF.Sqrt(vx * vx + vy * vy);
 
+    vx *= MathF.Pow(friction, dt);
+    vy *= MathF.Pow(friction, dt);
+
     sx += vx * dt;
     sy += vy * dt;
-
-    vx *= friction * dt;
-    vy *= friction * dt;
 };
 
-Window.OnRender += () => myRender(Square, sx, sy, speed);
+Window.OnRender += () => myRender(Circle, sx, sy, speed);
 
 Window.CloseOn(Input.Escape);
 Window.Open();

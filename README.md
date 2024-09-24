@@ -347,13 +347,14 @@ Window.Open();
 # Versions
 
 ### Radiance v3.0.0
- - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
  - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
  - ![](https://img.shields.io/badge/new-green) New default shaders on RenderKit.
  - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
-  - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
  - ![](https://img.shields.io/badge/new-green) Add Text writting utilities.
+ - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
+ - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
+ - ![](https://img.shields.io/badge/removed-red) Remove some features on Polygon simplifying the abstraction.
 
 ### Radiance v2.4.0
 
