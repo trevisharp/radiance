@@ -1,33 +1,41 @@
-﻿using Radiance;
+﻿using System;
+using Radiance;
 using static Radiance.Utils;
 
-var drawRect = render((z, delta, r, g) =>
+float cx = 0f, cy = 0f;
+Window.OnMouseMove += p => (cx, cy) = p;
+
+float sx = 0f, sy = 0;
+float vx = 0f, vy = 0;
+float speed = 0;
+const float acceleartion = 1f;
+const float friction = .9f;
+
+var myRender = render((cx, cy, speed) =>
 {
-    kit.Centralize();
-    pos = (pos.x + delta, pos.y + delta, z);
-    color = (r, g, 0, 1);
+    pos *= 100;
+    pos += (cx, cy, 0);
+    color = mix(blue, red, speed / 1000);
     fill();
 });
-drawRect = drawRect(Rect(0, 0, 0, 100, 100));
 
-
-float cx = 0, cy = 0, size = 1f;
-Window.OnMouseMove += p => (cx, cy) = p;
-Window.OnMouseWhell += whell => size = float.Max(size + whell, 1f);
-
-Window.OnKeyDown += (key, mod) =>
+Window.OnFrame += () =>
 {
-    if (key == Input.Space)
-        Window.ZBufferEnable = !Window.ZBufferEnable;
+    var dx = cx - sx;
+    var dy = cy - sy;
+
+    vx += acceleartion * dx * dt;
+    vy += acceleartion * dy * dt;
+    speed = MathF.Sqrt(vx * vx + vy * vy);
+
+    sx += vx * dt;
+    sy += vy * dt;
+
+    vx *= friction * dt;
+    vy *= friction * dt;
 };
 
-Window.OnRender += () => 
-{
-    drawRect(-.5, 20, 0, 1);
-    drawRect(0, 40, 1, 1);
-    drawRect(.5, 0, 1, 0);
-};
+Window.OnRender += () => myRender(Square, sx, sy, speed);
 
-Window.CursorVisible = false;
 Window.CloseOn(Input.Escape);
 Window.Open();

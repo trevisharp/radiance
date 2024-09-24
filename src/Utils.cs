@@ -769,10 +769,30 @@ public static class Utils
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static T mix<T>(T x, T y, Float a) 
-        where T : ShaderObject
-        => func<T>("mix", x, y, a);
+    public static Vec4ShaderObject mix(Vec4ShaderObject x, Vec4ShaderObject y, Float a) 
+        => func<Vec4ShaderObject>("mix", x, y, a);
 
+    /// <summary>
+    /// Linearly interpolate between two values.
+    /// Shader Only.
+    /// </summary>
+    public static Vec3ShaderObject mix(Vec3ShaderObject x, Vec3ShaderObject y, Float a) 
+        => func<Vec3ShaderObject>("mix", x, y, a);
+    
+    /// <summary>
+    /// Linearly interpolate between two values.
+    /// Shader Only.
+    /// </summary>
+    public static Vec2ShaderObject mix(Vec2ShaderObject x, Vec2ShaderObject y, Float a) 
+        => func<Vec2ShaderObject>("mix", x, y, a);
+
+    /// <summary>
+    /// Linearly interpolate between two values.
+    /// Shader Only.
+    /// </summary>
+    public static Float mix(Float x, Float y, Float a) 
+        => func<Float>("mix", x, y, a);
+    
     /// <summary>
     /// Open a image file to use in your shader.
     /// </summary>
