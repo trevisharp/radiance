@@ -354,6 +354,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Add Text writting utilities.
  - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
  - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we try to use dt in OnFrame and close the program abruptly.
  - ![](https://img.shields.io/badge/removed-red) Remove some features on Polygon simplifying the abstraction.
 
 ### Radiance v2.4.0
