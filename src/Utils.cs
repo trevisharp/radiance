@@ -39,8 +39,7 @@ public static class Utils
     /// Get the time between two frames.
     /// </summary>
     public static float dt =>
-        Window.IsOpen ? Window.DeltaTime :
-        throw new WindowClosedException();
+        Window.IsOpen ? Window.DeltaTime : 0;
 
     /// <summary>
     /// A number relatives to 100% to width of viewport.
