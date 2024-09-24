@@ -59,9 +59,7 @@ public class Render(
         object?[]? args,
         out object? result)
     {
-        var ctx = RenderContext.GetContext();
-
-        if (ctx is not null)
+        if (RenderContext.GetContext() is not null)
         {
             MakeSubCall(args ?? []);
             result = null;
