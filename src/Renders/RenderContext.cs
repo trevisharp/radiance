@@ -69,8 +69,6 @@ public class RenderContext
             ? ctx : null;
     }
 
-    public readonly ProgramManager ProgramContext = ProgramContextBuilder.Build();
-
     /// <summary>
     /// Get or set if the context is in verbose mode.
     /// </summary>
@@ -101,12 +99,6 @@ public class RenderContext
         
         RenderActions(polygon, arguments);
     }
-    
-    /// <summary>
-    /// Add a clear opeartion to this render context.
-    /// </summary>
-    public void AddClear(Vec4 color)
-        => RenderActions += (_, _) => ProgramContext.Clear(color);
 
     /// <summary>
     /// Add a draw points opeartion to this render context.
@@ -155,13 +147,13 @@ public class RenderContext
         bool needTriangularization = false
     )
     {
-        var shaderManager = ShaderContextBuilder.Build();
+        var context = ShaderContextBuilder.Build();
 
         var generator = CodeGeneratorBuilder.Build();
-        var pair = generator.GenerateShaders(Position, Color, shaderManager);
+        var pair = generator.GenerateShaders(Position, Color, context);
 
-        var program = ProgramContext.CreateProgram(pair, Verbose);
-        shaderManager.SetProgram(program);
+        context.CreateProgram(pair, Verbose);
+        context.UseProgram();
 
         bool firstRender = true;
         
@@ -173,13 +165,13 @@ public class RenderContext
             if (firstRender)
             {
                 firstRender = false;
-                shaderManager.Use(poly);
+                context.Use(poly);
                 if (pair.InitialConfiguration is not null)
                     pair.InitialConfiguration();
             }
             
-            ProgramContext.UseProgram(program);
-            shaderManager.Use(poly);
+            context.UseProgram();
+            context.Use(poly);
 
             if (pair.VertexShader.Setup is not null)
                 pair.VertexShader.Setup();
@@ -187,7 +179,7 @@ public class RenderContext
             if (pair.FragmentShader.Setup is not null)
                 pair.FragmentShader.Setup();
 
-            shaderManager.Draw(primitive, poly);
+            context.Draw(primitive, poly);
         };
     }
 }
