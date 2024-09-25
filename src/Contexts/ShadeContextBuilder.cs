@@ -1,12 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/09/2024
  */
-namespace Radiance.Managers;
+namespace Radiance.Contexts;
 
 /// <summary>
 /// A Builder for a ShaderContext
 /// </summary>
-public abstract class ShaderManagerBuilder
+public abstract class ShaderContextBuilder
 {
-    public abstract ShaderManager Build();
+    public abstract ShadeContext Build();
 }

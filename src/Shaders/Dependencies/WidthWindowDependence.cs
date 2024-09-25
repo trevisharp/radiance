@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Managers;
+using Contexts;
 
 /// <summary>
 /// Represents a dependence of the width of the screen.
@@ -16,6 +16,6 @@ public class WidthWindowDependence : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine("uniform float width;");
 
-    public override Action AddOperation(ShaderManager ctx)
+    public override Action AddOperation(ShadeContext ctx)
         => () => ctx.SetFloat("width", Window.Width);
 }

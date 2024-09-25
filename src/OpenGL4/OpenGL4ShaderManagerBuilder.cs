@@ -3,13 +3,13 @@
  */
 namespace Radiance.OpenGL4;
 
-using Managers;
+using Contexts;
 
 /// <summary>
 /// A Builder for a ShaderContext.
 /// </summary>
-public class OpenGL4ShaderManagerBuilder : ShaderManagerBuilder
+public class OpenGL4ShaderManagerBuilder : ShaderContextBuilder
 {
-    public override ShaderManager Build()
-        => new OpenGL4ManagerContext();
+    public override ShadeContext Build()
+        => new OpenGL4ShaderContext();
 }

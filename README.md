@@ -472,3 +472,4 @@ Window.Open();
 - Corrigir OpenGL quebrado (de novo).
 - Considerar remover o Clear do Contexto.
 - Impedir SetBufferData a cada frame.
+- Consider move shader class for another location on Shaders namespace.

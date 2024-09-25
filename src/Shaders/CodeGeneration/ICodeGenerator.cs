@@ -4,7 +4,7 @@
 namespace Radiance.Shaders.CodeGeneration;
 
 using Objects;
-using Managers;
+using Contexts;
 
 public interface ICodeGenerator
 {
@@ -16,6 +16,6 @@ public interface ICodeGenerator
     ShaderPair GenerateShaders(
         Vec3ShaderObject vertObj,
         Vec4ShaderObject fragObj,
-        ShaderManager ctx
+        ShadeContext ctx
     );
 }

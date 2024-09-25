@@ -8,7 +8,7 @@ using System.Linq;
 namespace Radiance.Shaders.CodeGeneration.GLSL;
 
 using System.Collections.Generic;
-using Managers;
+using Contexts;
 using Objects;
 
 /// <summary>
@@ -29,7 +29,7 @@ public class GLSLGenerator : ICodeGenerator
     public ShaderPair GenerateShaders(
         Vec3ShaderObject vertObj,
         Vec4ShaderObject fragObj,
-        ShaderManager ctx)
+        ShadeContext ctx)
     {
         StringBuilder getCodeBuilder()
         {

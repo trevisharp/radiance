@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Radiance.Managers;
+using Radiance.Contexts;
 
 /// <summary>
 /// Represents a dependece of a generic buffer data.
@@ -16,6 +16,6 @@ public class BufferDependence : ShaderDependence
     public override void AddVertexHeader(StringBuilder sb)
         => sb.AppendLine($"layout (location = 0) in vec3 pos;");
 
-    public override Action AddConfiguration(ShaderManager ctx)
+    public override Action AddConfiguration(ShadeContext ctx)
         => () => ctx.AddLayout(3);
 }

@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Radiance.Shaders;
 
-using Managers;
+using Contexts;
 using Dependencies;
 
 /// <summary>
@@ -67,23 +67,23 @@ public abstract class ShaderDependence
     /// <summary>
     /// Add a configuration applied only once on shader definition.
     /// </summary>
-    public virtual Action AddConfiguration(ShaderManager ctx) => null!;
+    public virtual Action AddConfiguration(ShadeContext ctx) => null!;
 
     /// <summary>
     /// Add operation to be executed to load dependence data in the current
     /// shader of the dependence.
     /// </summary>
-    public virtual Action AddOperation(ShaderManager ctx) => null!;
+    public virtual Action AddOperation(ShadeContext ctx) => null!;
     
     /// <summary>
     /// Add operation to be executed to load dependence data vertex shader.
     /// </summary>
-    public virtual Action AddVertexOperation(ShaderManager ctx) => null!;
+    public virtual Action AddVertexOperation(ShadeContext ctx) => null!;
     
     /// <summary>
     /// Add operation to be executed to load dependence data fragment shader.
     /// </summary>
-    public virtual Action AddFragmentOperation(ShaderManager ctx) => null!;
+    public virtual Action AddFragmentOperation(ShadeContext ctx) => null!;
 
     /// <summary>
     /// Add code in the final of current shader of this dependence.

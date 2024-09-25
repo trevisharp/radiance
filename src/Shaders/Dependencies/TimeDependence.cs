@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Managers;
+using Contexts;
 
 /// <summary>
 /// Represents a dependence of the time of the application based
@@ -17,6 +17,6 @@ public class TimeDependence : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine("uniform float t;");
 
-    public override Action AddOperation(ShaderManager ctx)
+    public override Action AddOperation(ShadeContext ctx)
         => () => ctx.SetFloat("t", Clock.Shared.Time);
 }

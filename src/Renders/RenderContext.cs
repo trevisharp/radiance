@@ -12,7 +12,7 @@ using Shaders;
 using Shaders.Objects;
 using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
-using Managers;
+using Contexts;
 using Primitives;
 
 /// <summary>
@@ -20,8 +20,7 @@ using Primitives;
 /// </summary>
 public class RenderContext
 {
-    public static ShaderManagerBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderManagerBuilder();
-    public static ProgramManagerBuilder ProgramContextBuilder { get; set; } = new OpenGL4ProgramManagerBuilder();
+    public static ShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderManagerBuilder();
     public static ICodeGeneratorBuilder CodeGeneratorBuilder { get; set; } = new GLSLGeneratorBuilder();
     
     static readonly Dictionary<int, RenderContext> threadMap = [];
