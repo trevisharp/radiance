@@ -6,8 +6,8 @@ using static System.Console;
 
 namespace Radiance.Contexts;
 
+using Shaders;
 using Primitives;
-using Shaders.CodeGeneration;
 
 /// <summary>
 /// Represents the data and state of a shader program.
