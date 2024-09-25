@@ -1,9 +1,10 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/09/2024
+ * Date:    24/09/2024
  */
+using System;
+
 namespace Radiance.Managers;
 
-using System;
 using Primitives;
 
 /// <summary>
@@ -27,7 +28,7 @@ public abstract class ShaderManager : IDisposable
     public abstract void SetTextureData(string name, Texture texture);
 
     /// <summary>
-    /// 
+    /// Add float values on layout of data buffers.
     /// </summary>
     public abstract void AddLayout(int size);
 

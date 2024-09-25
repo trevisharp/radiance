@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    12/09/2024
  */
+using System;
 using System.Linq;
 using System.Collections.Generic;
 
@@ -9,7 +10,6 @@ using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance.OpenGL4;
 
-using System;
 using Managers;
 using Primitives;
 
@@ -75,6 +75,7 @@ public class OpenGL4ManagerContext : ShaderManager
         var code = GL.GetUniformLocation(Id, name);
         GL.Uniform1(code, value);
     }
+
     public override void SetTextureData(string name, Texture texture)
     {
         var id = ActivateImage(texture.ImageData);
@@ -85,7 +86,10 @@ public class OpenGL4ManagerContext : ShaderManager
     public override void Use(Polygon poly)
     {
         BindVerteArrayObject();
+
+        poly.BufferId ??= CreateBuffer();
         BindBuffer(poly);
+        SetBufferData(poly);
     }
 
     public override void Draw(PrimitiveType primitiveType, Polygon poly)
@@ -109,7 +113,9 @@ public class OpenGL4ManagerContext : ShaderManager
 
     public override void Dispose()
     {
-        throw new System.NotImplementedException();
+        // TODO: Release more data.
+        DeleteVerteArrayObject(ObjectId);
+        GC.SuppressFinalize(this);
     }
 
     private void BindVerteArrayObject()
@@ -209,14 +215,15 @@ public class OpenGL4ManagerContext : ShaderManager
 
     private static void BindBuffer(Polygon poly)
     {
-        throw new NotImplementedException();
+        int bufferId = poly.BufferId ?? 
+            throw new Exception("A unexpected behaviour ocurred on buffer creation/binding.");
         GL.BindBuffer(
             BufferTarget.ArrayBuffer, 
-            -1
+            bufferId
         );
     }
 
-    private static void SetBufferData(int bufferId, Polygon poly)
+    private static void SetBufferData(Polygon poly)
     {
         var data = poly.Data.ToArray();
         GL.BufferData(

@@ -46,6 +46,11 @@ public abstract class Polygon : IEnumerable<float>
     /// Get the collection of data points in polygon.
     /// </summary>
     public abstract IEnumerable<float> Data { get; }
+
+    /// <summary>
+    /// Get the id of the buffer associated with the polygon data.
+    /// </summary>
+    public int? BufferId { get; set; } = null;
     
     /// <summary>
     /// Add a point in polygon.

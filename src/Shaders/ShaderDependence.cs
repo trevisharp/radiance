@@ -67,7 +67,7 @@ public abstract class ShaderDependence
     /// <summary>
     /// Add a configuration applied only once on shader definition.
     /// </summary>
-    public virtual void AddConfiguration(ShaderManager ctx) { }
+    public virtual Action AddConfiguration(ShaderManager ctx) => null!;
 
     /// <summary>
     /// Add operation to be executed to load dependence data in the current

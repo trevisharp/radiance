@@ -163,6 +163,9 @@ public class RenderContext
 
         var program = ProgramContext.CreateProgram(pair, Verbose);
         shaderManager.SetProgram(program);
+
+        if (pair.InitialConfiguration is not null)
+            pair.InitialConfiguration();
         
         RenderActions += (poly, data) =>
         {

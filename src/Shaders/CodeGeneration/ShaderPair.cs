@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/09/2024
+ * Date:    25/09/2024
  */
+using System;
+
 namespace Radiance.Shaders.CodeGeneration;
 
 /// <summary>
@@ -8,5 +10,6 @@ namespace Radiance.Shaders.CodeGeneration;
 /// </summary>
 public record ShaderPair(
     Shader VertexShader,
-    Shader FragmentShader
+    Shader FragmentShader,
+    Action? InitialConfiguration
 );
