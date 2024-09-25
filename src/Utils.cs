@@ -491,17 +491,6 @@ public static class Utils
             );
         }
     }
-    
-    /// <summary>
-    /// Clean the entire screen.
-    /// Shader Only.
-    /// </summary>
-    public static void clear(Vec4 color)
-    {
-        var ctx = RenderContext.GetContext()
-            ?? throw new ShaderOnlyResourceException();
-        ctx.AddClear(color);
-    }
 
     /// <summary>
     /// /// Draw the polygon in the screen.
