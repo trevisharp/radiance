@@ -164,14 +164,21 @@ public class RenderContext
         var program = ProgramContext.CreateProgram(pair, Verbose);
         shaderManager.SetProgram(program);
 
-        if (pair.InitialConfiguration is not null)
-            pair.InitialConfiguration();
+        bool firstRender = true;
         
         RenderActions += (poly, data) =>
         {
             if (needTriangularization)
                 poly = poly.Triangulation;
 
+            if (firstRender)
+            {
+                firstRender = false;
+                shaderManager.Use(poly);
+                if (pair.InitialConfiguration is not null)
+                    pair.InitialConfiguration();
+            }
+            
             ProgramContext.UseProgram(program);
             shaderManager.Use(poly);
 

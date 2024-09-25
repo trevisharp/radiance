@@ -87,7 +87,7 @@ public class OpenGL4ManagerContext : ShaderManager
     {
         BindVerteArrayObject();
 
-        poly.BufferId ??= CreateBuffer();
+        CreateBuffer(poly);
         BindBuffer(poly);
         SetBufferData(poly);
     }
@@ -199,12 +199,14 @@ public class OpenGL4ManagerContext : ShaderManager
         return handle;
     }
     
-    private static int CreateBuffer()
+    private static void CreateBuffer(Polygon poly)
     {
-        var bufferObject = GL.GenBuffer();
-        GL.BindBuffer(BufferTarget.ArrayBuffer, bufferObject);
-        bufferList.Add(bufferObject);
-        return bufferObject;
+        if (poly.BufferId is not null)
+            return;
+        
+        var id = GL.GenBuffer();
+        bufferList.Add(id);
+        poly.BufferId = id;
     }
 
     private static void DeleteBuffer(int bufferId)
