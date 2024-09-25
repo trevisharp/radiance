@@ -5,14 +5,13 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace Radiance.Renders;
+namespace Radiance.Contexts;
 
 using OpenGL4;
 using Shaders;
 using Shaders.Objects;
 using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
-using Contexts;
 using Primitives;
 
 /// <summary>

@@ -7,12 +7,13 @@ using System.Dynamic;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Radiance.Renders;
+namespace Radiance;
 
 using Windows;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
+using Contexts;
 using Primitives;
 using Exceptions;
 

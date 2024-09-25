@@ -1,9 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    20/09/2024
  */
-namespace Radiance.Renders;
+namespace Radiance;
 
-using System.Runtime.InteropServices;
 using static Radiance.Utils;
 
 /// <summary>

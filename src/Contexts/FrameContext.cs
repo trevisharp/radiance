@@ -4,7 +4,7 @@
 using System.Threading;
 using System.Collections.Generic;
 
-namespace Radiance.Renders;
+namespace Radiance.Contexts;
 
 using Primitives;
 
