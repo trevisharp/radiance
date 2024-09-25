@@ -468,8 +468,4 @@ Window.Open();
 
 # TODO
 - Simplificar Polygon para apenas sua versão imutável.
-- Considerar unir o ProgramManager e o ShaderManager.
-- Corrigir OpenGL quebrado (de novo).
-- Considerar remover o Clear do Contexto.
 - Impedir SetBufferData a cada frame.
-- Consider move shader class for another location on Shaders namespace.
