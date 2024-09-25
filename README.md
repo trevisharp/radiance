@@ -465,3 +465,8 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Many functions of GLSL like cos, sin distance, round, smoothstep and others...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
+
+# TODO
+- Simplificar Polygon para apenas sua versão imutável.
+- Considerar unir o ProgramManager e o ShaderManager.
+- Corrigir OpenGL quebrado (de novo).
