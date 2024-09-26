@@ -471,3 +471,9 @@ Window.Open();
 - Impedir SetBufferData a cada frame. Melhorar o uso de Buffers.
 - Implementar uso avançado de layouts.
 - Considerar Mover Poligonos para outro Namespace.
+
+Ideia Geral: Criar uma abstração imutável para dados buferizados. Para criar dados buferizados
+mais complexos que o poligono é necessário alguma função que manipulará os renders usando
+expressions. Outra ideia é manipular buffers ao longo dos frames para tentar reutilizar e
+melhorar o desempenho. Ao finalizar estas implementações o branch 'bufferdeps' poderá ser
+mergida.
