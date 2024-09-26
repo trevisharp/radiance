@@ -3,6 +3,8 @@
  */
 namespace Radiance;
 
+using System.Runtime.InteropServices;
+using Radiance.Shaders.Objects;
 using static Radiance.Utils;
 
 /// <summary>
@@ -70,5 +72,18 @@ public class RenderKit
         });
 
         zoomRender(x, y, factor);
+    }
+
+    private dynamic? rotateRender;
+    public void Rotate(dynamic speed)
+    {
+        rotateRender ??= render(speed => {
+            pos = (
+                pos.x * cos(speed * t) - pos.y * sin(speed * t),
+                pos.y * cos(speed * t) + pos.x * sin(speed * t),
+                pos.z);
+        });
+
+        rotateRender(speed);
     }
 }

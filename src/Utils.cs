@@ -155,16 +155,16 @@ public static class Utils
     public static MutablePolygon Ellipse(
         float x, float y, float z,
         float a, float b = float.NaN,
-        int sizes = 63
+        int points = 63
     )
     {
         var result = new MutablePolygon();
 
-        float phi = MathF.Tau / sizes;
+        float phi = MathF.Tau / points;
         if (float.IsNaN(b))
             b = a;
 
-        for (int k = 0; k < sizes; k++)
+        for (int k = 0; k < points; k++)
         {
             result.Add(
                 a * MathF.Cos(phi * k) + x,
@@ -183,21 +183,50 @@ public static class Utils
     /// </summary>
     public static MutablePolygon Ellipse(
         float a, float b = float.NaN,
-        int sizes = 63
+        int points = 63
     )
     {
         var result = new MutablePolygon();
 
-        float phi = MathF.Tau / sizes;
+        float phi = MathF.Tau / points;
         if (float.IsNaN(b))
             b = a;
 
-        for (int k = 0; k < sizes; k++)
+        for (int k = 0; k < points; k++)
         {
             result.Add(
                 a * MathF.Cos(phi * k),
                 b * MathF.Sin(-phi * k),
                 0
+            );
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Create a polygon using a polar coordinates.
+    /// The polarFunc is a function that recieves a angle (0 to 2pi)
+    /// and returns the distânce of the center (x, y, z).
+    /// </summary>
+    public static MutablePolygon Polar(
+        Func<float, float> polarFunc,
+        float x = 0, float y = 0, float z = 0,
+        int points = 63
+    )
+    {
+        var result = new MutablePolygon();
+
+        float phi = MathF.Tau / points;
+
+        for (int k = 0; k < points; k++)
+        {
+            float angle = phi * k;
+            float dist = polarFunc(angle);
+            result.Add(
+                x + dist * MathF.Cos(angle),
+                y + dist * MathF.Sin(-angle),
+                z
             );
         }
 
@@ -579,6 +608,13 @@ public static class Utils
     /// </summary>
     public static Float exp2(Float value)
         => func<Float>("exp2", value);
+
+    /// <summary>
+    /// Returns the square root of the specified value.
+    /// Shader Only.
+    /// </summary>
+    public static Float sqrt(Float value)
+        => func<Float>("sqrt", value);
 
     /// <summary>
     /// Returns the logarithm (base e) of the specified value.
