@@ -466,7 +466,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
-# TODO
+# TODO (bufferdeps branch)
 - Simplificar Polygon para apenas sua versão imutável.
 - Impedir SetBufferData a cada frame. Melhorar o uso de Buffers.
 - Implementar uso avançado de layouts.
@@ -478,6 +478,8 @@ expressions. Outra ideia é manipular buffers ao longo dos frames para tentar re
 melhorar o desempenho. Ao finalizar estas implementações o branch 'bufferdeps' poderá ser
 mergida.
 
+# TODO (others)
 - Renderização de texto.
 - Melhorar ShaderObjects e seus recursos.
 - Triangularização de poligonos não monotonos.
+- Arrumar o uso de texturas para facilitar operações baseadas em pixeis.
