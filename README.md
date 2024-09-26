@@ -477,3 +477,7 @@ mais complexos que o poligono é necessário alguma função que manipulará os 
 expressions. Outra ideia é manipular buffers ao longo dos frames para tentar reutilizar e
 melhorar o desempenho. Ao finalizar estas implementações o branch 'bufferdeps' poderá ser
 mergida.
+
+- Renderização de texto.
+- Melhorar ShaderObjects e seus recursos.
+- Triangularização de poligonos não monotonos.
