@@ -8,7 +8,7 @@ using Contexts;
 /// <summary>
 /// A Builder for a ShaderContext.
 /// </summary>
-public class OpenGL4ShaderManagerBuilder : ShaderContextBuilder
+public class OpenGL4ShaderContextBuilder : ShaderContextBuilder
 {
     public override ShadeContext Build()
         => new OpenGL4ShaderContext();

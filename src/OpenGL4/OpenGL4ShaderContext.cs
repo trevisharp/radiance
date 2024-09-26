@@ -64,12 +64,12 @@ public class OpenGL4ShaderContext : ShadeContext
     /// <summary>
     /// Get the count of textures loaded on this context.
     /// </summary>
-    public int TextureCount { get; private set; }
+    public int TextureCount { get; private set; } = 0;
 
     /// <summary>
     /// Get the Vertex Array Object Id associated with this Shader.
     /// </summary>
-    public int ObjectId { get; private set; } = -1;
+    public int? ObjectId { get; private set; } = null;
 
     /// <summary>
     /// Get the total count of layout defineds on Vertex Array Object. 
@@ -164,22 +164,25 @@ public class OpenGL4ShaderContext : ShadeContext
 
     private void BindVerteArrayObject()
     {
-        if (ObjectId == -1)
+        if (!ObjectId.HasValue)
             GenerateVertexArrayObject();
         
-        GL.BindVertexArray(ObjectId);
+        GL.BindVertexArray(ObjectId ?? -1);
     }
 
     private void GenerateVertexArrayObject()
     {
         ObjectId = GL.GenVertexArray();
-        objectList.Add(ObjectId);
+        objectList.Add(ObjectId ?? -1);
     }
 
-    private static void DeleteVerteArrayObject(int objectId)
+    private static void DeleteVerteArrayObject(int? objectId)
     {
-        GL.DeleteVertexArray(objectId);
-        objectList.Remove(objectId);
+        if (!objectId.HasValue)
+            return;
+        
+        GL.DeleteVertexArray(objectId.Value);
+        objectList.Remove(objectId.Value);
     }
 
     private int ActivateImage(ImageResult image)
@@ -278,11 +281,7 @@ public class OpenGL4ShaderContext : ShadeContext
             BufferUsageHint.DynamicDraw
         );
     }
-
     
-    /// <summary>
-    /// Compile a Vertex Shader and get its id.
-    /// </summary>
     private static int CreateVertexShader(
         Shader shader,
         bool verbose,
@@ -295,9 +294,6 @@ public class OpenGL4ShaderContext : ShadeContext
         return shaderId;
     }
     
-    /// <summary>
-    /// Compile a Fragment Shader and get its id.
-    /// </summary>
     private static int CreateFragmentShader(
         Shader shader,
         bool verbose,
@@ -310,9 +306,6 @@ public class OpenGL4ShaderContext : ShadeContext
         return shaderId;
     }
 
-    /// <summary>
-    /// Compile a shader by its shader type and get its id.
-    /// </summary>
     private static int CreateShader(
         OpenTKShaderType type,
         Shader shader,
@@ -346,10 +339,7 @@ public class OpenGL4ShaderContext : ShadeContext
 
         return shaderId;
     }
-
-    /// <summary>
-    /// Compile a Program from the Shader id's and its id.
-    /// </summary>
+    
     private static int CreateProgram(
         int vertexShader, 
         int fragmentShader,

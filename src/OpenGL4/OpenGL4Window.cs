@@ -152,6 +152,7 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
     {
         win?.Close();
         win?.Dispose();
+        OpenGL4ShaderContext.FreeAllResources();
     }
 
     private void UpdateSize(GameWindow win)

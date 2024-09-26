@@ -19,7 +19,7 @@ using Primitives;
 /// </summary>
 public class RenderContext
 {
-    public static ShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderManagerBuilder();
+    public static ShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
     public static ICodeGeneratorBuilder CodeGeneratorBuilder { get; set; } = new GLSLGeneratorBuilder();
     
     static readonly Dictionary<int, RenderContext> threadMap = [];
