@@ -1,8 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    30/01/2024
  */
-using System;
-
 namespace Radiance.Exceptions;
 
 /// <summary>

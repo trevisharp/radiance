@@ -13,6 +13,7 @@ using Shaders.Objects;
 using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
 using Primitives;
+using Radiance.Exceptions;
 
 /// <summary>
 /// A Thread-Safe global context data object.
@@ -146,37 +147,53 @@ public class RenderContext
         bool needTriangularization = false
     )
     {
-        var context = ShaderContextBuilder.Build();
+        var context = ShaderContextBuilder?.Build()
+            ?? throw new BuilderEmptyException(
+                $"{nameof(RenderContext)}.{nameof(ShaderContextBuilder)}"
+            );
 
-        var generator = CodeGeneratorBuilder.Build();
+        var generator = CodeGeneratorBuilder?.Build()
+            ?? throw new BuilderEmptyException(
+                $"{nameof(RenderContext)}.{nameof(CodeGeneratorBuilder)}"
+            );
+        
         var pair = generator.GenerateShaders(Position, Color, context);
 
         context.CreateProgram(pair, Verbose);
         context.UseProgram();
 
-        bool firstRender = true;
-        
-        RenderActions += (poly, data) =>
+        bool alreadyInitied = false;
+        void initIfNeeded()
         {
-            if (needTriangularization)
-                poly = poly.Triangulation;
-
-            if (firstRender)
-            {
-                firstRender = false;
-                context.Use(poly);
-                if (pair.InitialConfiguration is not null)
-                    pair.InitialConfiguration();
-            }
+            if (alreadyInitied)
+                return;
+            alreadyInitied = true;
             
-            context.UseProgram();
-            context.Use(poly);
+            if (pair.InitialConfiguration is not null)
+                pair.InitialConfiguration();
+        }
 
+        void setupShaders()
+        {
             if (pair.VertexShader.Setup is not null)
                 pair.VertexShader.Setup();
 
             if (pair.FragmentShader.Setup is not null)
                 pair.FragmentShader.Setup();
+        }
+        
+        RenderActions += (poly, data) =>
+        {
+            if (needTriangularization)
+                poly = poly.Triangulation;
+            
+            context.Use(poly);
+
+            initIfNeeded();
+            
+            context.UseProgram();
+
+            setupShaders();
 
             context.Draw(primitive, poly);
         };
