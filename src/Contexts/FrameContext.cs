@@ -58,5 +58,5 @@ public class FrameContext
             ? ctx : null;
     }
 
-    public Stack<Polygon> PolygonStack { get; private set; } = [];
+    
 }

@@ -107,9 +107,6 @@ public class Render(
         if (arguments[0] is not Polygon poly)
             throw new MissingPolygonException();
         
-        var frameCtx = FrameContext.OpenContext();
-        frameCtx.PolygonStack.Push(poly);
-
         var extraArgs = DisplayValues(arguments[1..]);
 
         foreach (var (arg, dep) in extraArgs.Zip(Dependences!))
@@ -121,9 +118,6 @@ public class Render(
         }
 
         Context?.Render(poly, extraArgs);
-
-        frameCtx.PolygonStack.Pop();
-        FrameContext.CloseContext();
     }
     
     /// <summary>
