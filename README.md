@@ -468,4 +468,6 @@ Window.Open();
 
 # TODO
 - Simplificar Polygon para apenas sua versão imutável.
-- Impedir SetBufferData a cada frame.
+- Impedir SetBufferData a cada frame. Melhorar o uso de Buffers.
+- Implementar uso avançado de layouts.
+- Adicionar uso de fontes e textos.
