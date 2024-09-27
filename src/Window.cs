@@ -14,8 +14,8 @@ using Primitives;
 /// </summary>
 public static class Window
 {
-    private static WindowFactory factory = new OpenGL4WindowFactory();
-    public static WindowFactory Factory
+    private static WindowBuilder factory = new OpenGL4WindowBuilder();
+    public static WindowBuilder Factory
     {
         get => factory;
         set => factory = value ?? 

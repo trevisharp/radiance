@@ -3,7 +3,7 @@
  */
 namespace Radiance.Windows;
 
-public abstract class WindowFactory
+public abstract class WindowBuilder
 {
     public abstract BaseWindow New(bool fullscreen);
 }
