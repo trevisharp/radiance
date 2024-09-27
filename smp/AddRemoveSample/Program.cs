@@ -1,10 +1,9 @@
 ﻿using Radiance;
-using Radiance.Buffers;
 using static Radiance.Utils;
 
 var myRender = render(im =>
 {
-    kit.Rotate(1f);
+    kit.Rotate(.5f);
     kit.Move(1100, 700);
     color = texture(im, (x / width, y / height));
     fill();
@@ -16,12 +15,18 @@ var background = render(im =>
     fill();
 });
 
-var star = Polygon.Polar((a, i) => 200 + 200 * (i % 2), 0, 0, 0, 10);
+Window.OnLoad += () =>
+{
+    Window.ZBufferEnable = true;
+    myRender = myRender(Polygons.Polar((a, i) => 200 + 200 * (i % 2), 0, 0, -0.2f, 10));
+    background = background(Polygons.Screen);
+};
+
 var dynkas = open("dynkas.jpg");
 Window.OnRender += () => 
 {
-    background(Polygon.Screen, dynkas);
-    myRender(star, dynkas);
+    background(dynkas);
+    myRender(dynkas);
 };
 
 Window.CloseOn(Input.Escape);

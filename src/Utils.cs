@@ -31,6 +31,12 @@ public static class Utils
     /// </summary>
     public static Float f(Float value) => value;
 
+    /// <summary>
+    /// A function to indicate the type of the parameter on render functions.
+    /// Use when the compiler cannot identify a type of a parameter.
+    /// </summary>
+    public static Sampler sampler(Sampler value) => value;
+
     #endregion
 
     #region WINDOWS UTILS
