@@ -40,7 +40,7 @@ public class OpenGLWindow(bool fullscreen) : BaseWindow
         }
     }
 
-    bool zBuffer = false;
+    bool zBuffer = true;
     public override bool ZBufferEnable
     {
         get => zBuffer;

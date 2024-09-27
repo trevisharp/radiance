@@ -17,7 +17,6 @@ var background = render(im =>
 
 Window.OnLoad += () =>
 {
-    Window.ZBufferEnable = true;
     myRender = myRender(Polygons.Polar((a, i) => 200 + 200 * (i % 2), 0, 0, -0.2f, 10));
     background = background(Polygons.Screen);
 };

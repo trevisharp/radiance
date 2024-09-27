@@ -476,3 +476,4 @@ Window.Open();
 - Triangularização de poligonos não monotonos.
 - Arrumar o uso de texturas para facilitar operações baseadas em pixeis.
 - Criar uma classe Graphics com os Renders mais básicos.
+- Arrumar eixo Z para facilitar trabalho em camadas.
