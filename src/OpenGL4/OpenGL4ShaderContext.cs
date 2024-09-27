@@ -97,18 +97,18 @@ public class OpenGL4ShaderContext : ShadeContext
         GL.Uniform1(code, id);
     }
 
-    public override void Use(Polygon poly)
+    public override void Use(IBufferedData data)
     {
         BindVerteArrayObject();
-        CreateBuffer(poly);
-        BindBuffer(poly);
-        SetBufferData(poly);
+        CreateBuffer((Polygon)data);
+        BindBuffer((Polygon)data);
+        SetBufferData((Polygon)data);
     }
 
-    public override void Draw(PrimitiveType primitiveType, Polygon poly)
+    public override void Draw(PrimitiveType primitiveType, IBufferedData data)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
-        GL.DrawArrays(openTKType, 0, poly.Data.Count() / 3);
+        GL.DrawArrays(openTKType, 0, data.Vertices);
     }
 
     public override void AddLayout(int size)

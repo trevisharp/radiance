@@ -13,7 +13,7 @@ using Exceptions;
 /// <summary>
 /// A base type for all polygons and lines.
 /// </summary>
-public class Polygon(float[] data) : IReadOnlyCollection<float>, IBufferedData
+public class Polygon(float[] data) : IBufferedData
 {
     private Polygon triangulationPair = null!;
 
@@ -39,32 +39,20 @@ public class Polygon(float[] data) : IReadOnlyCollection<float>, IBufferedData
         }
     }
     
-    /// <summary>
-    /// Get the collection of data points in polygon.
-    /// </summary>
     public float[] Data => data;
 
     /// <summary>
     /// Get the id of the buffer associated with the polygon data.
     /// </summary>
     public int? BufferId { get; set; } = null;
-
+    
     public Buffer? Buffer { get; set; }
+    
+    public int Vertices => Data.Length / 3;
 
-    public int Count => Data.Length / 3;
-
-    public IEnumerator<float> GetEnumerator()
-    {
-        for (int i = 0; i < Data.Length; i++)
-            yield return Data[i];
-    }
-
-    IEnumerator IEnumerable.GetEnumerator()
-        => GetEnumerator();
     
     public static implicit operator Polygon(float[] data) => new(data);
 
-    
     /// <summary>
     /// Get a circle with radius 1 centralizated in (0, 0, 0)
     /// with 128 sides.

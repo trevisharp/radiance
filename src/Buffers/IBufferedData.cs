@@ -12,6 +12,11 @@ public interface IBufferedData
     /// Get the data values.
     /// </summary>
     float[] Data { get; }
+    
+    /// <summary>
+    /// Get the Count of the Vertices;
+    /// </summary>
+    int Vertices { get; }
 
     /// <summary>
     /// Get the associated buffer.

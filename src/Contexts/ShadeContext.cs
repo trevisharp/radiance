@@ -31,14 +31,14 @@ public abstract class ShadeContext : IDisposable
     public abstract void AddLayout(int size);
 
     /// <summary>
-    /// Start to use a Polygon.
+    /// Start to use a Data.
     /// </summary>
-    public abstract void Use(Polygon poly);
+    public abstract void Use(IBufferedData data);
 
     /// <summary>
     /// Draw Arrays in the selected buffer.
     /// </summary>
-    public abstract void Draw(PrimitiveType primitiveType, Polygon poly);
+    public abstract void Draw(PrimitiveType primitiveType, IBufferedData data);
     
     /// <summary>
     /// Create and associeate the context to a program.
