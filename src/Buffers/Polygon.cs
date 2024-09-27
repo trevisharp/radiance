@@ -49,6 +49,8 @@ public class Polygon(float[] data) : IReadOnlyCollection<float>, IBufferedData
     /// </summary>
     public int? BufferId { get; set; } = null;
 
+    public Buffer? Buffer { get; set; }
+
     public int Count => Data.Length / 3;
 
     public IEnumerator<float> GetEnumerator()

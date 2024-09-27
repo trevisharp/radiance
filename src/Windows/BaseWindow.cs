@@ -1,11 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/09/2024
+ * Date:    27/09/2024
  */
 using System;
 
 namespace Radiance.Windows;
 
-using Contexts;
+using Buffers;
 using Primitives;
 
 /// <summary>
@@ -253,6 +253,7 @@ public abstract class BaseWindow
             return;
         
         Phase = WindowPhase.OnRender;
+        BufferManager.RegisterFrame();
         OnRender();
         Phase = WindowPhase.None;
     }

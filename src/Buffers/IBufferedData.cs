@@ -8,5 +8,13 @@ namespace Radiance.Buffers;
 /// </summary>
 public interface IBufferedData
 {
+    /// <summary>
+    /// Get the data values.
+    /// </summary>
     float[] Data { get; }
+
+    /// <summary>
+    /// Get the associated buffer.
+    /// </summary>
+    Buffer? Buffer { get; set; }
 }

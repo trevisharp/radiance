@@ -29,6 +29,16 @@ public class Buffer
     public int LayoutSize { get; set; } = 0;
 
     /// <summary>
+    /// Get the frame count of the creation of this buffer.
+    /// </summary>
+    public int? LastFrameCreation { get; set; } = null;
+
+    /// <summary>
+    /// Get the count of times that data changes.
+    /// </summary>
+    public int? ChangeCount { get; set; } = null;
+
+    /// <summary>
     /// Get the last frame when the buffer is used.
     /// </summary>
     public int? LastFrameUsage { get; set; } = null;
