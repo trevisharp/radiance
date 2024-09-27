@@ -24,7 +24,6 @@ public class OpenGL4ShaderContext : ShadeContext
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];
-    static readonly List<int> bufferList = [];
     static readonly List<int> objectList = [];
     static readonly List<int> textureUnits = [];
     static readonly Dictionary<int, int> shaderMap = [];
@@ -35,10 +34,6 @@ public class OpenGL4ShaderContext : ShadeContext
     /// </summary>
     public static void FreeAllResources()
     {
-        foreach (var buffer in bufferList)
-            GL.DeleteBuffer(buffer);
-        bufferList.Clear();
-
         foreach (var texture in textureMap)
             GL.DeleteTexture(texture.Value);
         textureMap.Clear();

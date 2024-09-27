@@ -44,7 +44,7 @@ public static class BufferManager
         var ctx = BufferContextBuilder.Build();
         
         var created = CreateBuffer(data, ctx);
-        var buffer = data.Buffer 
+        var buffer = data.Buffer
             ?? throw new UnbufferedDataExcetion();
         buffer.LastUsageFrame = currentFrame;
         
