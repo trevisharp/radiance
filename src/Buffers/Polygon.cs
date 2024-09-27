@@ -13,7 +13,7 @@ using Exceptions;
 /// <summary>
 /// A base type for all polygons and lines.
 /// </summary>
-public class Polygon(float[] data) : IReadOnlyCollection<float>
+public class Polygon(float[] data) : IReadOnlyCollection<float>, IBufferedData
 {
     private Polygon triangulationPair = null!;
 
@@ -42,7 +42,7 @@ public class Polygon(float[] data) : IReadOnlyCollection<float>
     /// <summary>
     /// Get the collection of data points in polygon.
     /// </summary>
-    public readonly float[] Data = data;
+    public float[] Data => data;
 
     /// <summary>
     /// Get the id of the buffer associated with the polygon data.

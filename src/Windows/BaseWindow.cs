@@ -253,9 +253,7 @@ public abstract class BaseWindow
             return;
         
         Phase = WindowPhase.OnRender;
-        FrameContext.OpenContext();
         OnRender();
-        FrameContext.CloseContext();
         Phase = WindowPhase.None;
     }
 
