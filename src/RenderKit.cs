@@ -1,11 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    20/09/2024
+ * Date:    27/09/2024
  */
 namespace Radiance;
 
-using System.Runtime.InteropServices;
-using Radiance.Shaders.Objects;
-using static Radiance.Utils;
+using static Utils;
 
 /// <summary>
 /// A Kit whit some Render default implementations.
@@ -42,6 +40,19 @@ public class RenderKit
         });
 
         drawRender(r, g, b, a);
+    }
+    private dynamic? moveRender;
+    /// <summary>
+    /// Move the polygon by a (x, y) vector.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public void Move(dynamic x, dynamic y)
+    {
+        moveRender ??= render((dx, dy) => {
+            pos += (dx, dy, 0);
+        });
+
+        moveRender(x, y);
     }
 
     private dynamic? centralizeRender;

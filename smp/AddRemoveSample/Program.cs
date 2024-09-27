@@ -1,22 +1,17 @@
-﻿using System;
-using Radiance;
+﻿using Radiance;
 using static Radiance.Utils;
 
-var star = Polar(a => 300 + 80 * MathF.Cos(MathF.PI * 10 * a / MathF.Tau), 0, 0, 0, 10);
-
-var myRender = render(() =>
+var myRender = render(im =>
 {
-    verbose = true;
     kit.Rotate(1f);
-    kit.Centralize();
-    color = mix(blue, green, (x + y) / (width + height));
+    kit.Move(1100, 700);
+    color = mix(blue, texture(im, (x / width, y / height)), (x + y) / (width + height));
     fill();
 });
 
-Window.OnRender += () =>
-{
-    myRender(star);
-};
+var star = Polar((a, i) => 200 + 200 * (i % 2), 0, 0, 0, 10);
+var dynkas = open("dynkas.jpg");
+Window.OnRender += () => myRender(star, dynkas);
 
 Window.CloseOn(Input.Escape);
 Window.Open();
