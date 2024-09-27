@@ -100,9 +100,7 @@ public class OpenGL4ShaderContext : ShadeContext
     public override void Use(IBufferedData data)
     {
         BindVerteArrayObject();
-        CreateBuffer((Polygon)data);
-        BindBuffer((Polygon)data);
-        SetBufferData((Polygon)data);
+        BufferManager.Use(data);
     }
 
     public override void Draw(PrimitiveType primitiveType, IBufferedData data)
@@ -244,42 +242,6 @@ public class OpenGL4ShaderContext : ShadeContext
         GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
         return handle;
-    }
-    
-    private static void CreateBuffer(Polygon poly)
-    {
-        if (poly.BufferId is not null)
-            return;
-        
-        var id = GL.GenBuffer();
-        bufferList.Add(id);
-        poly.BufferId = id;
-    }
-
-    private static void DeleteBuffer(int bufferId)
-    {
-        GL.DeleteBuffer(bufferId);
-        bufferList.Remove(bufferId);
-    }
-
-    private static void BindBuffer(Polygon poly)
-    {
-        int bufferId = poly.BufferId ?? 
-            throw new Exception("A unexpected behaviour ocurred on buffer creation/binding.");
-        GL.BindBuffer(
-            BufferTarget.ArrayBuffer, 
-            bufferId
-        );
-    }
-
-    private static void SetBufferData(Polygon poly)
-    {
-        var data = poly.Data.ToArray();
-        GL.BufferData(
-            BufferTarget.ArrayBuffer,
-            data.Length * sizeof(float), data,
-            BufferUsageHint.DynamicDraw
-        );
     }
     
     private static int CreateVertexShader(

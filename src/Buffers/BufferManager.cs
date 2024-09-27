@@ -1,12 +1,15 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    27/09/2024
  */
+using System;
 using System.Collections.Generic;
+
+using OpenTK.Graphics.OpenGL4;
 
 namespace Radiance.Buffers;
 
-using Contexts;
 using OpenGL4;
+using Contexts;
 
 /// <summary>
 /// A global object to manage Buffers.
@@ -25,5 +28,44 @@ public static class BufferManager
         frameCount++;
     }
 
+    public static void Use(IBufferedData data)
+    {
+        CreateBuffer((Polygon)data);
+        BindBuffer((Polygon)data);
+        SetBufferData((Polygon)data);
+    }
+
     
+    private static void CreateBuffer(Polygon poly)
+    {
+        if (poly.BufferId is not null)
+            return;
+        
+        var id = GL.GenBuffer();
+        poly.BufferId = id;
+    }
+
+    private static void DeleteBuffer(int bufferId)
+    {
+        GL.DeleteBuffer(bufferId);
+    }
+
+    private static void BindBuffer(Polygon poly)
+    {
+        int bufferId = poly.BufferId ?? 
+            throw new Exception("A unexpected behaviour ocurred on buffer creation/binding.");
+        GL.BindBuffer(
+            BufferTarget.ArrayBuffer, 
+            bufferId
+        );
+    }
+
+    private static void SetBufferData(Polygon poly)
+    {
+        GL.BufferData(
+            BufferTarget.ArrayBuffer,
+            poly.Data.Length * sizeof(float), poly.Data,
+            BufferUsageHint.DynamicDraw
+        );
+    }
 }
