@@ -10,6 +10,7 @@ using System.Collections.Generic;
 namespace Radiance;
 
 using Windows;
+using Buffers;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;

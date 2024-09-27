@@ -12,6 +12,7 @@ using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 namespace Radiance.OpenGL4;
 
 using Shaders;
+using Buffers;
 using Contexts;
 using Primitives;
 using Exceptions;
@@ -99,7 +100,6 @@ public class OpenGL4ShaderContext : ShadeContext
     public override void Use(Polygon poly)
     {
         BindVerteArrayObject();
-
         CreateBuffer(poly);
         BindBuffer(poly);
         SetBufferData(poly);

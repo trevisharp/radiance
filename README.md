@@ -354,6 +354,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Add Text writting utilities.
  - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
  - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
+ - ![](https://img.shields.io/badge/update-blue) Polygon very simplified and imutable every time.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we try to use dt in OnFrame and close the program abruptly.
  - ![](https://img.shields.io/badge/removed-red) Remove some features on Polygon simplifying the abstraction.
 
@@ -467,10 +468,8 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
 # TODO (bufferdeps branch)
-- Simplificar Polygon para apenas sua versão imutável.
 - Impedir SetBufferData a cada frame. Melhorar o uso de Buffers.
 - Implementar uso avançado de layouts.
-- Considerar Mover Poligonos para outro Namespace.
 
 Ideia Geral: Criar uma abstração imutável para dados buferizados. Para criar dados buferizados
 mais complexos que o poligono é necessário alguma função que manipulará os renders usando
@@ -483,3 +482,4 @@ mergida.
 - Melhorar ShaderObjects e seus recursos.
 - Triangularização de poligonos não monotonos.
 - Arrumar o uso de texturas para facilitar operações baseadas em pixeis.
+- Criar uma classe Graphics com os Renders mais básicos.
