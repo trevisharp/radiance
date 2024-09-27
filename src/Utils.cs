@@ -210,7 +210,7 @@ public static class Utils
     /// and returns the distânce of the center (x, y, z).
     /// </summary>
     public static MutablePolygon Polar(
-        Func<float, float> polarFunc,
+        Func<float, int, float> polarFunc,
         float x = 0, float y = 0, float z = 0,
         int points = 63
     )
@@ -222,7 +222,7 @@ public static class Utils
         for (int k = 0; k < points; k++)
         {
             float angle = phi * k;
-            float dist = polarFunc(angle);
+            float dist = polarFunc(angle, k);
             result.Add(
                 x + dist * MathF.Cos(angle),
                 y + dist * MathF.Sin(-angle),
@@ -232,6 +232,18 @@ public static class Utils
 
         return result;
     }
+
+    
+    /// <summary>
+    /// Create a polygon using a polar coordinates.
+    /// The polarFunc is a function that recieves a angle (0 to 2pi)
+    /// and returns the distânce of the center (x, y, z).
+    /// </summary>
+    public static MutablePolygon Polar(
+        Func<float, float> polarFunc,
+        float x = 0, float y = 0, float z = 0,
+        int points = 63
+    ) => Polar((a, i) => polarFunc(a), x, y, z, points);
 
     /// <summary>
     /// Create a polygon based in recived data.
