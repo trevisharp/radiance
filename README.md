@@ -468,7 +468,6 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
 # TODO (bufferdeps branch)
-- Impedir SetBufferData a cada frame. Melhorar o uso de Buffers.
 - Implementar uso avançado de layouts.
 
 Ideia Geral: Criar uma abstração imutável para dados buferizados. Para criar dados buferizados

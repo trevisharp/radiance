@@ -31,7 +31,7 @@ public class Buffer
     /// <summary>
     /// Get the frame count of the creation of this buffer.
     /// </summary>
-    public int? LastFrameCreation { get; set; } = null;
+    public int? FrameCreation { get; set; } = null;
 
     /// <summary>
     /// Get the count of times that data changes.
@@ -41,10 +41,10 @@ public class Buffer
     /// <summary>
     /// Get the last frame when the buffer is used.
     /// </summary>
-    public int? LastFrameUsage { get; set; } = null;
+    public int? LastUsageFrame { get; set; } = null;
 
     /// <summary>
     /// Get the last frame when the data is changed inside the buffer.
     /// </summary>
-    public int? LastFrameChanged { get; set; } = null;
+    public int? LastChangedFrame { get; set; } = null;
 }

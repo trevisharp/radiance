@@ -12,7 +12,7 @@ var myRender = render(im =>
 
 var background = render(im =>
 {
-    color = mix(black, texture(im, (x / width, y / height)), 0.25);
+    color = mix(black, texture(im, (x / width, y / height)), 0.15);
     fill();
 });
 

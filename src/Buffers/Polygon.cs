@@ -39,11 +39,6 @@ public class Polygon(float[] data) : IBufferedData
     }
     
     public float[] Data => data;
-
-    /// <summary>
-    /// Get the id of the buffer associated with the polygon data.
-    /// </summary>
-    public int? BufferId { get; set; } = null;
     
     public Buffer? Buffer { get; set; }
     
