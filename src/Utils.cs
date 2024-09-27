@@ -8,7 +8,7 @@ using System.Text;
 
 namespace Radiance;
 
-using Renders;
+using Contexts;
 using Primitives;
 using Exceptions;
 using Shaders;
@@ -155,16 +155,16 @@ public static class Utils
     public static MutablePolygon Ellipse(
         float x, float y, float z,
         float a, float b = float.NaN,
-        int sizes = 63
+        int points = 63
     )
     {
         var result = new MutablePolygon();
 
-        float phi = MathF.Tau / sizes;
+        float phi = MathF.Tau / points;
         if (float.IsNaN(b))
             b = a;
 
-        for (int k = 0; k < sizes; k++)
+        for (int k = 0; k < points; k++)
         {
             result.Add(
                 a * MathF.Cos(phi * k) + x,
@@ -183,16 +183,16 @@ public static class Utils
     /// </summary>
     public static MutablePolygon Ellipse(
         float a, float b = float.NaN,
-        int sizes = 63
+        int points = 63
     )
     {
         var result = new MutablePolygon();
 
-        float phi = MathF.Tau / sizes;
+        float phi = MathF.Tau / points;
         if (float.IsNaN(b))
             b = a;
 
-        for (int k = 0; k < sizes; k++)
+        for (int k = 0; k < points; k++)
         {
             result.Add(
                 a * MathF.Cos(phi * k),
@@ -203,6 +203,47 @@ public static class Utils
 
         return result;
     }
+
+    /// <summary>
+    /// Create a polygon using a polar coordinates.
+    /// The polarFunc is a function that recieves a angle (0 to 2pi)
+    /// and returns the distânce of the center (x, y, z).
+    /// </summary>
+    public static MutablePolygon Polar(
+        Func<float, int, float> polarFunc,
+        float x = 0, float y = 0, float z = 0,
+        int points = 63
+    )
+    {
+        var result = new MutablePolygon();
+
+        float phi = MathF.Tau / points;
+
+        for (int k = 0; k < points; k++)
+        {
+            float angle = phi * k;
+            float dist = polarFunc(angle, k);
+            result.Add(
+                x + dist * MathF.Cos(angle),
+                y + dist * MathF.Sin(-angle),
+                z
+            );
+        }
+
+        return result;
+    }
+
+    
+    /// <summary>
+    /// Create a polygon using a polar coordinates.
+    /// The polarFunc is a function that recieves a angle (0 to 2pi)
+    /// and returns the distânce of the center (x, y, z).
+    /// </summary>
+    public static MutablePolygon Polar(
+        Func<float, float> polarFunc,
+        float x = 0, float y = 0, float z = 0,
+        int points = 63
+    ) => Polar((a, i) => polarFunc(a), x, y, z, points);
 
     /// <summary>
     /// Create a polygon based in recived data.
@@ -491,17 +532,6 @@ public static class Utils
             );
         }
     }
-    
-    /// <summary>
-    /// Clean the entire screen.
-    /// Shader Only.
-    /// </summary>
-    public static void clear(Vec4 color)
-    {
-        var ctx = RenderContext.GetContext()
-            ?? throw new ShaderOnlyResourceException();
-        ctx.AddClear(color);
-    }
 
     /// <summary>
     /// /// Draw the polygon in the screen.
@@ -590,6 +620,13 @@ public static class Utils
     /// </summary>
     public static Float exp2(Float value)
         => func<Float>("exp2", value);
+
+    /// <summary>
+    /// Returns the square root of the specified value.
+    /// Shader Only.
+    /// </summary>
+    public static Float sqrt(Float value)
+        => func<Float>("sqrt", value);
 
     /// <summary>
     /// Returns the logarithm (base e) of the specified value.

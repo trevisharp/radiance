@@ -1,10 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    20/09/2024
+ * Date:    27/09/2024
  */
-namespace Radiance.Renders;
+namespace Radiance;
 
-using System.Runtime.InteropServices;
-using static Radiance.Utils;
+using static Utils;
 
 /// <summary>
 /// A Kit whit some Render default implementations.
@@ -42,6 +41,19 @@ public class RenderKit
 
         drawRender(r, g, b, a);
     }
+    private dynamic? moveRender;
+    /// <summary>
+    /// Move the polygon by a (x, y) vector.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public void Move(dynamic x, dynamic y)
+    {
+        moveRender ??= render((dx, dy) => {
+            pos += (dx, dy, 0);
+        });
+
+        moveRender(x, y);
+    }
 
     private dynamic? centralizeRender;
     /// <summary>
@@ -71,5 +83,18 @@ public class RenderKit
         });
 
         zoomRender(x, y, factor);
+    }
+
+    private dynamic? rotateRender;
+    public void Rotate(dynamic speed)
+    {
+        rotateRender ??= render(speed => {
+            pos = (
+                pos.x * cos(speed * t) - pos.y * sin(speed * t),
+                pos.y * cos(speed * t) + pos.x * sin(speed * t),
+                pos.z);
+        });
+
+        rotateRender(speed);
     }
 }

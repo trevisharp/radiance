@@ -8,7 +8,7 @@ using System.Linq;
 namespace Radiance.Shaders.CodeGeneration.GLSL;
 
 using System.Collections.Generic;
-using Managers;
+using Contexts;
 using Objects;
 
 /// <summary>
@@ -29,7 +29,7 @@ public class GLSLGenerator : ICodeGenerator
     public ShaderPair GenerateShaders(
         Vec3ShaderObject vertObj,
         Vec4ShaderObject fragObj,
-        ShaderManager ctx)
+        ShadeContext ctx)
     {
         StringBuilder getCodeBuilder()
         {
@@ -42,6 +42,7 @@ public class GLSLGenerator : ICodeGenerator
 
         Action? vertStp = null;
         Action? fragStp = null;
+        Action? config = null;
 
         var vertDeps = vertObj.Dependencies
             .Append(ShaderDependence.WidthDep)
@@ -60,6 +61,9 @@ public class GLSLGenerator : ICodeGenerator
         var allDeps = vertDeps
             .Concat(fragDeps)
             .Distinct();
+        
+        foreach (var dep in allDeps)
+            config += dep.AddConfiguration(ctx);
 
         foreach (var dep in vertDeps)
         {
@@ -139,7 +143,7 @@ public class GLSLGenerator : ICodeGenerator
         var fragmentCode = fragSb.ToString();
         var fragmentShader = new Shader(fragmentCode, fragmentCode.GetHashCode(), fragStp);
 
-        return new(vertexShader, fragmentShader);
+        return new(vertexShader, fragmentShader, config);
     }
 
     static List<ShaderDependence> ExpandDeps(List<ShaderDependence> dependences)

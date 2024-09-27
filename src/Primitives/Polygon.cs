@@ -1,7 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/08/2024
+ * Date:    24/09/2024
  */
-using System;
 using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
@@ -43,13 +42,15 @@ public abstract class Polygon : IEnumerable<float>
         }
     }
     
-    internal int Buffer { get; set; } = -1;
-    internal int VertexObjectArray { get; set; } = -1;
-    
     /// <summary>
     /// Get the collection of data points in polygon.
     /// </summary>
     public abstract IEnumerable<float> Data { get; }
+
+    /// <summary>
+    /// Get the id of the buffer associated with the polygon data.
+    /// </summary>
+    public int? BufferId { get; set; } = null;
     
     /// <summary>
     /// Add a point in polygon.
@@ -63,8 +64,6 @@ public abstract class Polygon : IEnumerable<float>
     public Polygon Add(float x, float y, float z)
     {
         AddPoint(x, y, z);
-        if (OnChange is not null)
-            OnChange(true, true);
         return this;
     }
 
@@ -80,11 +79,6 @@ public abstract class Polygon : IEnumerable<float>
     /// </summary>
     public virtual Polygon ToImmutable()
         => new ImmutablePolygon(Data);
-
-    /// <summary>
-    /// Event called when data is changed.
-    /// </summary>
-    public Action<bool, bool>? OnChange;
 
     public IEnumerator<float> GetEnumerator()
         => Data.GetEnumerator();

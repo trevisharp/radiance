@@ -5,23 +5,22 @@ using System;
 using System.Threading;
 using System.Collections.Generic;
 
-namespace Radiance.Renders;
+namespace Radiance.Contexts;
 
 using OpenGL4;
 using Shaders;
 using Shaders.Objects;
 using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
-using Managers;
 using Primitives;
+using Radiance.Exceptions;
 
 /// <summary>
 /// A Thread-Safe global context data object.
 /// </summary>
 public class RenderContext
 {
-    public static ShaderManagerBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderManagerBuilder();
-    public static ProgramManagerBuilder ProgramContextBuilder { get; set; } = new OpenGL4ProgramManagerBuilder();
+    public static ShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
     public static ICodeGeneratorBuilder CodeGeneratorBuilder { get; set; } = new GLSLGeneratorBuilder();
     
     static readonly Dictionary<int, RenderContext> threadMap = [];
@@ -70,8 +69,6 @@ public class RenderContext
             ? ctx : null;
     }
 
-    public readonly ProgramManager ProgramContext = ProgramContextBuilder.Build();
-
     /// <summary>
     /// Get or set if the context is in verbose mode.
     /// </summary>
@@ -102,12 +99,6 @@ public class RenderContext
         
         RenderActions(polygon, arguments);
     }
-    
-    /// <summary>
-    /// Add a clear opeartion to this render context.
-    /// </summary>
-    public void AddClear(Vec4 color)
-        => RenderActions += (_, _) => ProgramContext.Clear(color);
 
     /// <summary>
     /// Add a draw points opeartion to this render context.
@@ -156,31 +147,55 @@ public class RenderContext
         bool needTriangularization = false
     )
     {
-        var shaderManager = ShaderContextBuilder.Build();
+        var context = ShaderContextBuilder?.Build()
+            ?? throw new BuilderEmptyException(
+                $"{nameof(RenderContext)}.{nameof(ShaderContextBuilder)}"
+            );
 
-        var generator = CodeGeneratorBuilder.Build();
-        var pair = generator.GenerateShaders(Position, Color, shaderManager);
+        var generator = CodeGeneratorBuilder?.Build()
+            ?? throw new BuilderEmptyException(
+                $"{nameof(RenderContext)}.{nameof(CodeGeneratorBuilder)}"
+            );
         
-        RenderActions += (poly, data) =>
+        var pair = generator.GenerateShaders(Position, Color, context);
+
+        context.CreateProgram(pair, Verbose);
+        context.UseProgram();
+
+        bool alreadyInitied = false;
+        void initIfNeeded()
         {
-            var program = ProgramContext.CreateProgram(pair, Verbose);
-            shaderManager.SetProgram(program);
+            if (alreadyInitied)
+                return;
+            alreadyInitied = true;
+            
+            if (pair.InitialConfiguration is not null)
+                pair.InitialConfiguration();
+        }
 
-            if (needTriangularization)
-                poly = poly.Triangulation;
-
-            shaderManager.CreateResources(poly);
-            ProgramContext.UseProgram(program);
-
-            shaderManager.Use(poly);
-
+        void setupShaders()
+        {
             if (pair.VertexShader.Setup is not null)
                 pair.VertexShader.Setup();
 
             if (pair.FragmentShader.Setup is not null)
                 pair.FragmentShader.Setup();
+        }
+        
+        RenderActions += (poly, data) =>
+        {
+            if (needTriangularization)
+                poly = poly.Triangulation;
+            
+            context.Use(poly);
 
-            shaderManager.Draw(primitive, poly);
+            initIfNeeded();
+            
+            context.UseProgram();
+
+            setupShaders();
+
+            context.Draw(primitive, poly);
         };
     }
 }

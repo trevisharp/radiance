@@ -6,7 +6,7 @@ using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
-using Managers;
+using Contexts;
 
 /// <summary>
 /// Represents a Constant dependence.
@@ -17,7 +17,7 @@ public class ConstantDependence(string name, float value) : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform float {name};");
 
-    public override Action AddOperation(ShaderManager ctx)
+    public override Action AddOperation(ShadeContext ctx)
         => () => {
             if (setted)
                 return;
