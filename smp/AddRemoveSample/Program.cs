@@ -20,7 +20,7 @@ var star = Polygon.Polar((a, i) => 200 + 200 * (i % 2), 0, 0, 0, 10);
 var dynkas = open("dynkas.jpg");
 Window.OnRender += () => 
 {
-    background(Screen, dynkas);
+    background(Polygon.Screen, dynkas);
     myRender(star, dynkas);
 };
 
