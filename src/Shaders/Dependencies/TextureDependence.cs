@@ -14,13 +14,19 @@ using Primitives;
 /// </summary>
 public class TextureDependence(string textureName) : ShaderDependence
 {
-    private Texture texture = null!;
+    public Texture? Texture { get; private set; }
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform sampler2D {textureName};");
 
     public override Action AddOperation(ShadeContext ctx)
-        => () => ctx.SetTextureData(textureName, texture);
+        => () => 
+        {
+            if (Texture is null)
+                return;
+            
+            ctx.SetTextureData(textureName, Texture);
+        };
 
     public override void UpdateData(object value)
-        => texture = (value as Texture)!;
+        => Texture = value as Texture;
 }
