@@ -223,7 +223,7 @@ public static class Utils
 
     #endregion
 
-    #region  BUILT-IN RENDERS
+    #region BUILT-IN RENDERS
 
     private static dynamic? moveRender;
     /// <summary>
