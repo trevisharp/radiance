@@ -3,7 +3,7 @@ using static Radiance.Utils;
 
 var myRender = render(im =>
 {
-    rotate(.5f);
+    rotate(.5f * t);
     move(1100, 700);
     zoom(1100, 700, 1 + sin(t) / 5);
     color = texture(im, (x / width, y / height));

@@ -267,18 +267,18 @@ public static class Utils
     
     private static dynamic? rotateRender;
     /// <summary>
-    /// Rotate the polygon around time with a specific speed.
+    /// Rotate the polygon a specific angle.
     /// </summary>
-    public static void rotate(dynamic speed)
+    public static void rotate(dynamic angle)
     {
-        rotateRender ??= render(speed => {
+        rotateRender ??= render(angle => {
             pos = (
-                pos.x * cos(speed * t) - pos.y * sin(speed * t),
-                pos.y * cos(speed * t) + pos.x * sin(speed * t),
+                pos.x * cos(angle) - pos.y * sin(angle),
+                pos.y * cos(angle) + pos.x * sin(angle),
                 pos.z);
         });
 
-        rotateRender(speed);
+        rotateRender(angle);
     }
 
     #endregion
