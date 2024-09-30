@@ -5,6 +5,7 @@
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Radiance;
 
@@ -17,6 +18,7 @@ using Shaders.Dependencies;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
+using System.Linq.Expressions;
 
 /// <summary>
 /// A facade with all utils to use Radiance shader features.
@@ -35,7 +37,7 @@ public static class Utils
     /// A function to indicate the type of the parameter on render functions.
     /// Use when the compiler cannot identify a type of a parameter.
     /// </summary>
-    public static Sampler sampler(Sampler value) => value;
+    public static Sampler s(Sampler value) => value;
 
     #endregion
     
@@ -77,7 +79,9 @@ public static class Utils
     /// <summary>
     /// Reduce many render calls in a unique call.
     /// </summary>
-    public static void reduce(Func<int> repeatCount, Action<Float> expression)
+    public static void reduce<T>(
+        IEnumerable<Vec3> variableData,
+        Expression<Action<Vec3ShaderObject>> expression)
     {
         throw new NotImplementedException();
     }

@@ -1,7 +1,4 @@
-﻿using Radiance;
-using static Radiance.Utils;
-
-var myRender = render(im =>
+﻿var myRender = render(im =>
 {
     rotate(.5f * t);
     move(1100, 700);
