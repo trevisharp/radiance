@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    29/08/2024
  */
+using System.Globalization;
+
 namespace Radiance.Primitives;
 
 using Shaders;
@@ -33,5 +35,8 @@ public record Vec4(float X, float Y, float Z, float W)
         => new(a * v.X, a * v.Y, a * v.Z, a * v.W);
     
     public static implicit operator Vec4ShaderObject(Vec4 vec)
-        => new($"vec4({vec.X}, {vec.Y}, {vec.Z}, {vec.W})", ShaderOrigin.Global, []);
+        => new($"vec4({ToTxt(vec.X)}, {ToTxt(vec.Y)}, {ToTxt(vec.Z)}, {ToTxt(vec.W)})", ShaderOrigin.Global, []);
+    
+    static string ToTxt(float value)
+        => value.ToString(CultureInfo.InvariantCulture);
 }
