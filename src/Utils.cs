@@ -19,7 +19,7 @@ using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
 
 /// <summary>
-/// A facade with all utils to use Radiance features.
+/// A facade with all utils to use Radiance shader features.
 /// </summary>
 public static class Utils
 {
@@ -37,30 +37,6 @@ public static class Utils
     /// </summary>
     public static Sampler sampler(Sampler value) => value;
 
-    #endregion
-
-    #region WINDOWS UTILS
-
-    /// <summary>
-    /// Get the time between two frames.
-    /// </summary>
-    public static float dt =>
-        Window.IsOpen ? Window.DeltaTime : 0;
-
-    /// <summary>
-    /// A number relatives to 100% to width of viewport.
-    /// </summary>
-    public static float vw =>
-        Window.IsOpen ? Window.Width :
-        throw new WindowClosedException();
-
-    /// <summary>
-    /// A number relatives to 100% to height of viewport.
-    /// </summary>
-    public static float vh =>
-        Window.IsOpen ? Window.Height :
-        throw new WindowClosedException();
-    
     #endregion
     
     #region PRIMITIVE UTILS
@@ -97,11 +73,6 @@ public static class Utils
     #endregion
 
     #region RENDER UTILS
-    
-    /// <summary>
-    /// Get a Kit of autoimplemented renders.
-    /// </summary>
-    public static RenderKit kit => RenderKit.Shared;
 
     /// <summary>
     /// Reduce many render calls in a unique call.
@@ -244,6 +215,70 @@ public static class Utils
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         return new Render(function);
+    }
+
+    #endregion
+
+    #region  BUILT-IN RENDERS
+
+    private static dynamic? moveRender;
+    /// <summary>
+    /// Move the polygon by a (x, y) vector.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void move(dynamic x, dynamic y)
+    {
+        moveRender ??= render((dx, dy) => {
+            pos += (dx, dy, 0);
+        });
+
+        moveRender(x, y);
+    }
+
+    private static dynamic? centralizeRender;
+    /// <summary>
+    /// Centralize a polygon on the center of the screen.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void centralize()
+    {
+        centralizeRender ??= render(() => {
+            pos += (width / 2, height / 2, 0);
+        });
+
+        centralizeRender();
+    }
+
+    private static dynamic? zoomRender;
+    /// <summary>
+    /// Receiving x, y and a factor, performa a zoom on polygon on point (x, y) with the factor scale.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void zoom(dynamic x, dynamic y, dynamic factor)
+    {
+        zoomRender ??= render((cx, cy, factor) => {
+            var nx = factor * (pos.x - cx) + cx;
+            var ny = factor * (pos.y - cy) + cy;
+            pos = (nx, ny, pos.z);
+        });
+
+        zoomRender(x, y, factor);
+    }
+    
+    private static dynamic? rotateRender;
+    /// <summary>
+    /// Rotate the polygon around time with a specific speed.
+    /// </summary>
+    public static void rotate(dynamic speed)
+    {
+        rotateRender ??= render(speed => {
+            pos = (
+                pos.x * cos(speed * t) - pos.y * sin(speed * t),
+                pos.y * cos(speed * t) + pos.x * sin(speed * t),
+                pos.z);
+        });
+
+        rotateRender(speed);
     }
 
     #endregion

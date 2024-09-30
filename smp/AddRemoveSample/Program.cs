@@ -3,8 +3,9 @@ using static Radiance.Utils;
 
 var myRender = render(im =>
 {
-    kit.Rotate(.5f);
-    kit.Move(1100, 700);
+    rotate(.5f);
+    move(1100, 700);
+    zoom(1100, 700, 1 + sin(t) / 5);
     color = texture(im, (x / width, y / height));
     fill();
 });
