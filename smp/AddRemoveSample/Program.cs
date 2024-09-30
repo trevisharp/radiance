@@ -3,16 +3,17 @@ using static Radiance.Utils;
 
 var myRender = render(im =>
 {
+    verbose = true;
     rotate(.5f * t);
     move(1100, 700);
     zoom(1100, 700, 1 + sin(t) / 5);
-    color = texture(im, (x / width, y / height));
+    color = texture(im, x, y);
     fill();
 });
 
 var background = render(im =>
 {
-    color = 0.85f * black + 0.15f * texture(im, (x / width, y / height));
+    color = 0.85f * black + 0.15f * texture(im, x, y);
     fill();
 });
 

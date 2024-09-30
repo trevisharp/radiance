@@ -229,7 +229,8 @@ public static class Utils
     public static void move(dynamic x, dynamic y)
     {
         moveRender ??= render((dx, dy) => {
-            pos += (dx, dy, 0);
+            var moveValue = autoVar(pos + (dx, dy, 0));
+            pos = moveValue;
         });
 
         moveRender(x, y);
@@ -257,9 +258,15 @@ public static class Utils
     public static void zoom(dynamic x, dynamic y, dynamic factor)
     {
         zoomRender ??= render((cx, cy, factor) => {
-            var nx = factor * (pos.x - cx) + cx;
-            var ny = factor * (pos.y - cy) + cy;
-            pos = (nx, ny, pos.z);
+            var cxValue = autoVar(cx);
+            var cyValue = autoVar(cy);
+            var factorValue = autoVar(factor);
+
+            var nx = factorValue * (pos.x - cxValue) + cxValue;
+            var ny = factorValue * (pos.y - cyValue) + cyValue;
+            var zoomValue = autoVar((nx, ny, pos.z));
+            
+            pos = zoomValue;
         });
 
         zoomRender(x, y, factor);
@@ -272,10 +279,15 @@ public static class Utils
     public static void rotate(dynamic angle)
     {
         rotateRender ??= render(angle => {
-            pos = (
-                pos.x * cos(angle) - pos.y * sin(angle),
-                pos.y * cos(angle) + pos.x * sin(angle),
-                pos.z);
+            var paramValue = autoVar(angle);
+            var cosValue = autoVar(cos(paramValue));
+            var sinValue = autoVar(sin(paramValue));
+            var rotateValue = autoVar((
+                pos.x * cosValue - pos.y * sinValue,
+                pos.y * cosValue + pos.x * sinValue,
+                pos.z
+            ));
+            pos = rotateValue;
         });
 
         rotateRender(angle);
@@ -698,10 +710,55 @@ public static class Utils
 
     /// <summary>
     /// Get a pixel color of a img in a specific position of a texture.
+    /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject texture(Sampler img, Vec2ShaderObject pos)
-        => autoVar(func<Vec4ShaderObject>("texture", img, pos));
-    
+    public static Vec4ShaderObject texture(Sampler img, Float posX, Float posY)
+    {
+        var transformatedPos = autoVar((posX / width, posY / height));
+        var pixel = autoVar(func<Vec4ShaderObject>("texture", img, transformatedPos));
+        return pixel;
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Float autoVar(Float obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable , ..otherDeps]);
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec2ShaderObject autoVar(Vec2ShaderObject obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec3ShaderObject autoVar(Vec3ShaderObject obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec4ShaderObject autoVar(Vec4ShaderObject obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
+    }
+
     static Float var(Float obj, string name)
         => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
@@ -721,30 +778,6 @@ public static class Utils
         => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
         )]);
-    
-    static Float autoVar(Float obj, params ShaderDependence[] otherDeps)
-    {
-        var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable , ..otherDeps]);
-    }
-
-    static Vec2ShaderObject autoVar(Vec2ShaderObject obj, params ShaderDependence[] otherDeps)
-    {
-        var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
-    }
-
-    static Vec3ShaderObject autoVar(Vec3ShaderObject obj, params ShaderDependence[] otherDeps)
-    {
-        var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
-    }
-
-    static Vec4ShaderObject autoVar(Vec4ShaderObject obj, params ShaderDependence[] otherDeps)
-    {
-        var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
-    }
 
     static R func<R>(string name, params ShaderObject[] objs)
         where R : ShaderObject => ShaderObject.Union<R>(buildObject(name, objs), objs);
