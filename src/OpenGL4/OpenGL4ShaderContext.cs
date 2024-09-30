@@ -12,6 +12,7 @@ using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 namespace Radiance.OpenGL4;
 
 using Shaders;
+using Buffers;
 using Contexts;
 using Primitives;
 using Exceptions;
@@ -23,7 +24,6 @@ public class OpenGL4ShaderContext : ShadeContext
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];
-    static readonly List<int> bufferList = [];
     static readonly List<int> objectList = [];
     static readonly List<int> textureUnits = [];
     static readonly Dictionary<int, int> shaderMap = [];
@@ -34,10 +34,6 @@ public class OpenGL4ShaderContext : ShadeContext
     /// </summary>
     public static void FreeAllResources()
     {
-        foreach (var buffer in bufferList)
-            GL.DeleteBuffer(buffer);
-        bufferList.Clear();
-
         foreach (var texture in textureMap)
             GL.DeleteTexture(texture.Value);
         textureMap.Clear();
@@ -96,19 +92,37 @@ public class OpenGL4ShaderContext : ShadeContext
         GL.Uniform1(code, id);
     }
 
-    public override void Use(Polygon poly)
+    public override void SetVec(string name, float x, float y)
     {
-        BindVerteArrayObject();
-
-        CreateBuffer(poly);
-        BindBuffer(poly);
-        SetBufferData(poly);
+        var program = ProgramId ?? throw new UncreatedProgramException();
+        var code = GL.GetUniformLocation(program, name);
+        GL.Uniform2(code, x, y);
     }
 
-    public override void Draw(PrimitiveType primitiveType, Polygon poly)
+    public override void SetVec(string name, float x, float y, float z)
+    {
+        var program = ProgramId ?? throw new UncreatedProgramException();
+        var code = GL.GetUniformLocation(program, name);
+        GL.Uniform3(code, x, y, z);
+    }
+
+    public override void SetVec(string name, float x, float y, float z, float w)
+    {
+        var program = ProgramId ?? throw new UncreatedProgramException();
+        var code = GL.GetUniformLocation(program, name);
+        GL.Uniform4(code, x, y, z, w);
+    }
+
+    public override void Use(IBufferedData data)
+    {
+        BindVerteArrayObject();
+        BufferManager.Use(data);
+    }
+
+    public override void Draw(PrimitiveType primitiveType, IBufferedData data)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
-        GL.DrawArrays(openTKType, 0, poly.Data.Count() / 3);
+        GL.DrawArrays(openTKType, 0, data.Vertices);
     }
 
     public override void AddLayout(int size)
@@ -244,42 +258,6 @@ public class OpenGL4ShaderContext : ShadeContext
         GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
         return handle;
-    }
-    
-    private static void CreateBuffer(Polygon poly)
-    {
-        if (poly.BufferId is not null)
-            return;
-        
-        var id = GL.GenBuffer();
-        bufferList.Add(id);
-        poly.BufferId = id;
-    }
-
-    private static void DeleteBuffer(int bufferId)
-    {
-        GL.DeleteBuffer(bufferId);
-        bufferList.Remove(bufferId);
-    }
-
-    private static void BindBuffer(Polygon poly)
-    {
-        int bufferId = poly.BufferId ?? 
-            throw new Exception("A unexpected behaviour ocurred on buffer creation/binding.");
-        GL.BindBuffer(
-            BufferTarget.ArrayBuffer, 
-            bufferId
-        );
-    }
-
-    private static void SetBufferData(Polygon poly)
-    {
-        var data = poly.Data.ToArray();
-        GL.BufferData(
-            BufferTarget.ArrayBuffer,
-            data.Length * sizeof(float), data,
-            BufferUsageHint.DynamicDraw
-        );
     }
     
     private static int CreateVertexShader(

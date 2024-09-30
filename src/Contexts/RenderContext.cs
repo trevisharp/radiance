@@ -8,12 +8,12 @@ using System.Collections.Generic;
 namespace Radiance.Contexts;
 
 using OpenGL4;
+using Buffers;
 using Shaders;
 using Shaders.Objects;
 using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
-using Primitives;
-using Radiance.Exceptions;
+using Exceptions;
 
 /// <summary>
 /// A Thread-Safe global context data object.

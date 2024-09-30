@@ -7,6 +7,7 @@ using static System.Console;
 namespace Radiance.Contexts;
 
 using Shaders;
+using Buffers;
 using Primitives;
 
 /// <summary>
@@ -18,6 +19,21 @@ public abstract class ShadeContext : IDisposable
     /// Set a uniform with a name to a specific value.
     /// </summary>
     public abstract void SetFloat(string name, float value);
+    
+    /// <summary>
+    /// Set a uniform with a name to a specific value.
+    /// </summary>
+    public abstract void SetVec(string name, float x, float y);
+    
+    /// <summary>
+    /// Set a uniform with a name to a specific value.
+    /// </summary>
+    public abstract void SetVec(string name, float x, float y, float z);
+    
+    /// <summary>
+    /// Set a uniform with a name to a specific value.
+    /// </summary>
+    public abstract void SetVec(string name, float x, float y, float z, float w);
 
     /// <summary>
     /// Set a image uniform with a name to a specific value.
@@ -30,14 +46,14 @@ public abstract class ShadeContext : IDisposable
     public abstract void AddLayout(int size);
 
     /// <summary>
-    /// Start to use a Polygon.
+    /// Start to use a Data.
     /// </summary>
-    public abstract void Use(Polygon poly);
+    public abstract void Use(IBufferedData data);
 
     /// <summary>
     /// Draw Arrays in the selected buffer.
     /// </summary>
-    public abstract void Draw(PrimitiveType primitiveType, Polygon poly);
+    public abstract void Draw(PrimitiveType primitiveType, IBufferedData data);
     
     /// <summary>
     /// Create and associeate the context to a program.

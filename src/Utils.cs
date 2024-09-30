@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/09/2024
+ * Date:    27/09/2024
  */
 #pragma warning disable IDE1006
 
@@ -19,7 +19,7 @@ using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
 
 /// <summary>
-/// A facade with all utils to use Radiance features.
+/// A facade with all utils to use Radiance shader features.
 /// </summary>
 public static class Utils
 {
@@ -31,44 +31,15 @@ public static class Utils
     /// </summary>
     public static Float f(Float value) => value;
 
-    #endregion
-
-    #region WINDOWS UTILS
-
     /// <summary>
-    /// Get the time between two frames.
+    /// A function to indicate the type of the parameter on render functions.
+    /// Use when the compiler cannot identify a type of a parameter.
     /// </summary>
-    public static float dt =>
-        Window.IsOpen ? Window.DeltaTime : 0;
+    public static Sampler sampler(Sampler value) => value;
 
-    /// <summary>
-    /// A number relatives to 100% to width of viewport.
-    /// </summary>
-    public static float vw =>
-        Window.IsOpen ? Window.Width :
-        throw new WindowClosedException();
-
-    /// <summary>
-    /// A number relatives to 100% to height of viewport.
-    /// </summary>
-    public static float vh =>
-        Window.IsOpen ? Window.Height :
-        throw new WindowClosedException();
-    
     #endregion
     
     #region PRIMITIVE UTILS
-    
-    /// <summary>
-    /// Get a rectangle with size of opened screen centralizated in center of screen.
-    /// </summary>
-    public static Polygon Screen => 
-        Window.IsOpen ? Rect(
-            Window.Width / 2, 
-            Window.Height / 2, 0, 
-            Window.Width, 
-            Window.Height
-        ) : throw new WindowClosedException();
 
     /// <summary>
     /// Get (1, 0, 0) vector.
@@ -98,187 +69,10 @@ public static class Utils
     public static readonly Vec4 white = new(1, 1, 1, 1);
     public static readonly Vec4 cyan = new(0, 1, 1, 1);
     public static readonly Vec4 magenta = new(1, 0, 1, 1);
-    
-    /// <summary>
-    /// Create and get a new empty polygon.
-    /// </summary>
-    public static Polygon Empty => new MutablePolygon();
-
-    /// <summary>
-    /// Get a circle with radius 1 centralizated in (0, 0, 0)
-    /// with 128 sides.
-    /// </summary>
-    public static readonly Polygon Circle = Ellipse(1, 1, 128).ToImmutable();
-
-    /// <summary>
-    /// Get a square with side 1 centralizated in (0, 0, 0).
-    /// </summary>
-    public static readonly Polygon Square = Rect(1, 1).ToImmutable();
-
-    /// <summary>
-    /// Create a rectangle with specific width and height
-    /// centralized on (0, 0, 0) cordinate.
-    /// </summary>
-    public static Polygon Rect(float width, float height)
-    {
-        var halfWid = width / 2;
-        var halfHei = height / 2;
-        return Empty
-            .Add(-halfWid, -halfHei, 0f)
-            .Add(-halfHei, halfWid, 0f)
-            .Add(halfHei, halfWid, 0f)
-            .Add(halfHei, -halfWid, 0f);
-    }
-
-    /// <summary>
-    /// Create a rectangle with specific width and height
-    /// centralized on (x, y, z) cordinate.
-    /// </summary>
-    public static Polygon Rect(
-        float x, float y, float z,
-        float width, float height)
-    {
-        var halfWid = width / 2;
-        var halfHei = height / 2;
-        return Empty
-            .Add(x - halfWid, y - halfHei, z)
-            .Add(x - halfWid, y + halfHei, z)
-            .Add(x + halfWid, y + halfHei, z)
-            .Add(x + halfWid, y - halfHei, z);
-    }
-
-    /// <summary>
-    /// Create a ellipse with specific a and b radius
-    /// centralized on (x, y, z) cordinate with a specific
-    /// quantity of sides.
-    /// </summary>
-    public static MutablePolygon Ellipse(
-        float x, float y, float z,
-        float a, float b = float.NaN,
-        int points = 63
-    )
-    {
-        var result = new MutablePolygon();
-
-        float phi = MathF.Tau / points;
-        if (float.IsNaN(b))
-            b = a;
-
-        for (int k = 0; k < points; k++)
-        {
-            result.Add(
-                a * MathF.Cos(phi * k) + x,
-                b * MathF.Sin(-phi * k) + y,
-                z
-            );
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// Create a ellipse with specific a and b radius
-    /// centralized on (0, 0, 0) cordinate with a specific
-    /// quantity of sides.
-    /// </summary>
-    public static MutablePolygon Ellipse(
-        float a, float b = float.NaN,
-        int points = 63
-    )
-    {
-        var result = new MutablePolygon();
-
-        float phi = MathF.Tau / points;
-        if (float.IsNaN(b))
-            b = a;
-
-        for (int k = 0; k < points; k++)
-        {
-            result.Add(
-                a * MathF.Cos(phi * k),
-                b * MathF.Sin(-phi * k),
-                0
-            );
-        }
-
-        return result;
-    }
-
-    /// <summary>
-    /// Create a polygon using a polar coordinates.
-    /// The polarFunc is a function that recieves a angle (0 to 2pi)
-    /// and returns the distânce of the center (x, y, z).
-    /// </summary>
-    public static MutablePolygon Polar(
-        Func<float, int, float> polarFunc,
-        float x = 0, float y = 0, float z = 0,
-        int points = 63
-    )
-    {
-        var result = new MutablePolygon();
-
-        float phi = MathF.Tau / points;
-
-        for (int k = 0; k < points; k++)
-        {
-            float angle = phi * k;
-            float dist = polarFunc(angle, k);
-            result.Add(
-                x + dist * MathF.Cos(angle),
-                y + dist * MathF.Sin(-angle),
-                z
-            );
-        }
-
-        return result;
-    }
-
-    
-    /// <summary>
-    /// Create a polygon using a polar coordinates.
-    /// The polarFunc is a function that recieves a angle (0 to 2pi)
-    /// and returns the distânce of the center (x, y, z).
-    /// </summary>
-    public static MutablePolygon Polar(
-        Func<float, float> polarFunc,
-        float x = 0, float y = 0, float z = 0,
-        int points = 63
-    ) => Polar((a, i) => polarFunc(a), x, y, z, points);
-
-    /// <summary>
-    /// Create a polygon based in recived data.
-    /// </summary>
-    public static MutablePolygon Data(params Vec3[] vectors)
-    {
-        var result = new MutablePolygon();
-
-        foreach (var v in vectors)
-            result.Add(v.X, v.Y, v.Z);
-        
-        return result;
-    }
-    
-    /// <summary>
-    /// Create a polygon based in recived data.
-    /// </summary>
-    public static MutablePolygon Data(params Vec2[] vectors)
-    {
-        var result = new MutablePolygon();
-
-        foreach (var v in vectors)
-            result.Add(v.X, v.Y, 0);
-        
-        return result;
-    }
 
     #endregion
 
     #region RENDER UTILS
-    
-    /// <summary>
-    /// Get a Kit of autoimplemented renders.
-    /// </summary>
-    public static RenderKit kit => RenderKit.Shared;
 
     /// <summary>
     /// Reduce many render calls in a unique call.
@@ -421,6 +215,83 @@ public static class Utils
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         return new Render(function);
+    }
+
+    #endregion
+
+    #region  BUILT-IN RENDERS
+
+    private static dynamic? moveRender;
+    /// <summary>
+    /// Move the polygon by a (x, y) vector.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void move(dynamic x, dynamic y)
+    {
+        moveRender ??= render((dx, dy) => {
+            var moveValue = autoVar(pos + (dx, dy, 0));
+            pos = moveValue;
+        });
+
+        moveRender(x, y);
+    }
+
+    private static dynamic? centralizeRender;
+    /// <summary>
+    /// Centralize a polygon on the center of the screen.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void centralize()
+    {
+        centralizeRender ??= render(() => {
+            var centerValue = autoVar(pos + (width / 2, height / 2, 0));
+            pos = centerValue;
+        });
+
+        centralizeRender();
+    }
+
+    private static dynamic? zoomRender;
+    /// <summary>
+    /// Receiving x, y and a factor, performa a zoom on polygon on point (x, y) with the factor scale.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void zoom(dynamic x, dynamic y, dynamic factor)
+    {
+        zoomRender ??= render((cx, cy, factor) => {
+            var cxValue = autoVar(cx);
+            var cyValue = autoVar(cy);
+            var factorValue = autoVar(factor);
+
+            var nx = factorValue * (pos.x - cxValue) + cxValue;
+            var ny = factorValue * (pos.y - cyValue) + cyValue;
+            var zoomValue = autoVar((nx, ny, pos.z));
+            
+            pos = zoomValue;
+        });
+
+        zoomRender(x, y, factor);
+    }
+    
+    private static dynamic? rotateRender;
+    /// <summary>
+    /// Rotate the polygon a specific angle.
+    /// </summary>
+    public static void rotate(dynamic angle)
+    {
+        rotateRender ??= render(angle => {
+            var paramValue = autoVar(angle);
+            var cosValue = autoVar(cos(paramValue));
+            var sinValue = autoVar(sin(paramValue));
+            var rotateValue = autoVar((
+                pos.x * cosValue - pos.y * sinValue,
+                pos.y * cosValue + pos.x * sinValue,
+                pos.z
+            ));
+            pos = rotateValue;
+        });
+
+        rotateRender(angle);
     }
 
     #endregion
@@ -840,10 +711,55 @@ public static class Utils
 
     /// <summary>
     /// Get a pixel color of a img in a specific position of a texture.
+    /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject texture(Sampler img, Vec2ShaderObject pos)
-        => autoVar(func<Vec4ShaderObject>("texture", img, pos));
-    
+    public static Vec4ShaderObject texture(Sampler img, Float posX, Float posY)
+    {
+        var transformatedPos = autoVar((posX / img.width, posY / img.height));
+        var pixel = autoVar(func<Vec4ShaderObject>("texture", img, transformatedPos));
+        return pixel;
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Float autoVar(Float obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable , ..otherDeps]);
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec2ShaderObject autoVar(Vec2ShaderObject obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec3ShaderObject autoVar(Vec3ShaderObject obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec4ShaderObject autoVar(Vec4ShaderObject obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
+    }
+
     static Float var(Float obj, string name)
         => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
@@ -863,30 +779,6 @@ public static class Utils
         => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
         )]);
-    
-    static Float autoVar(Float obj, params ShaderDependence[] otherDeps)
-    {
-        var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable , ..otherDeps]);
-    }
-
-    static Vec2ShaderObject autoVar(Vec2ShaderObject obj, params ShaderDependence[] otherDeps)
-    {
-        var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
-    }
-
-    static Vec3ShaderObject autoVar(Vec3ShaderObject obj, params ShaderDependence[] otherDeps)
-    {
-        var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
-    }
-
-    static Vec4ShaderObject autoVar(Vec4ShaderObject obj, params ShaderDependence[] otherDeps)
-    {
-        var variable = new VariableDependence(obj);
-        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
-    }
 
     static R func<R>(string name, params ShaderObject[] objs)
         where R : ShaderObject => ShaderObject.Union<R>(buildObject(name, objs), objs);
