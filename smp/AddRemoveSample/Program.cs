@@ -3,17 +3,16 @@ using static Radiance.Utils;
 
 var myRender = render(im =>
 {
-    verbose = true;
     rotate(.5f * t);
     move(1100, 700);
     zoom(1100, 700, 1 + sin(t) / 5);
-    color = texture(im, x, y);
+    color = texture(im, x * im.xratio, y * im.yratio);
     fill();
 });
 
 var background = render(im =>
 {
-    color = 0.85f * black + 0.15f * texture(im, x, y);
+    color = 0.85f * black + 0.15f * texture(im, x * im.xratio, y * im.yratio);
     fill();
 });
 
@@ -23,7 +22,7 @@ Window.OnLoad += () =>
     background = background(Polygons.Screen);
 };
 
-var dynkas = open("carikas.jfif");
+var dynkas = open("dynkas.jpg");
 Window.OnRender += () => 
 {
     background(dynkas);

@@ -18,7 +18,7 @@ public class TextureDataDependence(TextureDependence value) : ShaderDependence
 
     public readonly string name = $"textureData{count++}";
     public override void AddHeader(StringBuilder sb)
-        => sb.AppendLine($"in vec2 {name};");
+        => sb.AppendLine($"uniform vec2 {name};");
 
     public override Action AddOperation(ShadeContext ctx)
         => () => ctx.SetVec(name, 

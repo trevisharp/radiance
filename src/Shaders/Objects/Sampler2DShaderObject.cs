@@ -28,7 +28,11 @@ public class Sampler2DShaderObject(
         return dataDep;
     }
 
-    public FloatShaderObject width {
+    /// <summary>
+    /// The width of input image.
+    /// </summary>
+    public FloatShaderObject width
+    {
         get
         {
             var dep = GetDataDep();
@@ -36,11 +40,27 @@ public class Sampler2DShaderObject(
         }
     }
     
-    public FloatShaderObject height {
+    /// <summary>
+    /// The height of input image.
+    /// </summary>
+    public FloatShaderObject height
+    {
         get
         {
             var dep = GetDataDep();
             return new FloatShaderObject($"{dep.name}.y", ShaderOrigin.Global, [ dep ]);
         }
     }
+
+    /// <summary>
+    /// The relationship between the screen width and the current image width.
+    /// On expression like texture(im, x, y) multiply x per xratio to get fullscreen image.
+    /// </summary>
+    public FloatShaderObject xratio => width / Utils.width;
+
+    /// <summary>
+    /// The relationship between the screen height and the current image height.
+    /// On expression like texture(im, x, y) multiply y per yratio to get fullscreen image.
+    /// </summary>
+    public FloatShaderObject yratio => height / Utils.height;
 }
