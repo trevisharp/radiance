@@ -244,7 +244,8 @@ public static class Utils
     public static void centralize()
     {
         centralizeRender ??= render(() => {
-            pos += (width / 2, height / 2, 0);
+            var centerValue = autoVar(pos + (width / 2, height / 2, 0));
+            pos = centerValue;
         });
 
         centralizeRender();
