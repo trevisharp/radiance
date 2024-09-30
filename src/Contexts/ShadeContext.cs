@@ -19,6 +19,21 @@ public abstract class ShadeContext : IDisposable
     /// Set a uniform with a name to a specific value.
     /// </summary>
     public abstract void SetFloat(string name, float value);
+    
+    /// <summary>
+    /// Set a uniform with a name to a specific value.
+    /// </summary>
+    public abstract void SetVec(string name, float x, float y);
+    
+    /// <summary>
+    /// Set a uniform with a name to a specific value.
+    /// </summary>
+    public abstract void SetVec(string name, float x, float y, float z);
+    
+    /// <summary>
+    /// Set a uniform with a name to a specific value.
+    /// </summary>
+    public abstract void SetVec(string name, float x, float y, float z, float w);
 
     /// <summary>
     /// Set a image uniform with a name to a specific value.

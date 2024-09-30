@@ -92,6 +92,27 @@ public class OpenGL4ShaderContext : ShadeContext
         GL.Uniform1(code, id);
     }
 
+    public override void SetVec(string name, float x, float y)
+    {
+        var program = ProgramId ?? throw new UncreatedProgramException();
+        var code = GL.GetUniformLocation(program, name);
+        GL.Uniform2(code, x, y);
+    }
+
+    public override void SetVec(string name, float x, float y, float z)
+    {
+        var program = ProgramId ?? throw new UncreatedProgramException();
+        var code = GL.GetUniformLocation(program, name);
+        GL.Uniform3(code, x, y, z);
+    }
+
+    public override void SetVec(string name, float x, float y, float z, float w)
+    {
+        var program = ProgramId ?? throw new UncreatedProgramException();
+        var code = GL.GetUniformLocation(program, name);
+        GL.Uniform4(code, x, y, z, w);
+    }
+
     public override void Use(IBufferedData data)
     {
         BindVerteArrayObject();

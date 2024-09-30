@@ -23,7 +23,7 @@ Window.OnLoad += () =>
     background = background(Polygons.Screen);
 };
 
-var dynkas = open("dynkas.jpg");
+var dynkas = open("carikas.jfif");
 Window.OnRender += () => 
 {
     background(dynkas);

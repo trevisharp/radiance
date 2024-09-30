@@ -15,6 +15,9 @@ public class Texture(string imgPath)
     public readonly string Source = imgPath;
     public readonly ImageResult ImageData = Load(imgPath);
 
+    public float Width => ImageData.Width;
+    public float Height => ImageData.Height;
+
     static bool initializated = false;
     static void Init()
     {

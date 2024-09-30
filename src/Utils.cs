@@ -715,7 +715,7 @@ public static class Utils
     /// </summary>
     public static Vec4ShaderObject texture(Sampler img, Float posX, Float posY)
     {
-        var transformatedPos = autoVar((posX / width, posY / height));
+        var transformatedPos = autoVar((posX / img.width, posY / img.height));
         var pixel = autoVar(func<Vec4ShaderObject>("texture", img, transformatedPos));
         return pixel;
     }
