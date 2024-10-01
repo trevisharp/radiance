@@ -1,4 +1,29 @@
-﻿var myRender = render(im =>
+﻿using Radiance.Ensemble;
+
+/*
+var renders = new RenderCollection(myRenderWith2Params);
+
+var superRender = 
+    from i in renders
+    let x = 4f * t
+    let y = dataList[i]
+    where i < 8
+    select (x, y); // Cria um render 
+
+Window.OnRender += () => superRender(myPoly);
+
+var query2 =
+    coll.Select(r => new { r, x = r.ToString()}) // Criar um objeto Wrapper<T> com conversão implicita:
+    
+var x = func(new { value = 3 });
+
+Wrapper<T> func<T>(T value)
+    => new Wrapper<T>(value);
+
+public class Wrapper<T>(T obj) { }
+*/
+
+var myRender = render(im =>
 {
     rotate(.5f * t);
     move(1100, 700);
