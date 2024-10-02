@@ -3,10 +3,11 @@
  */
 using System;
 using System.Reflection;
-using Radiance.Buffers;
-using Radiance.Shaders;
 
 namespace Radiance.Renders;
+
+using Buffers;
+using Shaders;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.

@@ -9,12 +9,12 @@ using System.Text;
 namespace Radiance;
 
 using Renders;
-using Contexts;
-using Primitives;
-using Exceptions;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
+using Contexts;
+using Primitives;
+using Exceptions;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
