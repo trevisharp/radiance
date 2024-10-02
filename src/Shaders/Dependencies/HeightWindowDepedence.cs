@@ -16,6 +16,6 @@ public class HeightWindowDependence : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine("uniform float height;");
 
-    public override Action AddOperation(ShadeContext ctx)
+    public override Action AddOperation(ShaderContext ctx)
         => () => ctx.SetFloat("height", Window.Height);
 }

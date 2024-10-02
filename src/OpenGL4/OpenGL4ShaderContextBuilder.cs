@@ -10,6 +10,6 @@ using Contexts;
 /// </summary>
 public class OpenGL4ShaderContextBuilder : ShaderContextBuilder
 {
-    public override ShadeContext Build()
+    public override ShaderContext Build()
         => new OpenGL4ShaderContext();
 }

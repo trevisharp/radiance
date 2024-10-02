@@ -8,6 +8,7 @@ using System.Text;
 
 namespace Radiance;
 
+using Renders;
 using Contexts;
 using Primitives;
 using Exceptions;

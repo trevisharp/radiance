@@ -18,7 +18,7 @@ public class TextureDependence(string textureName) : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform sampler2D {textureName};");
 
-    public override Action AddOperation(ShadeContext ctx)
+    public override Action AddOperation(ShaderContext ctx)
         => () => 
         {
             if (Texture is null)

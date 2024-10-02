@@ -1,14 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/09/2024
+ * Date:    02/10/2024
  */
-using System;
-
 namespace Radiance.Exceptions;
 
 public class MissingPolygonException : RadianceException
 {
     public override string ErrorMessage =>
         """
-        A render need be called with a polygon as first argument.
+        A render need be called with a polygon or other bufferd data as first argument.
         """;
 }

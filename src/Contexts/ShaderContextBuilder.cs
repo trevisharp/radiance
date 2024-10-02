@@ -8,5 +8,5 @@ namespace Radiance.Contexts;
 /// </summary>
 public abstract class ShaderContextBuilder
 {
-    public abstract ShadeContext Build();
+    public abstract ShaderContext Build();
 }

@@ -20,7 +20,7 @@ using Exceptions;
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public class OpenGL4ShaderContext : ShadeContext
+public class OpenGL4ShaderContext : ShaderContext
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];

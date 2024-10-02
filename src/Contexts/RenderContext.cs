@@ -77,7 +77,7 @@ public class RenderContext
     /// <summary>
     /// Get or set the actions in this render context.
     /// </summary>
-    public Action<Polygon, object[]>? RenderActions { get; set; }
+    public Action<IBufferedData, object[]>? RenderActions { get; set; }
 
     /// <summary>
     /// Get or set the shader object representing the position transformation.
@@ -92,7 +92,7 @@ public class RenderContext
     /// <summary>
     /// Call render pipeline for this render context.
     /// </summary>
-    public void Render(Polygon polygon, object[] arguments)
+    public void Render(IBufferedData polygon, object[] arguments)
     {
         if (RenderActions is null)
             return;

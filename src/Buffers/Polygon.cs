@@ -13,7 +13,7 @@ public class Polygon(float[] data) : IBufferedData
     /// <summary>
     /// Get the triangulation of this polygon.
     /// </summary>
-    public Polygon Triangulation
+    public IBufferedData Triangulation
     {
         get
         {

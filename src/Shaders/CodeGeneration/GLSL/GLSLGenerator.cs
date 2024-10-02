@@ -29,7 +29,7 @@ public class GLSLGenerator : ICodeGenerator
     public ShaderPair GenerateShaders(
         Vec3ShaderObject vertObj,
         Vec4ShaderObject fragObj,
-        ShadeContext ctx)
+        ShaderContext ctx)
     {
         StringBuilder getCodeBuilder()
         {

@@ -13,7 +13,7 @@ using Primitives;
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public abstract class ShadeContext : IDisposable
+public abstract class ShaderContext : IDisposable
 {
     /// <summary>
     /// Set a uniform with a name to a specific value.
