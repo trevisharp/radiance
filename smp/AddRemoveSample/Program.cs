@@ -28,13 +28,13 @@ public class Wrapper<T>(T obj) { }
 var triangule = render((dx, dy, sp, r, g, b, factor) =>
 {
     rotate(sp * t);
-    zoom(0, 0, factor);
+    zoom(factor);
     move(dx, dy);
     color = (r, g, b, 1f);
     fill();
 });
 
-triangule = triangule(Polygons.FromData((1, 0), (0, 2), (-1, 0)));
+triangule = triangule(Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0)));
 
 List<float[]> data = [];
 for (int i = 0; i < 20_000; i++)

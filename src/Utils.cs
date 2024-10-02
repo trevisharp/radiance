@@ -302,6 +302,26 @@ public static class Utils
         zoomRender(x, y, factor);
     }
     
+    private static dynamic? originZoomRender;
+    /// <summary>
+    /// Receiving a factor, performa a zoom on polygon on point (x, y) with the factor scale.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void zoom(dynamic factor)
+    {
+        originZoomRender ??= render((factor) => {
+            var factorValue = autoVar(factor);
+
+            var nx = factorValue * pos.x;
+            var ny = factorValue * pos.y;
+            var zoomValue = autoVar((nx, ny, pos.z));
+            
+            pos = zoomValue;
+        });
+
+        originZoomRender(factor);
+    }
+    
     private static dynamic? rotateRender;
     /// <summary>
     /// Rotate the polygon a specific angle.
