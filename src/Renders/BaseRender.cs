@@ -31,11 +31,15 @@ public abstract class BaseRender(
     /// </summary>
     public abstract BaseRender Curry(params object?[] args);
 
-    
     /// <summary>
     /// Generate a Shader object with dependencies based on ParameterInfo.
     /// </summary>
     protected abstract ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues);
+
+    /// <summary>
+    /// Fill or transform the data to perform the correct rendering operations.
+    /// </summary>
+    protected abstract IBufferedData FillData(IBufferedData buffer);
 
     /// <summary>
     /// Call the function passing real data and running the draw pipeline.
@@ -58,7 +62,8 @@ public abstract class BaseRender(
             dep.UpdateData(arg);
         }
 
-        // TODO: update BufferdData with variable values
+        poly = FillData(poly);
+
         Context?.Render(poly, extraArgs);
     }
     

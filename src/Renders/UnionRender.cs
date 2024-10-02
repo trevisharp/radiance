@@ -3,6 +3,7 @@
  */
 using System;
 using System.Reflection;
+using Radiance.Buffers;
 using Radiance.Shaders;
 
 namespace Radiance.Renders;
@@ -21,6 +22,11 @@ public class UnionRender(
             Context = Context,
             Dependences = Dependences
         };
+
+    protected override IBufferedData FillData(IBufferedData buffer)
+    {
+        throw new NotImplementedException();
+    }
 
     protected override ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
     {

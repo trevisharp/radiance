@@ -123,6 +123,42 @@ public static class Utils
     /// <summary>
     /// Create render with shaders based on function recived.
     /// </summary>
+    public static dynamic render(Action<Float, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Float, Float, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Float, Float, Float, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Float, Float, Float, Float, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
     public static dynamic render(Action<Sampler> function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
@@ -219,7 +255,7 @@ public static class Utils
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(dynamic x, dynamic y)
+    public static void move(Float x, Float y)
     {
         moveRender ??= render((dx, dy) => {
             var moveValue = autoVar(pos + (dx, dy, 0));

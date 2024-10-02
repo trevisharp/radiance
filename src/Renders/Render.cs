@@ -6,6 +6,7 @@ using System.Reflection;
 
 namespace Radiance.Renders;
 
+using Buffers;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
@@ -28,7 +29,10 @@ public class Render(
             Context = Context,
             Dependences = Dependences
         };
-    
+
+    protected override IBufferedData FillData(IBufferedData buffer)
+        => buffer;
+
     protected override ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
