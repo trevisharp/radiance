@@ -2,6 +2,7 @@
  * Date:    03/10/2024
  */
 using System;
+using System.Linq;
 using System.Reflection;
 using System.Collections.Generic;
 
@@ -13,8 +14,7 @@ using Shaders.Objects;
 using Shaders.Dependencies;
 using Primitives;
 using Exceptions;
-using System.Linq;
-using OpenTK.Platform.Windows;
+using System.Buffers;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
@@ -28,7 +28,6 @@ public class UnionRender(
     readonly SimpleBuffer buffer = new();
     IBufferedData? lastBuffer = null;
     Func<int, bool> breaker = i => i < 1;
-    bool layoutChanges = true;
     bool dataChanges = true;
     
     /// <summary>
@@ -36,7 +35,6 @@ public class UnionRender(
     /// </summary>
     public UnionRender AddArgument(float value)
     {
-        layoutChanges = true;
         dataChanges = true;
         callings.Add(value);
         return this;
@@ -47,7 +45,6 @@ public class UnionRender(
     /// </summary>
     public UnionRender AddArgument(int value)
     {
-        layoutChanges = true;
         dataChanges = true;
         callings.Add(value);
         return this;
@@ -58,7 +55,6 @@ public class UnionRender(
     /// </summary>
     public UnionRender AddArgument(double value)
     {
-        layoutChanges = true;
         dataChanges = true;
         callings.Add(value);
         return this;
@@ -69,7 +65,6 @@ public class UnionRender(
     /// </summary>
     public UnionRender AddArgument(Texture value)
     {
-        layoutChanges = true;
         dataChanges = true;
         callings.Add(value);
         return this;
@@ -79,7 +74,6 @@ public class UnionRender(
     /// Add a function to compute the value for any calling based on index.
     public UnionRender AddArgumentFactory(Func<int, float> factory)
     {
-        layoutChanges = true;
         dataChanges = true;
         callings.Add(factory);
         return this;
@@ -111,9 +105,10 @@ public class UnionRender(
             lastBuffer = buffer;
         }
 
-        if (!layoutChanges && !dataChanges)
+        if (!dataChanges)
             return buffer;
-        
+        dataChanges = false;
+
         var vertexes = buffer.Triangulation.Data;
         UpdateData(vertexes);
         return buffer;
@@ -129,7 +124,8 @@ public class UnionRender(
             .ToArray();
         float[] computationResult = new float[computations.Length];
 
-        for (int i = 0; i < int.MaxValue; i++)
+        int i;
+        for (i = 0; i < int.MaxValue; i++)
         {
             if (breaker(i))
                 break;
@@ -146,6 +142,8 @@ public class UnionRender(
                     buffer.Add(computationResult[j]);
             }
         }
+
+        buffer.Vertices = i * basicVertexes.Length;
     }
 
     protected override ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)

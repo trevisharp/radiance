@@ -43,8 +43,6 @@ var triangule = new UnionRender((
     fill();
 });
 
-triangule = triangule.Curry(Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0)));
-
 List<float[]> data = [];
 for (int i = 0; i < 20_000; i++)
 {
@@ -58,6 +56,7 @@ for (int i = 0; i < 20_000; i++)
     ]);
 }
 
+var poly = Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0));
 dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][0])
     .AddArgumentFactory(i => data[i][1])
@@ -65,7 +64,8 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][3])
     .AddArgumentFactory(i => data[i][4])
     .AddArgumentFactory(i => data[i][5])
-    .AddArgument(100);
+    .AddArgument(100)
+    .SetBreaker(i => i < 20_000);
 
 Console.Clear();
 Window.OnFrame += () => 
@@ -77,7 +77,7 @@ Window.OnFrame += () =>
 
 Window.OnRender += () => 
 {
-    myRender();
+    myRender(poly);
 };
 
 Window.CloseOn(Input.Escape);
