@@ -67,13 +67,13 @@ dynamic myRender = triangule
     .AddArgument(100)
     .SetBreaker(i => i < 20_000);
 
-Console.Clear();
-Window.OnFrame += () => 
-{
-    Console.CursorLeft = 0;
-    Console.CursorTop = 0;
-    Console.WriteLine(Window.Fps);
-};
+// Console.Clear();
+// Window.OnFrame += () => 
+// {
+//     Console.CursorLeft = 0;
+//     Console.CursorTop = 0;
+//     Console.WriteLine(Window.Fps);
+// };
 
 Window.OnRender += () => 
 {

@@ -47,6 +47,7 @@ public abstract class BaseRender(
     /// </summary>
     void CallWithRealData(object[] arguments)
     {
+        System.Console.WriteLine("alissouza");
         if (Window.Phase != WindowPhase.OnRender)
             throw new OutOfRenderException();
         
@@ -112,6 +113,7 @@ public abstract class BaseRender(
         if (arguments[0] is not IBufferedData)
             throw new MissingPolygonException();
 
+        // TODO: UnionRender need less paramters
         if (arguments.Length < parameterCount + 1)
         {
             result = Curry(args ?? []);

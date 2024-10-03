@@ -127,7 +127,7 @@ public class UnionRender(
         int i;
         for (i = 0; i < int.MaxValue; i++)
         {
-            if (breaker(i))
+            if (!breaker(i))
                 break;
             
             for (int j = 0; j < computationResult.Length; j++)
