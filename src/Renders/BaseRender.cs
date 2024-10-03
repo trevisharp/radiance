@@ -42,12 +42,14 @@ public abstract class BaseRender(
     /// </summary>
     protected abstract IBufferedData FillData(IBufferedData buffer);
 
+    protected virtual int CountNeededArguments()
+        => function.Method.GetParameters().Length + 1;
+
     /// <summary>
     /// Call the function passing real data and running the draw pipeline.
     /// </summary>
     void CallWithRealData(object[] arguments)
     {
-        System.Console.WriteLine("alissouza");
         if (Window.Phase != WindowPhase.OnRender)
             throw new OutOfRenderException();
         
@@ -99,7 +101,7 @@ public abstract class BaseRender(
             return true;
         }
 
-        var parameterCount = function.Method.GetParameters().Length;
+        var expectedArguments = CountNeededArguments();
         object[] arguments = [
             ..curryingArguments, ..DisplayValues(args ?? [])
         ];
@@ -112,15 +114,14 @@ public abstract class BaseRender(
         
         if (arguments[0] is not IBufferedData)
             throw new MissingPolygonException();
-
-        // TODO: UnionRender need less paramters
-        if (arguments.Length < parameterCount + 1)
+        
+        if (arguments.Length < expectedArguments)
         {
             result = Curry(args ?? []);
             return true;
         }
 
-        if (arguments.Length > parameterCount + 1)
+        if (arguments.Length > expectedArguments)
             throw new ExcessOfArgumentsException();
         
         Load();

@@ -178,4 +178,7 @@ public class UnionRender(
             _ => throw new InvalidRenderException(parameter)
         };
     }
+
+    protected override int CountNeededArguments()
+        => base.CountNeededArguments() - callings.Count;
 }
