@@ -33,14 +33,14 @@ public class Render(
     protected override IBufferedData FillData(IBufferedData buffer)
         => buffer;
 
-    protected override ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
+    protected override ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curryiedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
         
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var isConstant = index < curriedValues.Length;
+        var isConstant = index < curryiedValues.Length;
 
         return (isFloat, isTexture, isConstant) switch
         {
@@ -50,7 +50,7 @@ public class Render(
 
             (true, false, true) => new FloatShaderObject(
                 name, ShaderOrigin.FragmentShader, [ new ConstantDependence(name, 
-                    curriedValues[index] is float value ? value : throw new Exception($"{curriedValues[index]} is not a float.")) ]
+                    curryiedValues[index] is float value ? value : throw new Exception($"{curryiedValues[index]} is not a float.")) ]
             ),
 
             (false, true, _) => new Sampler2DShaderObject(

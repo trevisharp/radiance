@@ -32,9 +32,10 @@ public abstract class BaseRender(
     public abstract BaseRender Curry(params object?[] args);
 
     /// <summary>
-    /// Generate a Shader object with dependencies based on ParameterInfo.
+    /// Generate a Shader object with dependencies based on ParameterInfo. Recive the parameterInfo,
+    /// the index of the parameter and the array of curryied values without the curryied polygon.
     /// </summary>
-    protected abstract ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues);
+    protected abstract ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curryiedValues);
 
     /// <summary>
     /// Fill or transform the data to perform the correct rendering operations.

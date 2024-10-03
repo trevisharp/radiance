@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Collections.Generic;
-using Radiance.Ensemble;
+
+using Radiance.Renders;
+using Radiance.Shaders.Objects;
 
 /*
 var renders = new RenderCollection(myRenderWith2Params);
@@ -25,7 +27,14 @@ Wrapper<T> func<T>(T value)
 public class Wrapper<T>(T obj) { }
 */
 
-var triangule = render((dx, dy, sp, r, g, b, factor) =>
+var triangule = new UnionRender((
+    FloatShaderObject dx, 
+    FloatShaderObject dy, 
+    FloatShaderObject sp, 
+    FloatShaderObject r, 
+    FloatShaderObject g, 
+    FloatShaderObject b, 
+    FloatShaderObject factor) =>
 {
     rotate(sp * t);
     zoom(factor);
@@ -34,7 +43,7 @@ var triangule = render((dx, dy, sp, r, g, b, factor) =>
     fill();
 });
 
-triangule = triangule(Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0)));
+triangule = triangule.Curry(Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0)));
 
 List<float[]> data = [];
 for (int i = 0; i < 20_000; i++)
@@ -49,6 +58,15 @@ for (int i = 0; i < 20_000; i++)
     ]);
 }
 
+dynamic myRender = triangule
+    .AddArgumentFactory(i => data[i][0])
+    .AddArgumentFactory(i => data[i][1])
+    .AddArgumentFactory(i => data[i][2])
+    .AddArgumentFactory(i => data[i][3])
+    .AddArgumentFactory(i => data[i][4])
+    .AddArgumentFactory(i => data[i][5])
+    .AddArgument(100);
+
 Console.Clear();
 Window.OnFrame += () => 
 {
@@ -59,8 +77,7 @@ Window.OnFrame += () =>
 
 Window.OnRender += () => 
 {
-    foreach (var args in data)
-        triangule(args, 100);
+    myRender();
 };
 
 Window.CloseOn(Input.Escape);

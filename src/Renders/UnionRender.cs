@@ -1,8 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/10/2024
+ * Date:    03/10/2024
  */
 using System;
 using System.Reflection;
+using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
@@ -10,7 +11,10 @@ using Buffers;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
+using Primitives;
 using Exceptions;
+using System.Linq;
+using OpenTK.Platform.Windows;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
@@ -20,8 +24,78 @@ public class UnionRender(
     params object[] curryingParams
     ) : BaseRender(function, curryingParams)
 {
-    int layoutLocations = 1;
+    readonly List<object> callings = [ ..curryingParams ];
+    readonly SimpleBuffer buffer = new();
+    IBufferedData? lastBuffer = null;
+    Func<int, bool> breaker = i => i < 1;
+    bool layoutChanges = true;
+    bool dataChanges = true;
+    
+    /// <summary>
+    /// Add a calling pinned argument.
+    /// </summary>
+    public UnionRender AddArgument(float value)
+    {
+        layoutChanges = true;
+        dataChanges = true;
+        callings.Add(value);
+        return this;
+    }
 
+    /// <summary>
+    /// Add a calling pinned argument.
+    /// </summary>
+    public UnionRender AddArgument(int value)
+    {
+        layoutChanges = true;
+        dataChanges = true;
+        callings.Add(value);
+        return this;
+    }
+        
+    /// <summary>
+    /// Add a calling pinned argument.
+    /// </summary>
+    public UnionRender AddArgument(double value)
+    {
+        layoutChanges = true;
+        dataChanges = true;
+        callings.Add(value);
+        return this;
+    }
+        
+    /// <summary>
+    /// Add a calling pinned argument.
+    /// </summary>
+    public UnionRender AddArgument(Texture value)
+    {
+        layoutChanges = true;
+        dataChanges = true;
+        callings.Add(value);
+        return this;
+    }
+    
+    /// <summary>
+    /// Add a function to compute the value for any calling based on index.
+    public UnionRender AddArgumentFactory(Func<int, float> factory)
+    {
+        layoutChanges = true;
+        dataChanges = true;
+        callings.Add(factory);
+        return this;
+    }
+    
+    /// <summary>
+    /// Set the function that decides when the render need stop.
+    /// </summary>
+    public UnionRender SetBreaker(Func<int, bool> breaker)
+    {
+        dataChanges = true;
+        this.breaker = breaker;
+        return this;
+    }
+
+    // TODO: throws error on curry opeartion at a facotried argument.
     public override UnionRender Curry(params object?[] args)
         => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {
@@ -31,17 +105,58 @@ public class UnionRender(
 
     protected override IBufferedData FillData(IBufferedData buffer)
     {
-        throw new NotImplementedException();
+        if (lastBuffer != buffer)
+        {
+            dataChanges = true;
+            lastBuffer = buffer;
+        }
+
+        if (!layoutChanges && !dataChanges)
+            return buffer;
+        
+        var vertexes = buffer.Triangulation.Data;
+        UpdateData(vertexes);
+        return buffer;
+    }
+
+    void UpdateData(float[] basicVertexes)
+    {
+        buffer.Clear();
+
+        Func<int, float>[] computations = callings
+            .Where(c => c is Func<int, float> f)
+            .Select(c => (Func<int, float>)c)
+            .ToArray();
+        float[] computationResult = new float[computations.Length];
+
+        for (int i = 0; i < int.MaxValue; i++)
+        {
+            if (breaker(i))
+                break;
+            
+            for (int j = 0; j < computationResult.Length; j++)
+                computationResult[j] = computations[j](i);
+            
+            for (int k = 0; k < basicVertexes.Length; k += 3)
+            {
+                buffer.Add(basicVertexes[k + 0]);
+                buffer.Add(basicVertexes[k + 1]);
+                buffer.Add(basicVertexes[k + 2]);
+                for (int j = 0; j < computationResult.Length; j++)
+                    buffer.Add(computationResult[j]);
+            }
+        }
     }
 
     protected override ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
-        
+
+        var layoutLocations = 1;
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var isConstant = index < curriedValues.Length;
+        var isConstant = index < curriedValues.Length || callings[index] is not Func<int, float>;
 
         return (isFloat, isTexture, isConstant) switch
         {
