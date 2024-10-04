@@ -146,15 +146,16 @@ public class UnionRender(
         buffer.Vertices = i * basicVertexes.Length;
     }
 
+    int layoutLocations = 1;
     protected override ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
 
-        var layoutLocations = 1;
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var isConstant = index < curriedValues.Length || callings[index] is not Func<int, float>;
+        var hasFactory = index < callings.Count && callings[index] is Func<int, float>;
+        var isConstant = index < curriedValues.Length && !hasFactory;
 
         return (isFloat, isTexture, isConstant) switch
         {

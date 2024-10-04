@@ -11,6 +11,7 @@ namespace Radiance.Buffers;
 public class SimpleBuffer : IBufferedData
 {
     readonly List<float> data = [];
+    public float Count => data.Count;
     
     public void Add(float value)
         => data.Add(value);

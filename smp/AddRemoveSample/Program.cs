@@ -36,6 +36,7 @@ var triangule = new UnionRender((
     FloatShaderObject b, 
     FloatShaderObject factor) =>
 {
+    verbose = true;
     rotate(sp * t);
     zoom(factor);
     move(dx, dy);
@@ -64,7 +65,7 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][3])
     .AddArgumentFactory(i => data[i][4])
     .AddArgumentFactory(i => data[i][5])
-    .SetBreaker(i => i < 20_000);
+    .SetBreaker(i => i < 2);
 
 // Console.Clear();
 // Window.OnFrame += () => 

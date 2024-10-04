@@ -1,16 +1,17 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/09/2024
+ * Date:    04/10/2024
  */
 using System;
 using System.Linq;
+using System.Globalization;
 using System.Collections.Generic;
 
 namespace Radiance.Shaders;
 
-using System.Globalization;
 using Dependencies;
-using Radiance.Exceptions;
 using static ShaderOrigin;
+
+using Exceptions;
 
 /// <summary>
 /// Represents any data in a shader implementation.
@@ -49,6 +50,7 @@ public abstract class ShaderObject(
         var newObj = Activator.CreateInstance(
             typeof(R), newExpression, originInfo.origin, deps
         ) as R;
+        
         return newObj!;
     }
 
