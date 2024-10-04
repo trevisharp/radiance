@@ -54,6 +54,23 @@ public abstract class ShaderObject(
         return newObj!;
     }
 
+    public static R MergeOrigin<R>(R originalObject, ShaderOrigin extraOrigin)
+        where R : ShaderObject
+    {
+        var unionInfo = UnionOrigin([originalObject.Origin, extraOrigin]);
+        if (!unionInfo.hasConflitct)
+            return originalObject;
+        
+        var output = new OutputDependence(originalObject);
+        ShaderDependence[] deps = [ ..originalObject.Dependencies, output ];
+
+        var newObj = Activator.CreateInstance(
+            typeof(R), output.Name, unionInfo.origin, deps
+        ) as R;
+
+        return newObj!;
+    }
+
     static (ShaderOrigin origin, bool hasConflitct) UnionOrigin(IEnumerable<ShaderOrigin> origins)
     {
         var nonGlobal =
