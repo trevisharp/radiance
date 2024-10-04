@@ -14,7 +14,6 @@ using Shaders.Objects;
 using Shaders.Dependencies;
 using Primitives;
 using Exceptions;
-using System.Buffers;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
@@ -24,7 +23,7 @@ public class UnionRender(
     params object[] curryingParams
     ) : BaseRender(function, curryingParams)
 {
-    readonly List<object> callings = [ ..curryingParams ];
+    List<object> callings = [ ];
     readonly SimpleBuffer buffer = new();
     IBufferedData? lastBuffer = null;
     Func<int, bool> breaker = i => i < 1;
@@ -94,7 +93,9 @@ public class UnionRender(
         => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {
             Context = Context,
-            Dependences = Dependences
+            Dependences = Dependences,
+            callings = callings,
+            breaker = breaker
         };
 
     protected override IBufferedData FillData(IBufferedData buffer)
@@ -125,11 +126,8 @@ public class UnionRender(
         float[] computationResult = new float[computations.Length];
 
         int i;
-        for (i = 0; i < int.MaxValue; i++)
+        for (i = 0; breaker(i); i++)
         {
-            if (!breaker(i))
-                break;
-            
             for (int j = 0; j < computationResult.Length; j++)
                 computationResult[j] = computations[j](i);
             
@@ -143,7 +141,7 @@ public class UnionRender(
             }
         }
 
-        buffer.Vertices = i * basicVertexes.Length;
+        buffer.Vertices = i * basicVertexes.Length / 3;
     }
 
     int layoutLocations = 1;
@@ -155,24 +153,30 @@ public class UnionRender(
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
         var hasFactory = index < callings.Count && callings[index] is Func<int, float>;
-        var isConstant = index < curriedValues.Length && !hasFactory;
+        var isConstant = index < curriedValues.Length;
 
-        return (isFloat, isTexture, isConstant) switch
+        return (isFloat, isTexture, isConstant, hasFactory) switch
         {
-            (true, false, false) => new FloatShaderObject(
+            (true, false, false, true) => new FloatShaderObject(
                 name, ShaderOrigin.VertexShader, [ new FloatBufferDependence(name, layoutLocations++) ]
             ),
 
-            (true, false, true) => new FloatShaderObject(
+            (true, false, true, false) => new FloatShaderObject(
                 name, ShaderOrigin.FragmentShader, [ new ConstantDependence(name, 
                     curriedValues[index] is float value ? value : throw new Exception($"{curriedValues[index]} is not a float.")) ]
             ),
 
-            (false, true, true) => new Sampler2DShaderObject(
+            (true, false, false, false) => new FloatShaderObject(
+                name, ShaderOrigin.Global, [ new UniformFloatDependence(name) ]
+            ),
+
+            (true, false, true, true) => throw new Exception("A parameter with a factory cannot be curryied."),
+
+            (false, true, _, false) => new Sampler2DShaderObject(
                 name, ShaderOrigin.FragmentShader, [ new TextureDependence(name) ]
             ),
 
-            (false, true, false) => throw new NotImplementedException(
+            (false, true, _, true) => throw new NotImplementedException(
                 "Radiance not work with texture buffer yet. Use currying and use only once texture on a multi call"
             ),
 

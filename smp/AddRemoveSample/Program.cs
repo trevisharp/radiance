@@ -66,6 +66,7 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][4])
     .AddArgumentFactory(i => data[i][5])
     .SetBreaker(i => i < 2);
+myRender = myRender(poly);
 
 // Console.Clear();
 // Window.OnFrame += () => 
@@ -77,7 +78,7 @@ dynamic myRender = triangule
 
 Window.OnRender += () => 
 {
-    myRender(poly, 100);
+    myRender(100);
 };
 
 Window.CloseOn(Input.Escape);
