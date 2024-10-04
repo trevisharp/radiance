@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/10/2024
+ * Date:    04/10/2024
  */
 using System;
 using System.Linq;
@@ -107,12 +107,13 @@ public class UnionRender(
         }
 
         if (!dataChanges)
-            return buffer;
+            return this.buffer;
         dataChanges = false;
 
         var vertexes = buffer.Triangulation.Data;
         UpdateData(vertexes);
-        return buffer;
+
+        return this.buffer;
     }
 
     void UpdateData(float[] basicVertexes)
@@ -140,7 +141,7 @@ public class UnionRender(
                     buffer.Add(computationResult[j]);
             }
         }
-
+        
         buffer.Vertices = i * basicVertexes.Length / 3;
     }
 

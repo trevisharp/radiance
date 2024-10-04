@@ -104,4 +104,9 @@ public abstract class ShaderDependence
     /// Update the data used by dependence in its operations.
     /// </summary>
     public virtual void UpdateData(object value) { }
+
+    /// <summary>
+    /// Get the factor used to ordenate the shader dependeces callings.
+    /// </summary>
+    public virtual int GetOrderFactor() => 0;
 }

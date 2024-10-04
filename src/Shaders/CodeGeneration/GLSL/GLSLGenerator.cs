@@ -48,18 +48,23 @@ public class GLSLGenerator : ICodeGenerator
             .Append(ShaderDependence.WidthDep)
             .Append(ShaderDependence.HeightDep)
             .ToList();
-        vertDeps = ExpandDeps(vertDeps)
+        vertDeps = [ 
+            ..ExpandDeps(vertDeps)
             .Distinct()
-            .ToList();
+            .OrderBy(dep => dep.GetOrderFactor())
+        ];
         
         var fragDeps = fragObj.Dependencies
             .ToList();
-        fragDeps = ExpandDeps(fragDeps)
+        fragDeps = [
+            ..ExpandDeps(fragDeps)
             .Distinct()
-            .ToList();
+            .OrderBy(dep => dep.GetOrderFactor())
+        ];
 
         var allDeps = vertDeps
             .Concat(fragDeps)
+            .OrderBy(dep => dep.GetOrderFactor())
             .Distinct();
         
         foreach (var dep in allDeps)

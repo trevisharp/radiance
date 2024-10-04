@@ -65,7 +65,7 @@ public abstract class BaseRender(
             
             dep.UpdateData(arg);
         }
-
+        
         poly = FillData(poly);
 
         Context?.Render(poly, extraArgs);

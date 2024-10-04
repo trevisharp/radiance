@@ -18,4 +18,7 @@ public class BufferDependence : ShaderDependence
 
     public override Action AddConfiguration(ShaderContext ctx)
         => () => ctx.AddLayout(3);
+
+    public override int GetOrderFactor()
+        => int.MinValue / 2;
 }

@@ -13,9 +13,14 @@ using Contexts;
 /// </summary>
 public class FloatBufferDependence(string name, int location) : ShaderDependence
 {
+    public readonly string Name = name; 
+    public readonly int Location = location; 
     public override void AddVertexHeader(StringBuilder sb)
-        => sb.AppendLine($"layout (location = {location}) in float {name};");
+        => sb.AppendLine($"layout (location = {Location}) in float {Name};");
 
     public override Action AddConfiguration(ShaderContext ctx)
         => () => ctx.AddLayout(1);
+
+    public override int GetOrderFactor()
+        => int.MinValue / 2 + Location;
 }

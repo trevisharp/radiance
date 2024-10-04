@@ -10,16 +10,23 @@ namespace Radiance.Buffers;
 /// </summary>
 public class SimpleBuffer : IBufferedData
 {
+    private float[]? lastState = null;
     readonly List<float> data = [];
     public float Count => data.Count;
     
     public void Add(float value)
-        => data.Add(value);
+    {
+        lastState = null;
+        data.Add(value);
+    }
 
     public void Clear()
-        => data.Clear();
+    {
+        lastState = null;
+        data.Clear();
+    }
 
-    public float[] Data => [ ..data ];
+    public float[] Data => lastState ??= [ ..data ];
 
     public int Vertices { get; set; }
 
