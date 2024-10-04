@@ -132,9 +132,9 @@ public class OpenGL4ShaderContext : ShaderContext
         var stride = size * sizeof(float);
         var type = VertexAttribPointerType.Float;
 
-        GL.VertexAttribPointer(LayoutCount, 3, type, false, stride, Offset);
+        GL.VertexAttribPointer(LayoutCount, size, type, false, stride, Offset);
         GL.EnableVertexAttribArray(LayoutCount);
-        Offset += 3 * sizeof(float);
+        Offset += stride;
         LayoutCount++;
     }
 

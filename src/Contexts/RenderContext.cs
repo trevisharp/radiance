@@ -187,7 +187,7 @@ public class RenderContext
             if (needTriangularization)
                 poly = poly.Triangulation;
             
-            // System.Console.WriteLine(string.Join(' ', poly.Data));
+            System.Console.WriteLine(string.Join(' ', poly.Data));
             
             context.Use(poly);
 
