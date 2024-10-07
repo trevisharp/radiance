@@ -171,6 +171,8 @@ public class RenderContext
             
             if (pair.InitialConfiguration is not null)
                 pair.InitialConfiguration();
+
+            context.Configure();
         }
 
         void setupShaders()
@@ -181,14 +183,12 @@ public class RenderContext
             if (pair.FragmentShader.Setup is not null)
                 pair.FragmentShader.Setup();
         }
-        
+
         RenderActions += (poly, data) =>
         {
             if (needTriangularization)
                 poly = poly.Triangulation;
-            
-            System.Console.WriteLine(string.Join(' ', poly.Data));
-            
+
             context.Use(poly);
 
             initIfNeeded();

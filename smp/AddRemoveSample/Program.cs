@@ -27,6 +27,15 @@ Wrapper<T> func<T>(T value)
 public class Wrapper<T>(T obj) { }
 */
 
+var slowTriangule = render((dx, dy, sp, r, g, b, factor) =>
+{
+    rotate(sp * t);
+    zoom(factor);
+    move(dx, dy);
+    color = (r, g, b, 1f);
+    fill();
+});
+
 var triangule = new UnionRender((
     FloatShaderObject dx, 
     FloatShaderObject dy, 
@@ -36,7 +45,6 @@ var triangule = new UnionRender((
     FloatShaderObject b, 
     FloatShaderObject factor) =>
 {
-    verbose = true;
     rotate(sp * t);
     zoom(factor);
     move(dx, dy);
@@ -58,6 +66,7 @@ for (int i = 0; i < 20_000; i++)
 }
 
 var poly = Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0));
+dynamic mySlowRender = slowTriangule(poly);
 dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][0])
     .AddArgumentFactory(i => data[i][1])
@@ -65,20 +74,31 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][3])
     .AddArgumentFactory(i => data[i][4])
     .AddArgumentFactory(i => data[i][5])
-    .AddArgumentFactory(i => 100)
-    .SetBreaker(i => i < 5);
+    .AddArgumentFactory(i => 50)
+    .SetBreaker(i => i < 20_000);
 
-// Console.Clear();
-// Window.OnFrame += () => 
-// {
-//     Console.CursorLeft = 0;
-//     Console.CursorTop = 0;
-//     Console.WriteLine(Window.Fps);
-// };
+Console.Clear();
+Window.OnFrame += () => 
+{
+    Console.CursorLeft = 0;
+    Console.CursorTop = 0;
+    Console.WriteLine(Window.Fps);
+};
+
+
+bool slow = true;
+Window.OnKeyDown += (key, mod) =>
+{
+    if (key == Input.Space)
+        slow = !slow;
+};
 
 Window.OnRender += () => 
 {
-    myRender(poly);
+    if (slow)
+        for (int i = 0; i < 20_000; i++)
+            mySlowRender(data[i], 50);
+    else myRender(poly);
 };
 
 Window.CloseOn(Input.Escape);
