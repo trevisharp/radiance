@@ -76,6 +76,10 @@ for (int i = 0; i < 100_000; i++)
     ]);
 }
 
+
+float cx = 0f, cy = 0f;
+Window.OnMouseMove += p => (cx, cy) = p;
+
 var poly = Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0));
 dynamic mySlowRender = slowTriangule(poly);
 dynamic myRender = triangule
@@ -85,6 +89,9 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][3])
     .AddArgumentFactory(i => data[i][4])
     .AddArgumentFactory(i => data[i][5])
+    .AddArgumentFactory(i => 10)
+    .AddArgumentFactory(i => cx)
+    .AddArgumentFactory(i => cy)
     .SetBreaker(i => i < 100_000);
 
 Console.Clear();
@@ -99,12 +106,9 @@ Window.OnFrame += () =>
     Console.WriteLine(fspQueue.Average());
 };
 
-float cx = 0f, cy = 0f;
-Window.OnMouseMove += p => (cx, cy) = p;
-
 Window.OnRender += () => 
 {
-    myRender(poly, 10, cx, cy);
+    myRender(poly);
 };
 
 Window.CloseOn(Input.Escape);
