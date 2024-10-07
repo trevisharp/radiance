@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-
+using System.Linq;
 using Radiance.Renders;
 using Radiance.Shaders.Objects;
 
@@ -43,8 +43,19 @@ var triangule = new UnionRender((
     FloatShaderObject r, 
     FloatShaderObject g, 
     FloatShaderObject b, 
-    FloatShaderObject factor) =>
+    FloatShaderObject factor,
+    FloatShaderObject cx,
+    FloatShaderObject cy) =>
 {
+    verbose = true;
+    var dist = distance((dx, dy), (cx, cy));
+
+    var scapeX = (dx - cx) / dist;
+    var scapeY = (dy - cy) / dist;
+
+    dx += 1000 * scapeX / dist;
+    dy += 1000 * scapeY / dist;
+
     rotate(sp * t);
     zoom(factor);
     move(dx, dy);
@@ -53,15 +64,15 @@ var triangule = new UnionRender((
 });
 
 List<float[]> data = [];
-for (int i = 0; i < 20_000; i++)
+for (int i = 0; i < 100_000; i++)
 {
     data.Add([
         Random.Shared.Next(2000),
-        Random.Shared.Next(1000),
+        Random.Shared.Next(1200),
         Random.Shared.NextSingle(),
-        Random.Shared.NextSingle(),
-        Random.Shared.NextSingle(),
-        Random.Shared.NextSingle()
+        Random.Shared.NextSingle() / 2,
+        Random.Shared.NextSingle() / 2,
+        Random.Shared.NextSingle() + .6f + .4f
     ]);
 }
 
@@ -74,31 +85,26 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][3])
     .AddArgumentFactory(i => data[i][4])
     .AddArgumentFactory(i => data[i][5])
-    .AddArgumentFactory(i => 50)
-    .SetBreaker(i => i < 20_000);
+    .SetBreaker(i => i < 100_000);
 
 Console.Clear();
+Queue<float> fspQueue = new();
 Window.OnFrame += () => 
 {
     Console.CursorLeft = 0;
     Console.CursorTop = 0;
-    Console.WriteLine(Window.Fps);
+    fspQueue.Enqueue(Window.Fps);
+    if (fspQueue.Count > 10)
+        fspQueue.Dequeue();
+    Console.WriteLine(fspQueue.Average());
 };
 
-
-bool slow = true;
-Window.OnKeyDown += (key, mod) =>
-{
-    if (key == Input.Space)
-        slow = !slow;
-};
+float cx = 0f, cy = 0f;
+Window.OnMouseMove += p => (cx, cy) = p;
 
 Window.OnRender += () => 
 {
-    if (slow)
-        for (int i = 0; i < 20_000; i++)
-            mySlowRender(data[i], 50);
-    else myRender(poly);
+    myRender(poly, 10, cx, cy);
 };
 
 Window.CloseOn(Input.Escape);
