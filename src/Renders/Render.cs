@@ -21,6 +21,13 @@ public class Render(
     ) : BaseRender(function, curryingArguments)
 {
     /// <summary>
+    /// Make this render a union render that can draw many
+    /// polygons in only once call.
+    /// </summary>
+    public UnionRender ToUnion()
+        => new(function, curryingArguments);
+
+    /// <summary>
     /// Currying parameters to create a new render.
     /// </summary>
     public override Render Curry(params object?[] args)

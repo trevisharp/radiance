@@ -3,7 +3,6 @@ using System.Collections.Generic;
 
 using Radiance.Primitives;
 using Radiance.Renders;
-using Radiance.Shaders.Objects;
 
 /*
 var renders = new RenderCollection(myRenderWith2Params);
@@ -28,16 +27,7 @@ Wrapper<T> func<T>(T value)
 public class Wrapper<T>(T obj) { }
 */
 
-var triangule = new UnionRender((
-    FloatShaderObject dx,
-    FloatShaderObject dy,
-    FloatShaderObject sp,
-    FloatShaderObject r,
-    FloatShaderObject g,
-    FloatShaderObject b,
-    FloatShaderObject factor,
-    FloatShaderObject cx,
-    FloatShaderObject cy) =>
+UnionRender triangule = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
 {
     var dist = distance((dx, dy), (cx, cy));
 
@@ -52,7 +42,7 @@ var triangule = new UnionRender((
     move(dx, dy);
     color = (r, g, b, 1f);
     fill();
-});
+}).ToUnion();
 
 List<float[]> data = [];
 for (int i = 0; i < 1_000_000; i++)
