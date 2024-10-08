@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
+using Radiance.Primitives;
 using Radiance.Renders;
 using Radiance.Shaders.Objects;
 
@@ -43,8 +44,8 @@ var triangule = new UnionRender((
     var scapeX = (dx - cx) / dist;
     var scapeY = (dy - cy) / dist;
 
-    dx += 10 * scapeX / dist;
-    dy += 10 * scapeY / dist;
+    dx += 100 * scapeX / sqrt(dist);
+    dy += 100 * scapeY / sqrt(dist);
 
     rotate(sp * t);
     zoom(factor);
@@ -66,11 +67,11 @@ for (int i = 0; i < 1_000_000; i++)
     ]);
 }
 
+Vec2 cursor = (0, 0);
+Window.OnMouseMove += p => cursor = p;
 
-float cx = 0f, cy = 0f;
-Window.OnMouseMove += p => (cx, cy) = p;
-
-var poly = Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0));
+var hei = MathF.Sqrt(3) / 2;
+var poly = Polygons.FromData((1, -hei), (0, hei), (-1, -hei));
 dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][0])
     .AddArgumentFactory(i => data[i][1])
@@ -80,21 +81,9 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][5])
     .SetBreaker(i => i < 1_000_000);
 
-Console.Clear();
-Queue<float> fspQueue = new();
-Window.OnFrame += () => 
-{
-    Console.CursorLeft = 0;
-    Console.CursorTop = 0;
-    fspQueue.Enqueue(Window.Fps);
-    if (fspQueue.Count > 10)
-        fspQueue.Dequeue();
-    Console.WriteLine(fspQueue.Average());
-};
-
 Window.OnRender += () => 
 {
-    myRender(poly, 10, cx, cy);
+    myRender(poly, 10, cursor);
 };
 
 Window.CloseOn(Input.Escape);

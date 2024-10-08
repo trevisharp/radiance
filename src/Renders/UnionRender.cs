@@ -88,8 +88,6 @@ public class UnionRender(
         return this;
     }
 
-    // TODO: throws error on curry opeartion at a facotried argument.
-    // TODO: Apply interface segregation principle on rendercontext
     public override UnionRender Curry(params object?[] args)
         => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {

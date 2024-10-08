@@ -47,6 +47,7 @@ public abstract class BaseRender(
 
     /// <summary>
     /// Call the function passing real data and running the draw pipeline.
+    /// Match the argument with the lasts dependencies.
     /// </summary>
     void CallWithRealData(object[] arguments)
     {
@@ -57,8 +58,16 @@ public abstract class BaseRender(
             throw new MissingPolygonException();
         
         var extraArgs = DisplayValues(arguments[1..]);
+        var deps = Dependences!;
 
-        foreach (var (arg, dep) in extraArgs.Zip(Dependences!))
+        // Sometimes the first dependencies have autovalues
+        // so CountNeededArguments will be implemented to give
+        // the expected size of arguments array.
+        // So only the last deps need values and we need to
+        // skip all the first deps.
+        var argDepPair = extraArgs.Zip(deps[(deps.Length - extraArgs.Length)..]);
+
+        foreach (var (arg, dep) in argDepPair)
         {
             if (dep is null)
                 continue;
