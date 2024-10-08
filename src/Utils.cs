@@ -607,28 +607,28 @@ public static class Utils
     /// Shader Only.
     /// </summary>
     public static Float length(Vec2ShaderObject vec) 
-        => func<Float>("length", vec);
+        => autoVar(func<Float>("length", vec));
 
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
     public static Float length(Vec3ShaderObject vec) 
-        => func<Float>("length", vec);
+        => autoVar(func<Float>("length", vec));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
     public static Float distance(Vec2ShaderObject p0, Vec2ShaderObject p1)
-        => func<Float>("distance", p0, p1);
+        => autoVar(func<Float>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
     public static Float distance(Vec3ShaderObject p0, Vec3ShaderObject p1)
-        => func<Float>("distance", p0, p1);
+        => autoVar(func<Float>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the dot product of two vectors.

@@ -27,15 +27,6 @@ Wrapper<T> func<T>(T value)
 public class Wrapper<T>(T obj) { }
 */
 
-var slowTriangule = render((dx, dy, sp, r, g, b, factor) =>
-{
-    rotate(sp * t);
-    zoom(factor);
-    move(dx, dy);
-    color = (r, g, b, 1f);
-    fill();
-});
-
 var triangule = new UnionRender((
     FloatShaderObject dx, 
     FloatShaderObject dy, 
@@ -47,14 +38,13 @@ var triangule = new UnionRender((
     FloatShaderObject cx,
     FloatShaderObject cy) =>
 {
-    verbose = true;
     var dist = distance((dx, dy), (cx, cy));
 
     var scapeX = (dx - cx) / dist;
     var scapeY = (dy - cy) / dist;
 
-    dx += 1000 * scapeX / dist;
-    dy += 1000 * scapeY / dist;
+    dx += 10 * scapeX / dist;
+    dy += 10 * scapeY / dist;
 
     rotate(sp * t);
     zoom(factor);
@@ -64,7 +54,7 @@ var triangule = new UnionRender((
 });
 
 List<float[]> data = [];
-for (int i = 0; i < 100_000; i++)
+for (int i = 0; i < 1_000_000; i++)
 {
     data.Add([
         Random.Shared.Next(2000),
@@ -81,7 +71,6 @@ float cx = 0f, cy = 0f;
 Window.OnMouseMove += p => (cx, cy) = p;
 
 var poly = Polygons.FromData((1, 0), (0, MathF.Sqrt(3)), (-1, 0));
-dynamic mySlowRender = slowTriangule(poly);
 dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][0])
     .AddArgumentFactory(i => data[i][1])
@@ -89,10 +78,7 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][3])
     .AddArgumentFactory(i => data[i][4])
     .AddArgumentFactory(i => data[i][5])
-    .AddArgumentFactory(i => 10)
-    .AddArgumentFactory(i => cx)
-    .AddArgumentFactory(i => cy)
-    .SetBreaker(i => i < 100_000);
+    .SetBreaker(i => i < 1_000_000);
 
 Console.Clear();
 Queue<float> fspQueue = new();
@@ -108,7 +94,7 @@ Window.OnFrame += () =>
 
 Window.OnRender += () => 
 {
-    myRender(poly);
+    myRender(poly, 10, cx, cy);
 };
 
 Window.CloseOn(Input.Escape);
