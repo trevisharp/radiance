@@ -23,7 +23,7 @@ public abstract class BaseRender(
 {
     public RenderContext? Context { get; protected set; }
     protected readonly Delegate function = function;
-    protected  readonly object[] curryingArguments = curryingArguments;
+    protected readonly object[] curryingArguments = curryingArguments;
     protected ShaderDependence?[]? Dependences;
 
     /// <summary>
@@ -42,6 +42,9 @@ public abstract class BaseRender(
     /// </summary>
     protected abstract IBufferedData FillData(IBufferedData buffer);
 
+    /// <summary>
+    /// Get the number of that parameters received for the render to call the function.
+    /// </summary>
     protected virtual int CountNeededArguments()
         => function.Method.GetParameters().Length + 1;
 

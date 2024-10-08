@@ -1,6 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
+
 using Radiance.Primitives;
 using Radiance.Renders;
 using Radiance.Shaders.Objects;
@@ -29,12 +29,12 @@ public class Wrapper<T>(T obj) { }
 */
 
 var triangule = new UnionRender((
-    FloatShaderObject dx, 
-    FloatShaderObject dy, 
-    FloatShaderObject sp, 
-    FloatShaderObject r, 
-    FloatShaderObject g, 
-    FloatShaderObject b, 
+    FloatShaderObject dx,
+    FloatShaderObject dy,
+    FloatShaderObject sp,
+    FloatShaderObject r,
+    FloatShaderObject g,
+    FloatShaderObject b,
     FloatShaderObject factor,
     FloatShaderObject cx,
     FloatShaderObject cy) =>
