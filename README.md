@@ -468,7 +468,8 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
 # TODO (bufferdeps branch)
-- Implementar uso avançado de layouts.
+- throws error on curry opeartion at a facotried argument.
+- Apply interface segregation principle on rendercontext
 
 # TODO (others)
 - Renderização de texto.

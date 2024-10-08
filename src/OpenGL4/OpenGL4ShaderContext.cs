@@ -20,7 +20,7 @@ using Exceptions;
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public class OpenGL4ShaderContext : ShadeContext
+public class OpenGL4ShaderContext : ShaderContext
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];
@@ -75,7 +75,9 @@ public class OpenGL4ShaderContext : ShadeContext
     /// <summary>
     /// Get the total offset of layouts.
     /// </summary>
-    public int Offset { get; private set; } = 0;
+    public int TotalOffset { get; private set; } = 0;
+
+    readonly Queue<(int index, int size, int offset)> layoutConfigs = [];
 
     public override void SetFloat(string name, float value)
     {
@@ -112,7 +114,7 @@ public class OpenGL4ShaderContext : ShadeContext
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform4(code, x, y, z, w);
     }
-
+    
     public override void Use(IBufferedData data)
     {
         BindVerteArrayObject();
@@ -127,15 +129,15 @@ public class OpenGL4ShaderContext : ShadeContext
 
     public override void AddLayout(int size)
     {
-        BindVerteArrayObject();
-
         var stride = size * sizeof(float);
-        var type = VertexAttribPointerType.Float;
 
-        GL.VertexAttribPointer(LayoutCount, 3, type, false, stride, Offset);
-        GL.EnableVertexAttribArray(LayoutCount);
-        Offset += 3 * sizeof(float);
+        layoutConfigs.Enqueue((LayoutCount, size, TotalOffset));
+
+        TotalOffset += stride;
         LayoutCount++;
+
+        if (10 * sizeof(float) == TotalOffset)
+            ConfigCurrentLayouts();
     }
 
     public override void CreateProgram(ShaderPair pair, bool verbose = false)
@@ -150,6 +152,11 @@ public class OpenGL4ShaderContext : ShadeContext
     {
         var program = ProgramId ?? throw new UncreatedProgramException();
         GL.UseProgram(program);
+    }
+
+    public override void Configure()
+    {
+        ConfigCurrentLayouts();
     }
 
     public override void Dispose()
@@ -188,6 +195,18 @@ public class OpenGL4ShaderContext : ShadeContext
     {
         ObjectId = GL.GenVertexArray();
         objectList.Add(ObjectId ?? -1);
+    }
+
+    private void ConfigCurrentLayouts()
+    {
+        BindVerteArrayObject();
+
+        foreach (var (index, size, offset) in layoutConfigs)
+        {
+            var type = VertexAttribPointerType.Float;
+            GL.VertexAttribPointer(index, size, type, false, TotalOffset, offset);
+            GL.EnableVertexAttribArray(index);
+        }
     }
 
     private static void DeleteVerteArrayObject(int? objectId)

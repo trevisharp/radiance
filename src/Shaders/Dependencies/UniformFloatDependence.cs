@@ -17,7 +17,7 @@ public class UniformFloatDependence(string name) : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform float {name};");
 
-    public override Action AddOperation(ShadeContext ctx)
+    public override Action AddOperation(ShaderContext ctx)
         => () => ctx.SetFloat(name, value);
 
     public override void UpdateData(object value)

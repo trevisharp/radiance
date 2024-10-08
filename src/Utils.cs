@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/09/2024
+ * Date:    30/09/2024
  */
 #pragma warning disable IDE1006
 
@@ -8,12 +8,13 @@ using System.Text;
 
 namespace Radiance;
 
-using Contexts;
-using Primitives;
-using Exceptions;
+using Renders;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
+using Contexts;
+using Primitives;
+using Exceptions;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
@@ -35,7 +36,7 @@ public static class Utils
     /// A function to indicate the type of the parameter on render functions.
     /// Use when the compiler cannot identify a type of a parameter.
     /// </summary>
-    public static Sampler sampler(Sampler value) => value;
+    public static Sampler s(Sampler value) => value;
 
     #endregion
     
@@ -73,14 +74,6 @@ public static class Utils
     #endregion
 
     #region RENDER UTILS
-
-    /// <summary>
-    /// Reduce many render calls in a unique call.
-    /// </summary>
-    public static void reduce(Func<int> repeatCount, Action<Float> expression)
-    {
-        throw new NotImplementedException();
-    }
 
     /// <summary>
     /// Create render with shaders based on function recived.
@@ -122,6 +115,42 @@ public static class Utils
     /// Create render with shaders based on function recived.
     /// </summary>
     public static dynamic render(Action<Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Float, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Float, Float, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Float, Float, Float, Float, Float, Float, Float> function)
+    {
+        ArgumentNullException.ThrowIfNull(function, nameof(function));
+        return new Render(function);
+    }
+
+    /// <summary>
+    /// Create render with shaders based on function recived.
+    /// </summary>
+    public static dynamic render(Action<Float, Float, Float, Float, Float, Float, Float, Float> function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         return new Render(function);
@@ -219,14 +248,14 @@ public static class Utils
 
     #endregion
 
-    #region  BUILT-IN RENDERS
+    #region BUILT-IN RENDERS
 
     private static dynamic? moveRender;
     /// <summary>
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(dynamic x, dynamic y)
+    public static void move(Float x, Float y)
     {
         moveRender ??= render((dx, dy) => {
             var moveValue = autoVar(pos + (dx, dy, 0));
@@ -271,6 +300,26 @@ public static class Utils
         });
 
         zoomRender(x, y, factor);
+    }
+    
+    private static dynamic? originZoomRender;
+    /// <summary>
+    /// Receiving a factor, performa a zoom on polygon on point (x, y) with the factor scale.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void zoom(dynamic factor)
+    {
+        originZoomRender ??= render((factor) => {
+            var factorValue = autoVar(factor);
+
+            var nx = factorValue * pos.x;
+            var ny = factorValue * pos.y;
+            var zoomValue = autoVar((nx, ny, pos.z));
+            
+            pos = zoomValue;
+        });
+
+        originZoomRender(factor);
     }
     
     private static dynamic? rotateRender;
@@ -396,10 +445,13 @@ public static class Utils
         {
             var ctx = RenderContext.GetContext()
                 ?? throw new ShaderOnlyResourceException();
-            var variable = new VariableDependence(value);
+
+            var fragmentAccess = ShaderObject.MergeOrigin(value, ShaderOrigin.FragmentShader);
+            var variable = new VariableDependence(fragmentAccess);
+
             ctx.Color = new Vec4ShaderObject(
                 variable.Name, ShaderOrigin.FragmentShader,
-                [..value.Dependencies, variable]
+                [ ..fragmentAccess.Dependencies, variable ]
             );
         }
     }
@@ -555,28 +607,28 @@ public static class Utils
     /// Shader Only.
     /// </summary>
     public static Float length(Vec2ShaderObject vec) 
-        => func<Float>("length", vec);
+        => autoVar(func<Float>("length", vec));
 
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
     public static Float length(Vec3ShaderObject vec) 
-        => func<Float>("length", vec);
+        => autoVar(func<Float>("length", vec));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
     public static Float distance(Vec2ShaderObject p0, Vec2ShaderObject p1)
-        => func<Float>("distance", p0, p1);
+        => autoVar(func<Float>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
     public static Float distance(Vec3ShaderObject p0, Vec3ShaderObject p1)
-        => func<Float>("distance", p0, p1);
+        => autoVar(func<Float>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the dot product of two vectors.

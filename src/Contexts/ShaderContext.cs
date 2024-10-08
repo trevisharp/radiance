@@ -13,7 +13,7 @@ using Primitives;
 /// <summary>
 /// Represents the data and state of a shader program.
 /// </summary>
-public abstract class ShadeContext : IDisposable
+public abstract class ShaderContext : IDisposable
 {
     /// <summary>
     /// Set a uniform with a name to a specific value.
@@ -54,6 +54,12 @@ public abstract class ShadeContext : IDisposable
     /// Draw Arrays in the selected buffer.
     /// </summary>
     public abstract void Draw(PrimitiveType primitiveType, IBufferedData data);
+
+    /// <summary>
+    /// An optinional configuration method that will called once Between Use and UseProgram.
+    /// And after other configurations based on shader dependeces.
+    /// </summary>
+    public virtual void Configure() {}
     
     /// <summary>
     /// Create and associeate the context to a program.

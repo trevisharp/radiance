@@ -13,7 +13,7 @@ public class Polygon(float[] data) : IBufferedData
     /// <summary>
     /// Get the triangulation of this polygon.
     /// </summary>
-    public Polygon Triangulation
+    public IBufferedData Triangulation
     {
         get
         {
@@ -23,7 +23,7 @@ public class Polygon(float[] data) : IBufferedData
             var triangules = Operations
                 .PlanarPolygonTriangulation([ ..Data ]);
             
-            Polygon polygon = new Polygon(triangules);
+            var polygon = new Polygon(triangules);
             
             polygon.triangulationPair = polygon;
             triangulationPair = polygon;
