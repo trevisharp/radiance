@@ -470,6 +470,7 @@ Window.Open();
 # TODO
 - throws error on curry opeartion at a facotried argument.
 - Improve renders abstractions.
+- Improve render customization.
 - Allow more factories on Union Render.
 - Allow multi-polygon on Union Render.
 - Text Renders.
@@ -477,3 +478,4 @@ Window.Open();
 - Add non-monotone polygons triangularization.
 - Create the Graphics class for call simple draw operations.
 - Make z-index between 0 to 1000 to make layer-based organization more simple.
+- Allow basic transformations like z-index adjustment customizations.
