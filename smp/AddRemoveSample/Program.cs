@@ -72,15 +72,6 @@ dynamic myRender = triangule
     .AddArgumentFactory(i => data[i][5])
     .SetBreaker(i => i < 1_000_000);
 
-var multRender = poly
-    .Select(i => new { i = poly, count = 100 })
-    .Select(x => x.i);
-
-var multRender2 = 
-    from i in poly
-    let count = 100
-    select i;
-
 Window.OnRender += () => 
 {
     myRender(poly, 10, cursor);

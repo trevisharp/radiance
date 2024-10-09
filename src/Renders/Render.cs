@@ -24,7 +24,7 @@ public class Render(
     /// Make this render a union render that can draw many
     /// polygons in only once call.
     /// </summary>
-    public UnionRender ToUnion()
+    public MultiRender ToUnion()
         => new(function, curryingArguments);
 
     /// <summary>

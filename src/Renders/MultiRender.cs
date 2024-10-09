@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/10/2024
+ * Date:    09/10/2024
  */
 using System;
 using System.Linq;
@@ -18,7 +18,7 @@ using Exceptions;
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
 /// </summary>
-public class UnionRender(
+public class MultiRender(
     Delegate function,
     params object[] curryingParams
     ) : BaseRender(function, curryingParams)
@@ -32,7 +32,7 @@ public class UnionRender(
     /// <summary>
     /// Add a calling pinned argument.
     /// </summary>
-    public UnionRender AddArgument(float value)
+    public MultiRender AddArgument(float value)
     {
         dataChanges = true;
         callings.Add(value);
@@ -42,7 +42,7 @@ public class UnionRender(
     /// <summary>
     /// Add a calling pinned argument.
     /// </summary>
-    public UnionRender AddArgument(int value)
+    public MultiRender AddArgument(int value)
     {
         dataChanges = true;
         callings.Add(value);
@@ -52,7 +52,7 @@ public class UnionRender(
     /// <summary>
     /// Add a calling pinned argument.
     /// </summary>
-    public UnionRender AddArgument(double value)
+    public MultiRender AddArgument(double value)
     {
         dataChanges = true;
         callings.Add(value);
@@ -62,7 +62,7 @@ public class UnionRender(
     /// <summary>
     /// Add a calling pinned argument.
     /// </summary>
-    public UnionRender AddArgument(Texture value)
+    public MultiRender AddArgument(Texture value)
     {
         dataChanges = true;
         callings.Add(value);
@@ -71,7 +71,7 @@ public class UnionRender(
     
     /// <summary>
     /// Add a function to compute the value for any calling based on index.
-    public UnionRender AddArgumentFactory(Func<int, float> factory)
+    public MultiRender AddArgumentFactory(Func<int, float> factory)
     {
         dataChanges = true;
         callings.Add(factory);
@@ -81,14 +81,14 @@ public class UnionRender(
     /// <summary>
     /// Set the function that decides when the render need stop.
     /// </summary>
-    public UnionRender SetBreaker(Func<int, bool> breaker)
+    public MultiRender SetBreaker(Func<int, bool> breaker)
     {
         dataChanges = true;
         this.breaker = breaker;
         return this;
     }
 
-    public override UnionRender Curry(params object?[] args)
+    public override MultiRender Curry(params object?[] args)
         => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {
             Context = Context,

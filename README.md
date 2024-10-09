@@ -467,13 +467,13 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
-# TODO (bufferdeps branch)
-- throws error on curry opeartion at a facotried argument.
-- Apply interface segregation principle on rendercontext
-
 # TODO (others)
-- Renderização de texto.
-- Melhorar ShaderObjects e seus recursos.
-- Triangularização de poligonos não monotonos.
-- Criar uma classe Graphics com os Renders mais básicos.
-- Arrumar eixo Z para facilitar trabalho em camadas.
+- throws error on curry opeartion at a facotried argument.
+- Apply interface segregation principle on rendercontext.
+- Allow more factories on Union Render.
+- Allow multi-polygon on Union Render.
+- Text Renders.
+- Improve ShaderObjects Resources.
+- Add non-monotone polygons triangularization.
+- Create the Graphics class for call simple draw operations.
+- Make z-index between 0 to 1000 to make layer-based organization more simple.
