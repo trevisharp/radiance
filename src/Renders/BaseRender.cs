@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/10/2024
+ * Date:    09/10/2024
  */
 using System;
 using System.Linq;
@@ -17,7 +17,7 @@ using Contexts;
 using Primitives;
 using Exceptions;
 
-public abstract class BaseRender(
+public abstract class Render(
     Delegate function, params object[] curryingArguments
     ) : DynamicObject
 {
@@ -29,7 +29,7 @@ public abstract class BaseRender(
     /// <summary>
     /// Currying parameters to create a new render.
     /// </summary>
-    public abstract BaseRender Curry(params object?[] args);
+    public abstract Render Curry(params object?[] args);
 
     /// <summary>
     /// Generate a Shader object with dependencies based on ParameterInfo. Recive the parameterInfo,

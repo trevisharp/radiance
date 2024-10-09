@@ -21,7 +21,7 @@ using Exceptions;
 public class MultiRender(
     Delegate function,
     params object[] curryingParams
-    ) : BaseRender(function, curryingParams)
+    ) : Render(function, curryingParams)
 {
     List<object> callings = [ ];
     readonly SimpleBuffer buffer = new();

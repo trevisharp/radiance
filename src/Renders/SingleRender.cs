@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/10/2024
+ * Date:    09/10/2024
  */
 using System;
 using System.Reflection;
@@ -15,22 +15,15 @@ using Exceptions;
 /// <summary>
 /// Represents a function that can used by GPU to draw in the screen.
 /// </summary>
-public class Render(
+public class SingleRender(
     Delegate function,
     params object[] curryingArguments
-    ) : BaseRender(function, curryingArguments)
+    ) : Render(function, curryingArguments)
 {
-    /// <summary>
-    /// Make this render a union render that can draw many
-    /// polygons in only once call.
-    /// </summary>
-    public MultiRender ToUnion()
-        => new(function, curryingArguments);
-
     /// <summary>
     /// Currying parameters to create a new render.
     /// </summary>
-    public override Render Curry(params object?[] args)
+    public override SingleRender Curry(params object?[] args)
         => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {
             Context = Context,
