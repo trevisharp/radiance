@@ -469,6 +469,7 @@ Window.Open();
 
 # TODO (others)
 - throws error on curry opeartion at a facotried argument.
+- Improve renders abstractions
 - Apply interface segregation principle on rendercontext.
 - Allow more factories on Union Render.
 - Allow multi-polygon on Union Render.

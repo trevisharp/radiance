@@ -23,7 +23,7 @@ public class MultiRender(
     params object[] curryingParams
     ) : Render(function, curryingParams)
 {
-    List<object> callings = [ ];
+    List<object> factories = [ ];
     readonly SimpleBuffer buffer = new();
     IBufferedData? lastBuffer = null;
     Func<int, bool> breaker = i => i < 1;
@@ -35,7 +35,7 @@ public class MultiRender(
     public MultiRender AddArgument(float value)
     {
         dataChanges = true;
-        callings.Add(value);
+        factories.Add(value);
         return this;
     }
 
@@ -45,7 +45,7 @@ public class MultiRender(
     public MultiRender AddArgument(int value)
     {
         dataChanges = true;
-        callings.Add(value);
+        factories.Add(value);
         return this;
     }
         
@@ -55,7 +55,7 @@ public class MultiRender(
     public MultiRender AddArgument(double value)
     {
         dataChanges = true;
-        callings.Add(value);
+        factories.Add(value);
         return this;
     }
         
@@ -65,7 +65,7 @@ public class MultiRender(
     public MultiRender AddArgument(Texture value)
     {
         dataChanges = true;
-        callings.Add(value);
+        factories.Add(value);
         return this;
     }
     
@@ -74,7 +74,7 @@ public class MultiRender(
     public MultiRender AddArgumentFactory(Func<int, float> factory)
     {
         dataChanges = true;
-        callings.Add(factory);
+        factories.Add(factory);
         return this;
     }
     
@@ -93,7 +93,7 @@ public class MultiRender(
         {
             Context = Context,
             Dependences = Dependences,
-            callings = callings,
+            factories = factories,
             breaker = breaker
         };
 
@@ -119,7 +119,7 @@ public class MultiRender(
     {
         buffer.Clear();
 
-        Func<int, float>[] computations = callings
+        Func<int, float>[] computations = factories
             .Where(c => c is Func<int, float> f)
             .Select(c => (Func<int, float>)c)
             .ToArray();
@@ -152,7 +152,7 @@ public class MultiRender(
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var hasFactory = index < callings.Count && callings[index] is Func<int, float>;
+        var hasFactory = index < factories.Count && factories[index] is Func<int, float>;
         var isConstant = index < curriedValues.Length;
 
         return (isFloat, isTexture, isConstant, hasFactory) switch
@@ -185,5 +185,5 @@ public class MultiRender(
     }
 
     protected override int CountNeededArguments()
-        => base.CountNeededArguments() - callings.Count;
+        => base.CountNeededArguments() - factories.Count;
 }
