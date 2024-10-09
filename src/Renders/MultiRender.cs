@@ -105,7 +105,7 @@ public class MultiRender(
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var hasFactory = index < factories.Count && factories[index] is Func<int, float>;
+        var hasFactory = index < factories.Count && factories[index] is RenderParameterFactory;
         var isConstant = index < curriedValues.Length;
 
         return (isFloat, isTexture, isConstant, hasFactory) switch
