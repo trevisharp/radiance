@@ -16,7 +16,7 @@ public abstract class RenderParameterFactory
     /// <summary>
     /// Fill data in args with the generated data by the factory.
     /// </summary>
-    public abstract void GenerateData(RenderParameterFactoryArgs args);
+    public abstract void GenerateData(int i, float[] buffer, int offset);
 
     /// <summary>
     /// Get if new data genrated by the factory is the same that last generation.

@@ -6,6 +6,8 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders.Factories;
 
+using Exceptions;
+
 /// <summary>
 /// A chain of handlers to create factories
 /// </summary>
@@ -41,7 +43,7 @@ public class RenderParameterFactoryChain : IEnumerable<RenderParameterFactoryCha
             it = it.Next;
         }
 
-        throw new System.Exception();
+        throw new InvalidFactoryDataException();
     }
 
     public IEnumerator<RenderParameterFactoryChainLink> GetEnumerator()

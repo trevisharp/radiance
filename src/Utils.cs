@@ -9,6 +9,7 @@ using System.Text;
 namespace Radiance;
 
 using Renders;
+using Renders.Factories;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
@@ -355,6 +356,16 @@ public static class Utils
         ArgumentNullException.ThrowIfNull(function, nameof(function));
         return new MultiRender(function);
     }
+
+    #endregion
+
+    #region RENDER PARAMETER FACTORIES UTILS
+
+    public static RenderParameterFactory forVertex(Func<int, float> factoryFunc)
+        => new SimpleFloatRenderParameterFactory(factoryFunc);
+    
+    public static RenderParameterFactory forPolygon(Func<int, float> factoryFunc)
+        => new PolygonFloatRenderParameterFactory(factoryFunc);
 
     #endregion
 

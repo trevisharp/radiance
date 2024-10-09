@@ -64,18 +64,19 @@ Window.OnFrame += () => Console.WriteLine(Window.Fps);
 
 var hei = MathF.Sqrt(3) / 2;
 var poly = Polygons.FromData((1, -hei), (0, hei), (-1, -hei));
-dynamic myRender = triangule
-    .AddArgumentFactory(i => data[i][0])
-    .AddArgumentFactory(i => data[i][1])
-    .AddArgumentFactory(i => data[i][2])
-    .AddArgumentFactory(i => data[i][3])
-    .AddArgumentFactory(i => data[i][4])
-    .AddArgumentFactory(i => data[i][5])
-    .SetBreaker(i => i < 1_000_000);
+dynamic myRender = triangule.SetBreaker(i => i < 1_000_000);
+myRender = myRender.Curry(poly,
+    forVertex(i => data[i][0]),
+    forVertex(i => data[i][1]),
+    forVertex(i => data[i][2]),
+    forVertex(i => data[i][3]),
+    forVertex(i => data[i][4]),
+    forVertex(i => data[i][5])
+);
 
 Window.OnRender += () => 
 {
-    myRender(poly, 10, cursor);
+    myRender(10, cursor);
 };
 
 Window.CloseOn(Input.Escape);

@@ -8,11 +8,12 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
+using Factories;
+
 using Buffers;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
-using Primitives;
 using Exceptions;
 
 /// <summary>
@@ -30,55 +31,6 @@ public class MultiRender(
     bool dataChanges = true;
     
     /// <summary>
-    /// Add a calling pinned argument.
-    /// </summary>
-    public MultiRender AddArgument(float value)
-    {
-        dataChanges = true;
-        factories.Add(value);
-        return this;
-    }
-
-    /// <summary>
-    /// Add a calling pinned argument.
-    /// </summary>
-    public MultiRender AddArgument(int value)
-    {
-        dataChanges = true;
-        factories.Add(value);
-        return this;
-    }
-        
-    /// <summary>
-    /// Add a calling pinned argument.
-    /// </summary>
-    public MultiRender AddArgument(double value)
-    {
-        dataChanges = true;
-        factories.Add(value);
-        return this;
-    }
-        
-    /// <summary>
-    /// Add a calling pinned argument.
-    /// </summary>
-    public MultiRender AddArgument(Texture value)
-    {
-        dataChanges = true;
-        factories.Add(value);
-        return this;
-    }
-    
-    /// <summary>
-    /// Add a function to compute the value for any calling based on index.
-    public MultiRender AddArgumentFactory(Func<int, float> factory)
-    {
-        dataChanges = true;
-        factories.Add(factory);
-        return this;
-    }
-    
-    /// <summary>
     /// Set the function that decides when the render need stop.
     /// </summary>
     public MultiRender SetBreaker(Func<int, bool> breaker)
@@ -89,14 +41,15 @@ public class MultiRender(
     }
 
     public override MultiRender Curry(params object?[] args)
-        => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
+    {
+        return new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {
             Context = Context,
             Dependences = Dependences,
-            factories = factories,
+            factories = [ ..factories, ..args.Where(arg => arg is RenderParameterFactory) ],
             breaker = breaker
         };
-
+    }
     protected override IBufferedData FillData(IBufferedData buffer)
     {
         if (lastBuffer != buffer)
@@ -185,5 +138,5 @@ public class MultiRender(
     }
 
     protected override int CountNeededArguments()
-        => base.CountNeededArguments() - factories.Count;
+        => base.CountNeededArguments();
 }

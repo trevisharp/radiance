@@ -16,6 +16,7 @@ using Shaders.Objects;
 using Contexts;
 using Primitives;
 using Exceptions;
+using Factories;
 
 public abstract class Render(
     Delegate function, params object[] curryingArguments
@@ -68,7 +69,7 @@ public abstract class Render(
         // the expected size of arguments array.
         // So only the last deps need values and we need to
         // skip all the first deps.
-        var argDepPair = extraArgs.Zip(deps[(deps.Length - extraArgs.Length)..]);
+        var argDepPair = extraArgs.Zip(deps);
 
         foreach (var (arg, dep) in argDepPair)
         {
@@ -232,6 +233,7 @@ public abstract class Render(
                 int num => add((float)num),
                 double num => add((float)num),
                 float[] sub => add([..sub]),
+                RenderParameterFactory fac => add(fac),
                 _ => throw new InvalidPrimitiveException(arg)
             };
         }
