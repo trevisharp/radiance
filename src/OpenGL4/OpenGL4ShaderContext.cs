@@ -114,18 +114,6 @@ public class OpenGL4ShaderContext : ShaderContext
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform4(code, x, y, z, w);
     }
-    
-    public override void Use(IBufferedData data)
-    {
-        BindVerteArrayObject();
-        BufferManager.Use(data);
-    }
-
-    public override void Draw(PrimitiveType primitiveType, IBufferedData data)
-    {
-        var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
-        GL.DrawArrays(openTKType, 0, data.Vertices);
-    }
 
     public override void AddLayout(int size)
     {
@@ -147,6 +135,18 @@ public class OpenGL4ShaderContext : ShaderContext
         var fragmentShader = CreateFragmentShader(pair.FragmentShader, verbose, ref tabIndex);
         ProgramId = CreateProgram(vertexShader, fragmentShader, verbose, ref tabIndex);
     }
+    
+    public override void Use(IBufferedData data)
+    {
+        BindVerteArrayObject();
+        BufferManager.Use(data);
+    }
+
+    public override void Draw(PrimitiveType primitiveType, IBufferedData data)
+    {
+        var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
+        GL.DrawArrays(openTKType, 0, data.Vertices);
+    }
 
     public override void UseProgram()
     {
@@ -155,9 +155,7 @@ public class OpenGL4ShaderContext : ShaderContext
     }
 
     public override void Configure()
-    {
-        ConfigCurrentLayouts();
-    }
+        => ConfigCurrentLayouts();
 
     public override void Dispose()
     {

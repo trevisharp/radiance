@@ -17,6 +17,6 @@ public class TimeDependence : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine("uniform float t;");
 
-    public override Action AddOperation(ShaderContext ctx)
+    public override Action AddOperation(IShaderConfiguration ctx)
         => () => ctx.SetFloat("t", Clock.Shared.Time);
 }

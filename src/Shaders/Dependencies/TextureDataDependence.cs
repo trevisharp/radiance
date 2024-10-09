@@ -20,7 +20,7 @@ public class TextureDataDependence(TextureDependence value) : ShaderDependence
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform vec2 {name};");
 
-    public override Action AddOperation(ShaderContext ctx)
+    public override Action AddOperation(IShaderConfiguration ctx)
         => () => ctx.SetVec(name, 
             value.Texture?.Width ?? 0,
             value.Texture?.Height?? 0

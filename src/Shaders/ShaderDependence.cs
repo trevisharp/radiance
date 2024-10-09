@@ -67,23 +67,23 @@ public abstract class ShaderDependence
     /// <summary>
     /// Add a configuration applied only once on shader definition.
     /// </summary>
-    public virtual Action AddConfiguration(ShaderContext ctx) => null!;
+    public virtual Action AddConfiguration(IShaderConfiguration ctx) => null!;
 
     /// <summary>
     /// Add operation to be executed to load dependence data in the current
     /// shader of the dependence.
     /// </summary>
-    public virtual Action AddOperation(ShaderContext ctx) => null!;
+    public virtual Action AddOperation(IShaderConfiguration ctx) => null!;
     
     /// <summary>
     /// Add operation to be executed to load dependence data vertex shader.
     /// </summary>
-    public virtual Action AddVertexOperation(ShaderContext ctx) => null!;
+    public virtual Action AddVertexOperation(IShaderConfiguration ctx) => null!;
     
     /// <summary>
     /// Add operation to be executed to load dependence data fragment shader.
     /// </summary>
-    public virtual Action AddFragmentOperation(ShaderContext ctx) => null!;
+    public virtual Action AddFragmentOperation(IShaderConfiguration ctx) => null!;
 
     /// <summary>
     /// Add code in the final of current shader of this dependence.

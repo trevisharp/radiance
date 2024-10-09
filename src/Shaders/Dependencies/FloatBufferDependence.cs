@@ -18,7 +18,7 @@ public class FloatBufferDependence(string name, int location) : ShaderDependence
     public override void AddVertexHeader(StringBuilder sb)
         => sb.AppendLine($"layout (location = {Location}) in float {Name};");
 
-    public override Action AddConfiguration(ShaderContext ctx)
+    public override Action AddConfiguration(IShaderConfiguration ctx)
         => () => ctx.AddLayout(1);
 
     public override int GetOrderFactor()

@@ -16,7 +16,7 @@ public class BufferDependence : ShaderDependence
     public override void AddVertexHeader(StringBuilder sb)
         => sb.AppendLine($"layout (location = 0) in vec3 pos;");
 
-    public override Action AddConfiguration(ShaderContext ctx)
+    public override Action AddConfiguration(IShaderConfiguration ctx)
         => () => ctx.AddLayout(3);
 
     public override int GetOrderFactor()

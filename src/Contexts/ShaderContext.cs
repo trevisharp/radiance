@@ -1,80 +1,29 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/09/2024
+ * Date:    09/10/2024
  */
 using System;
 using static System.Console;
 
 namespace Radiance.Contexts;
 
-using Shaders;
 using Buffers;
-using Primitives;
+using Radiance.Primitives;
+using Shaders;
 
-/// <summary>
-/// Represents the data and state of a shader program.
-/// </summary>
-public abstract class ShaderContext : IDisposable
+public abstract class ShaderContext : IShaderInvoker, IShaderConfiguration
 {
-    /// <summary>
-    /// Set a uniform with a name to a specific value.
-    /// </summary>
     public abstract void SetFloat(string name, float value);
-    
-    /// <summary>
-    /// Set a uniform with a name to a specific value.
-    /// </summary>
     public abstract void SetVec(string name, float x, float y);
-    
-    /// <summary>
-    /// Set a uniform with a name to a specific value.
-    /// </summary>
     public abstract void SetVec(string name, float x, float y, float z);
-    
-    /// <summary>
-    /// Set a uniform with a name to a specific value.
-    /// </summary>
     public abstract void SetVec(string name, float x, float y, float z, float w);
-
-    /// <summary>
-    /// Set a image uniform with a name to a specific value.
-    /// </summary>
     public abstract void SetTextureData(string name, Texture texture);
-
-    /// <summary>
-    /// Add float values on layout of data buffers.
-    /// </summary>
     public abstract void AddLayout(int size);
-
-    /// <summary>
-    /// Start to use a Data.
-    /// </summary>
-    public abstract void Use(IBufferedData data);
-
-    /// <summary>
-    /// Draw Arrays in the selected buffer.
-    /// </summary>
-    public abstract void Draw(PrimitiveType primitiveType, IBufferedData data);
-
-    /// <summary>
-    /// An optinional configuration method that will called once Between Use and UseProgram.
-    /// And after other configurations based on shader dependeces.
-    /// </summary>
-    public virtual void Configure() {}
-    
-    /// <summary>
-    /// Create and associeate the context to a program.
-    /// </summary>
-    public abstract void CreateProgram(ShaderPair pair, bool verbose = false);
-
-    /// <summary>
-    /// Use the associated specific Program.
-    /// </summary>
-    public abstract void UseProgram();
-
-    /// <summary>
-    /// Releasing all resources associateds to this shader.
-    /// </summary>
     public abstract void Dispose();
+    public abstract void CreateProgram(ShaderPair pair, bool verbose = false);
+    public abstract void Draw(PrimitiveType primitiveType, IBufferedData data);
+    public abstract void Use(IBufferedData data);
+    public abstract void UseProgram();
+    public virtual void Configure() {}
 
     /// <summary>
     /// Show a Error message if verbose is true.
