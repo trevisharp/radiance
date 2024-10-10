@@ -6,12 +6,12 @@ using Radiance.Primitives;
 MultiRender triangule = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
 {
     var dist = distance((dx, dy), (cx, cy));
-
     var scapeX = (dx - cx) / dist;
     var scapeY = (dy - cy) / dist;
 
-    dx += 400 * scapeX / sqrt(dist);
-    dy += 400 * scapeY / sqrt(dist);
+    var len = 350 + 50 * sin(2 * t);
+    dx += len * scapeX / sqrt(dist);
+    dy += len * scapeY / sqrt(dist);
 
     rotate(sp * t);
     zoom(factor);
@@ -20,21 +20,20 @@ MultiRender triangule = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
     fill();
 });
 
-Vec2 cursor = (0, 0);
-Window.OnMouseMove += p => cursor = p;
-
 dynamic myRender = triangule.SetBreaker(i => i < 1_000_000);
-myRender = myRender.Curry(Polygons.Triangule,
+myRender = myRender(
+    /* 1_000_000 * */ Polygons.Triangule,
     forVertex(i => Random.Shared.Next(2000)),
     forVertex(i => Random.Shared.Next(1200)),
     forVertex(i => Random.Shared.NextSingle()),
-    forVertex(i => Random.Shared.NextSingle() / 2),
-    forVertex(i => Random.Shared.NextSingle() / 2),
-    forVertex(i => Random.Shared.NextSingle() + .6f + .4f)
+    forVertex(i => Random.Shared.NextSingle()),
+    forVertex(i => Random.Shared.NextSingle()),
+    forVertex(i => Random.Shared.NextSingle())
 );
 
+Vec2 cursor = (0, 0);
+Window.OnMouseMove += p => cursor = p;
 Window.OnRender += () => myRender(10, cursor);
-
 Window.CloseOn(Input.Escape);
 Window.Open();
 
