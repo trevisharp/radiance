@@ -1,42 +1,17 @@
 ﻿using System;
-using System.Collections.Generic;
 
-using Radiance.Primitives;
 using Radiance.Renders;
-
-/*
-var renders = new RenderCollection(myRenderWith2Params);
-
-var superRender = 
-    from i in renders
-    let x = 4f * t
-    let y = dataList[i]
-    where i < 8
-    select (x, y); // Cria um render 
-
-Window.OnRender += () => superRender(myPoly);
-
-var query2 =
-    coll.Select(r => new { r, x = r.ToString()}) // Criar um objeto Wrapper<T> com conversão implicita:
-    
-var x = func(new { value = 3 });
-
-Wrapper<T> func<T>(T value)
-    => new Wrapper<T>(value);
-
-public class Wrapper<T>(T obj) { }
-*/
+using Radiance.Primitives;
 
 MultiRender triangule = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
 {
-    verbose = true;
     var dist = distance((dx, dy), (cx, cy));
 
     var scapeX = (dx - cx) / dist;
     var scapeY = (dy - cy) / dist;
 
-    dx += 100 * scapeX / sqrt(dist);
-    dy += 100 * scapeY / sqrt(dist);
+    dx += 400 * scapeX / sqrt(dist);
+    dy += 400 * scapeY / sqrt(dist);
 
     rotate(sp * t);
     zoom(factor);
@@ -45,38 +20,20 @@ MultiRender triangule = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
     fill();
 });
 
-List<float[]> data = [];
-for (int i = 0; i < 1_000_000; i++)
-{
-    data.Add([
-        Random.Shared.Next(2000),
-        Random.Shared.Next(1200),
-        Random.Shared.NextSingle(),
-        Random.Shared.NextSingle() / 2,
-        Random.Shared.NextSingle() / 2,
-        Random.Shared.NextSingle() + .6f + .4f
-    ]);
-}
-
 Vec2 cursor = (0, 0);
 Window.OnMouseMove += p => cursor = p;
 
-var hei = MathF.Sqrt(3) / 2;
-var poly = Polygons.FromData((1, -hei), (0, hei), (-1, -hei));
 dynamic myRender = triangule.SetBreaker(i => i < 1_000_000);
-myRender = myRender.Curry(poly,
-    forVertex(i => data[i][0]),
-    forVertex(i => data[i][1]),
-    forVertex(i => data[i][2]),
-    forVertex(i => data[i][3]),
-    forVertex(i => data[i][4]),
-    forVertex(i => data[i][5])
+myRender = myRender.Curry(Polygons.Triangule,
+    forVertex(i => Random.Shared.Next(2000)),
+    forVertex(i => Random.Shared.Next(1200)),
+    forVertex(i => Random.Shared.NextSingle()),
+    forVertex(i => Random.Shared.NextSingle() / 2),
+    forVertex(i => Random.Shared.NextSingle() / 2),
+    forVertex(i => Random.Shared.NextSingle() + .6f + .4f)
 );
 
-Window.OnRender += () => 
-{
-    myRender(10, cursor);
-};
+Window.OnRender += () => myRender(10, cursor);
 
 Window.CloseOn(Input.Escape);
 Window.Open();

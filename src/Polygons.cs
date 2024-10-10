@@ -15,8 +15,6 @@ using Exceptions;
 /// </summary>
 public static class Polygons
 {
-    
-
     /// <summary>
     /// Get a circle with radius 1 centralizated in (0, 0, 0)
     /// with 128 sides.
@@ -27,6 +25,28 @@ public static class Polygons
     /// Get a square with side 1 centralizated in (0, 0, 0).
     /// </summary>
     public static readonly Polygon Square = Rect(1, 1);
+    
+    static Polygon? triangule = null;
+    /// <summary>
+    /// Get a triangule with side 1 centralizated in (0, 0, 0).
+    /// </summary>
+    public static Polygon Triangule
+    {
+        get
+        {
+            if (triangule is not null)
+                return triangule;
+            
+            float height = MathF.Sqrt(5) / 2;
+            triangule = FromData([
+                (0.5f, -height / 2),
+                (0f, height / 2),
+                (-0.5f, -height / 2),
+            ]);
+
+            return triangule;
+        }
+    }
 
     /// <summary>
     /// Create a rectangle with specific width and height

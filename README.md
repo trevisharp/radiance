@@ -154,6 +154,7 @@ Coming soon...
 - Allow more factories on Union Render.
 - Allow multi-polygon on Union Render.
 - Consider move factories to buffers and improve buffer abstractions and use.
+- Implements Utils.forPolygon 
 
 # TODO 3.1
 - Text Renders.
