@@ -72,9 +72,9 @@ public class MultiRender(
     {
         buffer.Clear();
 
-        Func<int, float>[] computations = factories
-            .Where(c => c is Func<int, float> f)
-            .Select(c => (Func<int, float>)c)
+        RenderParameterFactory[] computations = factories
+            .Where(c => c is RenderParameterFactory)
+            .Select(c => (RenderParameterFactory)c)
             .ToArray();
         float[] computationResult = new float[computations.Length];
 
@@ -82,7 +82,7 @@ public class MultiRender(
         for (i = 0; breaker(i); i++)
         {
             for (int j = 0; j < computationResult.Length; j++)
-                computationResult[j] = computations[j](i);
+                computations[j].GenerateData(i, computationResult, j);
             
             for (int k = 0; k < basicVertexes.Length; k += 3)
             {
