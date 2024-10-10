@@ -77,7 +77,7 @@ public class RenderContext
     /// <summary>
     /// Get or set the actions in this render context.
     /// </summary>
-    public Action<IBufferedData, object[]>? RenderActions { get; set; }
+    public Action<IBufferedData>? RenderActions { get; set; }
 
     /// <summary>
     /// Get or set the shader object representing the position transformation.
@@ -92,12 +92,12 @@ public class RenderContext
     /// <summary>
     /// Call render pipeline for this render context.
     /// </summary>
-    public void Render(IBufferedData polygon, object[] arguments)
+    public void Render(IBufferedData polygon)
     {
         if (RenderActions is null)
             return;
         
-        RenderActions(polygon, arguments);
+        RenderActions(polygon);
     }
 
     /// <summary>
@@ -184,7 +184,7 @@ public class RenderContext
                 pair.FragmentShader.Setup();
         }
 
-        RenderActions += (poly, data) =>
+        RenderActions += (poly) =>
         {
             if (needTriangularization)
                 poly = poly.Triangulation;

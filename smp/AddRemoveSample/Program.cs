@@ -29,6 +29,7 @@ public class Wrapper<T>(T obj) { }
 
 MultiRender triangule = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
 {
+    verbose = true;
     var dist = distance((dx, dy), (cx, cy));
 
     var scapeX = (dx - cx) / dist;
@@ -59,8 +60,6 @@ for (int i = 0; i < 1_000_000; i++)
 
 Vec2 cursor = (0, 0);
 Window.OnMouseMove += p => cursor = p;
-
-Window.OnFrame += () => Console.WriteLine(Window.Fps);
 
 var hei = MathF.Sqrt(3) / 2;
 var poly = Polygons.FromData((1, -hei), (0, hei), (-1, -hei));

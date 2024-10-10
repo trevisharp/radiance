@@ -62,16 +62,8 @@ public abstract class Render(
             throw new MissingPolygonException();
         
         var extraArgs = DisplayValues(arguments[1..]);
-        var deps = Dependences!;
 
-        // Sometimes the first dependencies have autovalues
-        // so CountNeededArguments will be implemented to give
-        // the expected size of arguments array.
-        // So only the last deps need values and we need to
-        // skip all the first deps.
-        var argDepPair = extraArgs.Zip(deps);
-
-        foreach (var (arg, dep) in argDepPair)
+        foreach (var (arg, dep) in extraArgs.Zip(Dependences!))
         {
             if (dep is null)
                 continue;
@@ -81,7 +73,7 @@ public abstract class Render(
         
         poly = FillData(poly);
 
-        Context?.Render(poly, extraArgs);
+        Context?.Render(poly);
     }
     
     /// <summary>

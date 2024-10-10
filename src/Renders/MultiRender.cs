@@ -105,12 +105,12 @@ public class MultiRender(
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var hasFactory = index < factories.Count && factories[index] is RenderParameterFactory;
         var isConstant = index < curriedValues.Length;
-
-        return (isFloat, isTexture, isConstant, hasFactory) switch
+        var isFactory = isConstant && curriedValues[index] is RenderParameterFactory;
+        
+        return (isFloat, isTexture, isConstant, isFactory) switch
         {
-            (true, false, false, true) => new FloatShaderObject(
+            (true, false, true, true) => new FloatShaderObject(
                 name, ShaderOrigin.VertexShader, [ new FloatBufferDependence(name, layoutLocations++) ]
             ),
 
@@ -123,20 +123,15 @@ public class MultiRender(
                 name, ShaderOrigin.Global, [ new UniformFloatDependence(name) ]
             ),
 
-            (true, false, true, true) => throw new Exception("A parameter with a factory cannot be curryied."),
-
             (false, true, _, false) => new Sampler2DShaderObject(
                 name, ShaderOrigin.FragmentShader, [ new TextureDependence(name) ]
             ),
 
             (false, true, _, true) => throw new NotImplementedException(
-                "Radiance not work with texture buffer yet. Use currying and use only once texture on a multi call"
+                "Radiance not work with texture buffer yet. You cannot use a factory to draw many textures."
             ),
 
             _ => throw new InvalidRenderException(parameter)
         };
     }
-
-    protected override int CountNeededArguments()
-        => base.CountNeededArguments();
 }

@@ -9,6 +9,6 @@ public class InvalidRenderException(ParameterInfo parameter) : RadianceException
 {
     public override string ErrorMessage =>
         $"""
-        The parameter {parameter.Name} has a invalid type {parameter.ParameterType} or cannot be curryied.
+        The parameter {parameter.Name} with type {parameter.ParameterType} recive a invalid value or cannot be curryied.
         """;
 }

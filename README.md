@@ -29,10 +29,9 @@ Coming soon...
 
 ### Radiance v3.0.0
  - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
- - ![](https://img.shields.io/badge/new-green) New default shaders on RenderKit.
+ - ![](https://img.shields.io/badge/new-green) Move RenderKit content to Utils with more renders.
  - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
- - ![](https://img.shields.io/badge/new-green) Add Text writting utilities.
  - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
  - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
  - ![](https://img.shields.io/badge/update-blue) Polygon very simplified and immutable every time.
@@ -148,15 +147,21 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
-# TODO
+# TODO 3.0
 - throws error on curry opeartion at a facotried argument.
-- Improve renders abstractions.
+- Improve renders abstractions allowing extensibiltiy.
 - Improve render customization.
 - Allow more factories on Union Render.
 - Allow multi-polygon on Union Render.
+- Consider move factories to buffers and improve buffer abstractions and use.
+
+# TODO 3.1
 - Text Renders.
 - Improve ShaderObjects Resources.
-- Add non-monotone polygons triangularization.
 - Create the Graphics class for call simple draw operations.
+- Improve the use of more than one window.
+
+# TODO 3.2
+- Add non-monotone polygons triangularization.
 - Make z-index between 0 to 1000 to make layer-based organization more simple.
 - Allow basic transformations like z-index adjustment customizations.
