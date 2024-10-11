@@ -148,7 +148,6 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
 # TODO 3.0
-- throws error on curry opeartion at a facotried argument.
 - Improve renders abstractions allowing extensibiltiy.
 - Improve render customization.
 - Allow more factories on Union Render.
