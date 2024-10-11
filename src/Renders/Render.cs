@@ -71,9 +71,9 @@ public abstract class Render(
             dep.UpdateData(arg);
         }
         
-        poly = FillData(poly);
+        var data = FillData(poly);
 
-        Context?.Render(poly);
+        Context?.Render(data);
     }
     
     /// <summary>

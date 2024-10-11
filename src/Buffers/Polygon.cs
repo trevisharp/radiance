@@ -1,35 +1,33 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/09/2024
+ * Date:    11/10/2024
  */
 namespace Radiance.Buffers;
 
 /// <summary>
-/// A base type for all polygons and lines.
+/// A buffer with a Polygon points.
 /// </summary>
 public class Polygon(float[] data) : IBufferedData
 {
-    private Polygon triangulationPair = null!;
+    private TrianguleBuffer triangulationPair = null!;
 
     /// <summary>
     /// Get the triangulation of this polygon.
     /// </summary>
-    public IBufferedData Triangulation
+    public TrianguleBuffer Triangules
     {
         get
         {
-            if (triangulationPair is not null)
-                return triangulationPair;
-            
-            var triangules = Operations
-                .PlanarPolygonTriangulation([ ..Data ]);
-            
-            var polygon = new Polygon(triangules);
-            
-            polygon.triangulationPair = polygon;
-            triangulationPair = polygon;
-
+            triangulationPair ??= FindTriangules();
             return triangulationPair;
         }
+    }
+
+    TrianguleBuffer FindTriangules()
+    {   
+        var triangules = Operations
+            .PlanarPolygonTriangulation([ ..Data ]);
+        
+        return new(triangules, 3);
     }
     
     public float[] Data => data;
@@ -38,6 +36,11 @@ public class Polygon(float[] data) : IBufferedData
     
     public int Vertices => Data.Length / 3;
 
-    
     public static implicit operator Polygon(float[] data) => new(data);
+
+    public static RepeatPolygon operator *(Polygon polygon, int times)
+        => new (polygon, times);
+
+    public static RepeatPolygon operator *(int times, Polygon polygon)
+        => new (polygon, times);
 }

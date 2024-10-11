@@ -184,12 +184,16 @@ public class RenderContext
                 pair.FragmentShader.Setup();
         }
 
-        RenderActions += (poly) =>
+        RenderActions += (data) =>
         {
-            if (needTriangularization)
-                poly = poly.Triangulation;
+            data = (needTriangularization, data) switch
+            {
+                (false, _) => data,
+                (true, IBufferedData poly) => poly.Triangules,
+                _ => throw new InvalidFillOperationException()
+            };
 
-            context.Use(poly);
+            context.Use(data);
 
             initIfNeeded();
             
@@ -197,7 +201,7 @@ public class RenderContext
 
             setupShaders();
 
-            context.Draw(primitive, poly);
+            context.Draw(primitive, data);
         };
     }
 }

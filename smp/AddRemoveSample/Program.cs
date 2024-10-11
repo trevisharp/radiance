@@ -1,9 +1,7 @@
 ﻿using System;
-
-using Radiance.Renders;
 using Radiance.Primitives;
 
-MultiRender triangule = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
+var myRender = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
 {
     var dist = distance((dx, dy), (cx, cy));
     var scapeX = (dx - cx) / dist;
@@ -20,9 +18,8 @@ MultiRender triangule = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
     fill();
 });
 
-dynamic myRender = triangule.SetBreaker(i => i < 1_000_000);
 myRender = myRender(
-    /* 1_000_000 * */ Polygons.Triangule,
+    1_000_000 * Polygons.Triangule,
     forVertex(i => Random.Shared.Next(2000)),
     forVertex(i => Random.Shared.Next(1200)),
     forVertex(i => Random.Shared.NextSingle()),
@@ -36,7 +33,6 @@ Window.OnMouseMove += p => cursor = p;
 Window.OnRender += () => myRender(10, cursor);
 Window.CloseOn(Input.Escape);
 Window.Open();
-
 
 // Dynkas app
 // var myRender = render(im =>

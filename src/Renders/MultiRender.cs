@@ -15,6 +15,7 @@ using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
 using Exceptions;
+using System.Buffers;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
@@ -24,77 +25,52 @@ public class MultiRender(
     params object[] curryingParams
     ) : Render(function, curryingParams)
 {
-    List<object> factories = [ ];
-    readonly SimpleBuffer buffer = new();
-    IBufferedData? lastBuffer = null;
-    Func<int, bool> breaker = i => i < 1;
-    bool dataChanges = true;
+    List<RenderParameterFactory> factories = [ ];
+    TrianguleBuffer? data = null;
+    bool dataChanged = true;
     
-    /// <summary>
-    /// Set the function that decides when the render need stop.
-    /// </summary>
-    public MultiRender SetBreaker(Func<int, bool> breaker)
-    {
-        dataChanges = true;
-        this.breaker = breaker;
-        return this;
-    }
-
     public override MultiRender Curry(params object?[] args)
-    {
-        return new(function, [ ..curryingArguments, ..DisplayValues(args) ])
+        => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {
             Context = Context,
             Dependences = Dependences,
-            factories = [ ..factories, ..args.Where(arg => arg is RenderParameterFactory) ],
-            breaker = breaker
+            factories = [ 
+                ..factories, 
+                ..from arg in args 
+                    where arg is RenderParameterFactory 
+                    select (RenderParameterFactory)arg 
+            ]
         };
-    }
+    
     protected override IBufferedData FillData(IBufferedData buffer)
     {
-        if (lastBuffer != buffer)
-        {
-            dataChanges = true;
-            lastBuffer = buffer;
-        }
+        if (!dataChanged && data is not null)
+            return data;
 
-        if (!dataChanges)
-            return this.buffer;
-        dataChanges = false;
-
-        var vertexes = buffer.Triangulation.Data;
-        UpdateData(vertexes);
-
-        return this.buffer;
+        dataChanged = false;
+        var vertexes = buffer.Triangules.Data;
+        data = GetTrianguleBuffer(vertexes);
+        return data!;
     }
 
-    void UpdateData(float[] basicVertexes)
+    TrianguleBuffer GetTrianguleBuffer(float[] vertexes)
     {
-        buffer.Clear();
+        int vertexCount = vertexes.Length / 3;
+        int vertexSize = 3 + factories.Count;
 
-        RenderParameterFactory[] computations = factories
-            .Where(c => c is RenderParameterFactory)
-            .Select(c => (RenderParameterFactory)c)
-            .ToArray();
-        float[] computationResult = new float[computations.Length];
+        var data = new float[vertexCount * vertexSize];
+        var computationResult = new float[factories.Count];
 
-        int i;
-        for (i = 0; breaker(i); i++)
+        for (int i = 0; i < vertexCount; i++)
         {
             for (int j = 0; j < computationResult.Length; j++)
-                computations[j].GenerateData(i, computationResult, j);
+                factories[j].GenerateData(i, computationResult, j);
             
-            for (int k = 0; k < basicVertexes.Length; k += 3)
-            {
-                buffer.Add(basicVertexes[k + 0]);
-                buffer.Add(basicVertexes[k + 1]);
-                buffer.Add(basicVertexes[k + 2]);
-                for (int j = 0; j < computationResult.Length; j++)
-                    buffer.Add(computationResult[j]);
-            }
+            Array.Copy(vertexes, 3 * i, data, vertexSize * i, 3);
+            Array.Copy(computationResult, 0, data, vertexSize * i + 3, computationResult.Length);
         }
-        
-        buffer.Vertices = i * basicVertexes.Length / 3;
+
+        return new TrianguleBuffer(data, vertexSize);
     }
 
     int layoutLocations = 1;

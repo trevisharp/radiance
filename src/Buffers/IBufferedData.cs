@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/10/2024
+ * Date:    11/10/2024
  */
 namespace Radiance.Buffers;
 
@@ -24,7 +24,7 @@ public interface IBufferedData
     Buffer? Buffer { get; set; }
 
     /// <summary>
-    /// Get the triangulation of this data.
+    /// Get the triangulation of the buffered data.
     /// </summary>
-    IBufferedData Triangulation { get; }
+    public TrianguleBuffer Triangules { get; }
 }
