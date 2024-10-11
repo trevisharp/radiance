@@ -362,7 +362,7 @@ public static class Utils
     #region RENDER PARAMETER FACTORIES UTILS
 
     public static RenderParameterFactory forVertex(Func<int, float> factoryFunc)
-        => new SimpleFloatRenderParameterFactory(factoryFunc);
+        => new VertexFloatRenderParameterFactory(factoryFunc);
     
     public static RenderParameterFactory forPolygon(Func<int, float> factoryFunc)
         => new PolygonFloatRenderParameterFactory(factoryFunc);

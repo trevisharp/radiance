@@ -5,7 +5,7 @@ using System;
 
 namespace Radiance.Renders.Factories;
 
-public class SimpleFloatRenderParameterFactory(Func<int, float> factory) : RenderParameterFactory
+public class VertexFloatRenderParameterFactory(Func<int, float> factory) : RenderParameterFactory
 {
     public override bool NeedRegenerate => false;
 
