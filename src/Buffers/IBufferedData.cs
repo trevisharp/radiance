@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/10/2024
+ * Date:    14/10/2024
  */
 namespace Radiance.Buffers;
 
@@ -9,22 +9,17 @@ namespace Radiance.Buffers;
 public interface IBufferedData
 {
     /// <summary>
-    /// Get the data values.
+    /// Get the count of the vertex.
     /// </summary>
-    float[] Data { get; }
+    int Count { get; }
     
     /// <summary>
-    /// Get the Count of the Vertices;
+    /// Get the size of float for each vertex.
     /// </summary>
-    int Vertices { get; }
+    int Size { get; }
 
     /// <summary>
     /// Get the associated buffer.
     /// </summary>
     Buffer? Buffer { get; set; }
-
-    /// <summary>
-    /// Get the triangulation of the buffered data.
-    /// </summary>
-    public TrianguleBuffer Triangules { get; }
 }

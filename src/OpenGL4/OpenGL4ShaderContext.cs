@@ -136,7 +136,7 @@ public class OpenGL4ShaderContext : ShaderContext
         ProgramId = CreateProgram(vertexShader, fragmentShader, verbose, ref tabIndex);
     }
     
-    public override void Use(IBufferedData data)
+    public override void Use(IPolygon data)
     {
         BindVerteArrayObject();
         BufferManager.Use(data);
@@ -145,7 +145,7 @@ public class OpenGL4ShaderContext : ShaderContext
     public override void Draw(PrimitiveType primitiveType, IBufferedData data)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
-        GL.DrawArrays(openTKType, 0, data.Vertices);
+        GL.DrawArrays(openTKType, 0, data.Count);
     }
 
     public override void UseProgram()

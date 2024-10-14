@@ -1,12 +1,15 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/10/2024
+ * Date:    14/10/2024
  */
+using System;
+using System.Collections.ObjectModel;
+
 namespace Radiance.Buffers;
 
 /// <summary>
 /// A buffer with a Polygon points.
 /// </summary>
-public class Polygon(float[] data) : IBufferedData
+public class Polygon(float[] data) : IPolygon
 {
     private TrianguleBuffer triangulationPair = null!;
 
@@ -29,12 +32,14 @@ public class Polygon(float[] data) : IBufferedData
         
         return new(triangules, 3);
     }
-    
-    public float[] Data => data;
+
+    readonly ReadOnlyCollection<float> collection = Array.AsReadOnly(data);
+    public ReadOnlyCollection<float> Data => collection;
     
     public Buffer? Buffer { get; set; }
     
-    public int Vertices => Data.Length / 3;
+    public int Count => Data.Count / 3;
+    public int Size => 3;
 
     public static implicit operator Polygon(float[] data) => new(data);
 

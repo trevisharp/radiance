@@ -1,53 +1,44 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/10/2024
+ * Date:    14/10/2024
  */
 using System;
+using System.Collections.ObjectModel;
 
 namespace Radiance.Buffers;
 
 /// <summary>
 /// A buffered data with a polygon repeated many times.
 /// </summary>
-public class RepeatPolygon(Polygon polygon, int times) : IBufferedData
+public class RepeatPolygon(IPolygon polygon, int times) : IPolygon
 {
-    static float[] Repeat(float[] data, int times)
-    {
-        var len = data.Length;
-        var buffer = new float[len * times];
+    public int Count => polygon.Count * times;
 
-        for (int i = 0; i < times; i++)
-            Array.Copy(data, 0, buffer, len * i, len);
-        
-        return buffer;
-    }
+    public int Size => polygon.Size;
+
+    public Buffer? Buffer { get; set; }
+
+    TrianguleBuffer? triangulationPair = null;
+    public TrianguleBuffer Triangules
+        => triangulationPair ??= new(BuildTriangules(), 3);
+
+    ReadOnlyCollection<float>? data = null;
+    public ReadOnlyCollection<float> Data
+        => data ??= Array.AsReadOnly(BuildData());
 
     float[] BuildData()
         => Repeat(polygon.Data, times);
 
     float[] BuildTriangules()
         => Repeat(polygon.Triangules.Data, times);
-
-    TrianguleBuffer? triangulationPair = null;
-    public TrianguleBuffer Triangules
+    
+    static float[] Repeat(ReadOnlyCollection<float> data, int times)
     {
-        get
-        {
-            triangulationPair ??= new(BuildTriangules(), 3);
-            return triangulationPair;
-        }
+        var len = data.Count;
+        var buffer = new float[len * times];
+
+        for (int i = 0; i < times; i++)
+            data.CopyTo(buffer, len * i);
+        
+        return buffer;
     }
-
-    float[]? data = null;
-    public float[] Data
-    {
-        get
-        {
-            data ??= BuildData();
-            return data;
-        }
-    }
-
-    public int Vertices => polygon.Vertices * times;
-
-    public Buffer? Buffer { get; set; }
 }

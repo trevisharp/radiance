@@ -77,7 +77,7 @@ public class RenderContext
     /// <summary>
     /// Get or set the actions in this render context.
     /// </summary>
-    public Action<IBufferedData>? RenderActions { get; set; }
+    public Action<IPolygon>? RenderActions { get; set; }
 
     /// <summary>
     /// Get or set the shader object representing the position transformation.
@@ -92,7 +92,7 @@ public class RenderContext
     /// <summary>
     /// Call render pipeline for this render context.
     /// </summary>
-    public void Render(IBufferedData polygon)
+    public void Render(IPolygon polygon)
     {
         if (RenderActions is null)
             return;
@@ -188,8 +188,8 @@ public class RenderContext
         {
             data = (needTriangularization, data) switch
             {
-                (false, _) => data,
-                (true, IBufferedData poly) => poly.Triangules,
+                (false, IPolygon poly) => poly,
+                (true, IPolygon poly) => poly.Triangules,
                 _ => throw new InvalidFillOperationException()
             };
 

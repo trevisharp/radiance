@@ -8,9 +8,11 @@ public class FloatStream : IBufferedData
     private float[] data;
     public float[] Data => data;
 
-    public int Vertices => throw new System.NotImplementedException();
+    public int Count => throw new System.NotImplementedException();
 
     public Buffer? Buffer { get; set; }
 
     public TrianguleBuffer Triangules => throw new System.NotImplementedException();
+
+    public int Size => throw new System.NotImplementedException();
 }

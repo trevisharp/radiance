@@ -24,11 +24,6 @@ public class Buffer
     public IBufferedData? CurrentData { get; set; } = null;
 
     /// <summary>
-    /// The count of float values per point on buffer.
-    /// </summary>
-    public int LayoutSize { get; set; } = 0;
-
-    /// <summary>
     /// Get the frame count of the creation of this buffer.
     /// </summary>
     public int? FrameCreation { get; set; } = null;

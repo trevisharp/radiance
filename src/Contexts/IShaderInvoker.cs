@@ -14,7 +14,7 @@ public interface IShaderInvoker
     /// <summary>
     /// Start to use a Data.
     /// </summary>
-    void Use(IBufferedData data);
+    void Use(IPolygon data);
 
     /// <summary>
     /// Draw Arrays in the selected buffer.

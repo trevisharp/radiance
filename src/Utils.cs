@@ -354,7 +354,7 @@ public static class Utils
     private static dynamic renderDelegate(Delegate function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        return new MultiRender(function);
+        return new Render(function);
     }
 
     #endregion
