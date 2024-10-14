@@ -77,7 +77,7 @@ public static class Utils
 
     #region BUFFER UTILS
 
-    public static FloatStream buffer(Func<int, float> factory, int size)
+    public static FloatStream buffer(int size, Func<int, float> factory)
     {
         var stream = new FloatStream();
 

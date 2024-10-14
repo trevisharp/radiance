@@ -1,45 +1,68 @@
-﻿using System;
-using Radiance.Primitives;
-
-var myRender = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
+﻿const int N = 100;
+var myRender = render((delta, factor) =>
 {
-    var dist = distance((dx, dy), (cx, cy));
-    var scapeX = (dx - cx) / dist;
-    var scapeY = (dy - cy) / dist;
-
-    var len = 350 + 50 * sin(2 * t);
-    dx += len * scapeX / sqrt(dist);
-    dy += len * scapeY / sqrt(dist);
-
-    rotate(sp * t);
     zoom(factor);
-    move(dx, dy);
-    color = (r, g, b, 1f);
+    move(delta, delta);
+    color = mix(red, blue, delta / width);
     fill();
 });
 
-const int N = 10_000;
-float[] values = new float[6 * N];
-for (int i = 0; i < values.Length; i++)
-    values[i] = Random.Shared.NextSingle();
+var deltas = buffer(N, i => 40 * i);
 
 myRender = myRender(
     N * Polygons.Triangule,
-    forVertex(i => 2000 * values[6 * (i / 3) + 0]),
-    forVertex(i => 1200 * values[6 * (i / 3) + 1]),
-    forVertex(i => values[6 * (i / 3) + 2]),
-    forVertex(i => values[6 * (i / 3) + 3]),
-    forVertex(i => values[6 * (i / 3) + 4]),
-    forVertex(i => values[6 * (i / 3) + 5])
+    deltas
 );
 
-Vec2 cursor = (0, 0);
-Window.OnMouseMove += p => cursor = p;
-Window.OnRender += () => myRender(10, cursor);
+Window.OnRender += () => myRender(40);
 Window.CloseOn(Input.Escape);
 Window.Open();
 
-// Dynkas app
+// @@Triangules App
+// using System;
+// using Radiance.Primitives;
+// 
+// var myRender = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
+// {
+//     var dist = distance((dx, dy), (cx, cy));
+//     var scapeX = (dx - cx) / dist;
+//     var scapeY = (dy - cy) / dist;
+
+//     var len = 350 + 50 * sin(2 * t);
+//     dx += len * scapeX / sqrt(dist);
+//     dy += len * scapeY / sqrt(dist);
+
+//     rotate(sp * t);
+//     zoom(factor);
+//     move(dx, dy);
+//     color = (r, g, b, 1f);
+//     fill();
+// });
+
+// const int N = 10_000;
+// float[] values = new float[6 * N];
+// for (int i = 0; i < values.Length; i++)
+//     values[i] = Random.Shared.NextSingle();
+
+// var dxs = buffer(N, i => 2000 * Random.Shared.NextSingle());
+
+// myRender = myRender(
+//     N * Polygons.Triangule,
+//     dxs,
+//     forVertex(i => 1200 * values[6 * (i / 3) + 1]),
+//     forVertex(i => values[6 * (i / 3) + 2]),
+//     forVertex(i => values[6 * (i / 3) + 3]),
+//     forVertex(i => values[6 * (i / 3) + 4]),
+//     forVertex(i => values[6 * (i / 3) + 5])
+// );
+
+// Vec2 cursor = (0, 0);
+// Window.OnMouseMove += p => cursor = p;
+// Window.OnRender += () => myRender(10, cursor);
+// Window.CloseOn(Input.Escape);
+// Window.Open();
+
+// @@Dynkas app
 // var myRender = render(im =>
 // {
 //     rotate(.5f * t);
