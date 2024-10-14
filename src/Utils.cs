@@ -361,9 +361,15 @@ public static class Utils
 
     #region RENDER PARAMETER FACTORIES UTILS
 
+    /// <summary>
+    /// Generate on data for each vertex on render calling.
+    /// </summary>
     public static RenderParameterFactory forVertex(Func<int, float> factoryFunc)
         => new VertexFloatRenderParameterFactory(factoryFunc);
     
+    /// <summary>
+    /// Generate on data for each polygon on render calling.
+    /// </summary>
     public static RenderParameterFactory forPolygon(Func<int, float> factoryFunc)
         => new PolygonFloatRenderParameterFactory(factoryFunc);
 

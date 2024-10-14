@@ -10,7 +10,7 @@ namespace Radiance.Buffers;
 /// </summary>
 public class RepeatPolygon(Polygon polygon, int times) : IBufferedData
 {
-    float[] Repeat(float[] data)
+    static float[] Repeat(float[] data, int times)
     {
         var len = data.Length;
         var buffer = new float[len * times];
@@ -22,10 +22,10 @@ public class RepeatPolygon(Polygon polygon, int times) : IBufferedData
     }
 
     float[] BuildData()
-        => Repeat(polygon.Data);
+        => Repeat(polygon.Data, times);
 
     float[] BuildTriangules()
-        => Repeat(polygon.Triangules.Data);
+        => Repeat(polygon.Triangules.Data, times);
 
     TrianguleBuffer? triangulationPair = null;
     public TrianguleBuffer Triangules

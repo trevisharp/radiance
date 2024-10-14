@@ -148,12 +148,11 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
 # TODO 3.0
-- Improve renders abstractions allowing extensibiltiy.
-- Improve render customization.
-- Allow more factories on Union Render.
-- Allow multi-polygon on Union Render.
+- Improve renders abstractions allowing extensibiltiy and customization.
+- Implements the Utils.onPolygon function.
 - Consider move factories to buffers and improve buffer abstractions and use.
-- Implements Utils.forPolygon behaviour.
+- Allow data update/mutability on onVertex and onPolygon funcs.
+- Use BufferSubData to improve update performance.
 
 # TODO 3.1
 - Text Renders.
