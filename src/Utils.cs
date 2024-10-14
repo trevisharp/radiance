@@ -8,6 +8,7 @@ using System.Text;
 
 namespace Radiance;
 
+using Buffers;
 using Renders;
 using Renders.Factories;
 using Shaders;
@@ -71,6 +72,21 @@ public static class Utils
     public static readonly Vec4 white = new(1, 1, 1, 1);
     public static readonly Vec4 cyan = new(0, 1, 1, 1);
     public static readonly Vec4 magenta = new(1, 0, 1, 1);
+
+    #endregion
+
+    #region BUFFER UTILS
+
+    public static FloatStream buffer(Func<int, float> factory, int size)
+    {
+        var stream = new FloatStream();
+
+        stream.PrepareSize(size);
+        for (int i = 0; i < size; i++)
+            stream.Add(factory(i));
+
+        return stream;
+    }
 
     #endregion
 

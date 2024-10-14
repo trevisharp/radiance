@@ -12,12 +12,12 @@ namespace Radiance.Buffers;
 public interface IPolygon : IBufferedData
 {
     /// <summary>
-    /// The readonly data for this polygon.
-    /// </summary>
-    ReadOnlyCollection<float> Data { get; }
-
-    /// <summary>
     /// The triangule buffer associated with this polygon.
     /// </summary>
     TrianguleBuffer Triangules { get; }
+    
+    /// <summary>
+    /// The readonly data for this polygon.
+    /// </summary>
+    ReadOnlyCollection<float> Data { get; }
 }

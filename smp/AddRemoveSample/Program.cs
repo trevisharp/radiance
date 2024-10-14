@@ -18,7 +18,7 @@ var myRender = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
     fill();
 });
 
-const int N = 1_000_000;
+const int N = 10_000;
 float[] values = new float[6 * N];
 for (int i = 0; i < values.Length; i++)
     values[i] = Random.Shared.NextSingle();

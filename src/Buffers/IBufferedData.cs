@@ -22,4 +22,5 @@ public interface IBufferedData
     /// Get the associated buffer.
     /// </summary>
     Buffer? Buffer { get; set; }
+
 }

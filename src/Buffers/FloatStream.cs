@@ -1,18 +1,68 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    14/10/2024
  */
+using System;
+using System.Collections.Generic;
+using System.Collections.ObjectModel;
+
 namespace Radiance.Buffers;
 
-public class FloatStream : IBufferedData
+public class FloatStream : IMutableData
 {
-    private float[] data;
-    public float[] Data => data;
+    int count = 0;
+    float[] data = new float[10];
 
-    public int Count => throw new System.NotImplementedException();
+    public int Count => count;
+
+    public int Size => 1;
 
     public Buffer? Buffer { get; set; }
 
-    public TrianguleBuffer Triangules => throw new System.NotImplementedException();
+    public void Fill(float[] data)
+    {
+        throw new System.NotImplementedException();
+    }
 
-    public int Size => throw new System.NotImplementedException();
+    public void Changed()
+    {
+        throw new System.NotImplementedException();
+    }
+
+    public void PrepareSize(int size)
+    {
+        int space = data.Length - count;
+        if (size < space)
+            return;
+        
+        Expand(size);
+    }
+
+    public void Add(float value)
+    {
+        ExpandIfNeeded();
+        data[count] = value;
+        count++;
+    }
+    
+    public void Clear()
+    {
+        data = new float[10];
+        count = 0;
+    }
+    
+    void ExpandIfNeeded()
+    {
+        if (count < data.Length)
+            return;
+        
+        Expand(4 * data.Length);
+    }
+
+    void Expand(int expansion)
+    {
+        var newData = new float[expansion];
+        Array.Copy(data, newData, data.Length);
+        data = newData;
+
+    }
 }
