@@ -32,8 +32,6 @@ public class Render(
     public RenderContext? Context { get; protected set; }
     protected readonly Delegate function = function;
     protected ShaderDependence?[]? Dependences;
-
-    List<RenderParameterFactory> factories = [ ];
     TrianguleBuffer? data = null;
     bool dataChanged = true;
     
@@ -41,13 +39,7 @@ public class Render(
         => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {
             Context = Context,
-            Dependences = Dependences,
-            factories = [ 
-                ..factories, 
-                ..from arg in args 
-                    where arg is RenderParameterFactory 
-                    select (RenderParameterFactory)arg 
-            ]
+            Dependences = Dependences
         };
     
     protected IPolygon FillData(IPolygon buffer)
@@ -63,23 +55,25 @@ public class Render(
 
     TrianguleBuffer GetTrianguleBuffer(ReadOnlyCollection<float> vertexes)
     {
-        int vertexCount = vertexes.Count / 3;
-        int vertexSize = 3 + factories.Count;
+        throw new NotImplementedException();
+        // @@old reference implementation
+        // int vertexCount = vertexes.Count / 3;
+        // int vertexSize = 3 + factories.Count;
 
-        var data = new float[vertexCount * vertexSize];
-        var computationResult = new float[factories.Count];
+        // var data = new float[vertexCount * vertexSize];
+        // var computationResult = new float[factories.Count];
 
-        for (int i = 0; i < vertexCount; i++)
-        {
-            for (int j = 0; j < computationResult.Length; j++)
-                factories[j].GenerateData(i, computationResult, j);
+        // for (int i = 0; i < vertexCount; i++)
+        // {
+        //     for (int j = 0; j < computationResult.Length; j++)
+        //         factories[j].GenerateData(i, computationResult, j);
             
-            for (int k = 0; k < 3; k++)
-                data[vertexSize * i + k] = vertexes[3 * i + k];
-            Array.Copy(computationResult, 0, data, vertexSize * i + 3, computationResult.Length);
-        }
+        //     for (int k = 0; k < 3; k++)
+        //         data[vertexSize * i + k] = vertexes[3 * i + k];
+        //     Array.Copy(computationResult, 0, data, vertexSize * i + 3, computationResult.Length);
+        // }
 
-        return new TrianguleBuffer(data, vertexSize);
+        // return new TrianguleBuffer(data, vertexSize);
     }
 
     int layoutLocations = 1;
@@ -91,7 +85,7 @@ public class Render(
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
         var isConstant = index < curriedValues.Length;
-        var isFactory = isConstant && curriedValues[index] is RenderParameterFactory;
+        var isFactory = isConstant && curriedValues[index] is IMutableData;
         
         return (isFloat, isTexture, isConstant, isFactory) switch
         {
@@ -120,7 +114,6 @@ public class Render(
         };
     }
     
-
     /// <summary>
     /// Get the number of that parameters received for the render to call the function.
     /// </summary>
