@@ -14,7 +14,7 @@ myRender = myRender(
     deltas
 );
 
-Window.OnRender += () => myRender(40);
+Window.OnRender += () => myRender(20);
 Window.CloseOn(Input.Escape);
 Window.Open();
 
