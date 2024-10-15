@@ -154,13 +154,14 @@ Coming soon...
 - Allow data update/mutability on onVertex and onPolygon funcs.
 - Use BufferSubData to improve update performance.
 
-# TODO 3.1
 - Text Renders.
-- Improve ShaderObjects Resources.
-- Create the Graphics class for call simple draw operations.
-- Improve the use of more than one window.
 
-# TODO 3.2
+- Improve ShaderObjects Resources.
+
+- Improve the use of more than one window.
+- Create the Graphics class for call simple draw operations.
+
 - Add non-monotone polygons triangularization.
+
 - Make z-index between 0 to 1000 to make layer-based organization more simple.
 - Allow basic transformations like z-index adjustment customizations.

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/09/2024
+ * Date:    15/10/2024
  */
 #pragma warning disable IDE1006
 
@@ -373,7 +373,7 @@ public static class Utils
     }
 
     #endregion
-    
+
     #region BUILT-IN RENDERS
 
     private static dynamic? moveRender;
