@@ -10,7 +10,6 @@ namespace Radiance;
 
 using Buffers;
 using Renders;
-using Renders.Factories;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
@@ -374,23 +373,7 @@ public static class Utils
     }
 
     #endregion
-
-    #region RENDER PARAMETER FACTORIES UTILS
-
-    /// <summary>
-    /// Generate on data for each vertex on render calling.
-    /// </summary>
-    public static RenderParameterFactory forVertex(Func<int, float> factoryFunc)
-        => new VertexFloatRenderParameterFactory(factoryFunc);
     
-    /// <summary>
-    /// Generate on data for each polygon on render calling.
-    /// </summary>
-    public static RenderParameterFactory forPolygon(Func<int, float> factoryFunc)
-        => new PolygonFloatRenderParameterFactory(factoryFunc);
-
-    #endregion
-
     #region BUILT-IN RENDERS
 
     private static dynamic? moveRender;

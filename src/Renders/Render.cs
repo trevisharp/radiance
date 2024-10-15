@@ -9,8 +9,6 @@ using System.Collections.Generic;
 
 namespace Radiance.Renders;
 
-using Factories;
-
 using Buffers;
 using Shaders;
 using Shaders.Objects;
@@ -287,7 +285,7 @@ public class Render(
         {
             _ = arg switch
             {
-                IBufferedData poly => add(poly),
+                IPolygon poly => add(poly),
                 Vec2 vec => add(vec.X, vec.Y),
                 Vec3 vec => add(vec.X, vec.Y, vec.Z),
                 Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
@@ -296,7 +294,7 @@ public class Render(
                 int num => add((float)num),
                 double num => add((float)num),
                 float[] sub => add([..sub]),
-                RenderParameterFactory fac => add(fac),
+                IMutableData fac => add(fac),
                 _ => throw new InvalidPrimitiveException(arg)
             };
         }

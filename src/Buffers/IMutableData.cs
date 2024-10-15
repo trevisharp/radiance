@@ -8,7 +8,5 @@ namespace Radiance.Buffers;
 /// </summary>
 public interface IMutableData : IBufferedData
 {
-    void Fill(float[] data);
-
-    void Changed();
+    
 }

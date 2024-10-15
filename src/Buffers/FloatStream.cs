@@ -2,8 +2,6 @@
  * Date:    14/10/2024
  */
 using System;
-using System.Collections.Generic;
-using System.Collections.ObjectModel;
 
 namespace Radiance.Buffers;
 
@@ -17,16 +15,6 @@ public class FloatStream : IMutableData
     public int Size => 1;
 
     public Buffer? Buffer { get; set; }
-
-    public void Fill(float[] data)
-    {
-        throw new System.NotImplementedException();
-    }
-
-    public void Changed()
-    {
-        throw new System.NotImplementedException();
-    }
 
     public void PrepareSize(int size)
     {
