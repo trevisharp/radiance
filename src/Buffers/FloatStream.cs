@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/10/2024
+ * Date:    16/10/2024
  */
 using System;
 
@@ -51,6 +51,8 @@ public class FloatStream : IMutableData
         var newData = new float[expansion];
         Array.Copy(data, newData, data.Length);
         data = newData;
-
     }
+
+    public float[] GetBufferData()
+        => data[..count];
 }

@@ -9,7 +9,7 @@ namespace Radiance.Buffers;
 /// <summary>
 /// Represents a simple triagules buffer with many data on vertices.
 /// </summary>
-public class TrianguleBuffer(float[] buffer, int vertexDataSize) : IPolygon
+public class Vec3Buffer(float[] buffer, int vertexDataSize) : IBufferedData
 {
     readonly ReadOnlyCollection<float> collection = Array.AsReadOnly(buffer);
     public ReadOnlyCollection<float> Data => collection;
@@ -18,7 +18,10 @@ public class TrianguleBuffer(float[] buffer, int vertexDataSize) : IPolygon
 
     public Buffer? Buffer { get; set; }
 
-    public TrianguleBuffer Triangules => this;
+    public Vec3Buffer Triangules => this;
 
     public int Size => vertexDataSize;
+
+    public float[] GetBufferData()
+        => buffer[..];
 }

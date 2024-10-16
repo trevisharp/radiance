@@ -30,7 +30,7 @@ public class Render(
     public RenderContext? Context { get; protected set; }
     protected readonly Delegate function = function;
     protected ShaderDependence?[]? Dependences;
-    TrianguleBuffer? data = null;
+    Vec3Buffer? data = null;
     bool dataChanged = true;
     
     public Render Curry(params object?[] args)
@@ -40,7 +40,7 @@ public class Render(
             Dependences = Dependences
         };
     
-    protected IPolygon FillData(IPolygon buffer)
+    protected IBufferedData FillData(IPolygon buffer)
     {
         if (!dataChanged && data is not null)
             return data;
@@ -51,7 +51,7 @@ public class Render(
         return data!;
     }
 
-    TrianguleBuffer GetTrianguleBuffer(ReadOnlyCollection<float> vertexes)
+    Vec3Buffer GetTrianguleBuffer(ReadOnlyCollection<float> vertexes)
     {
         throw new NotImplementedException();
         // @@old reference implementation

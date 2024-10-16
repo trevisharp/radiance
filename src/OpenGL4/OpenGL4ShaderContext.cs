@@ -136,7 +136,7 @@ public class OpenGL4ShaderContext : ShaderContext
         ProgramId = CreateProgram(vertexShader, fragmentShader, verbose, ref tabIndex);
     }
     
-    public override void Use(IPolygon data)
+    public override void Use(IBufferedData data)
     {
         BindVerteArrayObject();
         BufferManager.Use(data);

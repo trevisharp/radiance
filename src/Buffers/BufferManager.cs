@@ -39,7 +39,7 @@ public static class BufferManager
             DeleteBuffer(buffer, BufferContextBuilder.Build());
     }
 
-    public static void Use(IPolygon data)
+    public static void Use(IBufferedData data)
     {
         var ctx = BufferContextBuilder.Build();
         
@@ -51,7 +51,7 @@ public static class BufferManager
         BindBuffer(buffer, ctx);
 
         if (created)
-            SetBufferData([.. data.Data], buffer, ctx);
+            SetBufferData(data.GetBufferData(), buffer, ctx);
     }
 
     private static bool CreateBuffer(IBufferedData data, BufferContext ctx)

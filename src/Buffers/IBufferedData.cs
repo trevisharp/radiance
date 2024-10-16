@@ -23,4 +23,10 @@ public interface IBufferedData
     /// </summary>
     Buffer? Buffer { get; set; }
 
+    /// <summary>
+    /// Generate the data of this buffer.
+    /// Prefer to not modify this vector to avoid incorrect behaviours.
+    /// </summary>
+    float[] GetBufferData();
+
 }

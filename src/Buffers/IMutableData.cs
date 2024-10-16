@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/10/2024
+ * Date:    16/10/2024
  */
 namespace Radiance.Buffers;
 

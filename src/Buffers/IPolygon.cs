@@ -1,8 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/10/2024
+ * Date:    16/10/2024
  */
-using System.Collections.ObjectModel;
-
 namespace Radiance.Buffers;
 
 /// <summary>
@@ -14,10 +12,5 @@ public interface IPolygon : IBufferedData
     /// <summary>
     /// The triangule buffer associated with this polygon.
     /// </summary>
-    TrianguleBuffer Triangules { get; }
-    
-    /// <summary>
-    /// The readonly data for this polygon.
-    /// </summary>
-    ReadOnlyCollection<float> Data { get; }
+    Vec3Buffer Triangules { get; }
 }

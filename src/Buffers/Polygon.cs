@@ -11,12 +11,12 @@ namespace Radiance.Buffers;
 /// </summary>
 public class Polygon(float[] data) : IPolygon
 {
-    private TrianguleBuffer triangulationPair = null!;
+    private Vec3Buffer triangulationPair = null!;
 
     /// <summary>
     /// Get the triangulation of this polygon.
     /// </summary>
-    public TrianguleBuffer Triangules
+    public Vec3Buffer Triangules
     {
         get
         {
@@ -25,20 +25,20 @@ public class Polygon(float[] data) : IPolygon
         }
     }
 
-    TrianguleBuffer FindTriangules()
+    Vec3Buffer FindTriangules()
     {   
         var triangules = Operations
-            .PlanarPolygonTriangulation([ ..Data ]);
+            .PlanarPolygonTriangulation(data[..]);
         
         return new(triangules, 3);
     }
 
-    readonly ReadOnlyCollection<float> collection = Array.AsReadOnly(data);
-    public ReadOnlyCollection<float> Data => collection;
-    
+    public float[] GetBufferData()
+        => data[..];
+        
     public Buffer? Buffer { get; set; }
     
-    public int Count => Data.Count / 3;
+    public int Count => data.Length / 3;
     public int Size => 3;
 
     public static implicit operator Polygon(float[] data) => new(data);

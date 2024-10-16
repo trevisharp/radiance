@@ -154,6 +154,7 @@ Coming soon...
 - Consider do not permit curry the first parameter flexing the polygon choose.
 - This solve the full parameter call outsied OnRender problem.
 - This is important now because the curry operation impact on code generation process.
+- Idea: Create a 'skip' parameter for curying. 
 
 - Improve renders abstractions allowing extensibiltiy and customization.
 

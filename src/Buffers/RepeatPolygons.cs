@@ -1,9 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/10/2024
+ * Date:    16/10/2024
  */
-using System;
-using System.Collections.ObjectModel;
-
 namespace Radiance.Buffers;
 
 /// <summary>
@@ -17,23 +14,23 @@ public class RepeatPolygon(IPolygon polygon, int times) : IPolygon
 
     public Buffer? Buffer { get; set; }
 
-    TrianguleBuffer? triangulationPair = null;
-    public TrianguleBuffer Triangules
+    Vec3Buffer? triangulationPair = null;
+    public Vec3Buffer Triangules
         => triangulationPair ??= new(BuildTriangules(), 3);
 
-    ReadOnlyCollection<float>? data = null;
-    public ReadOnlyCollection<float> Data
-        => data ??= Array.AsReadOnly(BuildData());
-
+    float[]? data = null;
+    public float[] GetBufferData()
+        => data ??= BuildData();
+    
     float[] BuildData()
-        => Repeat(polygon.Data, times);
+        => Repeat(polygon.GetBufferData(), times);
 
     float[] BuildTriangules()
-        => Repeat(polygon.Triangules.Data, times);
+        => Repeat(polygon.Triangules.GetBufferData(), times);
     
-    static float[] Repeat(ReadOnlyCollection<float> data, int times)
+    static float[] Repeat(float[] data, int times)
     {
-        var len = data.Count;
+        var len = data.Length;
         var buffer = new float[len * times];
 
         for (int i = 0; i < times; i++)
