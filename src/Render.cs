@@ -31,11 +31,16 @@ public class Render(
     protected ShaderDependence?[]? Dependences;
     
     public Render Curry(params object?[] args)
-        => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
+    {
+        if (Window.Phase == WindowPhase.OnRender)
+            throw new InvalidCurryPhaseException();
+        
+        return new(function, [ ..curryingArguments, ..DisplayValues(args) ])
         {
             Context = Context,
             Dependences = Dependences
         };
+    }
 
     int layoutLocations = 1;
     protected ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
@@ -46,7 +51,7 @@ public class Render(
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
         var isConstant = index < curriedValues.Length;
-        var isFactory = isConstant && curriedValues[index] is IMutableData;
+        var isFactory = isConstant && curriedValues[index] is IBufferedData;
         
         return (isFloat, isTexture, isConstant, isFactory) switch
         {
@@ -87,9 +92,6 @@ public class Render(
     /// </summary>
     void CallWithRealData(object[] arguments)
     {
-        if (Window.Phase != WindowPhase.OnRender)
-            throw new OutOfRenderException();
-        
         if (arguments[0] is not IPolygon poly)
             throw new MissingPolygonException();
         
@@ -149,6 +151,9 @@ public class Render(
         
         if (arguments[0] is not IBufferedData)
             throw new MissingPolygonException();
+
+        if (arguments.Length > expectedArguments)
+            throw new ExcessOfArgumentsException();
         
         if (arguments.Length < expectedArguments)
         {
@@ -156,8 +161,11 @@ public class Render(
             return true;
         }
 
-        if (arguments.Length > expectedArguments)
-            throw new ExcessOfArgumentsException();
+        if (Window.Phase != WindowPhase.OnRender)
+        {
+            result = Curry(args ?? []);
+            return true;
+        }
         
         Load();
         CallWithRealData(arguments);
@@ -246,7 +254,7 @@ public class Render(
         {
             _ = arg switch
             {
-                IPolygon poly => add(poly),
+                IBufferedData data => add(data),
                 Vec2 vec => add(vec.X, vec.Y),
                 Vec3 vec => add(vec.X, vec.Y, vec.Z),
                 Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
@@ -255,7 +263,6 @@ public class Render(
                 int num => add((float)num),
                 double num => add((float)num),
                 float[] sub => add([..sub]),
-                IMutableData fac => add(fac),
                 _ => throw new InvalidPrimitiveException(arg)
             };
         }

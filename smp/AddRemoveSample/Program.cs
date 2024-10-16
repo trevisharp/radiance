@@ -1,13 +1,14 @@
 ﻿const int N = 100;
-var myRender = render((delta, factor) =>
+var myRender = render((delta) =>
 {
     verbose = true;
-    zoom(factor);
+    zoom(20);
     move(delta, delta);
     color = mix(red, blue, x / width);
     fill();
 });
 
+var poly = N * Polygons.Triangule;
 var deltas = buffer(N, i => 40 * i);
 
 myRender = myRender(
@@ -15,7 +16,7 @@ myRender = myRender(
     deltas
 );
 
-Window.OnRender += () => myRender(20);
+Window.OnRender += () => myRender();
 Window.CloseOn(Input.Escape);
 Window.Open();
 

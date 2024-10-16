@@ -5,7 +5,7 @@ using System;
 
 namespace Radiance.Buffers;
 
-public class FloatStream : IMutableData
+public class FloatStream : IBufferedData
 {
     int count = 0;
     float[] data = new float[10];

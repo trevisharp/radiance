@@ -11,7 +11,7 @@ using Radiance.Contexts;
 /// <summary>
 /// Represents a dependece of a generic buffer data.
 /// </summary>
-public class BufferDependence : ShaderDependence
+public class PolygonBufferDependence : ShaderDependence
 {
     public override void AddVertexHeader(StringBuilder sb)
         => sb.AppendLine($"layout (location = 0) in vec3 pos;");

@@ -20,7 +20,7 @@ public abstract class ShaderDependence
     public readonly static BrownianFunctionDependence BrownianDep = new();
     public readonly static TimeDependence TimeDep = new();
     public readonly static PixelDependence PixelDep = new();
-    public readonly static BufferDependence BufferDep = new();
+    public readonly static PolygonBufferDependence BufferDep = new();
     public readonly static WidthWindowDependence WidthDep = new();
     public readonly static HeightWindowDependence HeightDep = new();
 
