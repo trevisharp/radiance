@@ -7,7 +7,7 @@ using System.Dynamic;
 using System.Reflection;
 using System.Collections.Generic;
 
-namespace Radiance.Renders;
+namespace Radiance;
 
 using Buffers;
 using Shaders;

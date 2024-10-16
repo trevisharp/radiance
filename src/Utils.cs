@@ -9,7 +9,6 @@ using System.Text;
 namespace Radiance;
 
 using Buffers;
-using Renders;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
