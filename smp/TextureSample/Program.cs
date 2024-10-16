@@ -3,15 +3,10 @@ using static Radiance.Utils;
 
 var myRender = render((img1, img2) =>
 {
-    verbose = true;
-    clear(white);
-
-    pos *= 400;
-    pos += center;
-    
-    var point = (x / width, y / height);
-    var text1 = texture(img1, point);
-    var text2 = texture(img2, point);
+    zoom(400);
+    centralize();
+    var text1 = texture(img1, x * img1.xratio, y * img1.yratio);
+    var text2 = texture(img2, x * img2.xratio, y * img2.yratio);
     color = mix(text1, text2, (sin(t) + 1) / 2);
     fill();
 });
@@ -19,7 +14,7 @@ var myRender = render((img1, img2) =>
 var f1 = open("faustao1.png");
 var f2 = open("faustao2.png");
 var f3 = open("faustao3.jpg");
-var faustao = myRender(Circle, f1);
+var faustao = myRender(Polygons.Circle, f1);
 
 var img = f2;
 

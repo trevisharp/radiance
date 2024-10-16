@@ -1,9 +1,10 @@
 ﻿const int N = 100;
 var myRender = render((delta, factor) =>
 {
+    verbose = true;
     zoom(factor);
     move(delta, delta);
-    color = mix(red, blue, delta / width);
+    color = mix(red, blue, x / width);
     fill();
 });
 

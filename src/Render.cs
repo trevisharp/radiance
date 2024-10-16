@@ -17,7 +17,6 @@ using Windows;
 using Contexts;
 using Primitives;
 using Exceptions;
-using System.Collections.ObjectModel;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
@@ -30,8 +29,6 @@ public class Render(
     public RenderContext? Context { get; protected set; }
     protected readonly Delegate function = function;
     protected ShaderDependence?[]? Dependences;
-    Vec3Buffer? data = null;
-    bool dataChanged = true;
     
     public Render Curry(params object?[] args)
         => new(function, [ ..curryingArguments, ..DisplayValues(args) ])
@@ -39,40 +36,6 @@ public class Render(
             Context = Context,
             Dependences = Dependences
         };
-    
-    protected IBufferedData FillData(IPolygon buffer)
-    {
-        if (!dataChanged && data is not null)
-            return data;
-
-        dataChanged = false;
-        var vertexes = buffer.Triangules.Data;
-        data = GetTrianguleBuffer(vertexes);
-        return data!;
-    }
-
-    Vec3Buffer GetTrianguleBuffer(ReadOnlyCollection<float> vertexes)
-    {
-        throw new NotImplementedException();
-        // @@old reference implementation
-        // int vertexCount = vertexes.Count / 3;
-        // int vertexSize = 3 + factories.Count;
-
-        // var data = new float[vertexCount * vertexSize];
-        // var computationResult = new float[factories.Count];
-
-        // for (int i = 0; i < vertexCount; i++)
-        // {
-        //     for (int j = 0; j < computationResult.Length; j++)
-        //         factories[j].GenerateData(i, computationResult, j);
-            
-        //     for (int k = 0; k < 3; k++)
-        //         data[vertexSize * i + k] = vertexes[3 * i + k];
-        //     Array.Copy(computationResult, 0, data, vertexSize * i + 3, computationResult.Length);
-        // }
-
-        // return new TrianguleBuffer(data, vertexSize);
-    }
 
     int layoutLocations = 1;
     protected ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
@@ -139,10 +102,8 @@ public class Render(
             
             dep.UpdateData(arg);
         }
-        
-        var data = FillData(poly);
 
-        Context?.Render(data);
+        Context?.Render(poly);
     }
     
     /// <summary>

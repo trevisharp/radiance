@@ -1,9 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/10/2024
+ * Date:    16/10/2024
  */
-using System;
-using System.Collections.ObjectModel;
-
 namespace Radiance.Buffers;
 
 /// <summary>
@@ -11,9 +8,6 @@ namespace Radiance.Buffers;
 /// </summary>
 public class Vec3Buffer(float[] buffer, int vertexDataSize) : IBufferedData
 {
-    readonly ReadOnlyCollection<float> collection = Array.AsReadOnly(buffer);
-    public ReadOnlyCollection<float> Data => collection;
-
     public int Count => buffer.Length / vertexDataSize;
 
     public Buffer? Buffer { get; set; }

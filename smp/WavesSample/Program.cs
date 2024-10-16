@@ -20,7 +20,7 @@ var waveRender = render((px, py, size) =>
 float shipSpeed = 4f;
 float shipPosition = 0f;
 Window.OnRender += () =>
-    shipRender(Circle, shipPosition);
+    shipRender(Polygons.Circle, shipPosition);
 
 var clkFrame = new Clock();
 var clkWave = new Clock();
@@ -39,7 +39,7 @@ Window.OnFrame += () =>
     waveClocks.Add(clk);
     var origin = shipPosition;
     Window.OnRender += () =>
-        waveRender(Circle, origin, Window.Height / 2, clk.Time);
+        waveRender(Polygons.Circle, origin, Window.Height / 2, clk.Time);
 };
 
 Window.OnKeyDown += (k, m) =>
