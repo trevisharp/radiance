@@ -21,7 +21,7 @@ public class Polygon(float[] data) : IPolygon
         var triangules = Operations
             .PlanarPolygonTriangulation(data[..]);
         
-        return new(triangules, 3);
+        return new(triangules);
     }
 
     public float[] GetBufferData()

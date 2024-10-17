@@ -28,6 +28,7 @@ Coming soon...
 # Versions
 
 ### Radiance v3.0.0
+
  - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
  - ![](https://img.shields.io/badge/new-green) Move RenderKit content to Utils with more renders.
  - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
