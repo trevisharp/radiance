@@ -1,8 +1,5 @@
-﻿using System;
-
-var myRender = render((dx, dy, size) =>
+﻿var myRender = render((dx, dy, size) =>
 {
-    verbose = true;
     zoom(size);
     move(dx, dx);
     color = mix(red, blue, x / width);
@@ -11,12 +8,12 @@ var myRender = render((dx, dy, size) =>
 
 const int N = 100;
 var randomSizes = myRender(skip, skip, 
-    buffer(N, i => 15 + Random.Shared.Next(10))
+    randBuffer(N, 20, 15)
 );
 var fixedBig = myRender(400, 400, 100);
 
-var dxs = buffer(N, i => Random.Shared.Next(1000));
-var dys = buffer(N, i => Random.Shared.Next(1000));
+var dxs = randBuffer(N, 1000);
+var dys = randBuffer(N, 1000);
 
 bool invert = false;
 Window.OnKeyDown += (key, mod) =>

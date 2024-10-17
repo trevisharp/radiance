@@ -91,6 +91,32 @@ public static class Utils
         return stream;
     }
 
+    public static FloatStream buffer(float[] data)
+    {
+        var stream = new FloatStream();
+
+        stream.PrepareSize(data.Length);
+        for (int i = 0; i < data.Length; i++)
+            stream.Add(data[i]);
+
+        return stream;
+    }
+
+    public static FloatStream randBuffer(int size, float max = 1, float min = 0)
+    {
+        var stream = new FloatStream();
+
+        stream.PrepareSize(size);
+        float band = max - min;
+        for (int i = 0; i < size; i++)
+        {
+            var value = Random.Shared.NextSingle();
+            stream.Add(band * value + min);
+        }
+
+        return stream;
+    }
+
     #endregion
 
     #region RENDER UTILS
