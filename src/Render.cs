@@ -17,32 +17,64 @@ using Windows;
 using Contexts;
 using Primitives;
 using Exceptions;
+using OpenTK.Graphics.ES20;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
 /// </summary>
-public class Render(
-    Delegate function,
-    params object[] curryingArguments
-    ) : DynamicObject
+public class Render : DynamicObject
 {
     public RenderContext? Context { get; protected set; }
-    protected readonly Delegate function = function;
-    protected ShaderDependence?[]? Dependences;
+
+    object[] arguments;
+    int layoutLocations = 1;
+    readonly Delegate function;
+    readonly int expectedArguments;
+    ShaderDependence?[]? Dependences;
+
+    public Render(Delegate function)
+    {
+        this.function = function;
+        expectedArguments = function.Method.GetParameters().Length + 1;
+
+        arguments = new object[expectedArguments];
+        for (int i = 0; i < arguments.Length; i++)
+            arguments[i] = Utils.skip;
+    }
     
+    /// <summary>
+    /// Curry parameter of this render fixing it. So f(x, y) and g = f(20) we will have g(10) = f(20, 10).
+    /// You can send vec2 or vec3 types to send more than one value at a time, so f(myVec2) is a valid invoke for f.
+    /// You can also use skip to currying other paremters, so g = f(Utils.skip, 20) we will have g(10) = f(10, 20).
+    /// Do not call this funtion inside Window.OnRender event.
+    /// </summary>
     public Render Curry(params object?[] args)
     {
         if (Window.Phase == WindowPhase.OnRender)
             throw new InvalidCurryPhaseException();
-        
-        return new(function, [ ..curryingArguments, ..DisplayValues(args) ])
+
+        return new(function)
         {
             Context = Context,
-            Dependences = Dependences
+            Dependences = Dependences,
+            arguments = DisplayArguments(args)
         };
     }
+    
+    /// <summary>
+    /// Load the shader code based on received function.
+    /// </summary>
+    public void Load()
+    {
+        if (Context is not null)
+            return;
 
-    int layoutLocations = 1;
+        var ctx = RenderContext.OpenContext();
+        AnalisysInvoke();
+        Context = ctx;
+        RenderContext.CloseContext();
+    }
+
     protected ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
@@ -80,22 +112,58 @@ public class Render(
         };
     }
     
-    /// <summary>
-    /// Get the number of that parameters received for the render to call the function.
-    /// </summary>
-    protected virtual int CountNeededArguments()
-        => function.Method.GetParameters().Length + 1;
+    public sealed override bool TryInvoke(
+        InvokeBinder binder, 
+        object?[]? args, 
+        out object? result)
+    {
+        result = ReceiveParameters(args ?? []);
+        return true;
+    }
+
+    object? ReceiveParameters(object?[] args)
+    {
+        var inShaderAnalisys = RenderContext.GetContext() is not null;
+        var inRenderization = Window.Phase is WindowPhase.OnRender;
+
+        if (inShaderAnalisys)
+        {
+            MakeSubCall(args);
+            return null;
+        }
+
+        var arguments = DisplayArguments(args);
+
+        if (arguments.Length == 0)
+            return null;
+        
+        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
+            throw new MissingPolygonException();
+
+        if (arguments.Length > expectedArguments)
+            throw new ExcessOfArgumentsException();
+        
+        if (arguments.Length < expectedArguments)
+            return Curry(args ?? []);
+
+        if (Window.Phase != WindowPhase.OnRender)
+            return Curry(args ?? []);
+        
+        Load();
+        Invoke(arguments);
+        return null;
+    }
 
     /// <summary>
     /// Call the function passing real data and running the draw pipeline.
     /// Match the argument with the lasts dependencies.
     /// </summary>
-    void CallWithRealData(object[] arguments)
+    void Invoke(object[] arguments)
     {
         if (arguments[0] is not IPolygon poly)
             throw new MissingPolygonException();
         
-        var extraArgs = DisplayValues(arguments[1..]);
+        var extraArgs = SplitObjectsBySize(arguments[1..]);
 
         foreach (var (arg, dep) in extraArgs.Zip(Dependences!))
         {
@@ -109,14 +177,14 @@ public class Render(
     }
     
     /// <summary>
-    /// Call the function using shader objects to analyze behaviour.
+    /// Call the function using shader objects to analyze your behaviour.
     /// </summary>
-    void CallWithShaderObjects()
+    void AnalisysInvoke()
     {
         var parameters = function.Method.GetParameters();
         
         var objs = parameters
-            .Select((p, i) => GenerateDependence(p, i, curryingArguments.Skip(1).ToArray()))
+            .Select((p, i) => GenerateDependence(p, i, arguments.Skip(1).ToArray()))
             .ToArray();
         
         Dependences = objs
@@ -125,67 +193,6 @@ public class Render(
 
         function.DynamicInvoke(objs);
     }
-    
-    public sealed override bool TryInvoke(
-        InvokeBinder binder, 
-        object?[]? args, 
-        out object? result)
-    {
-        if (RenderContext.GetContext() is not null)
-        {
-            MakeSubCall(args ?? []);
-            result = null;
-            return true;
-        }
-
-        var expectedArguments = CountNeededArguments();
-        object[] arguments = [
-            ..curryingArguments, ..DisplayValues(args ?? [])
-        ];
-
-        if (arguments.Length == 0)
-        {
-            result = this;
-            return true;
-        }
-        
-        if (arguments[0] is not IBufferedData)
-            throw new MissingPolygonException();
-
-        if (arguments.Length > expectedArguments)
-            throw new ExcessOfArgumentsException();
-        
-        if (arguments.Length < expectedArguments)
-        {
-            result = Curry(args ?? []);
-            return true;
-        }
-
-        if (Window.Phase != WindowPhase.OnRender)
-        {
-            result = Curry(args ?? []);
-            return true;
-        }
-        
-        Load();
-        CallWithRealData(arguments);
-        result = null;
-        return true;
-    }
-    
-    /// <summary>
-    /// Create a shader to represent the render.
-    /// </summary>
-    public void Load()
-    {
-        if (Context is not null)
-            return;
-
-        var ctx = RenderContext.OpenContext();
-        CallWithShaderObjects();
-        Context = ctx;
-        RenderContext.CloseContext();
-    }
 
     /// <summary>
     /// Run this render inside another render.
@@ -193,18 +200,60 @@ public class Render(
     void MakeSubCall(object?[] input)
     {
         var parameters = function.Method.GetParameters();
-        var arguments = DisplayShaderObjects([ ..curryingArguments, ..input ]);
+        var args = SplitShaderObjectsBySide(input);
+        args = Display(arguments, args, expectedArguments);
 
-        if (parameters.Length != arguments.Length)
-            throw new SubRenderArgumentCountException(parameters.Length, arguments.Length);
+        if (parameters.Length != args.Length)
+            throw new SubRenderArgumentCountException(parameters.Length, args.Length);
 
-        function.DynamicInvoke(arguments);
+        function.DynamicInvoke(args);
     }
 
     /// <summary>
-    /// Fill parameters data on a shader object vector.
+    /// Split objects by size and display a array considering skip operations.
     /// </summary>
-    static ShaderObject[] DisplayShaderObjects(object?[] args)
+    object[] DisplayArguments(object?[] newArgs)
+    {
+        var addedValues = SplitObjectsBySize(newArgs);
+        return Display(arguments, addedValues, expectedArguments);
+    }
+
+    /// <summary>
+    /// Fill parameters data on a vector skipping values
+    /// when using a Utils.Skip or any SkipCurryingParameter object.
+    /// This function implements the fact that a render f(x, y)
+    /// can curryied by g = f(skip, 20) and so called g(10) where
+    /// x = 10 and y = 20.
+    /// </summary>
+    static object[] Display(object[] values, object?[] addedValues, int newValueSize)
+    {
+        var newValues = new object[newValueSize];
+        for (int i = 0; i < values.Length; i++)
+            newValues[i] = values[i];
+        
+        for (int i = 0, j = 0; i < addedValues.Length; j++)
+        {
+            if (newValues[j] is not null and not SkipCurryingParameter)
+                continue;
+
+            var arg = addedValues[i] ?? 
+                throw new CallingNullArgumentException(
+                    i == 0 ? null : addedValues[i - 1], i
+                );
+            i++;
+
+            newValues[j] = arg;
+        }
+
+        return newValues;
+    }
+
+    /// <summary>
+    /// Fill parameters data on a shader object vector based on their sizes.
+    /// This function implements the fact that a render f(x, y)
+    /// can be called by f(v) wheres v is a vec2 with 2 values.
+    /// </summary>
+    static object[] SplitShaderObjectsBySide(object?[] args)
     {
         List<ShaderObject> result = [];
 
@@ -244,9 +293,11 @@ public class Render(
     }
 
     /// <summary>
-    /// Fill parameters data on a vector.
+    /// Fill parameters data on a vector based on their sizes.
+    /// This function implements the fact that a render f(x, y)
+    /// can be called by f(v) wheres v is a vec2 with 2 values.
     /// </summary>
-    protected static object[] DisplayValues(object?[] args)
+    protected static object[] SplitObjectsBySize(object?[] args)
     {
         List<object> result = [];
 
@@ -263,6 +314,7 @@ public class Render(
                 int num => add((float)num),
                 double num => add((float)num),
                 float[] sub => add([..sub]),
+                SkipCurryingParameter skip => add(skip),
                 _ => throw new InvalidPrimitiveException(arg)
             };
         }
