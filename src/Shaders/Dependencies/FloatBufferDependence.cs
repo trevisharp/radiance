@@ -15,6 +15,7 @@ public class FloatBufferDependence(string name, int location) : ShaderDependence
 {
     public readonly string Name = name; 
     public readonly int Location = location; 
+    
     public override void AddVertexHeader(StringBuilder sb)
         => sb.AppendLine($"layout (location = {Location}) in float {Name};");
 

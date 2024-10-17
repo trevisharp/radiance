@@ -8,7 +8,7 @@ namespace Radiance.Buffers;
 /// </summary>
 public class Polygon(float[] data) : IPolygon
 {
-    private Vec3Buffer triangulationPair = null!;
+    private Vec3Buffer? triangulationPair = null;
 
     /// <summary>
     /// Get the triangulation of this polygon.

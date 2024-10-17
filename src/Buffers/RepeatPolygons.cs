@@ -16,7 +16,7 @@ public class RepeatPolygon(IPolygon polygon, int times) : IPolygon
 
     Vec3Buffer? triangulationPair = null;
     public Vec3Buffer Triangules
-        => triangulationPair ??= new(BuildTriangules(), 3);
+        => triangulationPair ??= new(BuildTriangules());
 
     float[]? data = null;
     public float[] GetBufferData()

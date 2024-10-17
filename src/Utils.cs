@@ -62,6 +62,11 @@ public static class Utils
     /// </summary>
     public static readonly Vec3 origin = new(0, 0, 0);
 
+    /// <summary>
+    /// Use to skip parameters on currying process.
+    /// </summary>
+    public static readonly SkipCurryingParameter skip = new();
+
     public static readonly Vec4 red = new(1, 0, 0, 1);
     public static readonly Vec4 green = new(0, 1, 0, 1);
     public static readonly Vec4 blue = new(0, 0, 1, 1);

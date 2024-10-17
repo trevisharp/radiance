@@ -123,9 +123,6 @@ public class OpenGL4ShaderContext : ShaderContext
 
         TotalOffset += stride;
         LayoutCount++;
-
-        if (10 * sizeof(float) == TotalOffset)
-            ConfigCurrentLayouts();
     }
 
     public override void CreateProgram(ShaderPair pair, bool verbose = false)

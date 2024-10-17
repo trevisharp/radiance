@@ -1,68 +1,38 @@
-﻿const int N = 100;
-var myRender = render((delta) =>
+﻿using System;
+
+var myRender = render((dx, dy, size) =>
 {
     verbose = true;
-    zoom(20);
-    move(delta, delta);
+    zoom(size);
+    move(dx, dx);
     color = mix(red, blue, x / width);
     fill();
 });
 
-var poly = N * Polygons.Triangule;
-var deltas = buffer(N, i => 40 * i);
-
+const int N = 100;
 myRender = myRender(
     N * Polygons.Triangule,
-    deltas
+    skip, skip, 
+    buffer(N, i => 15 + Random.Shared.Next(10))
 );
 
-Window.OnRender += () => myRender();
+var dxs = buffer(N, i => Random.Shared.Next(1000));
+var dys = buffer(N, i => Random.Shared.Next(1000));
+
+bool invert = false;
+Window.OnKeyDown += (key, mod) =>
+{
+    if (key == Input.Space)
+        invert = !invert;
+};
+
+Window.OnRender += () => 
+    myRender(
+        invert ? dys : dxs,
+        invert ? dxs : dys
+    );
 Window.CloseOn(Input.Escape);
 Window.Open();
-
-// @@Triangules App
-// using System;
-// using Radiance.Primitives;
-// 
-// var myRender = render((dx, dy, sp, r, g, b, factor, cx, cy) =>
-// {
-//     var dist = distance((dx, dy), (cx, cy));
-//     var scapeX = (dx - cx) / dist;
-//     var scapeY = (dy - cy) / dist;
-
-//     var len = 350 + 50 * sin(2 * t);
-//     dx += len * scapeX / sqrt(dist);
-//     dy += len * scapeY / sqrt(dist);
-
-//     rotate(sp * t);
-//     zoom(factor);
-//     move(dx, dy);
-//     color = (r, g, b, 1f);
-//     fill();
-// });
-
-// const int N = 10_000;
-// float[] values = new float[6 * N];
-// for (int i = 0; i < values.Length; i++)
-//     values[i] = Random.Shared.NextSingle();
-
-// var dxs = buffer(N, i => 2000 * Random.Shared.NextSingle());
-
-// myRender = myRender(
-//     N * Polygons.Triangule,
-//     dxs,
-//     forVertex(i => 1200 * values[6 * (i / 3) + 1]),
-//     forVertex(i => values[6 * (i / 3) + 2]),
-//     forVertex(i => values[6 * (i / 3) + 3]),
-//     forVertex(i => values[6 * (i / 3) + 4]),
-//     forVertex(i => values[6 * (i / 3) + 5])
-// );
-
-// Vec2 cursor = (0, 0);
-// Window.OnMouseMove += p => cursor = p;
-// Window.OnRender += () => myRender(10, cursor);
-// Window.CloseOn(Input.Escape);
-// Window.Open();
 
 // @@Dynkas app
 // var myRender = render(im =>
