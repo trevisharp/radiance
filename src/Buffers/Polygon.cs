@@ -1,9 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/10/2024
+ * Date:    16/10/2024
  */
-using System;
-using System.Collections.ObjectModel;
-
 namespace Radiance.Buffers;
 
 /// <summary>
@@ -17,13 +14,7 @@ public class Polygon(float[] data) : IPolygon
     /// Get the triangulation of this polygon.
     /// </summary>
     public Vec3Buffer Triangules
-    {
-        get
-        {
-            triangulationPair ??= FindTriangules();
-            return triangulationPair;
-        }
-    }
+        => triangulationPair ??= FindTriangules();
 
     Vec3Buffer FindTriangules()
     {   

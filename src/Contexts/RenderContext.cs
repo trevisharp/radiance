@@ -184,7 +184,7 @@ public class RenderContext
                 pair.FragmentShader.Setup();
         }
 
-        RenderActions += (data) =>
+        RenderActions += data =>
         {
             data = (needTriangularization, data) switch
             {
