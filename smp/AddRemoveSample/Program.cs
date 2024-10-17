@@ -10,11 +10,10 @@ var myRender = render((dx, dy, size) =>
 });
 
 const int N = 100;
-myRender = myRender(
-    N * Polygons.Triangule,
-    skip, skip, 
+var randomSizes = myRender(skip, skip, 
     buffer(N, i => 15 + Random.Shared.Next(10))
 );
+var fixedBig = myRender(400, 400, 100);
 
 var dxs = buffer(N, i => Random.Shared.Next(1000));
 var dys = buffer(N, i => Random.Shared.Next(1000));
@@ -27,10 +26,15 @@ Window.OnKeyDown += (key, mod) =>
 };
 
 Window.OnRender += () => 
-    myRender(
+{
+    randomSizes(
+        N * Polygons.Triangule,
         invert ? dys : dxs,
         invert ? dxs : dys
     );
+
+    fixedBig(Polygons.Square);
+};
 Window.CloseOn(Input.Escape);
 Window.Open();
 
