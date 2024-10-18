@@ -17,7 +17,6 @@ using Windows;
 using Contexts;
 using Primitives;
 using Exceptions;
-using OpenTK.Graphics.ES20;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
@@ -53,10 +52,7 @@ public class Render : DynamicObject
         if (Window.Phase == WindowPhase.OnRender)
             throw new InvalidCurryPhaseException();
 
-        return new(function)
-        {
-            Context = Context,
-            Dependences = Dependences,
+        return new(function) {
             arguments = DisplayArguments(args)
         };
     }
@@ -69,13 +65,109 @@ public class Render : DynamicObject
         if (Context is not null)
             return;
 
-        var ctx = RenderContext.OpenContext();
+        Context = RenderContext.OpenContext();
         AnalisysInvoke();
-        Context = ctx;
         RenderContext.CloseContext();
     }
 
-    protected ShaderObject GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
+    public sealed override bool TryInvoke(
+        InvokeBinder binder, 
+        object?[]? args, 
+        out object? result)
+    {
+        result = ReceiveParameters(args ?? []);
+        return true;
+    }
+
+    object? ReceiveParameters(object?[] args)
+    {
+        var arguments = DisplayArguments(args);
+        var canExecute = arguments.Length == expectedArguments;
+        var inShaderAnalisys = RenderContext.GetContext() is not null;
+        var inRenderization = Window.Phase is WindowPhase.OnRender;
+
+        if (inShaderAnalisys)
+        {
+            MakeSubCall(args);
+            return null;
+        }
+
+        if (arguments.Length == 0)
+            return null;
+        
+        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
+            throw new MissingPolygonException();
+
+        if (arguments.Length > expectedArguments)
+            throw new ExcessOfArgumentsException();
+        
+        return (inRenderization, canExecute) switch
+        {
+            (true, false) => throw new InvalidCurryPhaseException(),
+            (true, true) => execute(),
+            (false, _) => Curry(args)
+        };
+
+        object? execute()
+        {
+            Load();
+            Invoke(arguments);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Call the function passing real data and running the draw pipeline.
+    /// Match the argument with the lasts dependencies.
+    /// </summary>
+    void Invoke(object[] arguments)
+    {
+        if (arguments[0] is not IPolygon poly)
+            throw new MissingPolygonException();
+        
+        var extraArgs = SplitObjectsBySize(arguments[1..]);
+
+        foreach (var (arg, dep) in extraArgs.Zip(Dependences!))
+        {
+            if (dep is null)
+                continue;
+            
+            dep.UpdateData(arg);
+        }
+
+        Context?.Render(poly);
+    }
+    
+    /// <summary>
+    /// Call the function using shader objects to analyze your behaviour.
+    /// </summary>
+    void AnalisysInvoke()
+    {
+        var objs = GenerateObjects();
+
+        Dependences = objs
+            .Select(obj => obj.Dependencies.FirstOrDefault())
+            .ToArray();
+
+        function.DynamicInvoke(objs);
+    }
+
+    /// <summary>
+    /// Generate objects of this render based on curryied values.
+    /// </summary>
+    ShaderObject[] GenerateObjects()
+    {
+        var parameters = function.Method.GetParameters();
+        
+        return parameters
+            .Select((p, i) => GenerateObject(p, i, arguments.Skip(1).ToArray()))
+            .ToArray();
+    }
+
+    /// <summary>
+    /// Generate a ShaderObject based on a paramter and curryiedValues.
+    /// </summary>
+    ShaderObject GenerateObject(ParameterInfo parameter, int index, object?[] curriedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
 
@@ -110,88 +202,6 @@ public class Render : DynamicObject
 
             _ => throw new InvalidRenderException(parameter)
         };
-    }
-    
-    public sealed override bool TryInvoke(
-        InvokeBinder binder, 
-        object?[]? args, 
-        out object? result)
-    {
-        result = ReceiveParameters(args ?? []);
-        return true;
-    }
-
-    object? ReceiveParameters(object?[] args)
-    {
-        var inShaderAnalisys = RenderContext.GetContext() is not null;
-        var inRenderization = Window.Phase is WindowPhase.OnRender;
-
-        if (inShaderAnalisys)
-        {
-            MakeSubCall(args);
-            return null;
-        }
-
-        var arguments = DisplayArguments(args);
-
-        if (arguments.Length == 0)
-            return null;
-        
-        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
-            throw new MissingPolygonException();
-
-        if (arguments.Length > expectedArguments)
-            throw new ExcessOfArgumentsException();
-        
-        if (arguments.Length < expectedArguments)
-            return Curry(args ?? []);
-
-        if (Window.Phase != WindowPhase.OnRender)
-            return Curry(args ?? []);
-        
-        Load();
-        Invoke(arguments);
-        return null;
-    }
-
-    /// <summary>
-    /// Call the function passing real data and running the draw pipeline.
-    /// Match the argument with the lasts dependencies.
-    /// </summary>
-    void Invoke(object[] arguments)
-    {
-        if (arguments[0] is not IPolygon poly)
-            throw new MissingPolygonException();
-        
-        var extraArgs = SplitObjectsBySize(arguments[1..]);
-
-        foreach (var (arg, dep) in extraArgs.Zip(Dependences!))
-        {
-            if (dep is null)
-                continue;
-            
-            dep.UpdateData(arg);
-        }
-
-        Context?.Render(poly);
-    }
-    
-    /// <summary>
-    /// Call the function using shader objects to analyze your behaviour.
-    /// </summary>
-    void AnalisysInvoke()
-    {
-        var parameters = function.Method.GetParameters();
-        
-        var objs = parameters
-            .Select((p, i) => GenerateDependence(p, i, arguments.Skip(1).ToArray()))
-            .ToArray();
-        
-        Dependences = objs
-            .Select(obj => obj.Dependencies.FirstOrDefault())
-            .ToArray();
-
-        function.DynamicInvoke(objs);
     }
 
     /// <summary>
@@ -297,7 +307,7 @@ public class Render : DynamicObject
     /// This function implements the fact that a render f(x, y)
     /// can be called by f(v) wheres v is a vec2 with 2 values.
     /// </summary>
-    protected static object[] SplitObjectsBySize(object?[] args)
+    static object[] SplitObjectsBySize(object?[] args)
     {
         List<object> result = [];
 
