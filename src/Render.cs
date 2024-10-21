@@ -79,6 +79,10 @@ public class Render : DynamicObject
         return true;
     }
 
+    /// <summary>
+    /// Function called on try execute or curry a render.
+    /// This functions decides the render behaviour.
+    /// </summary>
     object? ReceiveParameters(object?[] args)
     {
         var arguments = DisplayArguments(args);

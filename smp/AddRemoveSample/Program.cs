@@ -1,12 +1,12 @@
-﻿var myRender = render((dx, dy, size) =>
+﻿const int N = 100;
+
+var myRender = render((dx, dy, size) =>
 {
     zoom(size);
     move(dx, dx);
     color = mix(red, blue, x / width);
     fill();
 });
-
-const int N = 100;
 var randomSizes = myRender(skip, skip, skip, 
     randBuffer(N, 20, 15)
 );
