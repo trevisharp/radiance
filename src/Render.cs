@@ -30,6 +30,7 @@ public class Render : DynamicObject
     readonly Delegate function;
     readonly int expectedArguments;
     ShaderDependence?[]? Dependences;
+    Type?[]? Types;
 
     public Render(Delegate function)
     {
@@ -85,16 +86,16 @@ public class Render : DynamicObject
     /// </summary>
     object? ReceiveParameters(object?[] args)
     {
-        var arguments = DisplayArguments(args);
-        var canExecute = arguments.Length == expectedArguments;
         var inShaderAnalisys = RenderContext.GetContext() is not null;
-        var inRenderization = Window.Phase is WindowPhase.OnRender;
-
         if (inShaderAnalisys)
         {
             MakeSubCall(args);
             return null;
         }
+
+        var arguments = DisplayArguments(args);
+        var canExecute = arguments.Length == expectedArguments;
+        var inRenderization = Window.Phase is WindowPhase.OnRender;
 
         if (arguments.Length == 0)
             return null;
@@ -178,7 +179,8 @@ public class Render : DynamicObject
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var isConstant = index < curriedValues.Length;
+        var isCurried = index < curriedValues.Length;
+        var isConstant = isCurried && curriedValues[index] is not SkipCurryingParameter;
         var isFactory = isConstant && curriedValues[index] is IBufferedData;
         
         return (isFloat, isTexture, isConstant, isFactory) switch
@@ -216,12 +218,19 @@ public class Render : DynamicObject
         var parameters = function.Method.GetParameters();
         var args = SplitShaderObjectsBySide(input);
         args = Display(arguments, args, expectedArguments);
-
+        args = RemoveSkip(args);
+        
         if (parameters.Length != args.Length)
-            throw new SubRenderArgumentCountException(parameters.Length, args.Length);
+            throw new SubRenderArgumentCountException(parameters.Length, args.Length - 1);
 
         function.DynamicInvoke(args);
     }
+
+    /// <summary>
+    /// Remove SKipCurryingParameter values.
+    /// </summary>
+    static object[] RemoveSkip(object[] values)
+        => values.Where(val => val is not SkipCurryingParameter).ToArray();
 
     /// <summary>
     /// Split objects by size and display a array considering skip operations.
