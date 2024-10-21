@@ -17,6 +17,7 @@ using Windows;
 using Contexts;
 using Primitives;
 using Exceptions;
+using OpenTK.Graphics.OpenGL;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
@@ -30,7 +31,6 @@ public class Render : DynamicObject
     readonly Delegate function;
     readonly int expectedArguments;
     ShaderDependence?[]? Dependences;
-    Type?[]? Types;
 
     public Render(Delegate function)
     {
@@ -61,7 +61,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Load the shader code based on received function.
     /// </summary>
-    public void Load()
+    public void Load(object[] args)
     {
         if (Context is not null)
             return;
@@ -115,7 +115,7 @@ public class Render : DynamicObject
 
         object? execute()
         {
-            Load();
+            Load(arguments);
             Invoke(arguments);
             return null;
         }
@@ -164,15 +164,47 @@ public class Render : DynamicObject
     {
         var parameters = function.Method.GetParameters();
         
-        return parameters
-            .Select((p, i) => GenerateObject(p, i, arguments.Skip(1).ToArray()))
+        return parameters.Zip(GenerateDependences())
+            .Select(x => GenerateObject(x.First.Name!, x.Second))
             .ToArray();
+    }
+
+    ShaderObject GenerateObject(string name, ShaderDependence dependence)
+    {
+        return dependence switch {
+            FloatBufferDependence dep => new FloatShaderObject(
+                name, ShaderOrigin.VertexShader, [ dep ]),
+
+            ConstantDependence dep => new FloatShaderObject(
+                name, ShaderOrigin.Global, [ dep ]),
+
+            UniformFloatDependence dep => new FloatShaderObject(
+                name, ShaderOrigin.Global, [ dep ]),
+            
+            TextureDependence dep => new Sampler2DShaderObject(
+                name, ShaderOrigin.FragmentShader, [ dep ]),
+            
+            _ => throw new NotImplementedException()
+        };
+    }
+
+    /// <summary>
+    /// Generate the dependencies from this calling. 
+    /// </summary>
+    ShaderDependence[] GenerateDependences()
+    {
+        var parameters = function.Method.GetParameters();
+        var nonPolyArgs = arguments.Skip(1).ToArray();
+        var deps = parameters.Select(
+            (p, i) => GenerateDependence(p, i, nonPolyArgs)
+        );
+        return [ ..deps ];
     }
 
     /// <summary>
     /// Generate a ShaderObject based on a paramter and curryiedValues.
     /// </summary>
-    ShaderObject GenerateObject(ParameterInfo parameter, int index, object?[] curriedValues)
+    ShaderDependence GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
 
@@ -185,22 +217,16 @@ public class Render : DynamicObject
         
         return (isFloat, isTexture, isConstant, isFactory) switch
         {
-            (true, false, true, true) => new FloatShaderObject(
-                name, ShaderOrigin.VertexShader, [ new FloatBufferDependence(name, layoutLocations++) ]
-            ),
+            (true, false, true, true) => new FloatBufferDependence(name, layoutLocations++),
 
-            (true, false, true, false) => new FloatShaderObject(
-                name, ShaderOrigin.FragmentShader, [ new ConstantDependence(name, 
-                    curriedValues[index] is float value ? value : throw new Exception($"{curriedValues[index]} is not a float.")) ]
-            ),
+            (true, false, true, false) => new ConstantDependence(name, 
+                    curriedValues[index] is float value ? value : 
+                    throw new Exception($"{curriedValues[index]} is not a float.")
+                ),
 
-            (true, false, false, false) => new FloatShaderObject(
-                name, ShaderOrigin.Global, [ new UniformFloatDependence(name) ]
-            ),
+            (true, false, false, false) => new UniformFloatDependence(name),
 
-            (false, true, _, false) => new Sampler2DShaderObject(
-                name, ShaderOrigin.FragmentShader, [ new TextureDependence(name) ]
-            ),
+            (false, true, _, false) => new TextureDependence(name),
 
             (false, true, _, true) => throw new NotImplementedException(
                 "Radiance not work with texture buffer yet. You cannot use a factory to draw many textures."

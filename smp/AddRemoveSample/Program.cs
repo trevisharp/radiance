@@ -12,6 +12,7 @@ var randomSizes = myRender(skip, skip, skip,
 );
 var fixedBig = myRender(Polygons.Square, 400, 400, 100);
 
+var poly = N * Polygons.Triangule;
 var dxs = randBuffer(N, 1000);
 var dys = randBuffer(N, 1000);
 
@@ -25,7 +26,7 @@ Window.OnKeyDown += (key, mod) =>
 Window.OnRender += () => 
 {
     randomSizes(
-        N * Polygons.Triangule,
+        poly,
         invert ? dys : dxs,
         invert ? dxs : dys
     );
