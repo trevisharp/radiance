@@ -169,7 +169,10 @@ public class Render : DynamicObject
             .ToArray();
     }
 
-    ShaderObject GenerateObject(string name, ShaderDependence dependence)
+    /// <summary>
+    /// Generate a object based on their dependences.
+    /// </summary>
+    static ShaderObject GenerateObject(string name, ShaderDependence dependence)
     {
         return dependence switch {
             FloatBufferDependence dep => new FloatShaderObject(
