@@ -14,7 +14,7 @@ using Primitives;
 /// <summary>
 /// A Implemetation of OpenGL window
 /// </summary>
-public class OpenGLWindow(bool fullscreen) : BaseWindow
+public class OpenGL4Window(bool fullscreen) : BaseWindow
 {
     private GameWindow? win;
     private bool canRender = true;

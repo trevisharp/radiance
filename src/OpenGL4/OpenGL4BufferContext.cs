@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/09/2024
+ * Date:    24/10/2024
  */
 using OpenTK.Graphics.OpenGL4;
 
@@ -7,18 +7,18 @@ namespace Radiance.OpenGL4;
 
 using Contexts;
 
-public class OpenGL4BufferContext : BufferContext
+public class OpenGL4BufferContext : IBufferContext
 {
-    public override void Bind(int id)
+    public void Bind(int id)
         => GL.BindBuffer(BufferTarget.ArrayBuffer, id);
 
-    public override int Create()
+    public int Create()
         => GL.GenBuffer();
 
-    public override void Delete(int id)
+    public void Delete(int id)
         => GL.DeleteBuffer(id);
 
-    public override void Store(float[] data, bool dynamicData)
+    public void Store(float[] data, bool dynamicData)
         => GL.BufferData(
             BufferTarget.ArrayBuffer, data.Length * sizeof(float), data,
             dynamicData ? BufferUsageHint.DynamicDraw : BufferUsageHint.StaticDraw

@@ -18,7 +18,7 @@ public static class BufferManager
     /// <summary>
     /// Get or Set the Current Buffer Context Builder, the default is the OpenGL4 Buffer Context Builder.
     /// </summary>
-    public static BufferContextBuilder BufferContextBuilder { get; set; } = new OpenGL4BufferContextBuilder();
+    public static IBufferContextBuilder BufferContextBuilder { get; set; } = new OpenGL4BufferContextBuilder();
 
     static int currentFrame = 0;
     static readonly List<Buffer> buffers = [];
@@ -54,7 +54,7 @@ public static class BufferManager
             SetBufferData(data.GetBufferData(), buffer, ctx);
     }
 
-    private static bool CreateBuffer(IBufferedData data, BufferContext ctx)
+    private static bool CreateBuffer(IBufferedData data, IBufferContext ctx)
     {
         if (data.Buffer is not null)
             return false;
@@ -74,7 +74,7 @@ public static class BufferManager
         return true;
     }
 
-    private static void DeleteBuffer(Buffer buffer, BufferContext ctx)
+    private static void DeleteBuffer(Buffer buffer, IBufferContext ctx)
     {
         var data = buffer.CurrentData;
         if (data is not null)
@@ -89,7 +89,7 @@ public static class BufferManager
         ctx.Delete(id.Value);
     }
 
-    private static void BindBuffer(Buffer buffer, BufferContext ctx)
+    private static void BindBuffer(Buffer buffer, IBufferContext ctx)
     {
         var id = buffer.BufferId;
         if (id is null)
@@ -98,7 +98,7 @@ public static class BufferManager
         ctx.Bind(id.Value);
     }
 
-    private static void SetBufferData(float[] data, Buffer buffer, BufferContext ctx)
+    private static void SetBufferData(float[] data, Buffer buffer, IBufferContext ctx)
     {
         ctx.Store(data, buffer.DynamicDraw);
     }

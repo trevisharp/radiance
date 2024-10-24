@@ -8,5 +8,5 @@ using Windows;
 public class OpenGL4WindowBuilder : WindowBuilder
 {
     public override BaseWindow New(bool fullscreen)
-        => new OpenGLWindow(fullscreen);
+        => new OpenGL4Window(fullscreen);
 }
