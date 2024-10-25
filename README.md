@@ -150,18 +150,12 @@ Coming soon...
 
 # TODO 3.0
 - Use BufferSubData to improve update performance.
-- Finish implementations over IMutableData and multi-renderization.
-
-- Improve renders abstractions allowing extensibiltiy and customization.
-
+- Finish implementations over IBufferedData and multi-renderization.
+- Improve Render class abstractions allowing extensibiltiy and customization.
 - Text Renders.
-
 - Improve ShaderObjects Resources.
-
 - Improve the use of more than one window.
 - Create the Graphics class for call simple draw operations.
-
 - Add non-monotone polygons triangularization.
-
 - Make z-index between 0 to 1000 to make layer-based organization more simple.
 - Allow basic transformations like z-index adjustment customizations.
