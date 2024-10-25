@@ -24,4 +24,9 @@ public class FloatBufferDependence(string name, int location) : ShaderDependence
 
     public override int GetOrderFactor()
         => int.MinValue / 2 + Location;
+
+    public override void UpdateData(object value)
+    {
+        // TODO: Implement buffer loading    
+    }
 }

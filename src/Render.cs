@@ -70,8 +70,7 @@ public class Render : DynamicObject
         var ctx = RenderContext.OpenContext();
         var deps = AnalisysInvoke(args);
         RenderContext.CloseContext();
-
-        System.Console.WriteLine(string.Join(" ", deps.Select(x => x.ToString())));
+        
         map.AddContext(deps, depths, ctx);
         return (ctx, deps);
     }

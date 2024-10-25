@@ -29,7 +29,6 @@ public class CallDictionary
 
     public void AddContext(ShaderDependence[] deps, int[] depth, RenderContext ctx)
     {
-        System.Console.WriteLine("add");
         var hash = CreateFNVHash(depth);
         var match = new CallMatch(
             depth, deps, ctx, hash
