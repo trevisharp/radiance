@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/10/2024
+ * Date:    25/10/2024
  */
 using System;
 using System.Linq;
@@ -17,20 +17,19 @@ using Windows;
 using Contexts;
 using Primitives;
 using Exceptions;
-using OpenTK.Graphics.OpenGL;
+using Radiance.Renders;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
 /// </summary>
 public class Render : DynamicObject
 {
-    public RenderContext? Context { get; protected set; }
-
     object[] arguments;
     int layoutLocations = 1;
     readonly Delegate function;
     readonly int expectedArguments;
-    ShaderDependence?[]? Dependences;
+
+    readonly CallDictionary map = new();
 
     public Render(Delegate function)
     {
@@ -61,14 +60,20 @@ public class Render : DynamicObject
     /// <summary>
     /// Load the shader code based on received function.
     /// </summary>
-    public void Load(object[] args)
+    public (RenderContext ctx, ShaderDependence[] deps) Load(object[] args)
     {
-        if (Context is not null)
-            return;
-
-        Context = RenderContext.OpenContext();
-        AnalisysInvoke();
+        var depths = DiscoverDepths(args);
+        var info = map.GetContext(depths);
+        if (info.HasValue)
+            return info.Value;
+        
+        var ctx = RenderContext.OpenContext();
+        var deps = AnalisysInvoke(args);
         RenderContext.CloseContext();
+
+        System.Console.WriteLine(string.Join(" ", deps.Select(x => x.ToString())));
+        map.AddContext(deps, depths, ctx);
+        return (ctx, deps);
     }
 
     public sealed override bool TryInvoke(
@@ -115,8 +120,8 @@ public class Render : DynamicObject
 
         object? execute()
         {
-            Load(arguments);
-            Invoke(arguments);
+            var (ctx, deps) = Load(arguments);
+            Invoke(arguments, ctx, deps);
             return null;
         }
     }
@@ -125,14 +130,14 @@ public class Render : DynamicObject
     /// Call the function passing real data and running the draw pipeline.
     /// Match the argument with the lasts dependencies.
     /// </summary>
-    void Invoke(object[] arguments)
+    static void Invoke(object[] arguments, RenderContext ctx, ShaderDependence[] deps)
     {
         if (arguments[0] is not IPolygon poly)
             throw new MissingPolygonException();
         
         var extraArgs = SplitObjectsBySize(arguments[1..]);
 
-        foreach (var (arg, dep) in extraArgs.Zip(Dependences!))
+        foreach (var (arg, dep) in extraArgs.Zip(deps!))
         {
             if (dep is null)
                 continue;
@@ -140,32 +145,44 @@ public class Render : DynamicObject
             dep.UpdateData(arg);
         }
 
-        Context?.Render(poly);
+        ctx?.Render(poly);
     }
     
     /// <summary>
     /// Call the function using shader objects to analyze your behaviour.
     /// </summary>
-    void AnalisysInvoke()
+    ShaderDependence[] AnalisysInvoke(object[] args)
     {
-        var objs = GenerateObjects();
+        var objs = GenerateObjects(args);
 
-        Dependences = objs
-            .Select(obj => obj.Dependencies.FirstOrDefault())
+        var deps = objs
+            .Select(obj => obj.Dependencies.First())
             .ToArray();
 
         function.DynamicInvoke(objs);
+
+        return deps;
     }
 
     /// <summary>
     /// Generate objects of this render based on curryied values.
     /// </summary>
-    ShaderObject[] GenerateObjects()
+    ShaderObject[] GenerateObjects(object[] args)
     {
         var parameters = function.Method.GetParameters();
         
-        return parameters.Zip(GenerateDependences())
+        return parameters.Zip(GenerateDependences(args))
             .Select(x => GenerateObject(x.First.Name!, x.Second))
+            .ToArray();
+    }
+    
+    /// <summary>
+    /// Discover the depth of a array of inputs.
+    /// </summary>
+    static int[] DiscoverDepths(object[] inputs)
+    {
+        return inputs
+            .Select(DiscoverDepth)
             .ToArray();
     }
 
@@ -194,10 +211,10 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate the dependencies from this calling. 
     /// </summary>
-    ShaderDependence[] GenerateDependences()
+    ShaderDependence[] GenerateDependences(object[] args)
     {
         var parameters = function.Method.GetParameters();
-        var nonPolyArgs = arguments.Skip(1).ToArray();
+        var nonPolyArgs = args.Skip(1).ToArray();
         var deps = parameters.Select(
             (p, i) => GenerateDependence(p, i, nonPolyArgs)
         );
@@ -207,24 +224,24 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate a ShaderObject based on a paramter and curryiedValues.
     /// </summary>
-    ShaderDependence GenerateDependence(ParameterInfo parameter, int index, object?[] curriedValues)
+    ShaderDependence GenerateDependence(ParameterInfo parameter, int index, object?[] args)
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
 
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var isCurried = index < curriedValues.Length;
-        var isConstant = isCurried && curriedValues[index] is not SkipCurryingParameter;
-        var isFactory = isConstant && curriedValues[index] is IBufferedData;
+        var isCurried = index < args.Length;
+        var isConstant = isCurried && args[index] is not SkipCurryingParameter;
+        var isFactory = isConstant && args[index] is IBufferedData;
         
         return (isFloat, isTexture, isConstant, isFactory) switch
         {
             (true, false, true, true) => new FloatBufferDependence(name, layoutLocations++),
 
             (true, false, true, false) => new ConstantDependence(name, 
-                    curriedValues[index] is float value ? value : 
-                    throw new Exception($"{curriedValues[index]} is not a float.")
+                    args[index] is float value ? value : 
+                    throw new Exception($"{args[index]} is not a float.")
                 ),
 
             (true, false, false, false) => new UniformFloatDependence(name),
@@ -379,4 +396,14 @@ public class Render : DynamicObject
             return true;
         }
     }
+
+    /// <summary>
+    /// Get the object depth.
+    /// </summary>
+    static int DiscoverDepth(object obj)
+        => obj switch
+        {
+            IBufferedData buffer => buffer.Count,
+            _ => 1
+        };
 }
