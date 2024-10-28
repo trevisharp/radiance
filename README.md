@@ -386,7 +386,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
-# TODO 3.0
+# TODO
 - Use BufferSubData to improve update performance.
 - Finish implementations over IBufferedData and multi-renderization.
 - Improve Render class abstractions allowing extensibiltiy and customization.
@@ -400,3 +400,4 @@ Window.Open();
 - Make z-index between 0 to 1000 to make layer-based organization more simple.
 - Allow basic transformations like z-index adjustment customizations.
 - Improve variable generation name to improve shader reutilization.
+- Avaliate dependency cycles on GLSLGenerator.

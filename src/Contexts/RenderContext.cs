@@ -20,7 +20,14 @@ using Exceptions;
 /// </summary>
 public class RenderContext
 {
+    /// <summary>
+    /// Get or Set the Current Shader Context Builder, the default is the OpenGL4 Shader Context Builder.
+    /// </summary>
     public static IShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
+
+    /// <summary>
+    /// Get or Set the Current Code Generator, the default is the GLSL Code Generator Builder.
+    /// </summary>
     public static ICodeGeneratorBuilder CodeGeneratorBuilder { get; set; } = new GLSLGeneratorBuilder();
     
     static readonly Dictionary<int, RenderContext> threadMap = [];

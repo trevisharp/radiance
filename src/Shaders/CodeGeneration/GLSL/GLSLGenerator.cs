@@ -4,19 +4,18 @@
 using System;
 using System.Text;
 using System.Linq;
+using System.Collections.Generic;
 
 namespace Radiance.Shaders.CodeGeneration.GLSL;
 
-using System.Collections.Generic;
-using Contexts;
 using Objects;
+using Contexts;
 
 /// <summary>
 /// Tools to generate GL Shader Language Code.
 /// </summary>
 public class GLSLGenerator : ICodeGenerator
 {
-
     /// <summary>
     /// Get or Set the GSLS Version.
     /// </summary>

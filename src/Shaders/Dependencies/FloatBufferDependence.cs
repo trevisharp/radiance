@@ -1,11 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/10/2024
+ * Date:    28/10/2024
  */
 using System;
 using System.Text;
 
 namespace Radiance.Shaders.Dependencies;
 
+using Buffers;
 using Contexts;
 
 /// <summary>
@@ -13,6 +14,7 @@ using Contexts;
 /// </summary>
 public class FloatBufferDependence(string name, int location) : ShaderDependence
 {
+    private IBufferedData? data = null;
     public readonly string Name = name; 
     public readonly int Location = location; 
     
@@ -25,8 +27,13 @@ public class FloatBufferDependence(string name, int location) : ShaderDependence
     public override int GetOrderFactor()
         => int.MinValue / 2 + Location;
 
-    public override void UpdateData(object value)
+    public override Action AddOperation(IShaderConfiguration ctx)
     {
-        // TODO: Implement buffer loading
+        return () => {
+            
+        };
     }
+
+    public override void UpdateData(object value)
+        => data = value as IBufferedData;
 }
