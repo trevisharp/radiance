@@ -28,7 +28,7 @@ for ($i = 0; $i -lt $versionText.Length; $i++)
     }
 }
 
-dotnet pack -c Release
+dotnet pack Radiance.csproj -c Release
 $file = ".\bin\Release\Radiance." + $version + ".nupkg"
 cp $file Radiance.nupkg
 
