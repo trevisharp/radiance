@@ -441,7 +441,7 @@ public static class Utils
     /// Receiving x, y and a factor, performa a zoom on polygon on point (x, y) with the factor scale.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void zoom(dynamic x, dynamic y, dynamic factor)
+    public static void zoom(Float x, Float y, Float factor)
     {
         zoomRender ??= render((cx, cy, factor) => {
             var cxValue = autoVar(cx);
@@ -463,7 +463,7 @@ public static class Utils
     /// Receiving a factor, performa a zoom on polygon on point (x, y) with the factor scale.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void zoom(dynamic factor)
+    public static void zoom(Float factor)
     {
         originZoomRender ??= render((factor) => {
             var factorValue = autoVar(factor);
@@ -482,7 +482,7 @@ public static class Utils
     /// <summary>
     /// Rotate the polygon a specific angle.
     /// </summary>
-    public static void rotate(dynamic angle)
+    public static void rotate(Float angle)
     {
         rotateRender ??= render(angle => {
             var paramValue = autoVar(angle);

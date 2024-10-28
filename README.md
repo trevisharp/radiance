@@ -8,7 +8,6 @@ An OpenGL/OpenTK-based library 2D foccused to program shaders easily in C#.
  - [How to install](#how-to-install)
  - [Learn by examples](#learn-by-examples)
  - [Versions](#versions)
- - [Next Features](#next-features)
 
 # Overview
 
@@ -23,7 +22,137 @@ dotnet add package radiance # Install Radiance
 
 # Learn by examples
 
-Coming soon...
+### Create a simple fullscreen window
+
+```cs
+using Radiance;
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Create a custom render
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render(() => {
+    color = red;
+    fill();
+
+    color = white;
+    draw();
+});
+
+var myPolygon = Polygons.FromData(
+    (0, 0), (100, 0), (100, 100), (0, 100)
+);
+
+Window.OnRender += () => myRender(myPolygon);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Create a render with parameters
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((r, g, b, a) => {
+    color = (r, g, b, a);
+    fill();
+});
+
+var myPolygon = Polygons.FromData(
+    (0, 0), (100, 0), (100, 100), (0, 100)
+);
+
+// red = (1, 0, 0, 1), so can be used to set 4 parameters
+// you can do that too:
+// Window.OnRender += () => myRender(myPolygon, 1, 0, 0, 1);
+Window.OnRender += () => myRender(myPolygon, red);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Use built-in renders to simplify the work
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((r, g, b, a, size, dx, dy) => {
+    zoom(size); // zoom in (0, 0)
+    move(dx, dy);
+    color = (r, g, b, a);
+    fill();
+});
+
+Window.OnRender += () => myRender(
+    Polygons.Square, // A square with 1x1 size on (0, 0) coridnate
+    red, 100, 200, 200
+);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Transform the polygon as you want
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((r, g, b, a, size, dx, dy) => {
+    zoom(size);
+    move(dx, dy);
+    // modify the position of polygon vertex
+    pos = (pos.x, pos.y + pos.x / 5, pos.z);
+    // use x, y, z, variables to define each pixel color
+    color = (r, g, x / 300, a);
+    fill();
+});
+
+Window.OnRender += () => myRender(
+    Polygons.Square,
+    red, 100, 200, 200
+);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+# Use Utils.t to create amazing animations
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((r, g, b, a, size, dx, dy) => {
+    zoom(size);
+    move(dx + 10 * t, dy + 10 * t);
+    color = (r, g, b, a);
+    fill();
+});
+
+Window.OnRender += () => myRender(
+    Polygons.Square,
+    red, 100, 200, 200
+);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+# Use GPU functions to create effects fast
+
+```cs
+
+```
 
 # Versions
 

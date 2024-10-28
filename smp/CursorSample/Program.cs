@@ -1,27 +1,21 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-var oncursor = render((cx, cy) =>
-{
-    verbose = true;
-    pos += (0.5, 0.5, 0);
-    pos *= (width, height, 1);
-
-    var d = distance((x, y), (cx, cy));
-    var s = (5.0 + 0.01 * sin(10 * t)) / d;
-    color = (s, s, s, 1);
+var myRender = render((size, dx, dy) => {
+    zoom(size);
+    move(dx + 10 * t, dy + 10 * t);
+    // mix recive two values and a coeficient between 0 and 1
+    // and chooses a mix of the values using this coeficient
+    // 0 = red, 1 = blue, 0.5 = (red + blue) / 2
+    // sin is a trigonometric function
+    color = mix(red, blue, sin(t));
     fill();
 });
 
-float cx = 0f;
-float cy = 0f;
-Window.OnMouseMove += p => (cx, cy) = p;
-
-var rect = Rect(1, 1);
-Window.OnRender += () => oncursor(rect, cx, cy);
-
-Window.CursorVisible = false;
+Window.OnRender += () => myRender(
+    Polygons.Square,
+    100, 200, 200
+);
 
 Window.CloseOn(Input.Escape);
-
 Window.Open();
