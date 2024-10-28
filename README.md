@@ -22,6 +22,8 @@ dotnet add package radiance # Install Radiance
 
 # Learn by examples
 
+In this section we added exemples that cover the principal features of Radiance.
+
 ### Create a simple fullscreen window
 
 ```cs
@@ -126,7 +128,7 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
-# Use Utils.t to create amazing animations
+### Use Utils.t to create amazing animations
 
 ```cs
 using Radiance;
@@ -148,10 +150,86 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
-# Use GPU functions to create effects fast
+### Use GPU functions to create effects fast
 
 ```cs
+using Radiance;
+using static Radiance.Utils;
 
+var myRender = render((size, dx, dy) => {
+    zoom(size);
+    move(dx, dy);
+    // mix recive two values and a coeficient between 0 and 1
+    // and chooses a mix of the values using this coeficient
+    // 0 = red, 1 = blue, 0.5 = (red + blue) / 2
+
+    // sin is a trigonometric function that return a value
+    // between -1 and 1. cos functions exists to, but
+    // sin(0) = 0 and cos(0) = 1.
+    var coef = (sin(5 * t) + 1) / 2;
+    color = mix(red, blue, coef);
+    fill();
+});
+
+Window.OnRender += () => myRender(
+    Polygons.Square,
+    100, 200, 200
+);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Use trigonometric functions to create loop behaviours
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render(() => {
+    zoom(100 + 50 * sin(5 * t));
+    centralize();
+    move(200 * cos(2 * t), 200 * sin(2 * t));
+    color = red;
+    fill();
+});
+
+Window.OnRender += () => myRender(Polygons.Square);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Create amazing effects with Radiance
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render(() => {
+    var center = (width / 2, height / 2);
+    var pixel = (x, y);
+    var dist = distance(pixel, center);
+    var invDist = 100 / dist;
+    var light = min(invDist, 1);
+    color = (light, light, light, 1f);
+    fill();
+});
+
+// 1.Your polygon is the entire screen now
+// 2.We using a currying operation. Now render has the
+// first parameter fixed on Polygons.Screen
+// this is interesting because create a polygon on OnRender
+// can produce wrong behaviours or performance loss
+// 3.We make the operation in OnLoad to grant that the Screen
+// already be initialized when the polygon is created.
+// In other case we can do myRender = myRender(Polygons.Rect(200, 200))
+// outside OnLoad function.
+Window.OnLoad += () => myRender = myRender(Polygons.Screen);
+Window.OnRender += () => myRender();
+
+Window.CloseOn(Input.Escape);
+Window.Open();
 ```
 
 # Versions
@@ -282,6 +360,7 @@ Window.Open();
 - Finish implementations over IBufferedData and multi-renderization.
 - Improve Render class abstractions allowing extensibiltiy and customization.
 - Validate depths of input of renders consistence.
+- Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
 - Text Renders.
 - Improve ShaderObjects Resources.
 - Improve the use of more than one window.
