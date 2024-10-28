@@ -12,9 +12,9 @@ using Shaders;
 public interface IShaderInvoker
 {
     /// <summary>
-    /// Start to use a Data.
+    /// Configure the shader to use a set of data.
     /// </summary>
-    void Use(IBufferedData data);
+    void Use(object[] data);
 
     /// <summary>
     /// Draw Arrays in the selected buffer.
@@ -30,7 +30,7 @@ public interface IShaderInvoker
     /// An optinional configuration method that will called once Between Use and UseProgram.
     /// And after other configurations based on shader dependeces.
     /// </summary>
-    void Configure();
+    void FirstConfiguration();
 
     /// <summary>
     /// Use the associated specific Program.

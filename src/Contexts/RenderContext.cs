@@ -84,7 +84,7 @@ public class RenderContext
     /// <summary>
     /// Get or set the actions in this render context.
     /// </summary>
-    public Action<IBufferedData>? RenderActions { get; set; }
+    public Action<object[]>? RenderActions { get; set; }
 
     /// <summary>
     /// Get or set the shader object representing the position transformation.
@@ -99,12 +99,12 @@ public class RenderContext
     /// <summary>
     /// Call render pipeline for this render context.
     /// </summary>
-    public void Render(IBufferedData polygon)
+    public void Render(object[] args)
     {
         if (RenderActions is null)
             return;
         
-        RenderActions(polygon);
+        RenderActions(args);
     }
 
     /// <summary>
@@ -179,7 +179,7 @@ public class RenderContext
             if (pair.InitialConfiguration is not null)
                 pair.InitialConfiguration();
 
-            context.Configure();
+            context.FirstConfiguration();
         }
 
         void setupShaders()
@@ -191,9 +191,9 @@ public class RenderContext
                 pair.FragmentShader.Setup();
         }
 
-        RenderActions += data =>
+        RenderActions += args =>
         {
-            data = (needTriangularization, data) switch
+            IBufferedData polygon = (needTriangularization, args[0]) switch
             {
                 (false, IPolygon poly) => poly,
                 (true, IPolygon poly) => poly.Triangules,
@@ -202,8 +202,9 @@ public class RenderContext
                 (true, IBufferedData) => throw new InvalidFillOperationException(),
                 _ => throw new MissingPolygonException()
             };
+            args = [ polygon, ..args[1..] ];
 
-            context.Use(data);
+            context.Use(args);
 
             initIfNeeded();
             
@@ -211,7 +212,7 @@ public class RenderContext
 
             setupShaders();
 
-            context.Draw(primitive, data);
+            context.Draw(primitive, polygon);
         };
     }
 }

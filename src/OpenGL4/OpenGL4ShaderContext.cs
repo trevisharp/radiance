@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/09/2024
+ * Date:    28/10/2024
  */
 using System;
 using System.Linq;
@@ -16,6 +16,8 @@ using Buffers;
 using Contexts;
 using Primitives;
 using Exceptions;
+using Radiance.Internal;
+using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Represents the data and state of a shader program.
@@ -24,7 +26,6 @@ public class OpenGL4ShaderContext : ShaderContext
 {
     // Global OpenGL resources indexes map
     static readonly Dictionary<ImageResult, int> textureMap = [];
-    static readonly List<int> objectList = [];
     static readonly List<int> textureUnits = [];
     static readonly Dictionary<int, int> shaderMap = [];
     static readonly Dictionary<(int, int), int> programMap = [];
@@ -37,10 +38,6 @@ public class OpenGL4ShaderContext : ShaderContext
         foreach (var texture in textureMap)
             GL.DeleteTexture(texture.Value);
         textureMap.Clear();
-
-        foreach (var vertexArray in objectList)
-            GL.DeleteVertexArray(vertexArray);
-        objectList.Clear();
         
         GL.UseProgram(0);
         foreach (var program in programMap)
@@ -63,11 +60,6 @@ public class OpenGL4ShaderContext : ShaderContext
     public int TextureCount { get; private set; } = 0;
 
     /// <summary>
-    /// Get the Vertex Array Object Id associated with this Shader.
-    /// </summary>
-    public int? ObjectId { get; private set; } = null;
-
-    /// <summary>
     /// Get the total count of layout defineds on Vertex Array Object. 
     /// </summary>
     public int LayoutCount { get; private set; } = 0;
@@ -76,6 +68,9 @@ public class OpenGL4ShaderContext : ShaderContext
     /// Get the total offset of layouts.
     /// </summary>
     public int TotalOffset { get; private set; } = 0;
+
+    readonly FeatureMap<VertexArrayObject> vertexArrayMap = new();
+    record VertexArrayObject(int[] Buffers, int Id);
 
     readonly Queue<(int index, int size, int offset)> layoutConfigs = [];
 
@@ -132,12 +127,6 @@ public class OpenGL4ShaderContext : ShaderContext
         var fragmentShader = CreateFragmentShader(pair.FragmentShader, verbose, ref tabIndex);
         ProgramId = CreateProgram(vertexShader, fragmentShader, verbose, ref tabIndex);
     }
-    
-    public override void Use(IBufferedData data)
-    {
-        BindVerteArrayObject();
-        BufferManager.Use(data);
-    }
 
     public override void Draw(PrimitiveType primitiveType, IBufferedData data)
     {
@@ -151,14 +140,63 @@ public class OpenGL4ShaderContext : ShaderContext
         GL.UseProgram(program);
     }
 
-    public override void Configure()
-        => ConfigCurrentLayouts();
+    public override void FirstConfiguration() { }
 
     public override void Dispose()
     {
-        DeleteVerteArrayObject(ObjectId);
+        foreach (var vertexArray in vertexArrayMap)
+            DeleteVerteArrayObject(vertexArray.Id);
         DeleteProgram(ProgramId);
         GC.SuppressFinalize(this);
+    }
+    
+    public override void Use(object[] args)
+    {
+        var bufferedData = args
+            .Where(arg => arg is IBufferedData)
+            .Select(arg => (IBufferedData)arg)
+            .ToArray();
+        
+        foreach (var data in bufferedData)
+            Buffer.CreateIfNotExists(data);
+        
+        var buffers = 
+            from data in bufferedData
+            select data.Buffer?.BufferId ?? -1;
+        
+        if (buffers.Any(id => id == -1))
+            throw new UnbufferedDataExcetion();
+        int[] ids = [ ..buffers ];
+        
+        var vao = vertexArrayMap.Get(ids);
+        int vertexArrayId
+        if (vao is null)
+            vertexArrayMap.Add(ids, new(ids, ));
+
+
+    }
+
+    private void BindVerteArrayObject()
+    {
+        if (!ObjectId.HasValue)
+            GenerateVertexArrayObject();
+        
+        GL.BindVertexArray(ObjectId ?? -1);
+    }
+
+    private int GenerateVertexArrayObject()
+        => GL.GenVertexArray();
+
+    private void ConfigCurrentLayouts()
+    {
+        BindVerteArrayObject();
+
+        foreach (var (index, size, offset) in layoutConfigs)
+        {
+            var type = VertexAttribPointerType.Float;
+            GL.VertexAttribPointer(index, size, type, false, TotalOffset, offset);
+            GL.EnableVertexAttribArray(index);
+        }
     }
 
     private static void DeleteProgram(int? programId)
@@ -176,32 +214,6 @@ public class OpenGL4ShaderContext : ShaderContext
         var keyPair = programMap
             .FirstOrDefault(p => p.Value == program);
         programMap.Remove(keyPair.Key);
-    }
-
-    private void BindVerteArrayObject()
-    {
-        if (!ObjectId.HasValue)
-            GenerateVertexArrayObject();
-        
-        GL.BindVertexArray(ObjectId ?? -1);
-    }
-
-    private void GenerateVertexArrayObject()
-    {
-        ObjectId = GL.GenVertexArray();
-        objectList.Add(ObjectId ?? -1);
-    }
-
-    private void ConfigCurrentLayouts()
-    {
-        BindVerteArrayObject();
-
-        foreach (var (index, size, offset) in layoutConfigs)
-        {
-            var type = VertexAttribPointerType.Float;
-            GL.VertexAttribPointer(index, size, type, false, TotalOffset, offset);
-            GL.EnableVertexAttribArray(index);
-        }
     }
 
     private static void DeleteVerteArrayObject(int? objectId)

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/10/2024
+ * Date:    28/10/2024
  */
 using System;
 using System.Linq;
@@ -15,9 +15,10 @@ using Shaders.Objects;
 using Shaders.Dependencies;
 using Windows;
 using Contexts;
+using Internal;
 using Primitives;
 using Exceptions;
-using Radiance.Renders;
+using Microsoft.VisualBasic;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
@@ -29,7 +30,12 @@ public class Render : DynamicObject
     readonly Delegate function;
     readonly int expectedArguments;
 
-    readonly CallDictionary map = new();
+    readonly FeatureMap<CallMatch> map = new();
+    record CallMatch(
+        int[] Depth,
+        ShaderDependence[] ShaderDependences,
+        RenderContext Context
+    );
 
     public Render(Delegate function)
     {
@@ -63,15 +69,15 @@ public class Render : DynamicObject
     public (RenderContext ctx, ShaderDependence[] deps) Load(object[] args)
     {
         var depths = DiscoverDepths(args);
-        var info = map.GetContext(depths);
-        if (info.HasValue)
-            return info.Value;
+        var info = map.Get(depths);
+        if (info is not null)
+            return (info.Context, info.ShaderDependences);
         
         var ctx = RenderContext.OpenContext();
         var deps = AnalisysInvoke(args);
         RenderContext.CloseContext();
         
-        map.AddContext(deps, depths, ctx);
+        map.Add(depths, new(depths, deps, ctx));
         return (ctx, deps);
     }
 
@@ -131,7 +137,7 @@ public class Render : DynamicObject
     /// </summary>
     static void Invoke(object[] arguments, RenderContext ctx, ShaderDependence[] deps)
     {
-        if (arguments[0] is not IPolygon poly)
+        if (arguments[0] is not IPolygon)
             throw new MissingPolygonException();
         
         var extraArgs = SplitObjectsBySize(arguments[1..]);
@@ -144,7 +150,7 @@ public class Render : DynamicObject
             dep.UpdateData(arg);
         }
 
-        ctx?.Render(poly);
+        ctx?.Render(arguments);
     }
     
     /// <summary>

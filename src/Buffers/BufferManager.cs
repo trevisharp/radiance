@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/09/2024
+ * Date:    28/10/2024
  */
 using System.Linq;
 using System.Collections.Generic;
@@ -13,7 +13,7 @@ using Exceptions;
 /// <summary>
 /// A global object to manage Buffers.
 /// </summary>
-public static class BufferManager
+public partial class Buffer
 {
     /// <summary>
     /// Get or Set the Current Buffer Context Builder, the default is the OpenGL4 Buffer Context Builder.
@@ -42,16 +42,22 @@ public static class BufferManager
     public static void Use(IBufferedData data)
     {
         var ctx = BufferContextBuilder.Build();
-        
-        var created = CreateBuffer(data, ctx);
         var buffer = data.Buffer
             ?? throw new UnbufferedDataExcetion();
         buffer.LastUsageFrame = currentFrame;
-        
         BindBuffer(buffer, ctx);
+    }
 
-        if (created)
-            SetBufferData(data.GetBufferData(), buffer, ctx);
+    public static void CreateIfNotExists(IBufferedData data)
+    {
+        var ctx = BufferContextBuilder.Build();
+        var created = CreateBuffer(data, ctx);
+        if (!created)
+            return;
+
+        var buffer = data.Buffer
+            ?? throw new UnbufferedDataExcetion();
+        SetBufferData(data.GetBufferData(), buffer, ctx);
     }
 
     private static bool CreateBuffer(IBufferedData data, IBufferContext ctx)
