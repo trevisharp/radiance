@@ -27,6 +27,6 @@ public class FloatBufferDependence(string name, int location) : ShaderDependence
 
     public override void UpdateData(object value)
     {
-        // TODO: Implement buffer loading    
+        // TODO: Implement buffer loading
     }
 }

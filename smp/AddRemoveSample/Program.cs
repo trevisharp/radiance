@@ -2,19 +2,17 @@
 
 var myRender = render((dx, dy, size) =>
 {
+    verbose = true;
     zoom(size);
     move(dx, dx);
     color = mix(red, blue, x / width);
     fill();
 });
-var randomSizes = myRender(skip, skip, skip, 
-    randBuffer(N, 20, 15)
-);
-var fixedBig = myRender(Polygons.Square, 400, 400, 100);
 
 var poly = N * Polygons.Triangule;
 var dxs = randBuffer(N, 1000);
 var dys = randBuffer(N, 1000);
+var sizes = randBuffer(N, 20, 15);
 
 bool invert = false;
 Window.OnKeyDown += (key, mod) =>
@@ -25,13 +23,17 @@ Window.OnKeyDown += (key, mod) =>
 
 Window.OnRender += () => 
 {
-    randomSizes(
+    myRender(
         poly,
         invert ? dys : dxs,
-        invert ? dxs : dys
+        invert ? dxs : dys,
+        sizes
     );
 
-    fixedBig();
+    myRender(
+        Polygons.Square,
+        400, 400, 100
+    );
 };
 Window.CloseOn(Input.Escape);
 Window.Open();

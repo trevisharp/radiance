@@ -152,6 +152,7 @@ Coming soon...
 - Use BufferSubData to improve update performance.
 - Finish implementations over IBufferedData and multi-renderization.
 - Improve Render class abstractions allowing extensibiltiy and customization.
+- Validate depths of input of renders consistence.
 - Text Renders.
 - Improve ShaderObjects Resources.
 - Improve the use of more than one window.
@@ -159,3 +160,4 @@ Coming soon...
 - Add non-monotone polygons triangularization.
 - Make z-index between 0 to 1000 to make layer-based organization more simple.
 - Allow basic transformations like z-index adjustment customizations.
+- Improve variable generation name to improve shader reutilization.
