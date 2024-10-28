@@ -81,6 +81,37 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Curry parameters
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((r, g, b, a) => {
+    color = (r, g, b, a);
+    fill();
+});
+
+var myPolygon = Polygons.FromData(
+    (0, 0), (100, 0), (100, 100), (0, 100)
+);
+
+// mySquareRender every is called with the myPolygon value
+// but still expect a 'r', 'g', 'b' and 'a' parameters
+var mySquareRender = myRender(myPolygon);
+
+// myRedRender no fix a polygon, using Utils.skip field
+// but he fix the color red for (r, g, b, a) arguments
+var myRedRender = myRender(skip, red);
+
+// now we can call myRedRender with only myPolygon
+Window.OnRender += () => myRedRender(myPolygon);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+
 ### Use built-in renders to simplify the work
 
 ```cs
