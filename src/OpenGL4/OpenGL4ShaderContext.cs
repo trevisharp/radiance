@@ -174,7 +174,10 @@ public class OpenGL4ShaderContext : ShaderContext
     }
 
     private void BindVerteArrayObject(int id)
-        => GL.BindVertexArray(id);
+    {
+        Console.WriteLine($"GL.BindVertexArray({id})");
+        GL.BindVertexArray(id);
+    }
 
     private int GetVertexArrayObject(IBufferedData[] bufferedData)
     {

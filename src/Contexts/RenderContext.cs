@@ -203,12 +203,14 @@ public class RenderContext
                 _ => throw new MissingPolygonException()
             };
             args = [ polygon, ..args[1..] ];
-
+            
             context.Use(args);
 
             initIfNeeded();
             
             context.UseProgram();
+
+            context.Use(args);
 
             setupShaders();
 
