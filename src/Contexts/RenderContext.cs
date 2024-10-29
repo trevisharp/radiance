@@ -204,13 +204,13 @@ public class RenderContext
             };
             args = [ polygon, ..args[1..] ];
             
-            context.Use(args);
+            context.InitArgs(args);
 
             initIfNeeded();
             
             context.UseProgram();
 
-            context.Use(args);
+            context.UseArgs(args);
 
             setupShaders();
 

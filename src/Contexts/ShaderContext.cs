@@ -21,7 +21,8 @@ public abstract class ShaderContext : IShaderInvoker, IShaderConfiguration
     public abstract void Dispose();
     public abstract void CreateProgram(ShaderPair pair, bool verbose = false);
     public abstract void Draw(PrimitiveType primitiveType, IBufferedData data);
-    public abstract void Use(object[] args);
+    public abstract void InitArgs(object[] args);
+    public abstract void UseArgs(object[] args);
     public abstract void UseProgram();
     public virtual void FirstConfiguration() {}
 

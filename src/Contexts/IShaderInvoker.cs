@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    09/10/2024
+ * Date:    29/10/2024
  */
 namespace Radiance.Contexts;
 
@@ -12,9 +12,14 @@ using Shaders;
 public interface IShaderInvoker
 {
     /// <summary>
-    /// Configure the shader to use a set of data.
+    /// Configure the shader to use a set of arguments.
     /// </summary>
-    void Use(object[] data);
+    void UseArgs(object[] args);
+
+    /// <summary>
+    /// Initial configure the shader to use a set of arguments.
+    /// </summary>
+    void InitArgs(object[] args);
 
     /// <summary>
     /// Draw Arrays in the selected buffer.

@@ -158,8 +158,8 @@ public class OpenGL4ShaderContext : ShaderContext
         DeleteProgram(ProgramId);
         GC.SuppressFinalize(this);
     }
-    
-    public override void Use(object[] args)
+
+    public override void InitArgs(object[] args)
     {
         var bufferedData = args
             .Where(arg => arg is IBufferedData)
@@ -169,6 +169,21 @@ public class OpenGL4ShaderContext : ShaderContext
         foreach (var data in bufferedData)
             Buffer.CreateIfNotExists(data);
         
+        UseArgs(bufferedData);
+    }
+
+    public override void UseArgs(object[] args)
+    {
+        var bufferedData = args
+            .Where(arg => arg is IBufferedData)
+            .Select(arg => (IBufferedData)arg)
+            .ToArray();
+        
+        UseArgs(bufferedData);
+    }
+
+    private void UseArgs(IBufferedData[] bufferedData)
+    {
         int id = GetVertexArrayObject(bufferedData);
         BindVerteArrayObject(id);
     }
