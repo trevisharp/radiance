@@ -1,0 +1,54 @@
+GL.CreateShader(...) = 1
+GL.ShaderSource(1, ...)
+GL.CompileShader(1)
+GL.CreateShader(...) = 2
+GL.ShaderSource(2, ...)
+GL.CompileShader(2)
+GL.CreateProgram() = 3
+GL.AttachShader(3, 1)
+GL.AttachShader(3, 2)
+GL.LinkProgram(3)
+GL.DetachShader(3, 1)
+GL.DetachShader(3, 2)
+GL.UseProgram(3)
+GL.GenVertexArray() = 1
+GL.BindVertexArray(1)
+GL.BindVertexArray(1)
+GL.UseProgram(3)
+GL.BindVertexArray(1)
+GL.GetUniformLocation(3, width) = 0
+GL.Uniform4(0, ...)
+GL.GetUniformLocation(3, height) = 1
+GL.Uniform4(1, ...)
+GL.GetUniformLocation(3, width) = 0
+GL.Uniform4(0, ...)
+GL.DrawArrays(...)
+GL.CreateShader(...) = 4
+GL.ShaderSource(4, ...)
+GL.CompileShader(4)
+GL.CreateShader(...) = 5
+GL.ShaderSource(5, ...)
+GL.CompileShader(5)
+GL.CreateProgram() = 6
+GL.AttachShader(6, 4)
+GL.AttachShader(6, 5)
+GL.LinkProgram(6)
+GL.DetachShader(6, 4)
+GL.DetachShader(6, 5)
+GL.UseProgram(6)
+GL.GenVertexArray() = 2
+GL.BindVertexArray(2)
+GL.BindVertexArray(2)
+GL.UseProgram(6)
+GL.BindVertexArray(2)
+GL.GetUniformLocation(6, size) = 0
+GL.Uniform4(0, ...)
+GL.GetUniformLocation(6, dx) = 1
+GL.Uniform4(1, ...)
+GL.GetUniformLocation(6, width) = 2
+GL.Uniform4(2, ...)
+GL.GetUniformLocation(6, height) = 3
+GL.Uniform4(3, ...)
+GL.GetUniformLocation(6, width) = 2
+GL.Uniform4(2, ...)
+GL.DrawArrays(...)
