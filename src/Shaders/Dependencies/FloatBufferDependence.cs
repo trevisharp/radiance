@@ -20,7 +20,7 @@ public class FloatBufferDependence(string name, int location) : ShaderDependence
         => sb.AppendLine($"layout (location = {Location}) in float {Name};");
 
     public override Action AddConfiguration(IShaderConfiguration ctx)
-        => () => ctx.AddLayout(1);
+        => () => ctx.AddLayout(1, DataType.Float);
 
     public override int GetOrderFactor()
         => int.MinValue / 2 + Location;

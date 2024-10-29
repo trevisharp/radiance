@@ -6,7 +6,7 @@ namespace Radiance.Buffers;
 /// <summary>
 /// Represents a GPU Buffer Data.
 /// </summary>
-public class Buffer
+public partial class Buffer
 {
     /// <summary>
     /// Get the Id of the Buffer.

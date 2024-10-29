@@ -41,5 +41,5 @@ public interface IShaderConfiguration : IDisposable
     /// <summary>
     /// Add float values on layout of data buffers.
     /// </summary>
-    void AddLayout(int size);
+    void AddLayout(int size, DataType dataType);
 }

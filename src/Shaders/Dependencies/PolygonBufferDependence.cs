@@ -17,7 +17,7 @@ public class PolygonBufferDependence : ShaderDependence
         => sb.AppendLine($"layout (location = 0) in vec3 pos;");
 
     public override Action AddConfiguration(IShaderConfiguration ctx)
-        => () => ctx.AddLayout(3);
+        => () => ctx.AddLayout(3, DataType.Float);
 
     public override int GetOrderFactor()
         => int.MinValue / 2;

@@ -13,11 +13,10 @@ namespace Radiance.OpenGL4;
 
 using Shaders;
 using Buffers;
+using Internal;
 using Contexts;
 using Primitives;
 using Exceptions;
-using Radiance.Internal;
-using System.Runtime.CompilerServices;
 
 /// <summary>
 /// Represents the data and state of a shader program.
@@ -72,7 +71,11 @@ public class OpenGL4ShaderContext : ShaderContext
     readonly FeatureMap<VertexArrayObject> vertexArrayMap = new();
     record VertexArrayObject(int[] Buffers, int Id);
 
-    readonly Queue<(int index, int size, int offset)> layoutConfigs = [];
+    readonly Queue<LayoutInfo> layoutConfigs = [];
+    record LayoutInfo(
+        int Index, int Size, int Offset, 
+        VertexAttribPointerType Type
+    );
 
     public override void SetFloat(string name, float value)
     {
@@ -110,11 +113,17 @@ public class OpenGL4ShaderContext : ShaderContext
         GL.Uniform4(code, x, y, z, w);
     }
 
-    public override void AddLayout(int size)
+    public override void AddLayout(int size, DataType dataType)
     {
         var stride = size * sizeof(float);
 
-        layoutConfigs.Enqueue((LayoutCount, size, TotalOffset));
+        var openGLType = dataType switch
+        {
+            DataType.Float => VertexAttribPointerType.Float,
+            _ => throw new Exception("Invalid layout type")
+        };
+
+        layoutConfigs.Enqueue(new(LayoutCount, size, TotalOffset, openGLType));
 
         TotalOffset += stride;
         LayoutCount++;
@@ -160,6 +169,15 @@ public class OpenGL4ShaderContext : ShaderContext
         foreach (var data in bufferedData)
             Buffer.CreateIfNotExists(data);
         
+        int id = GetVertexArrayObject(bufferedData);
+        BindVerteArrayObject(id);
+    }
+
+    private void BindVerteArrayObject(int id)
+        => GL.BindVertexArray(id);
+
+    private int GetVertexArrayObject(IBufferedData[] bufferedData)
+    {
         var buffers = 
             from data in bufferedData
             select data.Buffer?.BufferId ?? -1;
@@ -167,33 +185,30 @@ public class OpenGL4ShaderContext : ShaderContext
         if (buffers.Any(id => id == -1))
             throw new UnbufferedDataExcetion();
         int[] ids = [ ..buffers ];
-        
+
         var vao = vertexArrayMap.Get(ids);
-        int vertexArrayId
-        if (vao is null)
-            vertexArrayMap.Add(ids, new(ids, ));
-
-
-    }
-
-    private void BindVerteArrayObject()
-    {
-        if (!ObjectId.HasValue)
-            GenerateVertexArrayObject();
+        if (vao is not null)
+            return vao.Id;
         
-        GL.BindVertexArray(ObjectId ?? -1);
+        var id = GenerateVertexArrayObject();
+        vertexArrayMap.Add(ids, new(ids, id));
+
+        ConfigureVertexArrayObject(id, ids);
+
+        return id;
     }
 
     private int GenerateVertexArrayObject()
         => GL.GenVertexArray();
 
-    private void ConfigCurrentLayouts()
+    private void ConfigureVertexArrayObject(int id, int[] buffers)
     {
-        BindVerteArrayObject();
+        BindVerteArrayObject(id);
 
-        foreach (var (index, size, offset) in layoutConfigs)
+        foreach (var (config, buffer) in layoutConfigs.Zip(buffers))
         {
-            var type = VertexAttribPointerType.Float;
+            var (index, size, offset, type) = config;
+            GL.BindBuffer(BufferTarget.ArrayBuffer, buffer);
             GL.VertexAttribPointer(index, size, type, false, TotalOffset, offset);
             GL.EnableVertexAttribArray(index);
         }
@@ -222,7 +237,6 @@ public class OpenGL4ShaderContext : ShaderContext
             return;
         
         GL.DeleteVertexArray(objectId.Value);
-        objectList.Remove(objectId.Value);
     }
 
     private int ActivateImage(ImageResult image)
