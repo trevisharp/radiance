@@ -175,7 +175,6 @@ public class OpenGL4ShaderContext : ShaderContext
 
     private void BindVerteArrayObject(int id)
     {
-        Console.WriteLine($"GL.BindVertexArray({id})");
         GL.BindVertexArray(id);
     }
 

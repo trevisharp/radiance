@@ -2,7 +2,6 @@
 
 var myRender = render((dx, dy, size) =>
 {
-    verbose = true;
     zoom(size);
     move(dx, dx);
     color = mix(red, blue, x / width);
