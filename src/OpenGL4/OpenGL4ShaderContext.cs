@@ -280,7 +280,6 @@ public class OpenGL4ShaderContext : ShaderContext
             GL.EnableVertexAttribArray(index);
             
             #if DEBUG_OPENGL4
-            Console.WriteLine($"GL.BindBuffer(..., {bufferId})");
             Console.WriteLine($"GL.VertexAttribPointer({index}, {size}, ..., {stride}, {offset})");
             Console.WriteLine($"GL.EnableVertexAttribArray({index})");
             #endif
@@ -514,6 +513,7 @@ public class OpenGL4ShaderContext : ShaderContext
 
         var buffer = data.Buffer
             ?? throw new UnbufferedDataExcetion();
+        BindBuffer(buffer.BufferId ?? -1);
         Store(data.GetBufferData(), buffer.DynamicDraw);
     }
 
@@ -541,7 +541,7 @@ public class OpenGL4ShaderContext : ShaderContext
         GL.BindBuffer(BufferTarget.ArrayBuffer, id);
 
         #if DEBUG_OPENGL4
-        Console.WriteLine($"GL.BindBuffer({id})");
+        Console.WriteLine($"GL.BindBuffer(BufferTarget.ArrayBuffer, {id});");
         #endif
     }
 
@@ -550,7 +550,7 @@ public class OpenGL4ShaderContext : ShaderContext
         int id = GL.GenBuffer();
 
         #if DEBUG_OPENGL4
-        Console.WriteLine($"GL.GenBuffer() = {id}");
+        Console.WriteLine($"GL.GenBuffer(); // = {id}");
         #endif
 
         return id;
@@ -561,7 +561,7 @@ public class OpenGL4ShaderContext : ShaderContext
         GL.DeleteBuffer(id);
         
         #if DEBUG_OPENGL4
-        Console.WriteLine($"GL.DeleteBuffer({id})");
+        Console.WriteLine($"GL.DeleteBuffer({id});");
         #endif
     }
 
@@ -573,7 +573,9 @@ public class OpenGL4ShaderContext : ShaderContext
         );
         
         #if DEBUG_OPENGL4
-        Console.WriteLine("GL.BufferData(...)");
+        Console.WriteLine($"GL.BufferData(");
+        Console.WriteLine($"    BufferTarget.ArrayBuffer, data.Length * sizeof(float), data,");
+        Console.WriteLine($"    {(dynamicData ? "BufferUsageHint.DynamicDraw" : "BufferUsageHint.StaticDraw")});");
         #endif
     }
 }
