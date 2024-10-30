@@ -253,7 +253,6 @@ public abstract class BaseWindow
             return;
         
         Phase = WindowPhase.OnRender;
-        Buffer.RegisterFrame();
         OnRender();
         Phase = WindowPhase.None;
     }

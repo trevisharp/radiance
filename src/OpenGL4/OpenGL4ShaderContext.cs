@@ -1,9 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/10/2024
+ * Date:    30/10/2024
  */
-#define DEBUGOPENGL4
-#undef DEBUGOPENGL4 //remove to DEBUG mode
-
 using System;
 using System.Linq;
 using System.Collections.Generic;
@@ -20,6 +17,7 @@ using Internal;
 using Contexts;
 using Primitives;
 using Exceptions;
+using System.Buffers;
 
 /// <summary>
 /// Represents the data and state of a shader program.
@@ -27,10 +25,10 @@ using Exceptions;
 public class OpenGL4ShaderContext : ShaderContext
 {
     // Global OpenGL resources indexes map
-    static readonly Dictionary<ImageResult, int> textureMap = [];
     static readonly List<int> textureUnits = [];
     static readonly Dictionary<int, int> shaderMap = [];
     static readonly Dictionary<(int, int), int> programMap = [];
+    static readonly Dictionary<ImageResult, int> textureMap = [];
 
     /// <summary>
     /// Unload all OpenGL Resources.
@@ -86,7 +84,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform1(code, value);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.GetUniformLocation({program}, {name}) = {code}");
         Console.WriteLine($"GL.Uniform4({code}, ...)");
         #endif
@@ -99,7 +97,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform1(code, id);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.GetUniformLocation({program}, {name}) = {code}");
         Console.WriteLine($"GL.Uniform1({code}, ...)");
         #endif
@@ -111,7 +109,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform2(code, x, y);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.GetUniformLocation({program}, {name}) = {code}");
         Console.WriteLine($"GL.Uniform2({code}, ...)");
         #endif
@@ -123,7 +121,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform3(code, x, y, z);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.GetUniformLocation({program}, {name}) = {code}");
         Console.WriteLine($"GL.Uniform3({code}, ...)");
         #endif
@@ -135,7 +133,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var code = GL.GetUniformLocation(program, name);
         GL.Uniform4(code, x, y, z, w);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.GetUniformLocation({program}, {name}) = {code}");
         Console.WriteLine($"GL.Uniform4({code}, ...)");
         #endif
@@ -170,7 +168,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
         GL.DrawArrays(openTKType, 0, data.Count);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.DrawArrays(...)");
         #endif
     }
@@ -180,7 +178,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var program = ProgramId ?? throw new UncreatedProgramException();
         GL.UseProgram(program);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.UseProgram({program})");
         #endif
     }
@@ -203,7 +201,7 @@ public class OpenGL4ShaderContext : ShaderContext
             .ToArray();
         
         foreach (var data in bufferedData)
-            Buffer.CreateIfNotExists(data);
+            CreateIfNotExists(data);
         
         UseArgs(bufferedData);
     }
@@ -228,7 +226,7 @@ public class OpenGL4ShaderContext : ShaderContext
     {
         GL.BindVertexArray(id);
         
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.BindVertexArray({id})");
         #endif
     }
@@ -250,7 +248,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var id = GenerateVertexArrayObject();
         vertexArrayMap.Add(ids, new(ids, id));
 
-        ConfigureVertexArrayObject(id, ids);
+        ConfigureVertexArrayObject(id, bufferedData);
 
         return id;
     }
@@ -259,29 +257,36 @@ public class OpenGL4ShaderContext : ShaderContext
     {
         var id = GL.GenVertexArray();
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.GenVertexArray() = {id}");
         #endif
 
         return id;
     }
 
-    void ConfigureVertexArrayObject(int id, int[] buffers)
+    void ConfigureVertexArrayObject(int id, IBufferedData[] buffers)
     {
         BindVerteArrayObject(id);
 
-        foreach (var (config, buffer) in layoutConfigs.Zip(buffers))
+        int index = 0;
+        int offset = 0;
+        int stride = buffers.Sum(b => b.Size) * sizeof(float);
+        foreach (var buffer in buffers)
         {
-            var (index, size, offset, type) = config;
-            GL.BindBuffer(BufferTarget.ArrayBuffer, buffer);
-            GL.VertexAttribPointer(index, size, type, false, TotalOffset, offset);
+            var bufferId = buffer.Buffer?.BufferId ?? -1;
+            var size = buffer.Size;
+            BindBuffer(bufferId);
+            GL.VertexAttribPointer(index, size, VertexAttribPointerType.Float, false, stride, offset);
             GL.EnableVertexAttribArray(index);
             
-            #if DEBUGOPENGL4
-            Console.WriteLine($"GL.BindBuffer(..., {buffer})");
-            Console.WriteLine($"GL.VertexAttribPointer({index}, {size}, ..., {TotalOffset}, {offset})");
+            #if DEBUG_OPENGL4
+            Console.WriteLine($"GL.BindBuffer(..., {bufferId})");
+            Console.WriteLine($"GL.VertexAttribPointer({index}, {size}, ..., {stride}, {offset})");
             Console.WriteLine($"GL.EnableVertexAttribArray({index})");
             #endif
+
+            index++;
+            offset += size * sizeof(float);
         }
     }
 
@@ -301,7 +306,7 @@ public class OpenGL4ShaderContext : ShaderContext
             .FirstOrDefault(p => p.Value == program);
         programMap.Remove(keyPair.Key);
         
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.UseProgram(0)");
         Console.WriteLine($"GL.DeleteProgram({program})");
         #endif
@@ -314,7 +319,7 @@ public class OpenGL4ShaderContext : ShaderContext
         
         GL.DeleteVertexArray(objectId.Value);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.DeleteVertexArray({objectId.Value})");
         #endif
     }
@@ -332,7 +337,7 @@ public class OpenGL4ShaderContext : ShaderContext
         GL.BindTexture(TextureTarget.Texture2D, handle);
         textureUnits[id] = handle;
         
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.ActiveTexture(...)");
         Console.WriteLine($"GL.BindTexture(..., {handle})");
         #endif
@@ -382,7 +387,7 @@ public class OpenGL4ShaderContext : ShaderContext
         );
         GL.GenerateMipmap(GenerateMipmapTarget.Texture2D);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.BindTexture(TextureTarget.Texture2D, {handle})");
         Console.WriteLine($"GL.TexImage2D(...)");
         Console.WriteLine($"GL.TexParameter(...)");
@@ -450,7 +455,7 @@ public class OpenGL4ShaderContext : ShaderContext
             return -1;
         }
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.CreateShader(...) = {shaderId}");
         Console.WriteLine($"GL.ShaderSource({shaderId}, ...)");
         Console.WriteLine($"GL.CompileShader({shaderId})");
@@ -490,7 +495,7 @@ public class OpenGL4ShaderContext : ShaderContext
         programMap.Add(programKey, program);
         Success("Program Created!!", verbose, ref tabIndex);
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.CreateProgram() = {program}");
         Console.WriteLine($"GL.AttachShader({program}, {vertexShader})");
         Console.WriteLine($"GL.AttachShader({program}, {fragmentShader})");
@@ -501,20 +506,50 @@ public class OpenGL4ShaderContext : ShaderContext
         return program;
     }
 
+    static void CreateIfNotExists(IBufferedData data)
+    {
+        var created = CreateBuffer(data);
+        if (!created)
+            return;
+
+        var buffer = data.Buffer
+            ?? throw new UnbufferedDataExcetion();
+        Store(data.GetBufferData(), buffer.DynamicDraw);
+    }
+
+    static bool CreateBuffer(IBufferedData data)
+    {
+        if (data.Buffer is not null)
+            return false;
+        
+        var id = CreateBuffer();
+        var buffer = new Buffer {
+            BufferId = id,
+            ChangeCount = 0,
+            CurrentData = data,
+            DynamicDraw = false,
+            LastChangedFrame = null,
+            FrameCreation = 0,
+            LastUsageFrame = null
+        };
+        data.Buffer = buffer;
+        return true;
+    }
+
     static void BindBuffer(int id)
     {
-        #if DEBUGOPENGL4
+        GL.BindBuffer(BufferTarget.ArrayBuffer, id);
+
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.BindBuffer({id})");
         #endif
-
-        GL.BindBuffer(BufferTarget.ArrayBuffer, id);
     }
 
     static int CreateBuffer()
     {
         int id = GL.GenBuffer();
 
-        #if DEBUGOPENGL4
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.GenBuffer() = {id}");
         #endif
 
@@ -523,22 +558,22 @@ public class OpenGL4ShaderContext : ShaderContext
 
     static void Delete(int id)
     {
-        #if DEBUGOPENGL4
+        GL.DeleteBuffer(id);
+        
+        #if DEBUG_OPENGL4
         Console.WriteLine($"GL.DeleteBuffer({id})");
         #endif
-
-        GL.DeleteBuffer(id);
     }
 
     static void Store(float[] data, bool dynamicData)
     {
-        #if DEBUGOPENGL4
-        Console.WriteLine("GL.BufferData(...)");
-        #endif
-
         GL.BufferData(
             BufferTarget.ArrayBuffer, data.Length * sizeof(float), data,
             dynamicData ? BufferUsageHint.DynamicDraw : BufferUsageHint.StaticDraw
         );
+        
+        #if DEBUG_OPENGL4
+        Console.WriteLine("GL.BufferData(...)");
+        #endif
     }
 }

@@ -18,7 +18,6 @@ using Contexts;
 using Internal;
 using Primitives;
 using Exceptions;
-using Microsoft.VisualBasic;
 
 /// <summary>
 /// A render that unite many similar render callings in only once calling.

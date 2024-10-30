@@ -6,7 +6,6 @@ using System;
 namespace Radiance.Contexts;
 
 using Primitives;
-using Radiance.Buffers;
 
 /// <summary>
 /// Represents the data and state of a shader program.
