@@ -1,22 +1,18 @@
-﻿const int N = 5;
+﻿const int N = 10;
 
 var myRender = render((dx, dy, size) =>
 {
     verbose = true;
     zoom(size);
-    move(dx, dy);
+    move(width * dx, height * dy);
     color = mix(red, blue, x / width);
     fill();
 });
 
 var poly = N * Polygons.Triangule;
-var dxs = randBuffer(N, 1000);
-var dys = randBuffer(N, 1000);
-var sizes = randBuffer(N, 20, 15);
-
-System.Console.WriteLine(poly.GetBufferData().Length);
-System.Console.WriteLine(dxs.GetBufferData().Length);
-System.Console.WriteLine(dys.GetBufferData().Length);
+var dxs = randBuffer(N);
+var dys = randBuffer(N);
+var sizes = randBuffer(N);
 
 bool invert = false;
 Window.OnKeyDown += (key, mod) =>
