@@ -1,4 +1,4 @@
-﻿const int N = 100;
+﻿const int N = 5;
 
 var myRender = render((dx, dy, size) =>
 {
@@ -14,6 +14,10 @@ var dxs = randBuffer(N, 1000);
 var dys = randBuffer(N, 1000);
 var sizes = randBuffer(N, 20, 15);
 
+System.Console.WriteLine(poly.GetBufferData().Length);
+System.Console.WriteLine(dxs.GetBufferData().Length);
+System.Console.WriteLine(dys.GetBufferData().Length);
+
 bool invert = false;
 Window.OnKeyDown += (key, mod) =>
 {
@@ -23,17 +27,19 @@ Window.OnKeyDown += (key, mod) =>
 
 Window.OnRender += () => 
 {
-    myRender(
-        poly,
-        invert ? dys : dxs,
-        invert ? dxs : dys,
-        sizes
-    );
+    myRender(poly, dxs, dys, 100);
 
-    myRender(
-        Polygons.Square,
-        400, 400, 100
-    );
+    // myRender(
+    //     poly,
+    //     invert ? dys : dxs,
+    //     invert ? dxs : dys,
+    //     sizes
+    // );
+
+    // myRender(
+    //     Polygons.Square,
+    //     400, 400, 100
+    // );
 };
 Window.CloseOn(Input.Escape);
 Window.Open();

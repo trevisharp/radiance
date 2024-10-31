@@ -102,16 +102,22 @@ public static class Utils
         return stream;
     }
 
-    public static FloatStream randBuffer(int size, float max = 1, float min = 0)
+    public static FloatStream randBuffer(int size, int repeat = 3, float max = 1, float min = 0, int seed = -1)
     {
+        seed = seed != -1 ? seed :
+            (int)(DateTime.UtcNow.Ticks % int.MaxValue);
+        var random = new Random(seed);
+
         var stream = new FloatStream();
 
         stream.PrepareSize(size);
         float band = max - min;
         for (int i = 0; i < size; i++)
         {
-            var value = Random.Shared.NextSingle();
-            stream.Add(band * value + min);
+            var rand = random.NextSingle();
+            var value = band  * rand + min;
+            for (int j = 0; j < repeat; j++)
+                stream.Add(value);
         }
 
         return stream;

@@ -264,7 +264,7 @@ public class OpenGL4ShaderContext : ShaderContext
         return id;
     }
 
-    void ConfigureVertexArrayObject(int id, IBufferedData[] buffers)
+    static void ConfigureVertexArrayObject(int id, IBufferedData[] buffers)
     {
         BindVerteArrayObject(id);
 
@@ -502,6 +502,7 @@ public class OpenGL4ShaderContext : ShaderContext
         Console.WriteLine($"GL.DetachShader({program}, {vertexShader})");
         Console.WriteLine($"GL.DetachShader({program}, {fragmentShader})");
         #endif
+        
         return program;
     }
 
@@ -575,7 +576,8 @@ public class OpenGL4ShaderContext : ShaderContext
         #if DEBUG_OPENGL4
         Console.WriteLine($"GL.BufferData(");
         Console.WriteLine($"    BufferTarget.ArrayBuffer, data.Length * sizeof(float), data,");
-        Console.WriteLine($"    {(dynamicData ? "BufferUsageHint.DynamicDraw" : "BufferUsageHint.StaticDraw")});");
+        Console.WriteLine($"    {(dynamicData ? "BufferUsageHint.DynamicDraw" : "BufferUsageHint.StaticDraw")}");
+        Console.WriteLine($");");
         #endif
     }
 }
