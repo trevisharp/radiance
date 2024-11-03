@@ -269,23 +269,21 @@ public class OpenGL4ShaderContext : ShaderContext
         BindVerteArrayObject(id);
 
         int index = 0;
-        int offset = 0;
-        int stride = buffers.Sum(b => b.Size) * sizeof(float);
         foreach (var buffer in buffers)
         {
             var bufferId = buffer.Buffer?.BufferId ?? -1;
             var size = buffer.Size;
+            var offset = size * sizeof(float);
             BindBuffer(bufferId);
-            GL.VertexAttribPointer(index, size, VertexAttribPointerType.Float, false, stride, offset);
+            GL.VertexAttribPointer(index, size, VertexAttribPointerType.Float, false, offset, 0);
             GL.EnableVertexAttribArray(index);
             
             #if DEBUG_OPENGL4
-            Console.WriteLine($"GL.VertexAttribPointer({index}, {size}, ..., {stride}, {offset})");
+            Console.WriteLine($"GL.VertexAttribPointer({index}, {size}, ..., {offset}, {0})");
             Console.WriteLine($"GL.EnableVertexAttribArray({index})");
             #endif
 
             index++;
-            offset += size * sizeof(float);
         }
     }
 

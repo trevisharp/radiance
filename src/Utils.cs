@@ -102,16 +102,24 @@ public static class Utils
         return stream;
     }
 
-    public static FloatStream randBuffer(int size, int repeat = 3, float max = 1, float min = 0, int seed = -1)
+    /// <summary>
+    /// Generate a buffer with random values.
+    /// </summary>
+    /// <param name="size">The size of buffer.</param>
+    /// <param name="repeat">The number of times that all values repeat. This is util for use the same value to all sides of a triangule.</param>
+    /// <param name="max">Max value generated.</param>
+    /// <param name="min">Min value generated.</param>
+    /// <param name="seed">The seed of random algorithm. If -1 create a seed based on time.</param>
+    public static FloatStream randBuffer(int size, int repeat = 1, float max = 1, float min = 0, int seed = -1)
     {
         seed = seed != -1 ? seed :
             (int)(DateTime.UtcNow.Ticks % int.MaxValue);
         var random = new Random(seed);
 
         var stream = new FloatStream();
-
         stream.PrepareSize(size);
-        float band = max - min;
+
+        var band = max - min;
         for (int i = 0; i < size; i++)
         {
             var rand = random.NextSingle();

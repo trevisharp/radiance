@@ -1,18 +1,17 @@
-﻿const int N = 10;
+﻿const int N = 1000;
 
 var myRender = render((dx, dy, size) =>
 {
-    verbose = true;
-    zoom(size);
+    zoom(10 + 20 * size);
     move(width * dx, height * dy);
     color = mix(red, blue, x / width);
     fill();
 });
 
 var poly = N * Polygons.Triangule;
-var dxs = randBuffer(N);
-var dys = randBuffer(N);
-var sizes = randBuffer(N);
+var dxs = randBuffer(N, 3);
+var dys = randBuffer(N, 3);
+var sizes = randBuffer(N, 3);
 
 bool invert = false;
 Window.OnKeyDown += (key, mod) =>
@@ -23,19 +22,17 @@ Window.OnKeyDown += (key, mod) =>
 
 Window.OnRender += () => 
 {
-    myRender(poly, dxs, dys, 100);
+    myRender(
+        poly,
+        invert ? dys : dxs,
+        invert ? dxs : dys,
+        sizes
+    );
 
-    // myRender(
-    //     poly,
-    //     invert ? dys : dxs,
-    //     invert ? dxs : dys,
-    //     sizes
-    // );
-
-    // myRender(
-    //     Polygons.Square,
-    //     400, 400, 100
-    // );
+    myRender(
+        Polygons.Square,
+        400, 400, 100
+    );
 };
 Window.CloseOn(Input.Escape);
 Window.Open();
