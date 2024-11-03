@@ -273,6 +273,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
  - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
+ - ![](https://img.shields.io/badge/update-blue) Improve Window abstaction and configuration.
  - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
  - ![](https://img.shields.io/badge/update-blue) Polygon very simplified and immutable every time.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we try to use dt in OnFrame and close the program abruptly.
@@ -393,8 +394,6 @@ Window.Open();
 - Validate depths of input of renders consistence.
 - Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
 - Text Renders.
-- Improve ShaderObjects Resources.
-- Improve the use of more than one window.
 - Create the Graphics class for call simple draw operations.
 - Add non-monotone polygons triangularization.
 - Make z-index between 0 to 1000 to make layer-based organization more simple.

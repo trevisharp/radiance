@@ -6,8 +6,8 @@ using System;
 namespace Radiance;
 
 using OpenGL4;
-using Windows;
 using Primitives;
+using Windows;
 
 /// <summary>
 /// Global singleton reference to main window in use. 
@@ -61,6 +61,45 @@ public static class Window
     }
 
     /// <summary>
+    /// Get and set if the Z-Buffer (Depth buffer) is enable.
+    /// This put the distance objects behind the nearby objects.
+    /// </summary>
+    public static bool ZBufferEnable
+    {
+        get => Current.ZBufferEnable;
+        set => Current.ZBufferEnable = value;
+    }
+
+    /// <summary>
+    /// Get and set if the blending is enable.
+    /// This allow transparency on window.
+    /// </summary>
+    public static bool BlendingMode
+    {
+        get => Current.BlendingMode;
+        set => Current.BlendingMode = value;
+    }
+
+    /// <summary>
+    /// Get or Set the color used on Clear operation.
+    /// </summary
+    public static Vec4 ClearColor
+    {
+        get => Current.ClearColor;
+        set => Current.ClearColor = value;
+    }
+
+    /// <summary>
+    /// Get and set if the line smoothing is enable.
+    /// This enable the antialaising.
+    /// </summary>
+    public static bool LineSmooth
+    {
+        get => Current.LineSmooth;
+        set => Current.LineSmooth = value;
+    }
+
+    /// <summary>
     /// Open main application window.
     /// </summary>
     public static void Open()
@@ -80,12 +119,6 @@ public static class Window
         => Current.Close();
 
     /// <summary>
-    /// Clear the background without use any render.
-    /// </summary>
-    public static void Clear(Vec4 color)
-        => Current.Clear(color);
-
-    /// <summary>
     /// Set inputs to close the application.
     /// </summary>
     public static void CloseOn(Input input)
@@ -100,15 +133,6 @@ public static class Window
     /// Current Frames Per Second for this application.
     /// </summary>
     public static float Fps => Current.Fps;
-    
-    /// <summary>
-    /// Get or set of the Z-Buffer (Depth buffer) is enable.
-    /// </summary>
-    public static bool ZBufferEnable
-    {
-        get => Current.ZBufferEnable;
-        set => Current.ZBufferEnable = value;
-    }
     
     /// <summary>
     /// Occurs when the render pipeline is activated.

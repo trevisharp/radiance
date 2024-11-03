@@ -1,11 +1,10 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/09/2024
+ * Date:    03/11/2024
  */
 using System;
 
 namespace Radiance.Windows;
 
-using Buffers;
 using Primitives;
 
 /// <summary>
@@ -38,7 +37,7 @@ public abstract class BaseWindow
     }
 
     protected readonly TimeFrameController frameController = new();
-
+    
     /// <summary>
     /// Get the phase of render pipeline from this window.
     /// </summary>
@@ -48,6 +47,12 @@ public abstract class BaseWindow
     /// Get or Set if the window is active and will call events.
     /// </summary>
     public bool Active { get; set; } = true;
+    
+    /// <summary>
+    /// Get or Set if the frames of renderization will be called.
+    /// </summary>
+    /// <value></value>
+    public bool CanRender { get; set; } = true;
 
     /// <summary>
     /// The time between the current and the last frame.
@@ -85,6 +90,21 @@ public abstract class BaseWindow
     public abstract bool ZBufferEnable { get; set; }
 
     /// <summary>
+    /// Get or set if the Blend mode is activated.
+    /// </summary>
+    public abstract bool BlendingMode { get; set; }
+
+    /// <summary>
+    /// Get or set if the Line Smooth is activated.
+    /// </summary>
+    public abstract bool LineSmooth { get; set; }
+
+    /// <summary>
+    /// Get or set the clear color.
+    /// </summary>
+    public abstract Vec4 ClearColor { get; set; }
+
+    /// <summary>
     /// Open main application window.
     /// </summary>
     public abstract void Open();
@@ -111,11 +131,6 @@ public abstract class BaseWindow
     protected abstract void CloseWindow();
 
     /// <summary>
-    /// Clear the background without use any render.
-    /// </summary>
-    public abstract void Clear(Vec4 color);
-
-    /// <summary>
     /// Set inputs to close the application.
     /// </summary>
     public void CloseOn(Input input)
@@ -126,7 +141,29 @@ public abstract class BaseWindow
                 Close();
         };
     }
+
+    /// <summary>
+    /// Clear the background without use any render.
+    /// </summary>
+    public abstract void Clear();
+
+    /// <summary>
+    /// Swap Buffer on renderization process.
+    /// </summary>
+    public abstract void SwapBuffers();
     
+    public void RenderFrame()
+    {
+        if (!CanRender)
+            return;
+
+        Clear();
+        
+        Render();
+
+        SwapBuffers();
+    } 
+
     public event Action? OnRender;
     public event Action? OnLoad;
     public event Action? OnUnload;
@@ -259,10 +296,13 @@ public abstract class BaseWindow
 
     protected void Load()
     {
+        IsOpen = true;
+        BlendingMode = true;
+        ZBufferEnable = true;
+        ClearColor = (0f, 0f, 0f, 0f);
+
         if (OnLoad is null)
             return;
-        
-        ZBufferEnable = true;
         
         Phase = WindowPhase.OnLoad;
         OnLoad();

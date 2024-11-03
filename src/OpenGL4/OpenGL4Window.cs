@@ -1,7 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    23/09/2024
+ * Date:    03/11/2024
  */
+using System;
 using System.Drawing;
+
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
@@ -17,7 +19,6 @@ using Primitives;
 public class OpenGL4Window(bool fullscreen) : BaseWindow
 {
     private GameWindow? win;
-    private bool canRender = true;
     private ClearBufferMask clearMask = ClearBufferMask.ColorBufferBit;
     
     public override int Width { get; protected set; }
@@ -52,23 +53,127 @@ public class OpenGL4Window(bool fullscreen) : BaseWindow
                 GL.Enable(EnableCap.DepthTest);
                 clearMask = ClearBufferMask.ColorBufferBit 
                     | ClearBufferMask.DepthBufferBit;
+
+                #if DEBUG_OPENGL4
+                Console.WriteLine("GL.Enable(EnableCap.DepthTest);");
+                #endif
             }
             else
             {
                 GL.Disable(EnableCap.DepthTest);
                 clearMask = ClearBufferMask.ColorBufferBit;
+
+                #if DEBUG_OPENGL4
+                Console.WriteLine("GL.Disable(EnableCap.DepthTest);");
+                #endif
             }
         }
     }
 
-    public override void Clear(Vec4 color)
+    bool blendMode = false;
+    public override bool BlendingMode
     {
-        GL.ClearColor(
-            color.X,
-            color.Y,
-            color.Z,
-            color.W
-        );
+        get => blendMode;
+        set
+        {
+            RunOrSchedule(() =>
+            {
+                blendMode = value;
+                if (blendMode)
+                {
+                    GL.Enable(EnableCap.Blend);
+                    GL.BlendFunc(
+                        BlendingFactor.SrcAlpha, 
+                        BlendingFactor.OneMinusSrcAlpha
+                    );
+                    
+                    #if DEBUG_OPENGL4
+                    Console.WriteLine("GL.Enable(EnableCap.Blend);");
+                    Console.WriteLine("GL.BlendFunc(");
+                    Console.WriteLine("    BlendingFactor.SrcAlpha,");
+                    Console.WriteLine("    BlendingFactor.OneMinusSrcAlpha");
+                    Console.WriteLine(");");
+                    #endif
+                }
+                else
+                {
+                    GL.Disable(EnableCap.Blend);
+                    
+                    #if DEBUG_OPENGL4
+                    Console.WriteLine("GL.Disable(EnableCap.Blend);");
+                    #endif
+                }
+            });
+        }
+    }
+
+    bool lineSmooth = false;
+    public override bool LineSmooth
+    {
+        get => lineSmooth;
+        set
+        {
+            RunOrSchedule(() =>
+            {
+                lineSmooth = value;
+                if (lineSmooth)
+                {
+                    GL.Enable(EnableCap.LineSmooth);
+                    
+                    #if DEBUG_OPENGL4
+                    Console.WriteLine("GL.Enable(EnableCap.LineSmooth);");
+                    #endif
+                }
+                else
+                {
+                    GL.Disable(EnableCap.LineSmooth);
+                    
+                    #if DEBUG_OPENGL4
+                    Console.WriteLine("GL.Disable(EnableCap.LineSmooth);");
+                    #endif
+                }
+            });
+        }
+    }
+
+    Vec4 clearColor = (0f, 0f, 0f, 0f);
+    public override Vec4 ClearColor
+    {
+        get => clearColor;
+        set
+        {
+            RunOrSchedule(() =>
+            {
+                clearColor = value;
+                GL.ClearColor(
+                    value.X,
+                    value.Y,
+                    value.Z,
+                    value.W
+                );
+
+                #if DEBUG_OPENGL4
+                Console.WriteLine($"GL.ClearColor({value.X}, {value.Y}, {value.Z}, {value.W})");
+                #endif
+            });
+        }
+    }
+
+    public override void Clear()
+    {
+        GL.Clear(clearMask);
+
+        #if DEBUG_OPENGL4
+        Console.WriteLine("GL.Clear(...)");
+        #endif
+    }
+
+    public override void SwapBuffers()
+    {
+        if (win is null)
+            return;
+
+        win.SwapBuffers();
     }
 
     public override void Open()
@@ -81,7 +186,8 @@ public class OpenGL4Window(bool fullscreen) : BaseWindow
                 WindowState =
                     fullscreen ?
                     WindowState.Fullscreen :
-                    WindowState.Normal
+                    WindowState.Normal,
+                TransparentFramebuffer = true
             }
         )
         {
@@ -95,14 +201,6 @@ public class OpenGL4Window(bool fullscreen) : BaseWindow
 
         win.Load += () =>
         {
-            IsOpen = true;
-            GL.Enable(EnableCap.Blend);
-            GL.Enable(EnableCap.LineSmooth);
-            GL.BlendFunc(
-                BlendingFactor.SrcAlpha, 
-                BlendingFactor.OneMinusSrcAlpha
-            );
-
             UpdateSize(win);
             
             Load();
@@ -110,17 +208,7 @@ public class OpenGL4Window(bool fullscreen) : BaseWindow
 
         win.Unload += Unload;
 
-        win.RenderFrame += e =>
-        {
-            if (!canRender)
-                return;
-
-            GL.Clear(clearMask);
-            
-            Render();
-
-            win.SwapBuffers();
-        };
+        win.RenderFrame += e => RenderFrame();
 
         win.UpdateFrame += e =>
         {
@@ -160,7 +248,7 @@ public class OpenGL4Window(bool fullscreen) : BaseWindow
             return;
         
         var size = (Size)win.Size;
-        canRender = size != Size.Empty;
+        CanRender = size != Size.Empty;
 
         Width = size.Width;
         Height = size.Height;
