@@ -268,6 +268,7 @@ Window.Open();
 ### Radiance v3.0.0
 
  - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
+  - ![](https://img.shields.io/badge/new-green) Use of many buffer has parameters for renders is allowed.
  - ![](https://img.shields.io/badge/new-green) Move RenderKit content to Utils with more renders.
  - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
@@ -388,7 +389,6 @@ Window.Open();
 
 # TODO
 - Use BufferSubData to improve update performance.
-- Finish implementations over IBufferedData and multi-renderization.
 - Improve Render class abstractions allowing extensibiltiy and customization.
 - Validate depths of input of renders consistence.
 - Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
