@@ -80,6 +80,9 @@ public static class Utils
 
     #region BUFFER UTILS
 
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
     public static FloatStream buffer(int size, Func<int, float> factory)
     {
         var stream = new FloatStream();
@@ -91,6 +94,9 @@ public static class Utils
         return stream;
     }
 
+    /// <summary>
+    /// Create a buffer from a array.
+    /// </summary>
     public static FloatStream buffer(float[] data)
     {
         var stream = new FloatStream();

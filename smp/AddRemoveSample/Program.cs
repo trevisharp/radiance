@@ -1,70 +1,27 @@
-﻿const int N = 1000;
+﻿const int N = 1_000_000;
 
-var myRender = render((dx, dy, size) =>
+var myRender = render((dx, dy, r, g, b) =>
 {
-    zoom(10 + 20 * size);
+    zoom(10);
+    rotate(t);
     move(width * dx, height * dy);
-    color = mix(red, blue, x / width);
+    color = (r, g, b, 1f);
     fill();
 });
 
 var poly = N * Polygons.Triangule;
 var dxs = randBuffer(N, 3);
 var dys = randBuffer(N, 3);
-var sizes = randBuffer(N, 3);
-
-bool invert = false;
-Window.OnKeyDown += (key, mod) =>
-{
-    if (key == Input.Space)
-        invert = !invert;
-};
+var rs = randBuffer(N, 3);
+var gs = randBuffer(N, 3);
+var bs = randBuffer(N, 3);
 
 Window.OnRender += () => 
 {
     myRender(
-        poly,
-        invert ? dys : dxs,
-        invert ? dxs : dys,
-        sizes
-    );
-
-    myRender(
-        Polygons.Square,
-        400, 400, 100
+        poly, dxs, dys,
+        rs, gs, bs
     );
 };
 Window.CloseOn(Input.Escape);
 Window.Open();
-
-// @@Dynkas app
-// var myRender = render(im =>
-// {
-//     rotate(.5f * t);
-//     move(1100, 700);
-//     zoom(1100, 700, 1 + sin(t) / 5);
-//     color = texture(im, x * im.xratio, y * im.yratio);
-//     fill();
-// });
-
-// var background = render(im =>
-// {
-//     color = 0.85f * black + 0.15f * texture(im, x * im.xratio, y * im.yratio);
-//     fill();
-// });
-
-// Window.OnLoad += () =>
-// {
-//     myRender = myRender(Polygons.Polar((a, i) => 200 + 200 * (i % 2), 0, 0, -0.2f, 10));
-//     background = background(Polygons.Screen);
-// };
-
-// var dynkas = open("dynkas.jpg");
-// Window.OnRender += () => 
-// {
-//     background(dynkas);
-//     myRender(dynkas);
-// };
-
-// Window.CloseOn(Input.Escape);
-// Window.Open();

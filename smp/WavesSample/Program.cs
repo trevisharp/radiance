@@ -1,37 +1,46 @@
-﻿using System.Collections.Generic;
-using OpenTK.Compute.OpenCL;
-using Radiance;
+﻿using Radiance;
 using static Radiance.Utils;
 
-var shipRender = render((px) =>
+using System.Collections.Generic;
+
+var shipRender = render((dx) =>
 {
-    pos = 5 * pos + (px, height / 2, 0);
+    zoom(5);
+    move(dx, height / 2);
     color = red;
     fill();
 });
 
-var waveRender = render((px, py, size) =>
+var waveRender = render((dx, dy, size) =>
 {
-    pos = 34 * size * pos + (px, py, 0);
+    zoom(60 * size);
+    move(dx, dy);
     color = white;
     draw();
 });
 
 float shipSpeed = 4f;
+float shipAcceleration = 4f;
 float shipPosition = 0f;
 Window.OnRender += () =>
     shipRender(Polygons.Circle, shipPosition);
 
-var clkFrame = new Clock();
+var lastFrame = Clock.Shared.Time;
+Window.OnFrame += () =>
+{
+    var newFrame = Clock.Shared.Time;
+    var dt = newFrame - lastFrame;
+    lastFrame = newFrame;
+
+    shipSpeed += shipAcceleration * dt;
+    shipPosition += shipSpeed * dt;
+};
+
 var clkWave = new Clock();
 List<Clock> waveClocks = [];
 Window.OnFrame += () =>
 {
-    shipPosition += shipSpeed * clkFrame.Time;
-    shipSpeed += 3 * clkFrame.Time;
-    clkFrame.Reset();
-
-    if (clkWave.Time < 0.2)
+    if (clkWave.Time < 1)
         return;
     clkWave.Reset();
 
@@ -42,15 +51,15 @@ Window.OnFrame += () =>
         waveRender(Polygons.Circle, origin, Window.Height / 2, clk.Time);
 };
 
-Window.OnKeyDown += (k, m) =>
+Window.OnKeyDown += (key, mod) =>
 {
-    if (k == Input.Space)
-    {
-        foreach (var clk in waveClocks)
-            clk.ToogleFreeze();
-        clkFrame.ToogleFreeze();
-        clkWave.ToogleFreeze();
-    }
+    if (key != Input.Space)
+        return;
+    
+    foreach (var clk in waveClocks)
+        clk.ToogleFreeze();
+    Clock.Shared.ToogleFreeze();
+    clkWave.ToogleFreeze();
 };
 
 Window.CloseOn(Input.Escape);

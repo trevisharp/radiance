@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    28/10/2024
+ * Date:    04/11/2024
  */
 using System;
 using System.Linq;
@@ -199,9 +199,6 @@ public class Render : DynamicObject
             FloatBufferDependence dep => new FloatShaderObject(
                 name, ShaderOrigin.VertexShader, [ dep ]),
 
-            ConstantDependence dep => new FloatShaderObject(
-                name, ShaderOrigin.Global, [ dep ]),
-
             UniformFloatDependence dep => new FloatShaderObject(
                 name, ShaderOrigin.Global, [ dep ]),
             
@@ -235,26 +232,15 @@ public class Render : DynamicObject
         var name = parameter.Name!;
         var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
         var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var isCurried = index < args.Length;
-        var isConstant = isCurried && args[index] is not SkipCurryingParameter;
-        var isFactory = isConstant && args[index] is IBufferedData;
+        var isBuffer = args[index] is IBufferedData;
         
-        return (isFloat, isTexture, isConstant, isFactory) switch
+        return (isFloat, isTexture, isBuffer) switch
         {
-            (true, false, true, true) => new FloatBufferDependence(name, layoutLocations++),
+            (true, false, true) => new FloatBufferDependence(name, layoutLocations++),
 
-            (true, false, true, false) => new ConstantDependence(name, 
-                    args[index] is float value ? value : 
-                    throw new Exception($"{args[index]} is not a float.")
-                ),
+            (true, false, false) => new UniformFloatDependence(name),
 
-            (true, false, false, false) => new UniformFloatDependence(name),
-
-            (false, true, _, false) => new TextureDependence(name),
-
-            (false, true, _, true) => throw new NotImplementedException(
-                "Radiance not work with texture buffer yet. You cannot use a factory to draw many textures."
-            ),
+            (false, true, false) => new TextureDependence(name),
 
             _ => throw new InvalidRenderException(parameter)
         };

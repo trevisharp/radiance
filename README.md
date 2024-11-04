@@ -29,7 +29,12 @@ In this section we added exemples that cover the principal features of Radiance.
 ```cs
 using Radiance;
 
-Window.CloseOn(Input.Escape);
+Window.OnKeyDown += (key, mod) => {
+    if (key == Input.Escape)
+        Window.Close();
+};
+// Or do that:
+// Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
