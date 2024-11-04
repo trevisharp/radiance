@@ -395,7 +395,6 @@ Window.Open();
 
 # TODO
 - Improve Render class abstractions allowing extensibiltiy and customization.
-- Make z-index between 0 to 1000 to make layer-based organization more simple.
 - Validate depths of input of renders consistence.
 - Use BufferSubData to improve update performance.
 - Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
