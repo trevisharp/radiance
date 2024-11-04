@@ -5,6 +5,7 @@ var myRender = render((dx, dy, r, g, b) =>
     zoom(10);
     rotate(t);
     move(width * dx, height * dy);
+    pos = (pos.x, pos.y, 1000 * r);
     color = (r, g, b, 1f);
     fill();
 });

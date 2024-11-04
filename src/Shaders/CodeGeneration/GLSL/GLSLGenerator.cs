@@ -128,7 +128,7 @@ public class GLSLGenerator : ICodeGenerator
             vertSb.AppendLine($"\ttransformPosition = vec3(2 * transformPosition.x / width - 1, 2 * transformPosition.y / height - 1, transformPosition.z);");
 
         if (Options.LargeZIndex)
-            vertSb.AppendLine($"\ttransformPosition = vec3(transformPosition.x, transformPosition.y, 2 * transformPosition.z / 1000 - 1);");
+            vertSb.AppendLine($"\ttransformPosition = vec3(transformPosition.x, transformPosition.y, 1 - 2 * transformPosition.z / 1000);");
 
         vertSb.AppendLine($"\tgl_Position = vec4(transformPosition, 1.0);");
         fragSb.AppendLine($"\toutColor = {fragObj};");
