@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    11/09/2024
+ * Date:    04/11/2024
  */
 using System;
 using System.Text;
@@ -16,6 +16,8 @@ using Contexts;
 /// </summary>
 public class GLSLGenerator : ICodeGenerator
 {
+    public GeneratorOptions Options { get; set; } = GeneratorOptions.Default;
+
     /// <summary>
     /// Get or Set the GSLS Version.
     /// </summary>
@@ -120,8 +122,15 @@ public class GLSLGenerator : ICodeGenerator
         }
 
         vertSb.AppendLine($"\tvec3 finalPosition = {vertObj};");
-        vertSb.AppendLine($"\tvec3 tposition = vec3(2 * finalPosition.x / width - 1, 2 * finalPosition.y / height - 1, finalPosition.z);");
-        vertSb.AppendLine($"\tgl_Position = vec4(tposition, 1.0);");
+        vertSb.AppendLine($"\tvec3 transformPosition = finalPosition;");
+
+        if (Options.PixelBased)
+            vertSb.AppendLine($"\ttransformPosition = vec3(2 * transformPosition.x / width - 1, 2 * transformPosition.y / height - 1, transformPosition.z);");
+
+        if (Options.LargeZIndex)
+            vertSb.AppendLine($"\ttransformPosition = vec3(transformPosition.x, transformPosition.y, 2 * transformPosition.z / 1000 - 1);");
+
+        vertSb.AppendLine($"\tgl_Position = vec4(transformPosition, 1.0);");
         fragSb.AppendLine($"\toutColor = {fragObj};");
 
         foreach (var dep in allDeps)

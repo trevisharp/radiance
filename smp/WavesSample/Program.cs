@@ -7,7 +7,7 @@ var shipRender = render((dx) =>
 {
     zoom(5);
     move(dx, height / 2);
-    color = red;
+    color = mix(red, blue, x / width);
     fill();
 });
 
