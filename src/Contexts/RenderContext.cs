@@ -7,13 +7,13 @@ using System.Collections.Generic;
 
 namespace Radiance.Contexts;
 
-using OpenGL4;
 using Buffers;
 using Shaders;
 using Shaders.Objects;
 using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
 using Exceptions;
+using Implementations.OpenGL4;
 
 /// <summary>
 /// A Thread-Safe global context data object.

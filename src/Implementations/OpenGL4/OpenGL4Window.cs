@@ -8,13 +8,13 @@ using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
 
-namespace Radiance.OpenGL4;
+namespace Radiance.Implementations.OpenGL4;
 
 using Windows;
 using Primitives;
 
 /// <summary>
-/// A Implemetation of OpenGL window
+/// A Implemetation of OpenGL4 window.
 /// </summary>
 public class OpenGL4Window(bool fullscreen) : BaseWindow
 {

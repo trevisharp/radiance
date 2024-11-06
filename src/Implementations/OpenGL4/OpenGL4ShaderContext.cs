@@ -9,7 +9,7 @@ using StbImageSharp;
 using OpenTK.Graphics.OpenGL4;
 using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
-namespace Radiance.OpenGL4;
+namespace Radiance.Implementations.OpenGL4;
 
 using Shaders;
 using Buffers;

@@ -5,9 +5,9 @@ using System;
 
 namespace Radiance;
 
-using OpenGL4;
-using Primitives;
 using Windows;
+using Primitives;
+using Implementations.OpenGL4;
 
 /// <summary>
 /// Global singleton reference to main window in use. 
