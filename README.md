@@ -22,7 +22,7 @@ dotnet add package radiance # Install Radiance
 
 # Learn by examples
 
-In this section we added exemples that cover the principal features of Radiance.
+Lear all features about Radiance with examples.
 
 ### Create a simple fullscreen window
 
@@ -37,6 +37,22 @@ Window.OnKeyDown += (key, mod) => {
 // Window.CloseOn(Input.Escape);
 Window.Open();
 ```
+
+### Draw Objects using Graphics
+
+Coming soon...
+
+### Create your polygons
+
+Coming soon...
+
+### Use buffers to draw very fast
+
+Coming soon...
+
+### Use Clock to control time
+
+Coming soon...
 
 ### Create a custom render
 
@@ -267,6 +283,18 @@ Window.OnRender += () => myRender();
 Window.CloseOn(Input.Escape);
 Window.Open();
 ```
+
+### Get FPS
+
+Coming soon...
+
+### Manage the window events
+
+Coming soon...
+
+### Work with text easily
+
+Coming soon...
 
 # Versions
 
