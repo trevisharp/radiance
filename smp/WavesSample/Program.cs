@@ -7,7 +7,7 @@ var shipRender = render((dx) =>
 {
     zoom(5);
     move(dx, height / 2);
-    color = mix(red, blue, x / width);
+    color = red;
     fill();
 });
 
@@ -19,8 +19,8 @@ var waveRender = render((dx, dy, size) =>
     draw();
 });
 
-float shipSpeed = 4f;
-float shipAcceleration = 4f;
+float shipSpeed = 8f;
+float shipAcceleration = 2f;
 float shipPosition = 0f;
 Window.OnRender += () =>
     shipRender(Polygons.Circle, shipPosition);
@@ -40,7 +40,7 @@ var clkWave = new Clock();
 List<Clock> waveClocks = [];
 Window.OnFrame += () =>
 {
-    if (clkWave.Time < 1)
+    if (clkWave.Time < 0.5)
         return;
     clkWave.Reset();
 

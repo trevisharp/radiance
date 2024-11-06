@@ -47,26 +47,29 @@ public class OpenGL4Window(bool fullscreen) : BaseWindow
         get => zBuffer;
         set
         {
-            zBuffer = value;
-            if (zBuffer)
+            RunOrSchedule(() =>
             {
-                GL.Enable(EnableCap.DepthTest);
-                clearMask = ClearBufferMask.ColorBufferBit 
-                    | ClearBufferMask.DepthBufferBit;
+                zBuffer = value;
+                if (zBuffer)
+                {
+                    GL.Enable(EnableCap.DepthTest);
+                    clearMask = ClearBufferMask.ColorBufferBit 
+                        | ClearBufferMask.DepthBufferBit;
 
-                #if DEBUG_OPENGL4
-                Console.WriteLine("GL.Enable(EnableCap.DepthTest);");
-                #endif
-            }
-            else
-            {
-                GL.Disable(EnableCap.DepthTest);
-                clearMask = ClearBufferMask.ColorBufferBit;
+                    #if DEBUG_OPENGL4
+                    Console.WriteLine("GL.Enable(EnableCap.DepthTest);");
+                    #endif
+                }
+                else
+                {
+                    GL.Disable(EnableCap.DepthTest);
+                    clearMask = ClearBufferMask.ColorBufferBit;
 
-                #if DEBUG_OPENGL4
-                Console.WriteLine("GL.Disable(EnableCap.DepthTest);");
-                #endif
-            }
+                    #if DEBUG_OPENGL4
+                    Console.WriteLine("GL.Disable(EnableCap.DepthTest);");
+                    #endif
+                }
+            });
         }
     }
 
