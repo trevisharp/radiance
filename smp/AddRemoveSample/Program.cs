@@ -1,28 +1,22 @@
-﻿const int N = 1_000_000;
-
-var myRender = render((dx, dy, r, g, b) =>
+﻿var myRender = render((dx, dy, angle) =>
 {
-    zoom(10);
-    rotate(t);
-    move(width * dx, height * dy);
-    pos = (pos.x, pos.y, 1000 * r);
-    color = (r, g, b, 1f);
+    zoom(40);
+    rotate(angle);
+    move(dx, dy);
+    color = red;
     fill();
 });
 
-var poly = N * Polygons.Triangule;
-var dxs = randBuffer(N, 3);
-var dys = randBuffer(N, 3);
-var rs = randBuffer(N, 3);
-var gs = randBuffer(N, 3);
-var bs = randBuffer(N, 3);
+var poly = Polygons.Triangule;
+var dxs = buffer([ 300, 300, 300 ]);
+var dys = buffer([ 400, 400, 400 ]);
+var ang = buffer([ 5f, 5f, 5f ]);
 
-Window.OnRender += () => 
+Window.OnFrame += () => 
 {
-    myRender(
-        poly, dxs, dys,
-        rs, gs, bs
-    );
+
 };
+
+Window.OnRender += () => myRender(poly, dxs, dys, ang);
 Window.CloseOn(Input.Escape);
 Window.Open();

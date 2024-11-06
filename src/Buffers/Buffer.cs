@@ -1,12 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/09/2024
+ * Date:    06/11/2024
  */
 namespace Radiance.Buffers;
 
 /// <summary>
 /// Represents a GPU Buffer Data.
 /// </summary>
-public partial class Buffer
+public class Buffer
 {
     /// <summary>
     /// Get the Id of the Buffer.
@@ -14,7 +14,7 @@ public partial class Buffer
     public int? BufferId { get; set; } = null;
 
     /// <summary>
-    /// Get Or Set if the buffer change a lot.
+    /// Get or Set if the buffer change a lot.
     /// </summary>
     public bool DynamicDraw { get; set; } = false;
 
@@ -24,22 +24,14 @@ public partial class Buffer
     public IBufferedData? CurrentData { get; set; } = null;
 
     /// <summary>
-    /// Get the frame count of the creation of this buffer.
+    /// Create a buffer from a buffered data
     /// </summary>
-    public int? FrameCreation { get; set; } = null;
-
-    /// <summary>
-    /// Get the count of times that data changes.
-    /// </summary>
-    public int? ChangeCount { get; set; } = null;
-
-    /// <summary>
-    /// Get the last frame when the buffer is used.
-    /// </summary>
-    public int? LastUsageFrame { get; set; } = null;
-
-    /// <summary>
-    /// Get the last frame when the data is changed inside the buffer.
-    /// </summary>
-    public int? LastChangedFrame { get; set; } = null;
+    public static Buffer From(IBufferedData data)
+    {
+        return new Buffer {
+            BufferId = null,
+            CurrentData = data,
+            DynamicDraw = false
+        };
+    }
 }

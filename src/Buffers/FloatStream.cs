@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    16/10/2024
+ * Date:    06/11/2024
  */
 using System;
 
@@ -7,6 +7,9 @@ namespace Radiance.Buffers;
 
 public class FloatStream : IBufferedData
 {
+    public FloatStream()
+        => Buffer = Buffer.From(this);
+
     int count = 0;
     float[] data = new float[10];
 
@@ -14,7 +17,7 @@ public class FloatStream : IBufferedData
 
     public int Size => 1;
 
-    public Buffer? Buffer { get; set; }
+    public Buffer Buffer { get; private set; } 
 
     public void PrepareSize(int size)
     {

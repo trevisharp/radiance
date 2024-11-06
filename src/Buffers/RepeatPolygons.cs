@@ -1,24 +1,34 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    16/10/2024
+ * Date:    06/11/2024
  */
 namespace Radiance.Buffers;
 
 /// <summary>
 /// A buffered data with a polygon repeated many times.
 /// </summary>
-public class RepeatPolygon(IPolygon polygon, int times) : IPolygon
+public class RepeatPolygon : IPolygon
 {
+    float[]? data = null;
+    readonly IPolygon polygon;
+    readonly int times;
+
+    public RepeatPolygon(IPolygon polygon, int times)
+    {
+        this.polygon = polygon;
+        this.times = times;
+        Buffer = Buffer.From(this);
+    }
+
     public int Count => polygon.Count * times;
 
     public int Size => polygon.Size;
 
-    public Buffer? Buffer { get; set; }
+    public Buffer Buffer { get; private set; }
 
     Vec3Buffer? triangulationPair = null;
     public Vec3Buffer Triangules
         => triangulationPair ??= new(BuildTriangules());
-
-    float[]? data = null;
+    
     public float[] GetBufferData()
         => data ??= BuildData();
     

@@ -21,7 +21,7 @@ public interface IBufferedData
     /// <summary>
     /// Get the associated buffer.
     /// </summary>
-    Buffer? Buffer { get; set; }
+    Buffer Buffer { get; }
 
     /// <summary>
     /// Generate the data of this buffer.

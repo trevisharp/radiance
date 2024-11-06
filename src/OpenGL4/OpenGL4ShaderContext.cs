@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/10/2024
+ * Date:    06/11/2024
  */
 using System;
 using System.Linq;
@@ -518,20 +518,11 @@ public class OpenGL4ShaderContext : ShaderContext
 
     static bool CreateBuffer(IBufferedData data)
     {
-        if (data.Buffer is not null)
+        if (data.Buffer.BufferId is not null)
             return false;
         
         var id = CreateBuffer();
-        var buffer = new Buffer {
-            BufferId = id,
-            ChangeCount = 0,
-            CurrentData = data,
-            DynamicDraw = false,
-            LastChangedFrame = null,
-            FrameCreation = 0,
-            LastUsageFrame = null
-        };
-        data.Buffer = buffer;
+        data.Buffer.BufferId = id;
         return true;
     }
 

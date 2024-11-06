@@ -1,13 +1,19 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    16/10/2024
+ * Date:    06/11/2024
  */
 namespace Radiance.Buffers;
 
 /// <summary>
 /// A buffer with a Polygon points.
 /// </summary>
-public class Polygon(float[] data) : IPolygon
+public class Polygon : IPolygon
 {
+    readonly float[] data;
+    public Polygon(float[] data)
+    {
+        this.data = data;
+        Buffer = Buffer.From(this);
+    }
     private Vec3Buffer? triangulationPair = null;
 
     /// <summary>
@@ -27,7 +33,7 @@ public class Polygon(float[] data) : IPolygon
     public float[] GetBufferData()
         => data[..];
         
-    public Buffer? Buffer { get; set; }
+    public Buffer Buffer { get; private set; }
     
     public int Count => data.Length / 3;
     public int Size => 3;
