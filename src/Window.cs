@@ -7,26 +7,18 @@ namespace Radiance;
 
 using Windows;
 using Primitives;
-using Implementations.OpenGL4;
+using Implementations;
 
 /// <summary>
 /// Global singleton reference to main window in use. 
 /// </summary>
 public static class Window
 {
-    private static WindowBuilder factory = new OpenGL4WindowBuilder();
-    public static WindowBuilder Factory
-    {
-        get => factory;
-        set => factory = value ?? 
-            throw new ArgumentNullException(nameof(Factory));
-    }
-
-    public static BaseWindow New(bool fullscreen = true)
-        => Factory.New(fullscreen);
+    public static BaseWindow New()
+        => ImplementationConfig.Implementation.New();
     
-    public static void Reset(bool fullscreen)
-        => current = New(fullscreen);
+    public static void Reset()
+        => current = New();
 
     private static BaseWindow current = New();
     public static BaseWindow Current => current;

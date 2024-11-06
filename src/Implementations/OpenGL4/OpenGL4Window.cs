@@ -1,12 +1,15 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    03/11/2024
+ * Date:    06/11/2024
  */
-using System;
 using System.Drawing;
 
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
+
+#if DEBUG_OPENGL4
+using System;
+#endif
 
 namespace Radiance.Implementations.OpenGL4;
 
@@ -16,9 +19,10 @@ using Primitives;
 /// <summary>
 /// A Implemetation of OpenGL4 window.
 /// </summary>
-public class OpenGL4Window(bool fullscreen) : BaseWindow
+public class OpenGL4Window : BaseWindow
 {
     private GameWindow? win;
+    private bool fullscreen = true;
     private ClearBufferMask clearMask = ClearBufferMask.ColorBufferBit;
     
     public override int Width { get; protected set; }

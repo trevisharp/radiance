@@ -4,12 +4,16 @@
 namespace Radiance.Implementations.OpenGL4;
 
 using Contexts;
+using Radiance.Windows;
 
 /// <summary>
 /// A Builder for a ShaderContext using OpenLG4.
 /// </summary>
-public class OpenGL4ShaderContextBuilder : IShaderContextBuilder
+public class OpenGL4Factory : IImplementationFactory
 {
     public ShaderContext Build()
         => new OpenGL4ShaderContext();
+
+    public BaseWindow New()
+        => new OpenGL4Window();
 }

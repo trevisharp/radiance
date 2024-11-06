@@ -13,18 +13,13 @@ using Shaders.Objects;
 using Shaders.CodeGeneration;
 using Shaders.CodeGeneration.GLSL;
 using Exceptions;
-using Implementations.OpenGL4;
+using Implementations;
 
 /// <summary>
 /// A Thread-Safe global context data object.
 /// </summary>
 public class RenderContext
 {
-    /// <summary>
-    /// Get or Set the Current Shader Context Builder, the default is the OpenGL4 Shader Context Builder.
-    /// </summary>
-    public static IShaderContextBuilder ShaderContextBuilder { get; set; } = new OpenGL4ShaderContextBuilder();
-
     /// <summary>
     /// Get or Set the Current Code Generator, the default is the GLSL Code Generator Builder.
     /// </summary>
@@ -154,10 +149,7 @@ public class RenderContext
         bool needTriangularization = false
     )
     {
-        var context = ShaderContextBuilder?.Build()
-            ?? throw new BuilderEmptyException(
-                $"{nameof(RenderContext)}.{nameof(ShaderContextBuilder)}"
-            );
+        var context = ImplementationConfig.Implementation.Build();
 
         var generator = CodeGeneratorBuilder?.Build()
             ?? throw new BuilderEmptyException(
