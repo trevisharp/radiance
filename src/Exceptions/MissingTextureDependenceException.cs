@@ -6,9 +6,6 @@ namespace Radiance.Exceptions;
 using Shaders.Objects;
 using Shaders.Dependencies;
 
-/// <summary>
-/// Represents a error that occurs when a immutable polygon has modified.
-/// </summary>
 public class MissingTextureDependenceException : RadianceException
 {
     public override string ErrorMessage =>
