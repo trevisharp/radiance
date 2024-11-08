@@ -8,6 +8,6 @@ namespace Radiance.CodeGeneration;
 /// <summary>
 /// Represents a code and a setup configuration of a shader.
 /// </summary>
-public sealed record Shader(
+public sealed record ShaderCode(
     string Code, int Hash, Action? Setup
 );

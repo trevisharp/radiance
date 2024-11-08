@@ -9,7 +9,7 @@ namespace Radiance.CodeGeneration;
 /// Represents a pair of vertex and fragment shaders.
 /// </summary>
 public record ShaderPair(
-    Shader VertexShader,
-    Shader FragmentShader,
+    ShaderCode VertexShader,
+    ShaderCode FragmentShader,
     Action? InitialConfiguration
 );

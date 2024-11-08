@@ -153,10 +153,10 @@ public class GLSLGenerator : ICodeGenerator
         closeMain(fragSb);
 
         var vertexCode = vertSb.ToString();
-        var vertexShader = new Shader(vertexCode, vertexCode.GetHashCode(), vertStp);
+        var vertexShader = new ShaderCode(vertexCode, vertexCode.GetHashCode(), vertStp);
 
         var fragmentCode = fragSb.ToString();
-        var fragmentShader = new Shader(fragmentCode, fragmentCode.GetHashCode(), fragStp);
+        var fragmentShader = new ShaderCode(fragmentCode, fragmentCode.GetHashCode(), fragStp);
 
         return new(vertexShader, fragmentShader, config);
     }

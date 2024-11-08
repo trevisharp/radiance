@@ -3,6 +3,8 @@
  */
 namespace Radiance.Buffers;
 
+using Internal;
+
 /// <summary>
 /// A buffer with a Polygon points.
 /// </summary>
@@ -24,7 +26,7 @@ public class Polygon : IPolygon
 
     Vec3Buffer FindTriangules()
     {   
-        var triangules = Operations
+        var triangules = Triangulations
             .PlanarPolygonTriangulation(data[..]);
         
         return new(triangules);

@@ -397,7 +397,7 @@ public class OpenGL4ShaderContext : ShaderContext
     }
     
     static int CreateVertexShader(
-        Shader shader,
+        ShaderCode shader,
         bool verbose,
         ref int tabIndex)
     {
@@ -409,7 +409,7 @@ public class OpenGL4ShaderContext : ShaderContext
     }
     
     static int CreateFragmentShader(
-        Shader shader,
+        ShaderCode shader,
         bool verbose,
         ref int tabIndex)
     {
@@ -422,7 +422,7 @@ public class OpenGL4ShaderContext : ShaderContext
 
     static int CreateShader(
         OpenTKShaderType type,
-        Shader shader,
+        ShaderCode shader,
         bool verbose,
         ref int tabIndex)
     {

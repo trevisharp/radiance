@@ -3,12 +3,12 @@
  */
 using System.Collections.Generic;
 
-namespace Radiance.Buffers;
+namespace Radiance.Internal;
 
 /// <summary>
 /// A class that contains some util and opeartions.
 /// </summary>
-public static class Operations
+public static class Triangulations
 {
     private const int sortTreshold = 8;
 
