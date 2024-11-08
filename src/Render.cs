@@ -29,7 +29,7 @@ public class Render : DynamicObject
     readonly Delegate function;
     readonly int expectedArguments;
 
-    readonly FeatureMap<CallMatch> map = new();
+    readonly FeatureMap<CallMatch> map = [];
     record CallMatch(
         int[] Depth,
         ShaderDependence[] ShaderDependences,

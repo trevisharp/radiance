@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    04/11/2024
  */
-namespace Radiance.Shaders.CodeGeneration;
+namespace Radiance.CodeGeneration;
 
 /// <summary>
 /// Configuration used on Code Generator.

@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace Radiance.Shaders;
+namespace Radiance.CodeGeneration;
 
 /// <summary>
 /// Represents a pair of vertex and fragment shaders.

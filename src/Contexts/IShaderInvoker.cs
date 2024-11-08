@@ -4,7 +4,7 @@
 namespace Radiance.Contexts;
 
 using Buffers;
-using Shaders;
+using CodeGeneration;
 
 /// <summary>
 /// A invoker to initialize and run a shader.

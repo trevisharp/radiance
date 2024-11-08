@@ -5,6 +5,7 @@ namespace Radiance.Implementations;
 
 using Windows;
 using Contexts;
+using CodeGeneration;
 
 /// <summary>
 /// A interface for all implementation factories.
@@ -20,4 +21,9 @@ public interface IImplementationFactory
     /// Create a window.
     /// </summary>
     BaseWindow New();
+
+    /// <summary>
+    /// Create a code generator for generate shaders code.
+    /// </summary>
+    ICodeGenerator NewCodeGenerator();
 }

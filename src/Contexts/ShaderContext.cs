@@ -6,9 +6,9 @@ using static System.Console;
 
 namespace Radiance.Contexts;
 
-using Shaders;
 using Buffers;
 using Primitives;
+using CodeGeneration;
 
 public abstract class ShaderContext : IShaderInvoker, IShaderConfiguration
 {

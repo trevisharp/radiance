@@ -6,9 +6,10 @@ using System.Text;
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Radiance.Shaders.CodeGeneration.GLSL;
+namespace Radiance.CodeGeneration.GLSL;
 
-using Objects;
+using Shaders;
+using Shaders.Objects;
 using Contexts;
 
 /// <summary>

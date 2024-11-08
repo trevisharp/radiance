@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace Radiance.Shaders;
+namespace Radiance.CodeGeneration;
 
 /// <summary>
 /// Represents a code and a setup configuration of a shader.
