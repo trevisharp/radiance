@@ -298,6 +298,11 @@ Coming soon...
 
 # Versions
 
+### Radiance v3.1.0 (Coming soon)
+
+ - ![](https://img.shields.io/badge/new-green) Added triangulation of non-monotone polygons.
+ - ![](https://img.shields.io/badge/new-green) Added text buffers allowing draw texts easily.
+
 ### Radiance v3.0.0 (preview released)
 
  - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
@@ -433,7 +438,3 @@ Coming soon...
  - Improve variable generation name to improve shader reutilization.
  - Avaliate dependency cycles on GLSLGenerator.
  - Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
-
-# TODO 3.1.0
- - Add non-monotone polygons triangularization.
- - Text Renders.
