@@ -217,12 +217,7 @@ public class OpenGL4Window : BaseWindow
 
         win.RenderFrame += e => RenderFrame();
 
-        win.UpdateFrame += e =>
-        {
-            frameController.RegisterFrame();
-
-            Frame();
-        };
+        win.UpdateFrame += e => Frame();
 
         win.KeyDown += e => KeyDown((Input)e.Key, (Modifier)e.Modifiers);
 

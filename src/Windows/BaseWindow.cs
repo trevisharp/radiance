@@ -2,6 +2,7 @@
  * Date:    03/11/2024
  */
 using System;
+using System.Collections.Generic;
 
 namespace Radiance.Windows;
 
@@ -12,31 +13,26 @@ using Primitives;
 /// </summary>
 public abstract class BaseWindow
 {
-    internal protected class TimeFrameController
+    private readonly FrameMeasurer mainMeasure = new(1);
+    private readonly List<FrameMeasurer> otherMeasurers = [];
+
+    /// <summary>
+    /// Add a frame measurer.
+    /// </summary>
+    public void AddMeasurer(FrameMeasurer measurer)
     {
-        DateTime newer = DateTime.UtcNow;
-        DateTime older = DateTime.UtcNow;
-
-        public void RegisterFrame()
-        {
-            older = newer;
-            newer = DateTime.UtcNow;
-        }
-
-        public float DeltaTime
-        {
-            get
-            {
-                var delta = newer - older;
-                var time = delta.TotalSeconds;
-                return (float)time;
-            }
-        }
-
-        public float Fps => 1.0f / DeltaTime;
+        ArgumentNullException.ThrowIfNull(measurer, nameof(measurer));
+        otherMeasurers.Add(measurer);
     }
 
-    protected readonly TimeFrameController frameController = new();
+    /// <summary>
+    /// remove a frame measurer.
+    /// </summary>
+    public void RemoveMeasurer(FrameMeasurer measurer)
+    {
+        ArgumentNullException.ThrowIfNull(measurer, nameof(measurer));
+        otherMeasurers.Remove(measurer);
+    }
     
     /// <summary>
     /// Get the phase of render pipeline from this window.
@@ -57,12 +53,12 @@ public abstract class BaseWindow
     /// <summary>
     /// The time between the current and the last frame.
     /// </summary>
-    public float DeltaTime => frameController.DeltaTime;
+    public float DeltaTime => mainMeasure.DeltaTime;
 
     /// <summary>
     /// Current Frames Per Second for this application.
     /// </summary>
-    public float Fps => frameController.Fps;
+    public float Fps => mainMeasure.Fps;
     
     /// <summary>
     /// Return true if screen is Open.
@@ -267,10 +263,14 @@ public abstract class BaseWindow
 
     protected void Frame()
     {
-        if (OnFrame is null)
-            return;
+        mainMeasure.RegisterFrame();
+        foreach (var measurer in otherMeasurers)
+            measurer.RegisterFrame();   
         
         if (!Active)
+            return;
+
+        if (OnFrame is null)
             return;
         
         Phase = WindowPhase.OnFrame;

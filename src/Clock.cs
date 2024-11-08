@@ -39,6 +39,11 @@ public class Clock
     }
 
     /// <summary>
+    /// Return if the Clock is freezed.
+    /// </summary>
+    public bool IsFreezed => startFreezedTime is not null;
+
+    /// <summary>
     /// Get the total time passed from the last Freeze() call.
     /// </summary>
     float LastFreezedTime => IsFreezed ? Seconds - startFreezedTime!.Value : 0;
@@ -54,6 +59,11 @@ public class Clock
     float UnfreezedTime => Seconds - TotalFreezedTime;
 
     /// <summary>
+    /// Return if the Clock is holding a time.
+    /// </summary>
+    public bool IsHolded => holdedTime is not null;
+
+    /// <summary>
     /// Get the current time. If the clock is holded, return the last hold time.
     /// </summary>
     float Now => holdedTime ?? UnfreezedTime;
@@ -62,16 +72,6 @@ public class Clock
     /// Get current type between now or a holded time and last Reset in seconds.
     /// </summary>
     public float Time => Now - lastResetStart;
-
-    /// <summary>
-    /// Return if the Clock is freezed.
-    /// </summary>
-    public bool IsFreezed => startFreezedTime is not null;
-
-    /// <summary>
-    /// Return if the Clock is holding a time.
-    /// </summary>
-    public bool IsHolded => holdedTime is not null;
 
     /// <summary>
     /// Hold the current time has a now time.
