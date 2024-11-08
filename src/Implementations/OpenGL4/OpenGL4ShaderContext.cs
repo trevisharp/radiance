@@ -11,13 +11,12 @@ using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace Radiance.Implementations.OpenGL4;
 
-using Shaders;
 using Buffers;
 using Internal;
 using Contexts;
 using Primitives;
 using Exceptions;
-using System.Buffers;
+using CodeGeneration;
 
 /// <summary>
 /// Represents the data and state of a shader program.

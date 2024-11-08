@@ -4,6 +4,7 @@
 namespace Radiance.Implementations.Vulkan13;
 
 using Contexts;
+using Radiance.CodeGeneration;
 using Windows;
 
 /// <summary>
@@ -11,14 +12,21 @@ using Windows;
 /// </summary>
 public class Vulkan13Factory : IImplementationFactory
 {
-    public ShaderContext Build()
+    public ShaderContext NewContext()
     {
         throw new System.NotImplementedException(
             "The implementation of Vulkan 1.3 not exists on this version of Radiance."
         );
     }
 
-    public BaseWindow New()
+    public BaseWindow NewWindow()
+    {
+        throw new System.NotImplementedException(
+            "The implementation of Vulkan 1.3 not exists on this version of Radiance."
+        );
+    }
+
+    public ICodeGenerator NewCodeGenerator()
     {
         throw new System.NotImplementedException(
             "The implementation of Vulkan 1.3 not exists on this version of Radiance."

@@ -16,6 +16,7 @@ public interface ICodeGenerator
     ShaderPair GenerateShaders(
         Vec3ShaderObject vertObj,
         Vec4ShaderObject fragObj,
-        IShaderConfiguration ctx
+        IShaderConfiguration ctx,
+        GeneratorOptions? options = null
     );
 }

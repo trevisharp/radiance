@@ -15,12 +15,12 @@ public interface IImplementationFactory
     /// <summary>
     /// Build the shader context engine to manager shader programs.
     /// </summary>
-    ShaderContext Build();
+    ShaderContext NewContext();
 
     /// <summary>
     /// Create a window.
     /// </summary>
-    BaseWindow New();
+    BaseWindow NewWindow();
 
     /// <summary>
     /// Create a code generator for generate shaders code.

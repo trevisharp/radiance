@@ -17,8 +17,6 @@ using Contexts;
 /// </summary>
 public class GLSLGenerator : ICodeGenerator
 {
-    public GeneratorOptions Options { get; set; } = GeneratorOptions.Default;
-
     /// <summary>
     /// Get or Set the GSLS Version.
     /// </summary>
@@ -31,8 +29,11 @@ public class GLSLGenerator : ICodeGenerator
     public ShaderPair GenerateShaders(
         Vec3ShaderObject vertObj,
         Vec4ShaderObject fragObj,
-        IShaderConfiguration ctx)
+        IShaderConfiguration ctx,
+        GeneratorOptions? options = null)
     {
+        options ??= GeneratorOptions.Default;
+
         StringBuilder getCodeBuilder()
         {
             var sb = new StringBuilder();
@@ -125,10 +126,10 @@ public class GLSLGenerator : ICodeGenerator
         vertSb.AppendLine($"\tvec3 finalPosition = {vertObj};");
         vertSb.AppendLine($"\tvec3 transformPosition = finalPosition;");
 
-        if (Options.PixelBased)
+        if (options.PixelBased)
             vertSb.AppendLine($"\ttransformPosition = vec3(2 * transformPosition.x / width - 1, 2 * transformPosition.y / height - 1, transformPosition.z);");
 
-        if (Options.LargeZIndex)
+        if (options.LargeZIndex)
             vertSb.AppendLine($"\ttransformPosition = vec3(transformPosition.x, transformPosition.y, 0.99999f - 2 * transformPosition.z / 1001);");
 
         vertSb.AppendLine($"\tgl_Position = vec4(transformPosition, 1.0);");

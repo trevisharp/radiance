@@ -144,7 +144,7 @@ public class RenderContext
         bool needTriangularization = false
     )
     {
-        var context = ImplementationConfig.Implementation.Build();
+        var context = ImplementationConfig.Implementation.NewContext();
 
         var generator = ImplementationConfig.Implementation.NewCodeGenerator();
         

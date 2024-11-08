@@ -15,7 +15,7 @@ using Implementations;
 public static class Window
 {
     public static BaseWindow New()
-        => ImplementationConfig.Implementation.New();
+        => ImplementationConfig.Implementation.NewWindow();
     
     public static void Reset()
         => current = New();
