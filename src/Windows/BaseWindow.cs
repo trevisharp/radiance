@@ -299,7 +299,7 @@ public abstract class BaseWindow
         IsOpen = true;
         BlendingMode = true;
         ZBufferEnable = true;
-        ClearColor = (0f, 0f, 0f, 0f);
+        ClearColor = Utils.black;
 
         if (OnLoad is null)
             return;
