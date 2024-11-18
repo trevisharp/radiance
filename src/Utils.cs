@@ -75,6 +75,7 @@ public static class Utils
     public static readonly Vec4 white = new(1, 1, 1, 1);
     public static readonly Vec4 cyan = new(0, 1, 1, 1);
     public static readonly Vec4 magenta = new(1, 0, 1, 1);
+    public static readonly Vec4 trasnparent = new(0, 0, 0, 0);
 
     #endregion
 
