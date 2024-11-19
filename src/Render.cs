@@ -179,16 +179,6 @@ public class Render : DynamicObject
             .Select(x => GenerateObject(x.First.Name!, x.Second))
             .ToArray();
     }
-    
-    /// <summary>
-    /// Discover the depth of a array of inputs.
-    /// </summary>
-    static int[] DiscoverDepths(object[] inputs)
-    {
-        return inputs
-            .Select(DiscoverDepth)
-            .ToArray();
-    }
 
     /// <summary>
     /// Generate a object based on their dependences.
@@ -386,14 +376,16 @@ public class Render : DynamicObject
             return true;
         }
     }
-
+    
     /// <summary>
-    /// Get the object depth.
+    /// Discover the depth of a array of inputs.
     /// </summary>
-    static int DiscoverDepth(object obj)
-        => obj switch
+    static int[] DiscoverDepths(object[] inputs) => [
+        ..from input in inputs
+        select input switch
         {
             IBufferedData buffer => buffer.Count,
             _ => 1
-        };
+        }
+    ];
 }
