@@ -431,6 +431,7 @@ Coming soon...
  - Validate depths of input of renders consistence.
  - Enable Buffer mutability.
  - Use BufferSubData to improve update performance.
+ - Fix the draw() function to decompose polygons on lines.
 
 # TODO 3.0.0-rc1
  - Improve multi-window bindings.
