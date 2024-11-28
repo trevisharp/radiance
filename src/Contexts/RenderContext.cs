@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/09/2024
+ * Date:    28/11/2024
  */
 using System;
 using System.Threading;
@@ -10,8 +10,6 @@ namespace Radiance.Contexts;
 using Buffers;
 using Shaders;
 using Shaders.Objects;
-using CodeGeneration;
-using CodeGeneration.GLSL;
 using Exceptions;
 using Implementations;
 
@@ -112,14 +110,8 @@ public class RenderContext
     /// <summary>
     /// Add a draw line loop to this render context.
     /// </summary>
-    public void AddDraw() 
+    public void AddLineLoop() 
         => AddDrawOperation(PrimitiveType.LineLoop);
-    
-    /// <summary>
-    /// Add a draw triangules opeartion with triangularization to this render context.
-    /// </summary>
-    public void AddFill()
-        => AddDrawOperation(PrimitiveType.Triangles, true);
     
     /// <summary>
     /// Add a draw triangules opeartion to this render context.
@@ -138,11 +130,20 @@ public class RenderContext
     /// </summary>
     public void AddFan() 
         => AddDrawOperation(PrimitiveType.TriangleFan);
+    
+    /// <summary>
+    /// Add a draw triangules opeartion with triangularization to this render context.
+    /// </summary>
+    public void AddFill()
+        => AddDrawOperation(PrimitiveType.Triangles, true);
+
+    /// <summary>
+    /// Add a draw lines operation with 
+    /// </summary>
+    public void AddDraw()
+        => AddDrawOperation(PrimitiveType.Lines, true);
         
-    private void AddDrawOperation(
-        PrimitiveType primitive, 
-        bool needTriangularization = false
-    )
+    void AddDrawOperation(PrimitiveType primitive, bool decompose = false)
     {
         var context = ImplementationConfig.Implementation.NewContext();
 
@@ -177,7 +178,7 @@ public class RenderContext
 
         RenderActions += args =>
         {
-            IBufferedData polygon = (needTriangularization, args[0]) switch
+            IBufferedData polygon = (decompose, args[0]) switch
             {
                 (false, IPolygon poly) => poly,
                 (true, IPolygon poly) => poly.Triangules,
