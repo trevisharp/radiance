@@ -428,6 +428,8 @@ Coming soon...
 
 # TODO 3.0.0-preview3
  - Solve the problem of the variant depth buffers.
+ - Add features to draw points.
+ - Add features to control size of lines and points.
  - Improve Render class abstractions allowing extensibiltiy and customization.
  - Validate depths of input of renders consistence.
  - Enable Buffer mutability.
