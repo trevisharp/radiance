@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/11/2024
+ * Date:    29/11/2024
  */
 namespace Radiance.Buffers;
 
@@ -28,7 +28,11 @@ public class RepeatPolygon : IPolygon
     Vec3Buffer? triangulationPair = null;
     public Vec3Buffer Triangules
         => triangulationPair ??= new(BuildTriangules());
-    
+
+    Vec3Buffer? boundPair = null;
+    public Vec3Buffer Lines
+        => boundPair ??= new(BuildLines());
+
     public float[] GetBufferData()
         => data ??= BuildData();
     
@@ -37,6 +41,9 @@ public class RepeatPolygon : IPolygon
 
     float[] BuildTriangules()
         => Repeat(polygon.Triangules.GetBufferData(), times);
+    
+    float[] BuildLines()
+        => Repeat(polygon.Lines.GetBufferData(), times);
     
     static float[] Repeat(float[] data, int times)
     {

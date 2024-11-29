@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/11/2024
+ * Date:    29/11/2024
  */
 namespace Radiance.Buffers;
 
@@ -16,13 +16,15 @@ public class Polygon : IPolygon
         this.data = data;
         Buffer = Buffer.From(this);
     }
-    private Vec3Buffer? triangulationPair = null;
 
-    /// <summary>
-    /// Get the triangulation of this polygon.
-    /// </summary>
+    private Vec3Buffer? triangulationPair = null;
+    private Vec3Buffer? boundPair = null;
+
     public Vec3Buffer Triangules
         => triangulationPair ??= FindTriangules();
+
+    public Vec3Buffer Lines
+        => boundPair ??= FindBounds();
 
     Vec3Buffer FindTriangules()
     {   
@@ -30,6 +32,14 @@ public class Polygon : IPolygon
             .PlanarPolygonTriangulation(data[..]);
         
         return new(triangules);
+    }
+
+    Vec3Buffer FindBounds()
+    {
+        var lines = Bounds
+            .GetBounds(data[..]);
+        
+        return new(lines);
     }
 
     public float[] GetBufferData()

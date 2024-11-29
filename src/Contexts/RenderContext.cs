@@ -176,17 +176,22 @@ public class RenderContext
                 pair.FragmentShader.Setup();
         }
 
+        bool fill = primitive is PrimitiveType.Triangles;
+        bool draw = primitive is PrimitiveType.Lines;
+        bool needTriangules = fill && decompose;
+        bool needBounds = draw && decompose;
+
         RenderActions += args =>
         {
-            IBufferedData polygon = (decompose, args[0]) switch
+            IBufferedData polygon = (needTriangules, needBounds, args[0]) switch
             {
-                (false, IPolygon poly) => poly,
-                (true, IPolygon poly) => poly.Triangules,
-                (false, Vec3Buffer) => throw new InvalidBufferDrawException(),
-                (true, Vec3Buffer buffer) => buffer, 
-                (true, IBufferedData) => throw new InvalidFillOperationException(),
+                (true, false, IPolygon poly) => poly.Triangules,
+                (false, true, IPolygon poly) => poly.Lines,
+                (false, false, IBufferedData buffer) => buffer,
+                (_, _, IBufferedData) => throw new InvalidFillOperationException(),
                 _ => throw new MissingPolygonException()
             };
+            
             args = [ polygon, ..args[1..] ];
 
             initIfNeeded();
