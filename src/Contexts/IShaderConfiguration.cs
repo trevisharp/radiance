@@ -41,4 +41,14 @@ public interface IShaderConfiguration : IDisposable
     /// Add float values on layout of data buffers.
     /// </summary>
     void AddLayout(int size, DataType dataType);
+
+    /// <summary>
+    /// Set the width of next drawn lines.
+    /// </summary>
+    void SetLineWidth(float width);
+
+    /// <summary>
+    /// Set the size of next drawn points.
+    /// </summary>
+    void SetPointSize(float size);
 }

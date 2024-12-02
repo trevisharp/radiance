@@ -162,6 +162,24 @@ public class OpenGL4ShaderContext : ShaderContext
         ProgramId = CreateProgram(vertexShader, fragmentShader, verbose, ref tabIndex);
     }
 
+    public override void SetLineWidth(float width)
+    {
+        GL.LineWidth(width);
+
+        #if DEBUG_OPENGL4
+        Console.WriteLine($"GL.LineWidth({width})");
+        #endif
+    }
+
+    public override void SetPointSize(float size)
+    {
+        GL.PointSize(size);
+
+        #if DEBUG_OPENGL4
+        Console.WriteLine($"GL.PointSize({size})");
+        #endif
+    }
+
     public override void Draw(PrimitiveType primitiveType, IBufferedData data)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;

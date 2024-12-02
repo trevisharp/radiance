@@ -25,6 +25,8 @@ public abstract class ShaderContext : IShaderInvoker, IShaderConfiguration
     public abstract void UseArgs(object[] args);
     public abstract void UseProgram();
     public virtual void FirstConfiguration() {}
+    public abstract void SetLineWidth(float width);
+    public abstract void SetPointSize(float size);
 
     /// <summary>
     /// Show a Error message if verbose is true.

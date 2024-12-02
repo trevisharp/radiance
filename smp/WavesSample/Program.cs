@@ -63,7 +63,7 @@ using System.Collections.Generic;
 // };
 
 const int N = 10;
-const int R = 256;
+const int R = 384;
 var mr = render((dx, dy, r, g, b) => {
     zoom(50);
     rotate(t);

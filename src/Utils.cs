@@ -636,11 +636,11 @@ public static class Utils
     /// <summary>
     /// /// Draw the polygon in the screen.
     /// </summary>
-    public static void draw()
+    public static void draw(float width = 1f)
     {
         var ctx = RenderContext.GetContext()
             ?? throw new ShaderOnlyResourceException();
-        ctx.AddDraw();
+        ctx.AddDraw(width);
     }
 
     /// <summary>

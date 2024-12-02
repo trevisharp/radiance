@@ -83,6 +83,7 @@ public class RenderContext
     /// Get or set the shader object representing the color transformation.
     /// </summary>
     public Vec4ShaderObject Color { get; set; } = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
+    
 
     /// <summary>
     /// Call render pipeline for this render context.
@@ -138,10 +139,16 @@ public class RenderContext
         => AddDrawOperation(PrimitiveType.Triangles, true);
 
     /// <summary>
-    /// Add a draw lines operation with 
+    /// Add a draw lines operation with bounds of the polygon to this render context.
+    /// Choose the width of lines.
     /// </summary>
-    public void AddDraw()
-        => AddDrawOperation(PrimitiveType.Lines, true);
+    public void AddDraw(float width)
+    {
+        var context = ImplementationConfig.Implementation.NewContext();
+        RenderActions += args => context.SetLineWidth(width);
+
+        AddDrawOperation(PrimitiveType.Lines, true);
+    }
         
     void AddDrawOperation(PrimitiveType primitive, bool decompose = false)
     {

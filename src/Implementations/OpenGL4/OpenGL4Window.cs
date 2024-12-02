@@ -194,7 +194,8 @@ public class OpenGL4Window : BaseWindow
                     fullscreen ?
                     WindowState.Fullscreen :
                     WindowState.Normal,
-                TransparentFramebuffer = true
+                TransparentFramebuffer = true,
+                Flags = ContextFlags.Default
             }
         )
         {
