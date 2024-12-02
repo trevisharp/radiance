@@ -427,7 +427,8 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
 # TODO 3.0.0-preview3
- - Solve the problem of the variant depth buffers.
+ - Implement system for instance rate.
+ - Allow automatic instance rate to simplify work.
  - Improve Render class abstractions allowing extensibiltiy and customization.
  - Validate depths of input of renders consistence.
  - Enable Buffer mutability.
