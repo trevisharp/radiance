@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/11/2024
+ * Date:    02/12/2024
  */
 namespace Radiance.Buffers;
 
@@ -18,4 +18,9 @@ public interface IPolygon : IBufferedData
     /// The line buffer of lines that can draw bounds of this polygon. 
     /// </summary>
     Vec3Buffer Lines { get; }
+
+    /// <summary>
+    /// The line buffer of points that can draw bounds of this polygon. 
+    /// </summary>
+    Vec3Buffer Points { get; }
 }

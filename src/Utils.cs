@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    15/10/2024
+ * Date:    02/12/2024
  */
 #pragma warning disable IDE1006
 
@@ -18,6 +18,7 @@ using Exceptions;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
+using OpenTK.Graphics.OpenGL;
 
 /// <summary>
 /// A facade with all utils to use Radiance shader features.
@@ -634,7 +635,17 @@ public static class Utils
     }
 
     /// <summary>
-    /// /// Draw the polygon in the screen.
+    /// Plot points of the polygon on screen.
+    /// </summary>
+    public static void plot(float size = 1f)
+    {
+        var ctx = RenderContext.GetContext()
+            ?? throw new ShaderOnlyResourceException();
+        ctx.AddPlot(size);
+    }
+
+    /// <summary>
+    /// Draw the polygon in the screen.
     /// </summary>
     public static void draw(float width = 1f)
     {

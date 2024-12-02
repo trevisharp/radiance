@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    28/11/2024
+ * Date:    02/12/2024
  */
 using System;
 using System.Threading;
@@ -149,6 +149,18 @@ public class RenderContext
 
         AddDrawOperation(PrimitiveType.Lines, true);
     }
+
+    /// <summary>
+    /// Add a draw points operation with bounds of the polygon to this render context.
+    /// Choose the size of points.
+    /// </summary>
+    public void AddPlot(float size)
+    {
+        var context = ImplementationConfig.Implementation.NewContext();
+        RenderActions += args => context.SetPointSize(size);
+
+        AddDrawOperation(PrimitiveType.Points, true);
+    }
         
     void AddDrawOperation(PrimitiveType primitive, bool decompose = false)
     {
@@ -185,17 +197,20 @@ public class RenderContext
 
         bool fill = primitive is PrimitiveType.Triangles;
         bool draw = primitive is PrimitiveType.Lines;
+        bool plot = primitive is PrimitiveType.Points;
         bool needTriangules = fill && decompose;
         bool needBounds = draw && decompose;
+        bool needPlot = plot && decompose;
 
         RenderActions += args =>
         {
-            IBufferedData polygon = (needTriangules, needBounds, args[0]) switch
+            IBufferedData polygon = (needTriangules, needBounds, needPlot, args[0]) switch
             {
-                (true, false, IPolygon poly) => poly.Triangules,
-                (false, true, IPolygon poly) => poly.Lines,
-                (false, false, IBufferedData buffer) => buffer,
-                (_, _, IBufferedData) => throw new InvalidFillOperationException(),
+                (true, false, false, IPolygon poly) => poly.Triangules,
+                (false, true, false, IPolygon poly) => poly.Lines,
+                (false, false, true, IPolygon poly) => poly.Points,
+                (false, false, false, IBufferedData buffer) => buffer,
+                (_, _, _, IBufferedData) => throw new InvalidFillOperationException(),
                 _ => throw new MissingPolygonException()
             };
             
