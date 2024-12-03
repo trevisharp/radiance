@@ -19,6 +19,11 @@ public interface IBufferedData
     int Size { get; }
 
     /// <summary>
+    /// Get the number of repetitions of the geometry.
+    /// </summary>
+    int Instances { get; }
+
+    /// <summary>
     /// Get the associated buffer.
     /// </summary>
     Buffer Buffer { get; }

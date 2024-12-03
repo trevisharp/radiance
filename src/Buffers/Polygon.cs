@@ -11,6 +11,8 @@ using Internal;
 public class Polygon : IPolygon
 {
     readonly float[] data;
+    public float[] Data => data;
+
     public Polygon(float[] data)
     {
         this.data = data;
@@ -35,7 +37,7 @@ public class Polygon : IPolygon
         var triangules = Triangulations
             .PlanarPolygonTriangulation(data[..]);
         
-        return new(triangules);
+        return new(triangules, 1);
     }
 
     Vec3Buffer FindBounds()
@@ -43,13 +45,13 @@ public class Polygon : IPolygon
         var lines = Bounds
             .GetBounds(data[..]);
         
-        return new(lines);
+        return new(lines, 1);
     }
 
     Vec3Buffer FindPoints()
     {
         var points = data[..];
-        return new (points);
+        return new (points, 1);
     }
 
     public float[] GetBufferData()
@@ -59,6 +61,7 @@ public class Polygon : IPolygon
     
     public int Count => data.Length / 3;
     public int Size => 3;
+    public int Instances => 1;
 
     public static implicit operator Polygon(float[] data) => new(data);
 

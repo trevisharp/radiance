@@ -314,7 +314,9 @@ Coming soon...
  - ![](https://img.shields.io/badge/update-blue) Improve Window abstaction and configuration.
  - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
  - ![](https://img.shields.io/badge/update-blue) Polygon very simplified and immutable every time.
+ - ![](https://img.shields.io/badge/update-blue) Use instancing has a default method of drawing.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we try to use dt in OnFrame and close the program abruptly.
+  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we try to draw many types of primitives on sabe render.
  - ![](https://img.shields.io/badge/removed-red) Remove some features on Polygon simplifying the abstraction.
 
 ### Radiance v2.4.0
@@ -433,6 +435,8 @@ Coming soon...
  - Validate depths of input of renders consistence.
  - Enable Buffer mutability.
  - Use BufferSubData to improve update performance.
+ - Allow multi-size buffers.
+ - Study remove the AddLayout.
 
 # TODO 3.0.0-rc1
  - Improve multi-window bindings.

@@ -62,12 +62,14 @@ using System.Collections.Generic;
 //     clkWave.ToogleFreeze();
 // };
 
-const int N = 4;
-const int R = 8;
+const int N = 16;
 var mr = render((dx, dy, r, g, b) => {
     zoom(50);
     rotate(t);
-    move(width * dx, height * dy);
+    move(
+        0.6 * width * dx + 0.2 * width,
+        0.6 * height * dy + 0.2 * height
+    );
     color = (r, g, b, 1);
     fill();
 
@@ -77,15 +79,15 @@ var mr = render((dx, dy, r, g, b) => {
 
     pos = (pos.x, pos.y, pos.z + 2);
     color = black;
-    plot(10);
+    plot(5);
 });
 
 var poly = N * Polygons.Square;
-var dxs = randBuffer(N, R);
-var dys = randBuffer(N, R);
-var r = randBuffer(N, R);
-var g = randBuffer(N, R);
-var b = randBuffer(N, R);
+var dxs = randBuffer(N);
+var dys = randBuffer(N);
+var r = randBuffer(N);
+var g = randBuffer(N);
+var b = randBuffer(N);
 
 Window.ClearColor = white;
 Window.OnRender += () => mr(poly, dxs, dys, r, g, b);

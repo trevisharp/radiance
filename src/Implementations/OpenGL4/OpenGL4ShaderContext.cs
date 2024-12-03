@@ -183,10 +183,10 @@ public class OpenGL4ShaderContext : ShaderContext
     public override void Draw(PrimitiveType primitiveType, IBufferedData data)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
-        GL.DrawArrays(openTKType, 0, data.Count);
+        GL.DrawArraysInstanced(openTKType, 0, data.Count, data.Instances);
 
         #if DEBUG_OPENGL4
-        Console.WriteLine($"GL.DrawArrays(...)");
+        Console.WriteLine($"GL.DrawArraysInstanced(...)");
         #endif
     }
 
@@ -294,8 +294,11 @@ public class OpenGL4ShaderContext : ShaderContext
             BindBuffer(bufferId);
             GL.VertexAttribPointer(index, size, VertexAttribPointerType.Float, false, offset, 0);
             GL.EnableVertexAttribArray(index);
+            // TODO: Improve this alot.
+            if (index > 0)
+                GL.VertexAttribDivisor(index, 1);
             
-            #if DEBUG_OPENGL4
+            #if DEBUG_OPENGL4   
             Console.WriteLine($"GL.VertexAttribPointer({index}, {size}, ..., {offset}, {0})");
             Console.WriteLine($"GL.EnableVertexAttribArray({index})");
             #endif

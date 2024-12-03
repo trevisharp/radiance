@@ -17,7 +17,9 @@ public class FloatStream : IBufferedData
 
     public int Size => 1;
 
-    public Buffer Buffer { get; private set; } 
+    public Buffer Buffer { get; private set; }
+
+    public int Instances => 1;
 
     public void PrepareSize(int size)
     {
