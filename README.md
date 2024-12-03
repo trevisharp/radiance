@@ -17,7 +17,7 @@ Radiance is a library that can generate GLSL (The language of OpenGL) automatica
 
 ```bash
 dotnet new console # Create project
-dotnet add package radiance # Install Radiance
+dotnet add package Radiance --version 3.0.0-preview2 # Install Radiance
 ```
 
 # Learn by examples
