@@ -6,7 +6,7 @@ namespace Radiance.Buffers;
 /// <summary>
 /// Represents a simple triagules buffer with many data on vertices.
 /// </summary>
-public class Vec3Buffer(float[] data, int instances) : IBufferedData
+public class Vec3Buffer(float[] data, int instances, bool isGeometry) : IBufferedData
 {
     Buffer? buffer = null;
 
@@ -19,6 +19,8 @@ public class Vec3Buffer(float[] data, int instances) : IBufferedData
     public int Size => 3;
     
     public int Instances => instances;
+
+    public bool IsGeometry => isGeometry;
 
     public float[] GetBufferData()
         => data[..];

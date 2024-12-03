@@ -37,7 +37,7 @@ public class Polygon : IPolygon
         var triangules = Triangulations
             .PlanarPolygonTriangulation(data[..]);
         
-        return new(triangules, 1);
+        return new(triangules, 1, true);
     }
 
     Vec3Buffer FindBounds()
@@ -45,13 +45,13 @@ public class Polygon : IPolygon
         var lines = Bounds
             .GetBounds(data[..]);
         
-        return new(lines, 1);
+        return new(lines, 1, true);
     }
 
     Vec3Buffer FindPoints()
     {
         var points = data[..];
-        return new (points, 1);
+        return new (points, 1, true);
     }
 
     public float[] GetBufferData()
@@ -62,6 +62,7 @@ public class Polygon : IPolygon
     public int Count => data.Length / 3;
     public int Size => 3;
     public int Instances => 1;
+    public bool IsGeometry => true;
 
     public static implicit operator Polygon(float[] data) => new(data);
 

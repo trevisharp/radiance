@@ -15,6 +15,7 @@ public class RepeatPolygon(Polygon polygon, int times) : IPolygon
     public int Count => polygon.Count * times;
     public int Size => polygon.Size;
     public int Instances => times;
+    public bool IsGeometry => true;
     public Buffer Buffer => buffer ??= Buffer.From(this);
     public float[] GetBufferData()
         => polygon.GetBufferData();
@@ -32,23 +33,24 @@ public class RepeatPolygon(Polygon polygon, int times) : IPolygon
     public Vec3Buffer Points
         => pointsPair ??= FindPoints();
 
+
     Vec3Buffer FindTriangules()
     {   
         var triangules = Triangulations
             .PlanarPolygonTriangulation(polygon.Data);
-        return new(triangules, times);
+        return new(triangules, times, true);
     }
 
     Vec3Buffer FindBounds()
     {
         var lines = Bounds
             .GetBounds(polygon.Data);
-        return new(lines, times);
+        return new(lines, times, true);
     }
 
     Vec3Buffer FindPoints()
     {
         var points = polygon.Data;
-        return new(points, times);
+        return new(points, times, true);
     }
 }

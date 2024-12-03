@@ -2,6 +2,8 @@
 using static Radiance.Utils;
 
 using System.Collections.Generic;
+using System.Runtime.ConstrainedExecution;
+using System;
 
 // var shipRender = render((dx) =>
 // {
@@ -55,7 +57,7 @@ using System.Collections.Generic;
 // {
 //     if (key != Input.Space)
 //         return;
-    
+
 //     foreach (var clk in waveClocks)
 //         clk.ToogleFreeze();
 //     Clock.Shared.ToogleFreeze();
@@ -63,34 +65,31 @@ using System.Collections.Generic;
 // };
 
 const int N = 16;
-var mr = render((dx, dy, r, g, b) => {
-    zoom(50);
-    rotate(t);
+var mr = render((dx, dy, dt, r, g, b) => {
+    zoom(40);
     move(
-        0.6 * width * dx + 0.2 * width,
-        0.6 * height * dy + 0.2 * height
+        0.8 * width * dx + 0.1 * width,
+        0.8 * height * dy + 0.1 * height
     );
+    move(0, 10 * sin(4 * t + 5 * dt));
     color = (r, g, b, 1);
     fill();
 
     pos = (pos.x, pos.y, pos.z + 1);
     color = (r * 0.2, g * 0.2, b * 0.2, 1);
     draw(2);
-
-    pos = (pos.x, pos.y, pos.z + 2);
-    color = black;
-    plot(5);
 });
 
-var poly = N * Polygons.Square;
+var poly = N * Polygons.Circle;
 var dxs = randBuffer(N);
 var dys = randBuffer(N);
+var dts = randBuffer(N);
 var r = randBuffer(N);
 var g = randBuffer(N);
 var b = randBuffer(N);
 
 Window.ClearColor = white;
-Window.OnRender += () => mr(poly, dxs, dys, r, g, b);
+Window.OnRender += () => mr(poly, dxs, dys, dts, r, g, b);
 
 Window.CloseOn(Input.Escape);
 Window.Open();

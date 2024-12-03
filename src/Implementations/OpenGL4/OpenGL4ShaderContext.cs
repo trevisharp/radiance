@@ -294,13 +294,14 @@ public class OpenGL4ShaderContext : ShaderContext
             BindBuffer(bufferId);
             GL.VertexAttribPointer(index, size, VertexAttribPointerType.Float, false, offset, 0);
             GL.EnableVertexAttribArray(index);
-            // TODO: Improve this alot.
-            if (index > 0)
+            if (!buffer.IsGeometry)
                 GL.VertexAttribDivisor(index, 1);
             
             #if DEBUG_OPENGL4   
             Console.WriteLine($"GL.VertexAttribPointer({index}, {size}, ..., {offset}, {0})");
             Console.WriteLine($"GL.EnableVertexAttribArray({index})");
+            if (!buffer.IsGeometry)
+                Console.WriteLine($"GL.VertexAttribDivisor({index}, 1)");
             #endif
 
             index++;

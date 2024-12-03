@@ -20,6 +20,7 @@ public class FloatStream : IBufferedData
     public Buffer Buffer { get; private set; }
 
     public int Instances => 1;
+    public bool IsGeometry => false;
 
     public void PrepareSize(int size)
     {

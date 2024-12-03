@@ -24,6 +24,11 @@ public interface IBufferedData
     int Instances { get; }
 
     /// <summary>
+    /// Get if the data represents a geometry.
+    /// </summary>
+    bool IsGeometry { get; }
+
+    /// <summary>
     /// Get the associated buffer.
     /// </summary>
     Buffer Buffer { get; }
@@ -33,5 +38,4 @@ public interface IBufferedData
     /// Prefer to not modify this vector to avoid incorrect behaviours.
     /// </summary>
     float[] GetBufferData();
-
 }
