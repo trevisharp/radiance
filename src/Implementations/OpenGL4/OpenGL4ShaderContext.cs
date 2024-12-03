@@ -290,9 +290,9 @@ public class OpenGL4ShaderContext : ShaderContext
         {
             var bufferId = buffer.Buffer?.BufferId ?? -1;
             var size = buffer.Size;
-            var offset = size * sizeof(float);
+            var stride = size * sizeof(float);
             BindBuffer(bufferId);
-            GL.VertexAttribPointer(index, size, VertexAttribPointerType.Float, false, offset, 0);
+            GL.VertexAttribPointer(index, size, VertexAttribPointerType.Float, false, stride, 0);
             GL.EnableVertexAttribArray(index);
             if (!buffer.IsGeometry)
                 GL.VertexAttribDivisor(index, 1);

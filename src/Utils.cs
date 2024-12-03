@@ -18,7 +18,6 @@ using Exceptions;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
-using OpenTK.Graphics.OpenGL;
 
 /// <summary>
 /// A facade with all utils to use Radiance shader features.
@@ -118,7 +117,7 @@ public static class Utils
     /// <param name="max">Max value generated.</param>
     /// <param name="min">Min value generated.</param>
     /// <param name="seed">The seed of random algorithm. If -1 create a seed based on time.</param>
-    public static FloatStream randBuffer(int size, int repeat = 1, float max = 1, float min = 0, int seed = -1)
+    public static FloatStream randBuffer(int size, float max = 1, float min = 0, int seed = -1)
     {
         seed = seed != -1 ? seed :
             (int)(DateTime.UtcNow.Ticks % int.MaxValue);
@@ -132,8 +131,7 @@ public static class Utils
         {
             var rand = random.NextSingle();
             var value = band  * rand + min;
-            for (int j = 0; j < repeat; j++)
-                stream.Add(value);
+            stream.Add(value);
         }
 
         return stream;

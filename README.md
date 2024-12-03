@@ -431,12 +431,15 @@ Coming soon...
 # TODO 3.0.0-preview3
  - Implement system for instance rate.
  - Allow automatic instance rate to simplify work.
- - Improve Render class abstractions allowing extensibiltiy and customization.
- - Validate depths of input of renders consistence.
- - Enable Buffer mutability.
  - Use BufferSubData to improve update performance.
  - Allow multi-size buffers.
  - Study remove the AddLayout.
+ - Study use glVertexAttribFormat instead glVertexAttribPointer.
+
+# TODO 3.0.0-preview4
+ - Improve Render class abstractions allowing extensibiltiy and customization.
+ - Validate depths of input of renders consistence.
+ - Enable Buffer mutability.
 
 # TODO 3.0.0-rc1
  - Improve multi-window bindings.

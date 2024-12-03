@@ -12,7 +12,7 @@ public class RepeatPolygon(Polygon polygon, int times) : IPolygon
 {
     private Buffer? buffer = null;
 
-    public int Count => polygon.Count * times;
+    public int Count => polygon.Count;
     public int Size => polygon.Size;
     public int Instances => times;
     public bool IsGeometry => true;

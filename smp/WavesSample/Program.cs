@@ -77,7 +77,7 @@ var mr = render((dx, dy, dt, r, g, b) => {
 
     pos = (pos.x, pos.y, pos.z + 1);
     color = (r * 0.2, g * 0.2, b * 0.2, 1);
-    draw(2);
+    draw(3);
 });
 
 var poly = N * Polygons.Circle;

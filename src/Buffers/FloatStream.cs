@@ -18,8 +18,7 @@ public class FloatStream : IBufferedData
     public int Size => 1;
 
     public Buffer Buffer { get; private set; }
-
-    public int Instances => 1;
+    public int Instances => count;
     public bool IsGeometry => false;
 
     public void PrepareSize(int size)

@@ -9,22 +9,22 @@ namespace Radiance.Buffers;
 public interface IBufferedData
 {
     /// <summary>
-    /// Get the count of the vertex.
+    /// Get the count of rows.
     /// </summary>
     int Count { get; }
     
     /// <summary>
-    /// Get the size of float for each vertex.
+    /// Get the size of float value for each row.
     /// </summary>
     int Size { get; }
 
     /// <summary>
-    /// Get the number of repetitions of the geometry.
+    /// Get the number of instances this data represents.
     /// </summary>
     int Instances { get; }
 
     /// <summary>
-    /// Get if the data represents a geometry.
+    /// Get if this data represents a geometry.
     /// </summary>
     bool IsGeometry { get; }
 
