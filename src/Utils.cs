@@ -545,6 +545,13 @@ public static class Utils
     /// </summary>
     public static readonly Float t =
         new("t", ShaderOrigin.Global, [ShaderDependence.TimeDep]);
+    
+    /// <summary>
+    /// Get the id of current processed vertex.
+    /// Shader Only.
+    /// </summary>
+    public static readonly Float id = 
+        new("gl_VertexID", ShaderOrigin.VertexShader, []);
 
     /// <summary>
     /// Get or set if the current render is in verbose mode.
