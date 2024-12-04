@@ -5,13 +5,15 @@ using System.Globalization;
 
 namespace Radiance.Primitives;
 
+using System.Buffers;
+using Buffers;
 using Shaders;
 using Shaders.Objects;
 
 /// <summary>
 /// Represents a two dimension float vector.
 /// </summary>
-public record Vec2(float X, float Y)
+public record Vec2(float X, float Y) : IBufferizable
 {
     public void Deconstruct(out float x, out float y)
         => (x, y) = (X, Y);
@@ -39,4 +41,13 @@ public record Vec2(float X, float Y)
 
     static string ToTxt(float value)
         => value.ToString(CultureInfo.InvariantCulture);
+
+    public int ComputeSize()
+        => 2;
+
+    public void Bufferize(float[] buffer, int index)
+    {
+        buffer[index] = X;
+        buffer[index + 1] = Y;
+    }
 }

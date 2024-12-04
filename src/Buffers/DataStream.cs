@@ -1,31 +1,31 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/11/2024
+ * Date:    04/12/2024
  */
 using System;
 
 namespace Radiance.Buffers;
 
-public class FloatStream : IBufferedData
+public class DataStream(int size, bool isGeometry) : IBufferedData
 {
     int count = 0;
     float[] data = new float[10];
     Buffer? buffer = null;
-
+    
     public int Rows => count;
 
-    public int Columns => 1;
+    public int Columns => size;
 
     public int Instances => count;
 
     public int InstanceLength => 1;
 
-    public bool IsGeometry => false;
-    
+    public bool IsGeometry => isGeometry;
+
     public Buffer Buffer => buffer ??= Buffer.From(this);
 
     public float[] GetBufferData()
         => data[..count];
-
+    
     /// <summary>
     /// Prepare the stream to recive data
     /// improving Add performance.
@@ -36,7 +36,19 @@ public class FloatStream : IBufferedData
         if (size < space)
             return;
         
-        Expand(size);
+        Expand(count + size);
+    }
+
+    /// <summary>
+    /// Add a value on this data stream.
+    /// </summary>
+    public void Add<T>(T value)
+        where T : IBufferizable
+    {
+        int size = value.ComputeSize();
+        ExpandIfNeeded(count + size);
+        value.Bufferize(data, count);
+        count += size;
     }
 
     /// <summary>
@@ -44,7 +56,7 @@ public class FloatStream : IBufferedData
     /// </summary>
     public void Add(float value)
     {
-        ExpandIfNeeded();
+        ExpandIfNeeded(count + 1);
         data[count] = value;
         count++;
     }
@@ -58,24 +70,29 @@ public class FloatStream : IBufferedData
         count = 0;
     }
     
-    void ExpandIfNeeded()
+    void ExpandIfNeeded(int expectedSize)
     {
-        if (count < data.Length)
+        if (expectedSize < data.Length)
             return;
+
+        int finalSize = data.Length;
+        while (expectedSize < finalSize)
+            finalSize *= 4;
         
-        Expand(4 * data.Length);
+        Expand(finalSize);
     }
 
-    void Expand(int expansion)
+    void Expand(int size)
     {
-        var newData = new float[expansion];
+        var newData = new float[size];
         Array.Copy(data, newData, data.Length);
         data = newData;
     }
 
-    public static RepeatStream operator *(FloatStream stream, int times)
+
+    public static RepeatStream operator *(DataStream stream, int times)
         => new(stream, times);
         
-    public static RepeatStream operator *(int times, FloatStream stream)
+    public static RepeatStream operator *(int times, DataStream stream)
         => new(stream, times);
 }

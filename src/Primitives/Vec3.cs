@@ -5,13 +5,14 @@ using System.Globalization;
 
 namespace Radiance.Primitives;
 
+using Buffers;
 using Shaders;
 using Shaders.Objects;
 
 /// <summary>
 /// Represents a three dimension float vector.
 /// </summary>
-public record Vec3(float X, float Y, float Z)
+public record Vec3(float X, float Y, float Z) : IBufferizable
 {
     public void Deconstruct(out float x, out float y, out float z)
         => (x, y, z) = (X, Y, Z);
@@ -39,4 +40,14 @@ public record Vec3(float X, float Y, float Z)
 
     static string ToTxt(float value)
         => value.ToString(CultureInfo.InvariantCulture);
+        
+    public int ComputeSize()
+        => 3;
+
+    public void Bufferize(float[] buffer, int index)
+    {
+        buffer[index] = X;
+        buffer[index + 1] = Y;
+        buffer[index + 2] = Z;
+    }
 }

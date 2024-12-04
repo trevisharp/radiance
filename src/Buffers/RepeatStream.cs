@@ -6,7 +6,7 @@ namespace Radiance.Buffers;
 /// <summary>
 /// Repeation of a float stream.
 /// </summary>
-public class RepeatStream(FloatStream data, int times) : IBufferedData
+public class RepeatStream(DataStream data, int times) : IBufferedData
 {
     Buffer? buffer = null;
 

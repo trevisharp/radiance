@@ -5,13 +5,14 @@ using System.Globalization;
 
 namespace Radiance.Primitives;
 
+using Buffers;
 using Shaders;
 using Shaders.Objects;
 
 /// <summary>
 /// Represents a four dimension float vector.
 /// </summary>
-public record Vec4(float X, float Y, float Z, float W)
+public record Vec4(float X, float Y, float Z, float W) : IBufferizable
 {
     public void Deconstruct(out float x, out float y, out float z, out float w)
         => (x, y, z, w) = (X, Y, Z, W);
@@ -39,4 +40,15 @@ public record Vec4(float X, float Y, float Z, float W)
     
     static string ToTxt(float value)
         => value.ToString(CultureInfo.InvariantCulture);
+    
+    public int ComputeSize()
+        => 4;
+
+    public void Bufferize(float[] buffer, int index)
+    {
+        buffer[index] = X;
+        buffer[index + 1] = Y;
+        buffer[index + 2] = Z;
+        buffer[index + 3] = W;
+    }
 }
