@@ -431,7 +431,7 @@ Coming soon...
 # TODO 3.0.0-preview3
  - Allow multi-size buffers.
  - Add more buffer functions.
- - Study use glVertexAttribFormat instead glVertexAttribPointer.
+ - Make special render functions for animations.
 
 # TODO 3.0.0-preview4
  - Study remove the AddLayout.

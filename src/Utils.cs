@@ -739,6 +739,13 @@ public static class Utils
     /// </summary>
     public static Float log2(Float value)
         => func<Float>("log2", value);
+    
+    /// <summary>
+    /// Returns the value of x modulo y. This is computed as x - y * floor(x/y).
+    /// Shader Only.
+    /// </summary>
+    public static Float mod(Float a, Float b)
+        => func<Float>("mod", a, b);
 
     /// <summary>
     /// Perform Hermite interpolation between two values.
