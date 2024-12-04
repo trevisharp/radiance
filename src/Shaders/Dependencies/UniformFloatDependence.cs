@@ -7,6 +7,7 @@ using System.Text;
 namespace Radiance.Shaders.Dependencies;
 
 using Contexts;
+using Exceptions;
 
 /// <summary>
 /// Represent a parameter in a function used to create a render.
@@ -21,5 +22,9 @@ public class UniformFloatDependence(string name) : ShaderDependence
         => () => ctx.SetFloat(name, value);
 
     public override void UpdateData(object value)
-        => this.value = (float)value;
+    {
+        if (value is not float num)
+            throw new InvalidUniformTypeException(value, "float");
+        this.value = num;
+    }
 }

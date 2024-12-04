@@ -64,26 +64,28 @@ using System;
 //     clkWave.ToogleFreeze();
 // };
 
-const int N = 16;
-const int R = 4;
-var mr = render((dx, dy, dt, r, g, b) => {
+const int N = 512;
+const int R = 128;
+var mr = render((dx, dy, dz, dt, r, g, b) => {
+    color = mix((r, g, b, 1), black, (pos.x - pos.y) / 2);
     zoom(40);
     move(
         width * mix(0.15, 0.85, dx),
-        height * mix(0.15, 0.85, dy)
+        height * mix(0.15, 0.85, dy),
+        1000 * dz
     );
     move(0, 10 * sin(4 * t + 5 * dt));
-    color = (r, g, b, 1);
     fill();
 
-    move(0, 0, 1);
     color = (r * 0.2, g * 0.2, b * 0.2, 1);
+    move(0, 0, 1);
     draw(3);
 });
 
 var poly = N * Polygons.Square;
 var dxs = randBuffer(N);
 var dys = randBuffer(N);
+var dzs = randBuffer(N);
 var dts = randBuffer(N);
 var r = R * randBuffer(N / R);
 var g = R * randBuffer(N / R);
