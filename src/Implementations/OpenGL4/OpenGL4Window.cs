@@ -45,6 +45,20 @@ public class OpenGL4Window : BaseWindow
         }
     }
 
+    VSync vSyncMode = VSync.Off;
+    public override VSync VSync
+    {
+        get => vSyncMode;
+        set
+        {
+            vSyncMode = value;
+            if (win is null)
+                return;
+            
+            win.VSync = (VSyncMode)value;
+        }
+    }
+
     bool zBuffer = true;
     public override bool ZBufferEnable
     {
@@ -195,7 +209,8 @@ public class OpenGL4Window : BaseWindow
                     WindowState.Fullscreen :
                     WindowState.Normal,
                 TransparentFramebuffer = true,
-                Flags = ContextFlags.Default
+                Flags = ContextFlags.Default,
+                Vsync = (VSyncMode)vSyncMode
             }
         )
         {

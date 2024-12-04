@@ -5,7 +5,7 @@ namespace Radiance;
 
 /// <summary>
 /// Represents a keyboard modifier.
-/// Equals to OpenTK.Windowing.GraphicsLibraryFramework.
+/// Equals to OpenTK.Windowing.GraphicsLibraryFramework.Modifier
 /// </summary>
 public enum Modifier
 {

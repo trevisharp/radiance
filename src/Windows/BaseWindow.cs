@@ -86,6 +86,11 @@ public abstract class BaseWindow
     public abstract bool ZBufferEnable { get; set; }
 
     /// <summary>
+    /// Get or set if the VSyncEnable is enable.
+    /// </summary>
+    public abstract VSync VSync { get; set; }
+
+    /// <summary>
     /// Get or set if the Blend mode is activated.
     /// </summary>
     public abstract bool BlendingMode { get; set; }

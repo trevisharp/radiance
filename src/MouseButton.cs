@@ -5,7 +5,7 @@ namespace Radiance;
 
 /// <summary>
 /// Represents a button of the cursor.
-/// Equals to OpenTK.Windowing.GraphicsLibraryFramework.
+/// Equals to OpenTK.Windowing.GraphicsLibraryFramework.MouseButton
 /// </summary>
 public enum MouseButton : byte
 {
