@@ -4,9 +4,9 @@
 namespace Radiance.Buffers;
 
 /// <summary>
-/// A buffered data with a polygon repeated many times.
+/// Virtual repetation of a values of a a polygon.
 /// </summary>
-public class RepeatPolygon(Polygon polygon, int repeat) : IPolygon
+public class VirtualPolygons(Polygon polygon, int repeat) : IPolygon
 {
     Buffer? buffer = null;
     VirtualBufferData? triangulationPair = null;
@@ -36,4 +36,15 @@ public class RepeatPolygon(Polygon polygon, int repeat) : IPolygon
     
     public float[] GetBufferData()
         => polygon.GetBufferData();
+    
+    public override string ToString()
+        => $$"""
+        VirtualPolygons {
+            Rows: {{Rows}},
+            Columns: {{Columns}},
+            Instances: {{Instances}},
+            InstanceLength: {{InstanceLength}},
+            IsGeometry: {{IsGeometry}}
+        }
+        """;
 }

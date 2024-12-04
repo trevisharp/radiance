@@ -91,11 +91,6 @@ var r = R * randBuffer(N / R);
 var g = R * randBuffer(N / R);
 var b = R * randBuffer(N / R);
 
-System.Console.WriteLine(poly.Triangules.Rows);
-System.Console.WriteLine(poly.Triangules.Columns);
-System.Console.WriteLine(poly.Triangules.Instances);
-System.Console.WriteLine(poly.Triangules.InstanceLength);
-
 Window.ClearColor = white;
 Window.OnRender += () => mr(poly, dxs, dys, dzs, dts, r, g, b);
 

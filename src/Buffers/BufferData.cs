@@ -73,7 +73,7 @@ public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedD
         Array.Copy(value, 0, data, count, value.Length);
         count += value.Length;
     }
-    
+
     /// <summary>
     /// Clear this data stream.
     /// </summary>
@@ -101,10 +101,21 @@ public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedD
         Array.Copy(data, newData, data.Length);
         data = newData;
     }
-
+ 
     public static VirtualBufferData operator *(BufferData stream, int times)
         => new(stream, times);
         
     public static VirtualBufferData operator *(int times, BufferData stream)
         => new(stream, times);
+
+    public override string ToString()
+        => $$"""
+        BufferData {
+            Rows: {{Rows}},
+            Columns: {{Columns}},
+            Instances: {{Instances}},
+            InstanceLength: {{InstanceLength}},
+            IsGeometry: {{IsGeometry}}
+        }
+        """;
 }

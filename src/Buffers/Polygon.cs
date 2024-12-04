@@ -3,7 +3,6 @@
  */
 namespace Radiance.Buffers;
 
-using System.Buffers;
 using Internal;
 
 /// <summary>
@@ -72,9 +71,20 @@ public class Polygon(float[] data) : IPolygon
 
     public static implicit operator Polygon(float[] data) => new(data);
 
-    public static RepeatPolygon operator *(Polygon polygon, int times)
+    public static VirtualPolygons operator *(Polygon polygon, int times)
         => new (polygon, times);
 
-    public static RepeatPolygon operator *(int times, Polygon polygon)
+    public static VirtualPolygons operator *(int times, Polygon polygon)
         => new (polygon, times);
+        
+    public override string ToString()
+        => $$"""
+        Polygon {
+            Rows: {{Rows}},
+            Columns: {{Columns}},
+            Instances: {{Instances}},
+            InstanceLength: {{InstanceLength}},
+            IsGeometry: {{IsGeometry}}
+        }
+        """;
 }

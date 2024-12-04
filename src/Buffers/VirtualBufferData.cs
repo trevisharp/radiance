@@ -18,7 +18,7 @@ public class VirtualBufferData(IBufferedData data, int repeat) : IBufferedData
 
     public int Instances => baseRepeat * baseData.Instances;
 
-    public bool IsGeometry => false;
+    public bool IsGeometry => baseData.IsGeometry;
 
     public Buffer Buffer => buffer ??= Buffer.From(this);
 
@@ -33,4 +33,15 @@ public class VirtualBufferData(IBufferedData data, int repeat) : IBufferedData
         
     public static VirtualBufferData operator *(int times, VirtualBufferData stream)
         => new(stream.baseData, times * stream.baseRepeat);
+    
+    public override string ToString()
+        => $$"""
+        VirtualBufferData {
+            Rows: {{Rows}},
+            Columns: {{Columns}},
+            Instances: {{Instances}},
+            InstanceLength: {{InstanceLength}},
+            IsGeometry: {{IsGeometry}}
+        }
+        """;
 }
