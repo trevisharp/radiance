@@ -429,8 +429,6 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
 # TODO 3.0.0-preview3
- - Implement system for instance rate.
- - Allow automatic instance rate to simplify work.
  - Allow multi-size buffers.
  - Add more buffer functions.
  - Study use glVertexAttribFormat instead glVertexAttribPointer.

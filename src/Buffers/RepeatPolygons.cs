@@ -12,11 +12,12 @@ public class RepeatPolygon(Polygon polygon, int times) : IPolygon
 {
     private Buffer? buffer = null;
 
-    public int Count => polygon.Count;
-    public int Size => polygon.Size;
+    public int Rows => polygon.Rows;
+    public int Columns => polygon.Columns;
     public int Instances => times;
     public bool IsGeometry => true;
     public Buffer Buffer => buffer ??= Buffer.From(this);
+    public int InstanceLength => Rows;
     public float[] GetBufferData()
         => polygon.GetBufferData();
     
@@ -32,7 +33,6 @@ public class RepeatPolygon(Polygon polygon, int times) : IPolygon
 
     public Vec3Buffer Points
         => pointsPair ??= FindPoints();
-
 
     Vec3Buffer FindTriangules()
     {   

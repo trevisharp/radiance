@@ -65,6 +65,7 @@ using System;
 // };
 
 const int N = 16;
+const int R = 4;
 var mr = render((dx, dy, dt, r, g, b) => {
     zoom(40);
     move(
@@ -80,13 +81,13 @@ var mr = render((dx, dy, dt, r, g, b) => {
     draw(3);
 });
 
-var poly = N * Polygons.Circle;
+var poly = N * Polygons.Square;
 var dxs = randBuffer(N);
 var dys = randBuffer(N);
 var dts = randBuffer(N);
-var r = randBuffer(N);
-var g = randBuffer(N);
-var b = randBuffer(N);
+var r = R * randBuffer(N / R);
+var g = R * randBuffer(N / R);
+var b = R * randBuffer(N / R);
 
 Window.ClearColor = white;
 Window.OnRender += () => mr(poly, dxs, dys, dts, r, g, b);

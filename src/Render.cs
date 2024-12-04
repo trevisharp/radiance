@@ -384,7 +384,7 @@ public class Render : DynamicObject
         ..from input in inputs
         select input switch
         {
-            IBufferedData buffer => buffer.Count,
+            IBufferedData buffer => buffer.Rows,
             _ => 1
         }
     ];

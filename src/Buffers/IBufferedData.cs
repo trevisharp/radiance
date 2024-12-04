@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    14/10/2024
+ * Date:    02/12/2024
  */
 namespace Radiance.Buffers;
 
@@ -11,12 +11,19 @@ public interface IBufferedData
     /// <summary>
     /// Get the count of rows.
     /// </summary>
-    int Count { get; }
+    int Rows { get; }
     
     /// <summary>
     /// Get the size of float value for each row.
     /// </summary>
-    int Size { get; }
+    int Columns { get; }
+
+    /// <summary>
+    /// The number of rows per instance.
+    /// If InstanceLength * Instance is different of Instance,
+    /// so Radiance know that data repeats automatically.
+    /// </summary>
+    int InstanceLength { get; }
 
     /// <summary>
     /// Get the number of instances this data represents.

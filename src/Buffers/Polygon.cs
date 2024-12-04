@@ -59,10 +59,11 @@ public class Polygon : IPolygon
         
     public Buffer Buffer { get; private set; }
     
-    public int Count => data.Length / 3;
-    public int Size => 3;
+    public int Rows => data.Length / 3;
+    public int Columns => 3;
     public int Instances => 1;
     public bool IsGeometry => true;
+    public int InstanceLength => Rows;
 
     public static implicit operator Polygon(float[] data) => new(data);
 

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    06/11/2024
+ * Date:    03/12/2024
  */
 using System;
 using System.Linq;
@@ -183,7 +183,7 @@ public class OpenGL4ShaderContext : ShaderContext
     public override void Draw(PrimitiveType primitiveType, IBufferedData data)
     {
         var openTKType = (OpenTK.Graphics.OpenGL4.PrimitiveType)primitiveType;
-        GL.DrawArraysInstanced(openTKType, 0, data.Count, data.Instances);
+        GL.DrawArraysInstanced(openTKType, 0, data.Rows, data.Instances);
 
         #if DEBUG_OPENGL4
         Console.WriteLine($"GL.DrawArraysInstanced(...)");
@@ -289,19 +289,19 @@ public class OpenGL4ShaderContext : ShaderContext
         foreach (var buffer in buffers)
         {
             var bufferId = buffer.Buffer?.BufferId ?? -1;
-            var size = buffer.Size;
+            var size = buffer.Columns;
             var stride = size * sizeof(float);
             BindBuffer(bufferId);
             GL.VertexAttribPointer(index, size, VertexAttribPointerType.Float, false, stride, 0);
             GL.EnableVertexAttribArray(index);
             if (!buffer.IsGeometry)
-                GL.VertexAttribDivisor(index, 1);
+                GL.VertexAttribDivisor(index, buffer.Instances / buffer.Rows);
             
             #if DEBUG_OPENGL4   
             Console.WriteLine($"GL.VertexAttribPointer({index}, {size}, ..., {offset}, {0})");
             Console.WriteLine($"GL.EnableVertexAttribArray({index})");
             if (!buffer.IsGeometry)
-                Console.WriteLine($"GL.VertexAttribDivisor({index}, 1)");
+                Console.WriteLine($"GL.VertexAttribDivisor({index}, {buffer.Instances / buffer.Rows})");
             #endif
 
             index++;
