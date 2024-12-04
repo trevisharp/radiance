@@ -19,16 +19,16 @@ public interface IBufferedData
     int Columns { get; }
 
     /// <summary>
+    /// Get the number of instances this data represents.
+    /// </summary>
+    int Instances { get; }
+
+    /// <summary>
     /// The number of rows per instance.
     /// If InstanceLength * Instance is different of Instance,
     /// so Radiance know that data repeats automatically.
     /// </summary>
     int InstanceLength { get; }
-
-    /// <summary>
-    /// Get the number of instances this data represents.
-    /// </summary>
-    int Instances { get; }
 
     /// <summary>
     /// Get if this data represents a geometry.

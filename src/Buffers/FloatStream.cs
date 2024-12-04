@@ -12,11 +12,16 @@ public class FloatStream : IBufferedData
     Buffer? buffer = null;
 
     public int Rows => count;
+
     public int Columns => 1;
+
     public int Instances => count;
-    public bool IsGeometry => false;
-    public Buffer Buffer => buffer ??= Buffer.From(this);
+
     public int InstanceLength => 1;
+
+    public bool IsGeometry => false;
+    
+    public Buffer Buffer => buffer ??= Buffer.From(this);
 
     public float[] GetBufferData()
         => data[..count];

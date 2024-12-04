@@ -10,20 +10,22 @@ using Internal;
 /// </summary>
 public class RepeatPolygon(Polygon polygon, int times) : IPolygon
 {
-    private Buffer? buffer = null;
+    Buffer? buffer = null;
+    Vec3Buffer? triangulationPair = null;
+    Vec3Buffer? boundPair = null;
+    Vec3Buffer? pointsPair = null;
 
     public int Rows => polygon.Rows;
+
     public int Columns => polygon.Columns;
+
     public int Instances => times;
+
     public bool IsGeometry => true;
+
     public Buffer Buffer => buffer ??= Buffer.From(this);
+
     public int InstanceLength => Rows;
-    public float[] GetBufferData()
-        => polygon.GetBufferData();
-    
-    private Vec3Buffer? triangulationPair = null;
-    private Vec3Buffer? boundPair = null;
-    private Vec3Buffer? pointsPair = null;
 
     public Vec3Buffer Triangules
         => triangulationPair ??= FindTriangules();
@@ -33,24 +35,28 @@ public class RepeatPolygon(Polygon polygon, int times) : IPolygon
 
     public Vec3Buffer Points
         => pointsPair ??= FindPoints();
+    
+    public float[] GetBufferData()
+        => polygon.GetBufferData();
 
+    // TODO: Change with vec3bufferrepeat
     Vec3Buffer FindTriangules()
     {   
         var triangules = Triangulations
-            .PlanarPolygonTriangulation(polygon.Data);
+            .PlanarPolygonTriangulation(polygon.GetBufferData());
         return new(triangules, times, true);
     }
 
     Vec3Buffer FindBounds()
     {
         var lines = Bounds
-            .GetBounds(polygon.Data);
+            .GetBounds(polygon.GetBufferData());
         return new(lines, times, true);
     }
 
     Vec3Buffer FindPoints()
     {
-        var points = polygon.Data;
+        var points = polygon.GetBufferData();
         return new(points, times, true);
     }
 }
