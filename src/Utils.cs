@@ -440,6 +440,21 @@ public static class Utils
 
         moveRender(x, y);
     }
+    
+    private static dynamic? moveRender3d;
+    /// <summary>
+    /// Move the polygon by a (x, y, z) vector.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void move(Float x, Float y, Float z)
+    {
+        moveRender3d ??= render((dx, dy, dz) => {
+            var moveValue = autoVar(pos + (dx, dy, dz));
+            pos = moveValue;
+        });
+
+        moveRender3d(x, y, z);
+    }
 
     private static dynamic? centralizeRender;
     /// <summary>

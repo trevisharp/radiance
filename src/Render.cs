@@ -247,7 +247,7 @@ public class Render : DynamicObject
         args = RemoveSkip(args);
         
         if (parameters.Length != args.Length)
-            throw new SubRenderArgumentCountException(parameters.Length, args.Length - 1);
+            throw new SubRenderArgumentCountException(parameters.Length, args.Length);
 
         function.DynamicInvoke(args);
     }

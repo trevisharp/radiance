@@ -68,14 +68,14 @@ const int N = 16;
 var mr = render((dx, dy, dt, r, g, b) => {
     zoom(40);
     move(
-        0.8 * width * dx + 0.1 * width,
-        0.8 * height * dy + 0.1 * height
+        width * mix(0.15, 0.85, dx),
+        height * mix(0.15, 0.85, dy)
     );
     move(0, 10 * sin(4 * t + 5 * dt));
     color = (r, g, b, 1);
     fill();
 
-    pos = (pos.x, pos.y, pos.z + 1);
+    move(0, 0, 1);
     color = (r * 0.2, g * 0.2, b * 0.2, 1);
     draw(3);
 });
