@@ -10,17 +10,17 @@ namespace Radiance.Buffers;
 public interface IPolygon : IBufferedData
 {
     /// <summary>
-    /// The line buffer of points that can draw bounds of this polygon. 
+    /// BufferDataThe line buffer of points that can draw bounds of this polygon. 
     /// </summary>
-    Vec3Buffer Points { get; }
+    IBufferedData Points { get; }
 
     /// <summary>
     /// The line buffer of lines that can draw bounds of this polygon. 
     /// </summary>
-    Vec3Buffer Lines { get; }
+    IBufferedData Lines { get; }
 
     /// <summary>
     /// The triangule buffer of triangules that can fill this polygon.
     /// </summary>
-    Vec3Buffer Triangules { get; }
+    IBufferedData Triangules { get; }
 }

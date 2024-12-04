@@ -3,23 +3,21 @@
  */
 namespace Radiance.Buffers;
 
-using Internal;
-
 /// <summary>
 /// A buffered data with a polygon repeated many times.
 /// </summary>
-public class RepeatPolygon(Polygon polygon, int times) : IPolygon
+public class RepeatPolygon(Polygon polygon, int repeat) : IPolygon
 {
     Buffer? buffer = null;
-    Vec3Buffer? triangulationPair = null;
-    Vec3Buffer? boundPair = null;
-    Vec3Buffer? pointsPair = null;
+    VirtualBufferData? triangulationPair = null;
+    VirtualBufferData? boundPair = null;
+    VirtualBufferData? pointsPair = null;
 
     public int Rows => polygon.Rows;
 
     public int Columns => polygon.Columns;
 
-    public int Instances => times;
+    public int Instances => repeat;
 
     public bool IsGeometry => true;
 
@@ -27,36 +25,15 @@ public class RepeatPolygon(Polygon polygon, int times) : IPolygon
 
     public int InstanceLength => Rows;
 
-    public Vec3Buffer Triangules
-        => triangulationPair ??= FindTriangules();
+    public IBufferedData Triangules
+        => triangulationPair ??= repeat * polygon.Triangules;
 
-    public Vec3Buffer Lines
-        => boundPair ??= FindBounds();
+    public IBufferedData Lines
+        => boundPair ??= repeat * polygon.Lines;
 
-    public Vec3Buffer Points
-        => pointsPair ??= FindPoints();
+    public IBufferedData Points
+        => pointsPair ??= repeat * polygon.Points;
     
     public float[] GetBufferData()
         => polygon.GetBufferData();
-
-    // TODO: Change with vec3bufferrepeat
-    Vec3Buffer FindTriangules()
-    {   
-        var triangules = Triangulations
-            .PlanarPolygonTriangulation(polygon.GetBufferData());
-        return new(triangules, times, true);
-    }
-
-    Vec3Buffer FindBounds()
-    {
-        var lines = Bounds
-            .GetBounds(polygon.GetBufferData());
-        return new(lines, times, true);
-    }
-
-    Vec3Buffer FindPoints()
-    {
-        var points = polygon.GetBufferData();
-        return new(points, times, true);
-    }
 }

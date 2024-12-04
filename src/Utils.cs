@@ -84,9 +84,9 @@ public static class Utils
     /// <summary>
     /// Create a buffer based on a function.
     /// </summary>
-    public static DataStream buffer(int size, Func<int, float> factory)
+    public static BufferData buffer(int size, Func<int, float> factory)
     {
-        var stream = new DataStream(1, false);
+        var stream = new BufferData(1, 1, false);
 
         stream.PrepareSize(size);
         for (int i = 0; i < size; i++)
@@ -98,9 +98,9 @@ public static class Utils
     /// <summary>
     /// Create a buffer from a array.
     /// </summary>
-    public static DataStream buffer(float[] data)
+    public static BufferData buffer(float[] data)
     {
-        var stream = new DataStream(1, false);
+        var stream = new BufferData(1, 1, false);
 
         stream.PrepareSize(data.Length);
         for (int i = 0; i < data.Length; i++)
@@ -117,13 +117,13 @@ public static class Utils
     /// <param name="max">Max value generated.</param>
     /// <param name="min">Min value generated.</param>
     /// <param name="seed">The seed of random algorithm. If -1 create a seed based on time.</param>
-    public static DataStream randBuffer(int size, float max = 1, float min = 0, int seed = -1)
+    public static BufferData randBuffer(int size, float max = 1, float min = 0, int seed = -1)
     {
         seed = seed != -1 ? seed :
             (int)(DateTime.UtcNow.Ticks % int.MaxValue);
         var random = new Random(seed);
 
-        var stream = new DataStream(1, false);
+        var stream = new BufferData(1, 1, false);
         stream.PrepareSize(size);
 
         var band = max - min;

@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/12/2024
+ * Date:    04/12/2024
  */
 namespace Radiance.Buffers;
 
@@ -45,4 +45,10 @@ public interface IBufferedData
     /// Prefer to not modify this vector to avoid incorrect behaviours.
     /// </summary>
     float[] GetBufferData();
+        
+    public static VirtualBufferData operator *(int times, IBufferedData stream)
+        => new(stream, times);
+    
+    public static VirtualBufferData operator *(IBufferedData stream, int times)
+        => new(stream, times);
 }

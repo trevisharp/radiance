@@ -5,19 +5,22 @@ using System;
 
 namespace Radiance.Buffers;
 
-public class DataStream(int size, bool isGeometry) : IBufferedData
+/// <summary>
+/// Represents a Data used on a buffer.
+/// </summary>
+public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedData
 {
     int count = 0;
     float[] data = new float[10];
     Buffer? buffer = null;
     
-    public int Rows => count;
+    public int Rows => count / size;
 
     public int Columns => size;
 
-    public int Instances => count;
+    public int Instances => Rows / instanceLen;
 
-    public int InstanceLength => 1;
+    public int InstanceLength => instanceLen;
 
     public bool IsGeometry => isGeometry;
 
@@ -62,6 +65,16 @@ public class DataStream(int size, bool isGeometry) : IBufferedData
     }
     
     /// <summary>
+    /// Add a value on this data stream.
+    /// </summary>
+    public void AddRange(float[] value)
+    {
+        ExpandIfNeeded(count + value.Length);
+        Array.Copy(value, 0, data, count, value.Length);
+        count += value.Length;
+    }
+    
+    /// <summary>
     /// Clear this data stream.
     /// </summary>
     public void Clear()
@@ -76,7 +89,7 @@ public class DataStream(int size, bool isGeometry) : IBufferedData
             return;
 
         int finalSize = data.Length;
-        while (expectedSize < finalSize)
+        while (finalSize < expectedSize)
             finalSize *= 4;
         
         Expand(finalSize);
@@ -89,10 +102,9 @@ public class DataStream(int size, bool isGeometry) : IBufferedData
         data = newData;
     }
 
-
-    public static RepeatStream operator *(DataStream stream, int times)
+    public static VirtualBufferData operator *(BufferData stream, int times)
         => new(stream, times);
         
-    public static RepeatStream operator *(int times, DataStream stream)
+    public static VirtualBufferData operator *(int times, BufferData stream)
         => new(stream, times);
 }

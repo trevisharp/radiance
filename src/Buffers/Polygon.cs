@@ -3,6 +3,7 @@
  */
 namespace Radiance.Buffers;
 
+using System.Buffers;
 using Internal;
 
 /// <summary>
@@ -11,9 +12,9 @@ using Internal;
 public class Polygon(float[] data) : IPolygon
 {
     Buffer? buffer = null;
-    Vec3Buffer? pointsPair = null;
-    Vec3Buffer? boundPair = null;
-    Vec3Buffer? triangulationPair = null;
+    BufferData? pointsPair = null;
+    BufferData? boundPair = null;
+    BufferData? triangulationPair = null;
 
     public int Rows => data.Length / 3;
 
@@ -27,38 +28,46 @@ public class Polygon(float[] data) : IPolygon
 
     public Buffer Buffer => buffer ??= Buffer.From(this);
 
-    public Vec3Buffer Triangules
+    public IBufferedData Triangules
         => triangulationPair ??= FindTriangules();
     
-    public Vec3Buffer Lines
+    public IBufferedData Lines
         => boundPair ??= FindBounds();
     
-    public Vec3Buffer Points
+    public IBufferedData Points
         => pointsPair ??= FindPoints();
 
     public float[] GetBufferData()
         => data[..];
 
-    Vec3Buffer FindPoints()
+    BufferData FindPoints()
     {
         var points = data[..];
-        return new (points, 1, true);
+        return CreateBuffer(points);
     }
 
-    Vec3Buffer FindBounds()
+    BufferData FindBounds()
     {
         var lines = Bounds
             .GetBounds(data[..]);
         
-        return new(lines, 1, true);
+        return CreateBuffer(lines);
     }
 
-    Vec3Buffer FindTriangules()
+    BufferData FindTriangules()
     {   
         var triangules = Triangulations
             .PlanarPolygonTriangulation(data[..]);
         
-        return new(triangules, 1, true);
+        return CreateBuffer(triangules);
+    }
+
+    static BufferData CreateBuffer(float[] points)
+    {
+        var bufferData = new BufferData(3, points.Length / 3, true);
+        bufferData.AddRange(points);
+        
+        return bufferData;
     }
 
     public static implicit operator Polygon(float[] data) => new(data);
