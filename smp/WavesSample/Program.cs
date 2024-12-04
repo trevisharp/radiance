@@ -63,7 +63,7 @@ using System;
 //     Clock.Shared.ToogleFreeze();
 //     clkWave.ToogleFreeze();
 // };
-const int N = 10_000;
+const int N = 8;
 
 var mr = render((dx, dy, rdx, rdy, r, g, b) => {
     color = (r, g, b, 1);
@@ -123,16 +123,6 @@ var b = randBuffer(4 * N);
 
 Window.ClearColor = white;
 Window.OnRender += () => mr(poly, dxs, dys, rdx, rdy, r, g, b);
-
-float sum = 0;
-float count = 0;
-Window.OnFrame += () => {
-    sum += Window.Fps;
-    count++;
-    
-    if (count % 60 == 0)
-        Console.WriteLine(sum / count);
-};
 
 Window.CloseOn(Input.Escape);
 Window.Open();
