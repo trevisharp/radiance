@@ -79,7 +79,7 @@ var mr = render((dx, dy, dz, dt, r, g, b) => {
 
     color = (r * 0.2, g * 0.2, b * 0.2, 1);
     move(0, 0, 1);
-    draw(3);
+    draw(2);
 });
 
 var poly = N * Polygons.Square;
@@ -92,7 +92,7 @@ var g = R * randBuffer(N / R);
 var b = R * randBuffer(N / R);
 
 Window.ClearColor = white;
-Window.OnRender += () => mr(poly, dxs, dys, dts, r, g, b);
+Window.OnRender += () => mr(poly, dxs, dys, dzs, dts, r, g, b);
 
 Window.CloseOn(Input.Escape);
 Window.Open();
