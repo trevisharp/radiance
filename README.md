@@ -320,7 +320,7 @@ Coming soon...
  - ![](https://img.shields.io/badge/update-blue) Polygon very simplified and immutable every time.
  - ![](https://img.shields.io/badge/update-blue) Use instancing has a default method of drawing.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we try to use dt in OnFrame and close the program abruptly.
-  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we try to draw many types of primitives on sabe render.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we try to draw many types of primitives on sabe render.
  - ![](https://img.shields.io/badge/removed-red) Remove some features on Polygon simplifying the abstraction.
 
 ### Radiance v2.4.0

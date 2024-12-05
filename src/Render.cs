@@ -355,6 +355,7 @@ public class Render : DynamicObject
             _ = arg switch
             {
                 IBufferedData data => add(data),
+                IBufferedData[] data => add(data),
                 Vec2 vec => add(vec.X, vec.Y),
                 Vec3 vec => add(vec.X, vec.Y, vec.Z),
                 Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
