@@ -428,33 +428,56 @@ public static class Utils
     #region BUILT-IN RENDERS
 
     private static dynamic? moveRender;
+    private static void initMoveRender()
+    {
+        moveRender ??= render((dx, dy, dz) => {
+            var moveValue = autoVar(pos + (dx, dy, dz));
+            pos = moveValue;
+        });
+    }
+    
     /// <summary>
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
     public static void move(Float x, Float y)
     {
-        moveRender ??= render((dx, dy) => {
-            var moveValue = autoVar(pos + (dx, dy, 0));
-            pos = moveValue;
-        });
+        initMoveRender();
 
-        moveRender(x, y);
+        moveRender(x, y, 0);
     }
     
-    private static dynamic? moveRender3d;
+    /// <summary>
+    /// Move the polygon by a (x, y) vector.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void move(Vec2ShaderObject vec)
+    {
+        initMoveRender();
+
+        moveRender(vec, 0);
+    }
+    
     /// <summary>
     /// Move the polygon by a (x, y, z) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
     public static void move(Float x, Float y, Float z)
     {
-        moveRender3d ??= render((dx, dy, dz) => {
-            var moveValue = autoVar(pos + (dx, dy, dz));
-            pos = moveValue;
-        });
+        initMoveRender();
 
-        moveRender3d(x, y, z);
+        moveRender(x, y, z);
+    }
+    
+    /// <summary>
+    /// Move the polygon by a (x, y, z) vector.
+    /// This render cannot perform draw/fill, consider using inside another shader.
+    /// </summary>
+    public static void move(Vec3ShaderObject vec)
+    {
+        initMoveRender();
+
+        moveRender(vec);
     }
 
     private static dynamic? centralizeRender;

@@ -102,7 +102,7 @@ var mr = render((dx, dy, rdx, rdy, r, g, b) => {
     fill();
 
     color = black;
-    move(0, 0, 1);
+    move(k);
     draw(2f);
 });
 
