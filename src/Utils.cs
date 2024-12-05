@@ -18,6 +18,7 @@ using Exceptions;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
+using Radiance.Animations;
 
 /// <summary>
 /// A facade with all utils to use Radiance shader features.
@@ -745,7 +746,7 @@ public static class Utils
     /// Shader Only.
     /// </summary>
     public static Float mod(Float a, Float b)
-        => func<Float>("mod", a, b);
+        => autoVar(func<Float>("mod", a, b));
 
     /// <summary>
     /// Perform Hermite interpolation between two values.
@@ -1049,32 +1050,13 @@ public static class Utils
     #region ANIMATIONS
 
     /// <summary>
-    /// Make a loop animation receiving the duration of animation and a
-    /// callback to animation code. The callback function send a function
-    /// to set a step of animation with start and end. The step function
-    /// also receive a callback to determine step operation. The step
-    /// operation function send a value between 0 to 1 representing the
-    /// moment of the step. All operations on animation will be permanent
-    /// until the end of animation.
+    /// Create a animation.
     /// </summary>
-    public static void animation(float duration, Action<Action<float, Action<Float>>, Action<float>> code)
+    public static void animation(Action<AnimationBuilder> code)
     {
-        var time = mod(t, duration);
-
-        float start = 0f;
-
-        Action<float, Action<Float>> step = (duration, operation) => {
-            float end = start + duration;
-            var animation = smoothstep(start, end, time);
-            operation(animation);
-            start += duration;
-        };
-
-        Action<float> wait = (duration) => {
-            start += duration;
-        };
-
-        code(step, wait);
+        var builder = new AnimationBuilder();
+        code(builder);
+        builder.Build();
     }
 
     #endregion

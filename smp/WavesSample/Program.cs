@@ -1,8 +1,6 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-using System.Collections.Generic;
-using System.Runtime.ConstrainedExecution;
 using System;
 
 // var shipRender = render((dx) =>
@@ -69,47 +67,43 @@ var mr = render((dx, dy, rdx, rdy, r, g, b) => {
     color = (r, g, b, 1);
     move(dx, dy);
 
-    const float dt = 0.4f;
-    var time = mod(t, 21 * dt);
-    
-    var anim1 = smoothstep(dt, 2 * dt, time);
-    move(anim1 * dx / 2, anim1 * dy / 2);
-    
-    var anim2 = smoothstep(2 * dt, 3 * dt, time);
-    rotate(-Math.PI / 2 * anim2);
-    
-    var anim3 = smoothstep(3 * dt, 4 * dt, time);
-    move(-anim3 * dy / 2, anim3 * dx / 2);
-    
-    var anim4 = smoothstep(6 * dt, 7 * dt, time);
-    move(anim4 * dy / 2, -anim4 * dx / 2);
-    
-    var anim5 = smoothstep(7 * dt, 8 * dt, time);
-    rotate(-Math.PI / 2 * anim5);
-    
-    var anim6 = smoothstep(8 * dt, 9 * dt, time);
-    move(anim6 * dx / 2, anim6 * dy / 2);
-    
-    var anim7 = smoothstep(11 * dt, 12 * dt, time);
-    move(-anim7 * dx / 2, -anim7 * dy / 2);
-    
-    var anim8 = smoothstep(12 * dt, 13 * dt, time);
-    rotate(-Math.PI / 2 * anim8);
-    
-    var anim9 = smoothstep(13 * dt, 14 * dt, time);
-    move(anim9 * dy / 2, -anim9 * dx / 2);
-    
-    var anim10 = smoothstep(16 * dt, 17 * dt, time);
-    move(-anim10 * dy / 2, anim10 * dx / 2);
-    
-    var anim11 = smoothstep(17 * dt, 18 * dt, time);
-    rotate(-Math.PI / 2 * anim11);
-    
-    var anim12 = smoothstep(18 * dt, 19 * dt, time);
-    move(-anim12 * dx / 2, -anim12 * dy / 2);
+    animation(b => {
+
+        const float dt = 0.4f;
+        b.Wait(2 * dt);
+
+        b.Step(dt, a => move(a * dx / 2, a * dy / 2));
+        b.Step(dt, a => rotate(-Math.PI / 2 * a));
+        b.Step(dt, a => move(-a * dy / 2, a * dx / 2));
+
+        b.Wait(2 * dt);
+
+        b.Step(dt, a => move(a * dy / 2, -a * dx / 2));
+        b.Step(dt, a => rotate(-Math.PI / 2 * a));
+        b.Step(dt, a => move(a * dx / 2, a * dy / 2));
+
+        b.Wait(2 * dt);
+        
+        b.Step(dt, a => move(-a * dx / 2, -a * dy / 2));
+        b.Step(dt, a => rotate(-Math.PI / 2 * a));
+        b.Step(dt, a => move(a * dy / 2, -a * dx / 2));
+
+        b.Wait(2 * dt);
+
+        b.Step(dt, a => move(-a * dy / 2, a * dx / 2));
+        b.Step(dt, a => rotate(-Math.PI / 2 * a));
+        b.Step(dt, a => move(-a * dx / 2, -a * dy / 2));
+
+        b.Loop();
+        
+    });
 
     move(width * rdx, height * rdy);
     fill();
+
+    color = black;
+    move(0, 0, 1);
+    draw(2f);
 });
 
 var poly = 4 * N * Polygons.Rect(40, 40);

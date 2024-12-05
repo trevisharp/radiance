@@ -7,12 +7,24 @@ namespace Radiance.Animations.Operations;
 
 using Shaders.Objects;
 
-public class StepOperation(Action<FloatShaderObject> setpFunc) : AnimationOperation
+/// <summary>
+/// A operation that execute a function between a start and a end point.
+/// </summary>
+public class StepOperation(float duration, Action<FloatShaderObject> setpFunc) : AnimationOperation
 {
-    readonly Action<FloatShaderObject> StepFunc = setpFunc;
+    float start;
+    float end;
+
+    public override void OnAdd(AnimationData data)
+    {
+        start = data.Duration;
+        data.Duration += duration;
+        end = data.Duration;
+    }
 
     public override void OnBuild(AnimationData data)
     {
-        
+        var step = Utils.smoothstep(start, end, data.TimeExpression);
+        setpFunc(step);
     }
 }
