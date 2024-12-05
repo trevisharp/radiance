@@ -1,8 +1,6 @@
 ﻿using Radiance;
 using static Radiance.Utils;
 
-using System;
-
 // var shipRender = render((dx) =>
 // {
 //     zoom(5);
@@ -61,7 +59,7 @@ using System;
 //     Clock.Shared.ToogleFreeze();
 //     clkWave.ToogleFreeze();
 // };
-const int N = 32;
+const int N = 91;
 
 var mr = render((dx, dy, rdx, rdy, r, g, b) => {
     color = (r, g, b, 1);
@@ -101,7 +99,7 @@ var mr = render((dx, dy, rdx, rdy, r, g, b) => {
         
     });
 
-    move(width * rdx, height * rdy);
+    move(rdx, rdy);
     fill();
 
     color = black;
@@ -112,8 +110,8 @@ var mr = render((dx, dy, rdx, rdy, r, g, b) => {
 var poly = 4 * N * Polygons.Rect(40, 40);
 var dxs = buffer(4 * N, i => i % 4 is 0 or 1 ? 20 : -20);
 var dys = buffer(4 * N, i => i % 4 is 0 or 3 ? 20 : -20);
-var rdx = 4 * randBuffer(N);
-var rdy = 4 * randBuffer(N);
+var rdx = 4 * buffer(N, i => 80 + i % 13 * 140);
+var rdy = 4 * buffer(N, i => 80 + i / 13 * 140);
 var r = randBuffer(4 * N);
 var g = randBuffer(4 * N);
 var b = randBuffer(4 * N);
