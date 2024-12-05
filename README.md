@@ -306,12 +306,16 @@ Coming soon...
 ### Radiance v3.0.0 (preview released)
 
  - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
-  - ![](https://img.shields.io/badge/new-green) Use of many buffer has parameters for renders is allowed.
+ - ![](https://img.shields.io/badge/new-green) Add Vsync property on Window object to activate OpenGL Vsync.
+ - ![](https://img.shields.io/badge/new-green) Add abstractions to create animations on shaders.
+ - ![](https://img.shields.io/badge/new-green) Add more primitives to draw, like line and point.
+ - ![](https://img.shields.io/badge/new-green) Use of many buffer has parameters for renders is allowed.
  - ![](https://img.shields.io/badge/new-green) Move RenderKit content to Utils with more renders.
  - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
  - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
  - ![](https://img.shields.io/badge/update-blue) Improve Window abstaction and configuration.
+ - ![](https://img.shields.io/badge/update-blue) Refactor the entire buffer abstraction.
  - ![](https://img.shields.io/badge/update-blue) Now, Shader Dependencies can generate code and add other dependencies on shader generation.
  - ![](https://img.shields.io/badge/update-blue) Polygon very simplified and immutable every time.
  - ![](https://img.shields.io/badge/update-blue) Use instancing has a default method of drawing.
