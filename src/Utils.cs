@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/12/2024
+ * Date:    05/12/2024
  */
 #pragma warning disable IDE1006
 
@@ -1042,6 +1042,39 @@ public static class Utils
         }
             
         return sb.ToString();
+    }
+
+    #endregion
+
+    #region ANIMATIONS
+
+    /// <summary>
+    /// Make a loop animation receiving the duration of animation and a
+    /// callback to animation code. The callback function send a function
+    /// to set a step of animation with start and end. The step function
+    /// also receive a callback to determine step operation. The step
+    /// operation function send a value between 0 to 1 representing the
+    /// moment of the step. All operations on animation will be permanent
+    /// until the end of animation.
+    /// </summary>
+    public static void animation(float duration, Action<Action<float, Action<Float>>, Action<float>> code)
+    {
+        var time = mod(t, duration);
+
+        float start = 0f;
+
+        Action<float, Action<Float>> step = (duration, operation) => {
+            float end = start + duration;
+            var animation = smoothstep(start, end, time);
+            operation(animation);
+            start += duration;
+        };
+
+        Action<float> wait = (duration) => {
+            start += duration;
+        };
+
+        code(step, wait);
     }
 
     #endregion
