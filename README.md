@@ -433,19 +433,22 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
 # TODO 3.0.0-preview3
+ - Fix the bug that occurs when we use flat values on render parameters.
+
+# TODO 3.0.0-preview4
+ - Improve Render class abstractions allowing extensibiltiy and customization.
+ - Validate depths of input of renders consistence.
  - Allow multi-size buffers.
  - Add more buffer functions.
 
-# TODO 3.0.0-preview4
+ # TODO 3.0.0-preview4
  - Study remove the AddLayout.
- - Improve Render class abstractions allowing extensibiltiy and customization.
- - Validate depths of input of renders consistence.
  - Enable Buffer mutability.
  - Use BufferSubData to improve update performance.
+ - Create the Graphics class for call simple draw operations.
 
 # TODO 3.0.0-rc1
  - Improve multi-window bindings.
- - Create the Graphics class for call simple draw operations.
  - Improve variable generation name to improve shader reutilization.
  - Avaliate dependency cycles on GLSLGenerator.
  - Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
