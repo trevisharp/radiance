@@ -62,7 +62,7 @@ public abstract class ShaderObject(
             return originalObject;
         
         var output = new OutputDependence(originalObject);
-        ShaderDependence[] deps = [ ..originalObject.Dependencies, output ];
+        ShaderDependence[] deps = [ output ];
 
         var newObj = Activator.CreateInstance(
             typeof(R), output.Name, unionInfo.origin, deps

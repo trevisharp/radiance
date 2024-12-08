@@ -30,6 +30,16 @@ public abstract class ShaderDependence
     public virtual IEnumerable<ShaderDependence> AddDependences() => [];
 
     /// <summary>
+    /// Add other dependences associated to this dependences to vertex shader.
+    /// </summary>
+    public virtual IEnumerable<ShaderDependence> AddVertexDependences() => [];
+
+    /// <summary>
+    /// Add other dependences associated to this dependences to fragment shader.
+    /// </summary>
+    public virtual IEnumerable<ShaderDependence> AddFragmentDependences() => [];
+
+    /// <summary>
     /// Add code in the current shader of this dependence.
     /// </summary>
     public virtual void AddCode(StringBuilder sb) { }

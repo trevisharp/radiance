@@ -669,8 +669,8 @@ public static class Utils
                 ?? throw new ShaderOnlyResourceException();
 
             var fragmentAccess = ShaderObject.MergeOrigin(value, ShaderOrigin.FragmentShader);
-            var variable = new VariableDependence(fragmentAccess);
 
+            var variable = new VariableDependence(fragmentAccess);
             ctx.Color = new Vec4ShaderObject(
                 variable.Name, ShaderOrigin.FragmentShader,
                 [ ..fragmentAccess.Dependencies, variable ]

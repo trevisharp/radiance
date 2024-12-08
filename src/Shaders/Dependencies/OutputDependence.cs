@@ -1,7 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    24/01/2024
+ * Date:    07/12/2024
  */
 using System.Text;
+using System.Collections.Generic;
 
 namespace Radiance.Shaders.Dependencies;
 
@@ -25,4 +26,7 @@ public class OutputDependence(ShaderObject obj) : ShaderDependence
 
     public override void AddFragmentHeader(StringBuilder sb)
         => sb.AppendLine($"in {type} {Name};");
+
+    public override IEnumerable<ShaderDependence> AddVertexDependences()
+        => obj.Dependencies;
 }

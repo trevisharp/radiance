@@ -51,21 +51,30 @@ public class GLSLGenerator : ICodeGenerator
             .Append(ShaderDependence.WidthDep)
             .Append(ShaderDependence.HeightDep)
             .ToList();
+        var fragDeps = fragObj.Dependencies
+            .ToList();
+        var allDeps = vertDeps.Concat(fragDeps);
+
+        vertDeps.AddRange(
+            allDeps.SelectMany(dep => dep.AddVertexDependences())
+        );
+        fragDeps.AddRange(
+            allDeps.SelectMany(dep => dep.AddFragmentDependences())
+        );
+
         vertDeps = [ 
             ..ExpandDeps(vertDeps)
             .Distinct()
             .OrderBy(dep => dep.GetOrderFactor())
         ];
         
-        var fragDeps = fragObj.Dependencies
-            .ToList();
         fragDeps = [
             ..ExpandDeps(fragDeps)
             .Distinct()
             .OrderBy(dep => dep.GetOrderFactor())
         ];
 
-        var allDeps = vertDeps
+        allDeps = vertDeps
             .Concat(fragDeps)
             .OrderBy(dep => dep.GetOrderFactor())
             .Distinct();

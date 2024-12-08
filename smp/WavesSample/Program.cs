@@ -1,10 +1,18 @@
 ﻿using Radiance;
+using Radiance.Shaders.Objects;
 using static Radiance.Utils;
+
+// using Radiance.Shaders;
+// using Radiance.Shaders.Objects;
+
+// var f1 = new FloatShaderObject("f1", ShaderOrigin.VertexShader, []);
+// return;
 
 const int N = 91;
 
 var mr = render((dx, dy, rdx, rdy, r, g, b) => {
     color = (r, g, b, 1);
+    verbose = true;
     move(dx, dy);
 
     animation(b => {
@@ -44,9 +52,9 @@ var mr = render((dx, dy, rdx, rdy, r, g, b) => {
     move(rdx, rdy);
     fill();
 
-    color = black;
-    move(k);
-    draw(2f);
+    // color = black;
+    // move(k);
+    // draw(2f);
 });
 
 var poly = 4 * N * Polygons.Rect(40, 40);
@@ -59,7 +67,7 @@ var g = randBuffer(4 * N);
 var b = randBuffer(4 * N);
 
 Window.ClearColor = white;
-Window.OnRender += () => mr(poly, dxs, dys, rdx, rdy, r, g, b);
+Window.OnRender += () => mr(poly, dxs, dys, rdx, rdy, r, 0, b);
 
 Window.CloseOn(Input.Escape);
 Window.Open();
