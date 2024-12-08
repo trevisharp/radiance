@@ -1,3 +1,6 @@
+# .env for nuget key
+.env
+
 # .vscode folder
 .vscode
 *.sln
