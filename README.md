@@ -17,7 +17,7 @@ Radiance is a library that can generate GLSL (The language of OpenGL) automatica
 
 ```bash
 dotnet new console # Create project
-dotnet add package Radiance --version 3.0.0-preview2 # Install Radiance
+dotnet add package Radiance --version 3.0.0-preview3 # Install Radiance
 ```
 
 # Learn by examples
@@ -432,16 +432,13 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
-# TODO 3.0.0-preview3
- - Fix the bug that occurs when we use flat values on render parameters.
-
 # TODO 3.0.0-preview4
  - Improve Render class abstractions allowing extensibiltiy and customization.
  - Validate depths of input of renders consistence.
  - Allow multi-size buffers.
  - Add more buffer functions.
 
- # TODO 3.0.0-preview4
+ # TODO 3.0.0-preview5
  - Study remove the AddLayout.
  - Enable Buffer mutability.
  - Use BufferSubData to improve update performance.
