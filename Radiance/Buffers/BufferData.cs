@@ -8,15 +8,15 @@ namespace Radiance.Buffers;
 /// <summary>
 /// Represents a Data used on a buffer.
 /// </summary>
-public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedData
+public class BufferData(int rowSize, int instanceLen, bool isGeometry) : IBufferedData
 {
-    int count = 0;
+    int valueCount = 0;
     float[] data = new float[10];
     Buffer? buffer = null;
     
-    public int Rows => count / size;
+    public int Rows => valueCount / rowSize;
 
-    public int Columns => size;
+    public int Columns => rowSize;
 
     public int Instances => Rows / instanceLen;
 
@@ -27,7 +27,7 @@ public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedD
     public Buffer Buffer => buffer ??= Buffer.From(this);
 
     public float[] GetBufferData()
-        => data[..count];
+        => data[..valueCount];
     
     /// <summary>
     /// Prepare the stream to recive data
@@ -35,11 +35,11 @@ public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedD
     /// </summary>
     public void PrepareSize(int size)
     {
-        int space = data.Length - count;
+        int space = data.Length - valueCount;
         if (size < space)
             return;
         
-        Expand(count + size);
+        Expand(valueCount + size);
     }
 
     /// <summary>
@@ -49,9 +49,9 @@ public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedD
         where T : IBufferizable
     {
         int size = value.ComputeSize();
-        ExpandIfNeeded(count + size);
-        value.Bufferize(data, count);
-        count += size;
+        ExpandIfNeeded(valueCount + size);
+        value.Bufferize(data, valueCount);
+        valueCount += size;
     }
 
     /// <summary>
@@ -59,9 +59,9 @@ public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedD
     /// </summary>
     public void Add(float value)
     {
-        ExpandIfNeeded(count + 1);
-        data[count] = value;
-        count++;
+        ExpandIfNeeded(valueCount + 1);
+        data[valueCount] = value;
+        valueCount++;
     }
     
     /// <summary>
@@ -69,9 +69,9 @@ public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedD
     /// </summary>
     public void AddRange(float[] value)
     {
-        ExpandIfNeeded(count + value.Length);
-        Array.Copy(value, 0, data, count, value.Length);
-        count += value.Length;
+        ExpandIfNeeded(valueCount + value.Length);
+        Array.Copy(value, 0, data, valueCount, value.Length);
+        valueCount += value.Length;
     }
 
     /// <summary>
@@ -80,7 +80,7 @@ public class BufferData(int size, int instanceLen, bool isGeometry) : IBufferedD
     public void Clear()
     {
         data = new float[10];
-        count = 0;
+        valueCount = 0;
     }
     
     void ExpandIfNeeded(int expectedSize)
