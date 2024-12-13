@@ -68,6 +68,72 @@ public static class Utils
     /// </summary>
     public static readonly SkipCurryingParameter skip = new();
 
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec2 vec(float x, float y)
+        => new(x, y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3 vec(float x, float y, float z)
+        => new(x, y, z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3 vec(Vec2 v, float z)
+        => new(v.X, v.Y, z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3 vec(float x, Vec2 v)
+        => new(x, v.X, v.Y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(float x, float y, float z, float w)
+        => new(x, y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(Vec2 v, float z, float w)
+        => new(v.X, v.Y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(float x, float y, Vec2 v)
+        => new(x, y, v.X, v.Y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(float x, Vec2 v, float w)
+        => new(x, v.X, v.Y, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(Vec2 v, Vec2 u)
+        => new(v.X, v.Y, u.X, u.Y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(Vec3 v, float w)
+        => new(v.X, v.Y, v.Z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(float x, Vec3 v)
+        => new(x, v.X, v.Y, v.Z);
+
     public static readonly Vec4 red = new(1, 0, 0, 1);
     public static readonly Vec4 green = new(0, 1, 0, 1);
     public static readonly Vec4 blue = new(0, 0, 1, 1);
