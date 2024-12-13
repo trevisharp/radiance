@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/12/2024
+ * Date:    12/12/2024
  */
 #pragma warning disable IDE1006
 
@@ -148,6 +148,18 @@ public static class Utils
 
     #region BUFFER UTILS
 
+    static BufferData fillBuffer<T>(int rows, int columns, Func<int, T> factory)
+        where T : IBufferizable
+    {
+        var stream = new BufferData(columns, 1, false);
+
+        stream.PrepareSize(rows);
+        for (int i = 0; i < rows; i++)
+            stream.Add(factory(i));
+
+        return stream;
+    }
+
     /// <summary>
     /// Create a buffer based on a function.
     /// </summary>
@@ -163,9 +175,27 @@ public static class Utils
     }
 
     /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferData buffer(int size, Func<int, Vec2> factory)
+        => fillBuffer(size, 2, factory);
+
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferData buffer(int size, Func<int, Vec3> factory)
+        => fillBuffer(size, 3, factory);
+
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferData buffer(int size, Func<int, Vec4> factory)
+        => fillBuffer(size, 4, factory);
+
+    /// <summary>
     /// Create a buffer from a array.
     /// </summary>
-    public static BufferData buffer(float[] data)
+    public static BufferData buffer(params float[] data)
     {
         var stream = new BufferData(1, 1, false);
 
@@ -175,33 +205,48 @@ public static class Utils
 
         return stream;
     }
-
+        
     /// <summary>
-    /// Generate a buffer with random values.
+    /// Get factories for use to create buffers.
     /// </summary>
-    /// <param name="size">The size of buffer.</param>
-    /// <param name="repeat">The number of times that all values repeat. This is util for use the same value to all sides of a triangule.</param>
-    /// <param name="max">Max value generated.</param>
-    /// <param name="min">Min value generated.</param>
-    /// <param name="seed">The seed of random algorithm. If -1 create a seed based on time.</param>
-    public static BufferData randBuffer(int size, float max = 1, float min = 0, int seed = -1)
+    public static readonly Factories factories = new();
+    public class Factories
     {
-        seed = seed != -1 ? seed :
-            (int)(DateTime.UtcNow.Ticks % int.MaxValue);
-        var random = new Random(seed);
+        /// <summary>
+        /// factory for rand values. Uniform between 0 and 1.
+        /// </summary>
+        public Func<int, float> urand => rand(0, 1f);
 
-        var stream = new BufferData(1, 1, false);
-        stream.PrepareSize(size);
-
-        var band = max - min;
-        for (int i = 0; i < size; i++)
+        /// <summary>
+        /// factory for rand values.
+        /// </summary>
+        /// <param name="max">Max value generated.</param>
+        /// <param name="min">Min value generated.</param>
+        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
+        public Func<int, float> rand(float min, float max, int? seed = null)
         {
-            var rand = random.NextSingle();
-            var value = band  * rand + min;
-            stream.Add(value);
+            seed ??= (int)(DateTime.UtcNow.Ticks % int.MaxValue);
+            var random = new Random(seed.Value);
+            var band = max - min;
+
+            return _ => {
+                var rand = random.NextSingle();
+                return band * rand + min;
+            };
         }
 
-        return stream;
+        /// <summary>
+        /// Generate a repetitive sequence of values.
+        /// </summary>
+        public Func<int, float> mod(params float[] values)
+            => i => values[i % values.Length];
+            
+        /// <summary>
+        /// Generate a repetitive sequence of values.
+        /// </summary>
+        public Func<int, T> mod<T>(params T[] values)
+            where T : IBufferizable
+            => i => values[i % values.Length];
     }
 
     #endregion
