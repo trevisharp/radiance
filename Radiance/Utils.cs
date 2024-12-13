@@ -118,6 +118,72 @@ public static class Utils
     public static Vec4 vec(float x, Vec3 v)
         => new(x, v.X, v.Y, v.Z);
 
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec2ShaderObject vec(Float x, Float y)
+        => (x, y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3ShaderObject vec(Float x, Float y, Float z)
+        => (x, y, z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3ShaderObject vec(Vec2ShaderObject v, Float z)
+        => (v.x, v.y, z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3ShaderObject vec(Float x, Vec2ShaderObject v)
+        => (x, v.x, v.y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4ShaderObject vec(Float x, Float y, Float z, Float w)
+        => (x, y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4ShaderObject vec(Vec2ShaderObject v, Float z, Float w)
+        => (v.x, v.y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4ShaderObject vec(Float x, Float y, Vec2ShaderObject v)
+        => (x, y, v.x, v.y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4ShaderObject vec(Float x, Vec2ShaderObject v, Float w)
+        => (x, v.x, v.y, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4ShaderObject vec(Vec2ShaderObject v, Vec2ShaderObject u)
+        => (v.x, v.y, u.x, u.y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4ShaderObject vec(Vec3ShaderObject v, Float w)
+        => (v.x, v.y, v.z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4ShaderObject vec(Float x, Vec3ShaderObject v)
+        => (x, v.x, v.y, v.z);
+
     public static readonly Vec4 red = new(1, 0, 0, 1);
     public static readonly Vec4 green = new(0, 1, 0, 1);
     public static readonly Vec4 blue = new(0, 0, 1, 1);
