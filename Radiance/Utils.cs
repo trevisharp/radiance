@@ -15,10 +15,10 @@ using Shaders.Dependencies;
 using Contexts;
 using Primitives;
 using Exceptions;
+using Animations;
 
 using Float = Shaders.Objects.FloatShaderObject;
 using Sampler = Shaders.Objects.Sampler2DShaderObject;
-using Radiance.Animations;
 
 /// <summary>
 /// A facade with all utils to use Radiance shader features.
