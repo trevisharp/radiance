@@ -268,6 +268,21 @@ public static class Utils
         public Func<int, float> urand => rand(0, 1f);
 
         /// <summary>
+        /// factory for rand values. Uniform between 0 and 1.
+        /// </summary>
+        public Func<int, Vec2> urand2 => rand2(0, 1f);
+
+        /// <summary>
+        /// factory for rand values. Uniform between 0 and 1.
+        /// </summary>
+        public Func<int, Vec3> urand3 => rand3(0, 1f);
+
+        /// <summary>
+        /// factory for rand values. Uniform between 0 and 1.
+        /// </summary>
+        public Func<int, Vec4> urand4 => rand4(0, 1f);
+
+        /// <summary>
         /// factory for rand values.
         /// </summary>
         /// <param name="max">Max value generated.</param>
@@ -275,14 +290,56 @@ public static class Utils
         /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
         public Func<int, float> rand(float min, float max, int? seed = null)
         {
+            var rand = getRand(min, max, seed);
+            return _ => rand();
+        }
+
+        /// <summary>
+        /// factory for rand values on vec2(x, y) format.
+        /// </summary>
+        /// <param name="max">Max value generated.</param>
+        /// <param name="min">Min value generated.</param>
+        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
+        public Func<int, Vec2> rand2(float min, float max, int? seed = null)
+        {
+            var rand = getRand(min, max, seed);
+            return _ => (rand(), rand());
+        }
+
+        /// <summary>
+        /// factory for rand values on vec3(x, y, z) format.
+        /// </summary>
+        /// <param name="max">Max value generated.</param>
+        /// <param name="min">Min value generated.</param>
+        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
+        public Func<int, Vec3> rand3(float min, float max, int? seed = null)
+        {
+            var rand = getRand(min, max, seed);
+            return _ => (rand(), rand(), rand());
+        }
+
+        /// <summary>
+        /// factory for rand values on vec3(x, y, z) format.
+        /// </summary>
+        /// <param name="max">Max value generated.</param>
+        /// <param name="min">Min value generated.</param>
+        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
+        public Func<int, Vec4> rand4(float min, float max, int? seed = null)
+        {
+            var rand = getRand(min, max, seed);
+            return _ => (rand(), rand(), rand(), rand());
+        }
+
+        /// <summary>
+        /// Build a function that generates random values between min and max using a seed.
+        /// </summary>
+        private Func<float> getRand(float min, float max, int? seed)
+        {
             seed ??= (int)(DateTime.UtcNow.Ticks % int.MaxValue);
             var random = new Random(seed.Value);
             var band = max - min;
 
-            return _ => {
-                var rand = random.NextSingle();
-                return band * rand + min;
-            };
+            return () => band * random.NextSingle() + min;
         }
 
         /// <summary>
