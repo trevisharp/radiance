@@ -24,7 +24,6 @@ using Exceptions;
 /// </summary>
 public class Render : DynamicObject
 {
-    object[] arguments;
     int layoutLocations = 1;
     readonly Delegate function;
     readonly int expectedArguments;
@@ -78,15 +77,6 @@ public class Render : DynamicObject
         
         map.Add(depths, new(depths, deps, ctx));
         return (ctx, deps);
-    }
-
-    public sealed override bool TryInvoke(
-        InvokeBinder binder, 
-        object?[]? args, 
-        out object? result)
-    {
-        result = ReceiveParameters(args ?? []);
-        return true;
     }
 
     /// <summary>
