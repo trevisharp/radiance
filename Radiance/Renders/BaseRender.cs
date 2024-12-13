@@ -8,18 +8,22 @@ namespace Radiance.Renders;
 
 using Contexts;
 
-public abstract class BaseRender : DynamicObject
+/// <summary>
+/// Represents a function with power to renderize on screen.
+/// The behaivour it is defined based on a responsability chain.
+/// </summary>
+public abstract class BaseRender(
+    object[] arguments,
+    ArgumentHandlerChain chain
+    ) : DynamicObject
 {
-    public object[] Arguments { get; protected set; } = [];
-    public ArgumentHandlerChain Chain { get; private set; } = new();
-
     public sealed override bool TryInvoke(
         InvokeBinder binder,
         object?[]? args,
         out object? result)
     {
-        var arguments = ValidateNullValues(args ?? []);
-        result = Chain.HandleArguments(this.Arguments, arguments);
+        var newArgs = ValidateNullValues(args ?? []);
+        result = chain.HandleArguments(arguments, newArgs);
         return true;
     }
 

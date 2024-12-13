@@ -22,7 +22,7 @@ using Exceptions;
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
 /// </summary>
-public class Render : DynamicObject
+public class OldRender : DynamicObject
 {
     int layoutLocations = 1;
     readonly Delegate function;
@@ -35,7 +35,7 @@ public class Render : DynamicObject
         RenderContext Context
     );
 
-    public Render(Delegate function)
+    public OldRender(Delegate function)
     {
         this.function = function;
         expectedArguments = function.Method.GetParameters().Length + 1;
@@ -51,7 +51,7 @@ public class Render : DynamicObject
     /// You can also use skip to currying other paremters, so g = f(Utils.skip, 20) we will have g(10) = f(10, 20).
     /// Do not call this funtion inside Window.OnRender event.
     /// </summary>
-    public Render Curry(params object?[] args)
+    public OldRender Curry(params object?[] args)
     {
         if (Window.Phase == WindowPhase.OnRender)
             throw new InvalidCurryPhaseException();

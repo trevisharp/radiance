@@ -9,6 +9,7 @@ using System.Text;
 namespace Radiance;
 
 using Buffers;
+using Renders;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
@@ -420,7 +421,7 @@ public static class Utils
     private static dynamic renderDelegate(Delegate function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        return new Render(function);
+        return new DelegateRender(function);
     }
 
     #endregion

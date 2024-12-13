@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    13/12/2024
  */
+
+using System;
 using System.Collections.Generic;
 
 namespace Radiance.Renders;
@@ -17,8 +19,11 @@ public class ArgumentHandlerChain
     /// <summary>
     /// Add new chain link.
     /// </summary>
-    public void Add(ArgumentHandlerChainLink link)
-        => chain.AddLast(link);
+    public ArgumentHandlerChain Add(ArgumentHandlerChainLink link)
+    {
+        chain.AddLast(link);
+        return this;
+    }
 
     /// <summary>
     /// Clear the chain link.
@@ -40,5 +45,18 @@ public class ArgumentHandlerChain
         }
         
         throw new UnhandleableArgumentsException();
+    }
+
+    static readonly Dictionary<string, ArgumentHandlerChain> chainMap = [];
+    public static ArgumentHandlerChain Create(string name, Action<ArgumentHandlerChain> builder)
+    {
+        if (chainMap.TryGetValue(name, out var chain))
+            return chain;
+        
+        var newChain = new ArgumentHandlerChain();
+        builder(newChain);
+        chainMap.Add(name, newChain);
+        
+        return newChain;
     }
 }
