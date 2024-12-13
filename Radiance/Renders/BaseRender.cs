@@ -6,6 +6,7 @@ using System.Dynamic;
 
 namespace Radiance.Renders;
 
+using System.Collections.Generic;
 using Contexts;
 
 /// <summary>
@@ -25,6 +26,20 @@ public abstract class BaseRender(
         var newArgs = ValidateNullValues(args ?? []);
         result = chain.HandleArguments(arguments, newArgs);
         return true;
+    }
+
+    public static object[] GenerateArrayByTypes(IEnumerable<Type> types)
+    {
+        int expectedArguments = 0;
+        foreach (var type in types)
+        {
+            
+        }
+
+        var paramArray = new object[expectedArguments];
+        for (int i = 0; i < paramArray.Length; i++)
+            paramArray[i] = Utils.skip;
+        return paramArray;
     }
 
     static object[] ValidateNullValues(object?[] args)

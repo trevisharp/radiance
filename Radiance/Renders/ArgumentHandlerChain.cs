@@ -1,7 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    13/12/2024
  */
-
 using System;
 using System.Collections.Generic;
 
@@ -24,6 +23,13 @@ public class ArgumentHandlerChain
         chain.AddLast(link);
         return this;
     }
+
+    /// <summary>
+    /// Add new chain link.
+    /// </summary>
+    public ArgumentHandlerChain Add<T>()
+        where T : ArgumentHandlerChainLink, new()
+        => Add(new T());
 
     /// <summary>
     /// Clear the chain link.
@@ -56,7 +62,7 @@ public class ArgumentHandlerChain
         var newChain = new ArgumentHandlerChain();
         builder(newChain);
         chainMap.Add(name, newChain);
-        
+
         return newChain;
     }
 }

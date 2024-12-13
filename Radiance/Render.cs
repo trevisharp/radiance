@@ -26,7 +26,6 @@ public class OldRender : DynamicObject
 {
     int layoutLocations = 1;
     readonly Delegate function;
-    readonly int expectedArguments;
 
     readonly FeatureMap<CallMatch> map = [];
     record CallMatch(
@@ -35,16 +34,6 @@ public class OldRender : DynamicObject
         RenderContext Context
     );
 
-    public OldRender(Delegate function)
-    {
-        this.function = function;
-        expectedArguments = function.Method.GetParameters().Length + 1;
-
-        arguments = new object[expectedArguments];
-        for (int i = 0; i < arguments.Length; i++)
-            arguments[i] = Utils.skip;
-    }
-    
     /// <summary>
     /// Curry parameter of this render fixing it. So f(x, y) and g = f(20) we will have g(10) = f(20, 10).
     /// You can send vec2 or vec3 types to send more than one value at a time, so f(myVec2) is a valid invoke for f.
