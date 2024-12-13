@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/12/2024
+ * Date:    13/12/2024
  */
 #pragma warning disable IDE1006
 
@@ -25,22 +25,6 @@ using Radiance.Animations;
 /// </summary>
 public static class Utils
 {
-    #region TYPE UTILS
-
-    /// <summary>
-    /// A function to indicate the type of the parameter on render functions.
-    /// Use when the compiler cannot identify a type of a parameter.
-    /// </summary>
-    public static Float f(Float value) => value;
-
-    /// <summary>
-    /// A function to indicate the type of the parameter on render functions.
-    /// Use when the compiler cannot identify a type of a parameter.
-    /// </summary>
-    public static Sampler s(Sampler value) => value;
-
-    #endregion
-    
     #region PRIMITIVE UTILS
 
     /// <summary>
@@ -256,276 +240,58 @@ public static class Utils
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(Action function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
     public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
+        Action function)
         => renderDelegate(function);
     
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(Action<Sampler> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Sampler, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Sampler, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Sampler, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Sampler, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
+    public static dynamic render<T1>(
+        Action<T1> function)
+        where T1 : IAlias
         => renderDelegate(function);
     
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(Action<Sampler, Sampler> function)
+    public static dynamic render<T1, T2>(
+        Action<T1, T2> function)
+        where T1 : IAlias where T2 : IAlias
         => renderDelegate(function);
-
+    
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(Action<Sampler, Sampler, Float> function)
+    public static dynamic render<T1, T2, T3>(
+        Action<T1, T2, T3> function)
+        where T1 : IAlias where T2 : IAlias where T3 : IAlias
         => renderDelegate(function);
-
+    
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float, Float> function)
+    public static dynamic render<T1, T2, T3, T4>(
+        Action<T1, T2, T3, T4> function)
+        where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
         => renderDelegate(function);
-
+    
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float, Float, Float> function)
+    public static dynamic render<T1, T2, T3, T4, T5>(
+        Action<T1, T2, T3, T4, T5> function)
+        where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
+        where T5 : IAlias
         => renderDelegate(function);
-
+    
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
+    public static dynamic render<T1, T2, T3, T4, T5, T6>(
+        Action<T1, T2, T3, T4, T5, T6> function)
+        where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
+        where T5 : IAlias where T6 : IAlias
         => renderDelegate(function);
 
     private static dynamic renderDelegate(Delegate function)
@@ -541,7 +307,7 @@ public static class Utils
     private static dynamic? moveRender;
     private static void initMoveRender()
     {
-        moveRender ??= render((dx, dy, dz) => {
+        moveRender ??= render((val dx, val dy, val dz) => {
             var moveValue = autoVar(pos + (dx, dy, dz));
             pos = moveValue;
         });
@@ -613,7 +379,7 @@ public static class Utils
     /// </summary>
     public static void zoom(Float x, Float y, Float factor)
     {
-        zoomRender ??= render((cx, cy, factor) => {
+        zoomRender ??= render((val cx, val cy, val factor) => {
             var cxValue = autoVar(cx);
             var cyValue = autoVar(cy);
             var factorValue = autoVar(factor);
@@ -635,7 +401,7 @@ public static class Utils
     /// </summary>
     public static void zoom(Float factor)
     {
-        originZoomRender ??= render((factor) => {
+        originZoomRender ??= render((val factor) => {
             var factorValue = autoVar(factor);
 
             var nx = factorValue * pos.x;
@@ -654,7 +420,7 @@ public static class Utils
     /// </summary>
     public static void rotate(Float angle)
     {
-        rotateRender ??= render(angle => {
+        rotateRender ??= render((val angle) => {
             var paramValue = autoVar(angle);
             var cosValue = autoVar(cos(paramValue));
             var sinValue = autoVar(sin(paramValue));
