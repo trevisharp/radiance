@@ -37,10 +37,8 @@ public class ArgumentHandlerChain
     public void Clear()
         => chain.Clear();
     
-    public object? HandleArguments(object[] arguments, object[] newArguments)
+    public object? HandleArguments(ArgumentHandlerArgs args)
     {
-        var args = new ArgumentHandlerArgs(arguments, newArguments);
-
         foreach (var link in chain)
         {
             if (link.CanUpdate(args))

@@ -74,13 +74,6 @@ public class OldRender : DynamicObject
     /// </summary>
     object? ReceiveParameters(object?[] args)
     {
-        var inShaderAnalisys = RenderContext.GetContext() is not null;
-        if (inShaderAnalisys)
-        {
-            MakeSubCall(args);
-            return null;
-        }
-
         var arguments = DisplayArguments(args);
         var canExecute = arguments.Length == expectedArguments;
         var inRenderization = Window.Phase is WindowPhase.OnRender;
@@ -216,146 +209,10 @@ public class OldRender : DynamicObject
     }
 
     /// <summary>
-    /// Run this render inside another render.
-    /// </summary>
-    void MakeSubCall(object?[] input)
-    {
-        var parameters = function.Method.GetParameters();
-        var args = SplitShaderObjectsBySide(input);
-        args = Display(arguments, args, expectedArguments);
-        args = RemoveSkip(args);
-        
-        if (parameters.Length != args.Length)
-            throw new SubRenderArgumentCountException(parameters.Length, args.Length);
-
-        function.DynamicInvoke(args);
-    }
-
-    /// <summary>
     /// Remove SKipCurryingParameter values.
     /// </summary>
     static object[] RemoveSkip(object[] values)
         => values.Where(val => val is not SkipCurryingParameter).ToArray();
-
-    /// <summary>
-    /// Split objects by size and display a array considering skip operations.
-    /// </summary>
-    object[] DisplayArguments(object?[] newArgs)
-    {
-        var addedValues = SplitObjectsBySize(newArgs);
-        return Display(arguments, addedValues, expectedArguments);
-    }
-
-    /// <summary>
-    /// Fill parameters data on a vector skipping values
-    /// when using a Utils.Skip or any SkipCurryingParameter object.
-    /// This function implements the fact that a render f(x, y)
-    /// can curryied by g = f(skip, 20) and so called g(10) where
-    /// x = 10 and y = 20.
-    /// </summary>
-    static object[] Display(object[] values, object?[] addedValues, int newValueSize)
-    {
-        var newValues = new object[newValueSize];
-        for (int i = 0; i < values.Length; i++)
-            newValues[i] = values[i];
-        
-        for (int i = 0, j = 0; i < addedValues.Length; j++)
-        {
-            if (newValues[j] is not null and not SkipCurryingParameter)
-                continue;
-
-            var arg = addedValues[i] ?? 
-                throw new CallingNullArgumentException(
-                    i == 0 ? null : addedValues[i - 1], i
-                );
-            i++;
-
-            newValues[j] = arg;
-        }
-
-        return newValues;
-    }
-
-    /// <summary>
-    /// Fill parameters data on a shader object vector based on their sizes.
-    /// This function implements the fact that a render f(x, y)
-    /// can be called by f(v) wheres v is a vec2 with 2 values.
-    /// </summary>
-    static object[] SplitShaderObjectsBySide(object?[] args)
-    {
-        List<ShaderObject> result = [];
-
-        foreach (var arg in args)
-        {
-            _ = arg switch
-            {
-                FloatShaderObject fso => add(fso),
-                Sampler2DShaderObject sso => add(sso),
-
-                Vec2ShaderObject vec => add(vec.x, vec.y),
-                Vec3ShaderObject vec => add(vec.x, vec.y, vec.z),
-                Vec4ShaderObject vec => add(vec.x, vec.y, vec.z, vec.w),
-
-                Vec2 vec => add(convert(vec.X), convert(vec.Y)),
-                Vec3 vec => add(convert(vec.X), convert(vec.Y), convert(vec.Z)),
-                Vec4 vec => add(convert(vec.X), convert(vec.Y), convert(vec.Z), convert(vec.W)),
-
-                float value => add(convert(value)),
-                double value => add(convert((float)value)),
-                int value => add(convert(value)),
-
-                _ => throw new InvalidPrimitiveException(arg)
-            };
-        }
-
-        return [.. result];
-
-        FloatShaderObject convert(float value)
-            => new(ShaderObject.ToShaderExpression(value), ShaderOrigin.Global, []);
-
-        bool add(params ShaderObject[] objs)
-        {
-            result.AddRange(objs);
-            return true;
-        }
-    }
-
-    /// <summary>
-    /// Fill parameters data on a vector based on their sizes.
-    /// This function implements the fact that a render f(x, y)
-    /// can be called by f(v) wheres v is a vec2 with 2 values.
-    /// </summary>
-    static object[] SplitObjectsBySize(object?[] args)
-    {
-        List<object> result = [];
-
-        foreach (var arg in args)
-        {
-            _ = arg switch
-            {
-                IBufferedData data => add(data),
-                IBufferedData[] data => add(data),
-                Vec2 vec => add(vec.X, vec.Y),
-                Vec3 vec => add(vec.X, vec.Y, vec.Z),
-                Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
-                Texture img => add(img),
-                float num => add(num),
-                int num => add((float)num),
-                double num => add((float)num),
-                float[] sub => add([..sub]),
-                SkipCurryingParameter skip => add(skip),
-                _ => throw new InvalidPrimitiveException(arg)
-            };
-        }
-
-        return [.. result];
-
-        bool add(params object[] objs)
-        {
-            result.AddRange(objs);
-            return true;
-        }
-    }
     
     /// <summary>
     /// Discover the depth of a array of inputs.

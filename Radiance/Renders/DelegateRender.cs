@@ -12,5 +12,6 @@ public class DelegateRender(Delegate function) : BaseRender(
     GenerateArrayByTypes(from p in function.Method.GetParameters() select p.GetType()),
     ArgumentHandlerChain.Create("delegate-render", chain => chain
         .Add<SubCallArgumentHandlerChainLink>()
+        .Add<DisplayArgumentHandlerChainLink>()
     )
 );
