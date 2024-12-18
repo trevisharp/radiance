@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    16/12/2024
+ * Date:    17/12/2024
  */
 namespace Radiance.Renders.ChainLinks;
 
@@ -12,11 +12,9 @@ public class DisplayArgumentHandlerChainLink : ArgumentHandlerChainLink
         => true;
 
     public override ArgumentHandlerArgs Update(ArgumentHandlerArgs args)
-    {
-        return new ArgumentHandlerArgs {
-            Args = BaseRender.DisplayArguments(args.Args, args.NewArgs),
+        => new ArgumentHandlerArgs {
+            Args = RenderUtils.DisplayArguments(args.Args, args.NewArgs),
             NewArgs = [],
             Render = args.Render
         };
-    }
 }

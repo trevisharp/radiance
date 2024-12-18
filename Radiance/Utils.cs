@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    13/12/2024
+ * Date:    18/12/2024
  */
 #pragma warning disable IDE1006
 
@@ -431,8 +431,8 @@ public static class Utils
     private static dynamic? moveRender;
     private static void initMoveRender()
     {
-        moveRender ??= render((val dx, val dy, val dz) => {
-            var moveValue = autoVar(pos + (dx, dy, dz));
+        moveRender ??= render((vec3 delta) => {
+            var moveValue = autoVar(pos + delta);
             pos = moveValue;
         });
     }
@@ -441,7 +441,7 @@ public static class Utils
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Float x, Float y)
+    public static void move(val x, val y)
     {
         initMoveRender();
 
@@ -452,7 +452,7 @@ public static class Utils
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Vec2ShaderObject vec)
+    public static void move(vec2 vec)
     {
         initMoveRender();
 
@@ -463,7 +463,7 @@ public static class Utils
     /// Move the polygon by a (x, y, z) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Float x, Float y, Float z)
+    public static void move(val x, val y, val z)
     {
         initMoveRender();
 
@@ -474,7 +474,7 @@ public static class Utils
     /// Move the polygon by a (x, y, z) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Vec3ShaderObject vec)
+    public static void move(vec3 vec)
     {
         initMoveRender();
 
@@ -501,7 +501,7 @@ public static class Utils
     /// Receiving x, y and a factor, performa a zoom on polygon on point (x, y) with the factor scale.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void zoom(Float x, Float y, Float factor)
+    public static void zoom(val x, val y, val factor)
     {
         zoomRender ??= render((val cx, val cy, val factor) => {
             var cxValue = autoVar(cx);
@@ -523,7 +523,7 @@ public static class Utils
     /// Receiving a factor, performa a zoom on polygon on point (x, y) with the factor scale.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void zoom(Float factor)
+    public static void zoom(val factor)
     {
         originZoomRender ??= render((val factor) => {
             var factorValue = autoVar(factor);
@@ -542,7 +542,7 @@ public static class Utils
     /// <summary>
     /// Rotate the polygon a specific angle.
     /// </summary>
-    public static void rotate(Float angle)
+    public static void rotate(val angle)
     {
         rotateRender ??= render((val angle) => {
             var paramValue = autoVar(angle);

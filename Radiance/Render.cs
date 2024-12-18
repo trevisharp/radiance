@@ -74,7 +74,6 @@ public class OldRender : DynamicObject
     /// </summary>
     object? ReceiveParameters(object?[] args)
     {
-        var arguments = DisplayArguments(args);
         var canExecute = arguments.Length == expectedArguments;
         var inRenderization = Window.Phase is WindowPhase.OnRender;
 
