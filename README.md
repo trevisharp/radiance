@@ -298,10 +298,16 @@ Coming soon...
 
 # Versions
 
-### Radiance v3.1.0 (Coming soon)
+### Radiance v3.2.0 (Coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Added triangulation of non-monotone polygons.
  - ![](https://img.shields.io/badge/new-green) Added text buffers allowing draw texts easily.
+
+### Radiance v3.1.0 (Coming soon)
+ - ![](https://img.shields.io/badge/new-green) Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
+ - ![](https://img.shields.io/badge/update-blue) Improve multi-window bindings.
+ - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
+ - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
 
 ### Radiance v3.0.0 (preview released)
 
@@ -438,14 +444,8 @@ Coming soon...
  - Allow multi-size buffers.
  - Add more buffer functions.
 
- # TODO 3.0.0-preview5
+ # TODO 3.0.0-rc1
  - Study remove the AddLayout.
  - Enable Buffer mutability.
  - Use BufferSubData to improve update performance.
  - Create the Graphics class for call simple draw operations.
-
-# TODO 3.0.0-rc1
- - Improve multi-window bindings.
- - Improve variable generation name to improve shader reutilization.
- - Avaliate dependency cycles on GLSLGenerator.
- - Improve polygon initialize to avoid bugs when a polygon is created on OnRender.

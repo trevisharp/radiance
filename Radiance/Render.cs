@@ -90,8 +90,77 @@ public class Render : DynamicObject
     /// </summary>
     static object[] DisplayArguments(Render render, object?[] newArgs)
     {
-        var addedValues = SplitObjectsBySize(newArgs);
-        return Display(render.arguments, addedValues, render.expectedArguments);
+        var splitedValues = SplitObjectsBySize(newArgs);
+        return Display(render.arguments, splitedValues, render.expectedArguments);
+    }
+    
+    /// <summary>
+    /// Fill parameters data on a vector skipping values
+    /// when using a Utils.Skip or any SkipCurryingParameter object.
+    /// This function implements the fact that a render f(x, y)
+    /// can curryied by g = f(skip, 20) and so called g(10) where
+    /// x = 10 and y = 20.
+    /// </summary>
+    static object[] Display(object[] arguments, object?[] newArgs, int expectedArgs)
+    {
+        var result = new object[expectedArgs];
+        for (int i = 0; i < arguments.Length; i++)
+            result[i] = arguments[i];
+        
+        for (int i = 0, j = 0; i < newArgs.Length; j++)
+        {
+            if (result[j] is not null and not SkipCurryingParameter)
+                continue;
+
+            var arg = newArgs[i] ?? 
+                throw new CallingNullArgumentException(
+                    i == 0 ? null : newArgs[i - 1], i
+                );
+            i++;
+
+            result[j] = arg;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Fill parameters data on a vector based on their sizes.
+    /// This function implements the fact that a render f(x, y)
+    /// can be called by f(v) wheres v is a vec2 with 2 values.
+    /// </summary>
+    static object[] SplitObjectsBySize(object?[] args)
+    {
+        // TODO: Handle multi-size buffers!
+
+        List<object> result = [];
+
+        foreach (var arg in args)
+        {
+            _ = arg switch
+            {
+                IBufferedData data => add(data),
+                IBufferedData[] data => add(data),
+                Vec2 vec => add(vec.X, vec.Y),
+                Vec3 vec => add(vec.X, vec.Y, vec.Z),
+                Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
+                Texture img => add(img),
+                float num => add(num),
+                int num => add((float)num),
+                double num => add((float)num),
+                float[] sub => add([..sub]),
+                SkipCurryingParameter skip => add(skip),
+                _ => throw new InvalidPrimitiveException(arg)
+            };
+        }
+
+        return [.. result];
+
+        bool add(params object[] objs)
+        {
+            result.AddRange(objs);
+            return true;
+        }
     }
 
     /// <summary>
@@ -317,36 +386,6 @@ public class Render : DynamicObject
         => values.Where(val => val is not SkipCurryingParameter).ToArray();
 
     /// <summary>
-    /// Fill parameters data on a vector skipping values
-    /// when using a Utils.Skip or any SkipCurryingParameter object.
-    /// This function implements the fact that a render f(x, y)
-    /// can curryied by g = f(skip, 20) and so called g(10) where
-    /// x = 10 and y = 20.
-    /// </summary>
-    static object[] Display(object[] values, object?[] addedValues, int newValueSize)
-    {
-        var newValues = new object[newValueSize];
-        for (int i = 0; i < values.Length; i++)
-            newValues[i] = values[i];
-        
-        for (int i = 0, j = 0; i < addedValues.Length; j++)
-        {
-            if (newValues[j] is not null and not SkipCurryingParameter)
-                continue;
-
-            var arg = addedValues[i] ?? 
-                throw new CallingNullArgumentException(
-                    i == 0 ? null : addedValues[i - 1], i
-                );
-            i++;
-
-            newValues[j] = arg;
-        }
-
-        return newValues;
-    }
-
-    /// <summary>
     /// Fill parameters data on a shader object vector based on their sizes.
     /// This function implements the fact that a render f(x, y)
     /// can be called by f(v) wheres v is a vec2 with 2 values.
@@ -384,43 +423,6 @@ public class Render : DynamicObject
             => new(ShaderObject.ToShaderExpression(value), ShaderOrigin.Global, []);
 
         bool add(params ShaderObject[] objs)
-        {
-            result.AddRange(objs);
-            return true;
-        }
-    }
-
-    /// <summary>
-    /// Fill parameters data on a vector based on their sizes.
-    /// This function implements the fact that a render f(x, y)
-    /// can be called by f(v) wheres v is a vec2 with 2 values.
-    /// </summary>
-    static object[] SplitObjectsBySize(object?[] args)
-    {
-        List<object> result = [];
-
-        foreach (var arg in args)
-        {
-            _ = arg switch
-            {
-                IBufferedData data => add(data),
-                IBufferedData[] data => add(data),
-                Vec2 vec => add(vec.X, vec.Y),
-                Vec3 vec => add(vec.X, vec.Y, vec.Z),
-                Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
-                Texture img => add(img),
-                float num => add(num),
-                int num => add((float)num),
-                double num => add((float)num),
-                float[] sub => add([..sub]),
-                SkipCurryingParameter skip => add(skip),
-                _ => throw new InvalidPrimitiveException(arg)
-            };
-        }
-
-        return [.. result];
-
-        bool add(params object[] objs)
         {
             result.AddRange(objs);
             return true;
