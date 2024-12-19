@@ -9,7 +9,6 @@ using System.Text;
 namespace Radiance;
 
 using Buffers;
-using Renders;
 using Shaders;
 using Shaders.Objects;
 using Shaders.Dependencies;
@@ -373,7 +372,7 @@ public static class Utils
     /// </summary>
     public static dynamic render<T1>(
         Action<T1> function)
-        where T1 : IAlias
+        // where T1 : IAlias
         => renderDelegate(function);
     
     /// <summary>
@@ -381,7 +380,7 @@ public static class Utils
     /// </summary>
     public static dynamic render<T1, T2>(
         Action<T1, T2> function)
-        where T1 : IAlias where T2 : IAlias
+        // where T1 : IAlias where T2 : IAlias
         => renderDelegate(function);
     
     /// <summary>
@@ -389,7 +388,7 @@ public static class Utils
     /// </summary>
     public static dynamic render<T1, T2, T3>(
         Action<T1, T2, T3> function)
-        where T1 : IAlias where T2 : IAlias where T3 : IAlias
+        // where T1 : IAlias where T2 : IAlias where T3 : IAlias
         => renderDelegate(function);
     
     /// <summary>
@@ -397,7 +396,7 @@ public static class Utils
     /// </summary>
     public static dynamic render<T1, T2, T3, T4>(
         Action<T1, T2, T3, T4> function)
-        where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
+        // where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
         => renderDelegate(function);
     
     /// <summary>
@@ -405,8 +404,8 @@ public static class Utils
     /// </summary>
     public static dynamic render<T1, T2, T3, T4, T5>(
         Action<T1, T2, T3, T4, T5> function)
-        where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
-        where T5 : IAlias
+        // where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
+        // where T5 : IAlias
         => renderDelegate(function);
     
     /// <summary>
@@ -414,14 +413,14 @@ public static class Utils
     /// </summary>
     public static dynamic render<T1, T2, T3, T4, T5, T6>(
         Action<T1, T2, T3, T4, T5, T6> function)
-        where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
-        where T5 : IAlias where T6 : IAlias
+        // where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
+        // where T5 : IAlias where T6 : IAlias
         => renderDelegate(function);
 
     private static dynamic renderDelegate(Delegate function)
     {
         ArgumentNullException.ThrowIfNull(function, nameof(function));
-        return new DelegateRender(function);
+        return new Render(function);
     }
 
     #endregion
@@ -431,7 +430,7 @@ public static class Utils
     private static dynamic? moveRender;
     private static void initMoveRender()
     {
-        moveRender ??= render((vec3 delta) => {
+        moveRender ??= render((Vec3ShaderObject delta) => {
             var moveValue = autoVar(pos + delta);
             pos = moveValue;
         });
@@ -441,7 +440,7 @@ public static class Utils
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(val x, val y)
+    public static void move(Float x, Float y)
     {
         initMoveRender();
 
@@ -452,7 +451,7 @@ public static class Utils
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(vec2 vec)
+    public static void move(Vec2ShaderObject vec)
     {
         initMoveRender();
 
@@ -463,7 +462,7 @@ public static class Utils
     /// Move the polygon by a (x, y, z) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(val x, val y, val z)
+    public static void move(Float x, Float y, Float z)
     {
         initMoveRender();
 
@@ -474,7 +473,7 @@ public static class Utils
     /// Move the polygon by a (x, y, z) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(vec3 vec)
+    public static void move(Vec3ShaderObject vec)
     {
         initMoveRender();
 
@@ -501,9 +500,9 @@ public static class Utils
     /// Receiving x, y and a factor, performa a zoom on polygon on point (x, y) with the factor scale.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void zoom(val x, val y, val factor)
+    public static void zoom(Float x, Float y, Float factor)
     {
-        zoomRender ??= render((val cx, val cy, val factor) => {
+        zoomRender ??= render((Float cx, Float cy, Float factor) => {
             var cxValue = autoVar(cx);
             var cyValue = autoVar(cy);
             var factorValue = autoVar(factor);
@@ -523,9 +522,9 @@ public static class Utils
     /// Receiving a factor, performa a zoom on polygon on point (x, y) with the factor scale.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void zoom(val factor)
+    public static void zoom(Float factor)
     {
-        originZoomRender ??= render((val factor) => {
+        originZoomRender ??= render((Float factor) => {
             var factorValue = autoVar(factor);
 
             var nx = factorValue * pos.x;
@@ -542,9 +541,9 @@ public static class Utils
     /// <summary>
     /// Rotate the polygon a specific angle.
     /// </summary>
-    public static void rotate(val angle)
+    public static void rotate(Float angle)
     {
-        rotateRender ??= render((val angle) => {
+        rotateRender ??= render((Float angle) => {
             var paramValue = autoVar(angle);
             var cosValue = autoVar(cos(paramValue));
             var sinValue = autoVar(sin(paramValue));
