@@ -1,12 +1,14 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    13/12/2024
  */
+using System;
+
 namespace Radiance.Exceptions;
 
-public class UnhandleableArgumentsException : RadianceException
+public class UnhandleableArgumentsException(Type type) : RadianceException
 {
     public override string ErrorMessage =>
-        """
-        The configured render cannot handle the sended parameters.
+        $"""
+        A render cannot have a parameter with the type '{type}'.
         """;
 }

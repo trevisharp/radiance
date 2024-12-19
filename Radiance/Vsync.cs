@@ -5,7 +5,7 @@ namespace Radiance;
 
 /// <summary>
 /// Represents a keyboard modifier.
-/// Equals to OpenTK.Windowing.Common.VSyncMode
+/// Equals to OpenTK.Windowing.Common.VSyncMode.
 /// </summary>
 public enum VSync
 {

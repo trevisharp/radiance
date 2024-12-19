@@ -24,11 +24,10 @@ using Exceptions;
 /// </summary>
 public class Render : DynamicObject
 {
-    object[] arguments;
     int layoutLocations = 1;
+    object[] arguments;
     readonly Delegate function;
     readonly int expectedArguments;
-
     readonly FeatureMap<CallMatch> map = [];
     record CallMatch(
         int[] Depth,
@@ -36,30 +35,11 @@ public class Render : DynamicObject
         RenderContext Context
     );
 
-    public Render(Delegate function)
+    public Render(Delegate renderFunc)
     {
-        this.function = function;
-        expectedArguments = function.Method.GetParameters().Length + 1;
-
-        arguments = new object[expectedArguments];
-        for (int i = 0; i < arguments.Length; i++)
-            arguments[i] = Utils.skip;
-    }
-    
-    /// <summary>
-    /// Curry parameter of this render fixing it. So f(x, y) and g = f(20) we will have g(10) = f(20, 10).
-    /// You can send vec2 or vec3 types to send more than one value at a time, so f(myVec2) is a valid invoke for f.
-    /// You can also use skip to currying other paremters, so g = f(Utils.skip, 20) we will have g(10) = f(10, 20).
-    /// Do not call this funtion inside Window.OnRender event.
-    /// </summary>
-    public Render Curry(params object?[] args)
-    {
-        if (Window.Phase == WindowPhase.OnRender)
-            throw new InvalidCurryPhaseException();
-
-        return new(function) {
-            arguments = DisplayArguments(args)
-        };
+        expectedArguments = GetExpectedArgumentCount(renderFunc);
+        arguments = InitArgumentArray(expectedArguments);
+        function = renderFunc;
     }
     
     /// <summary>
@@ -88,6 +68,84 @@ public class Render : DynamicObject
         result = ReceiveParameters(args ?? []);
         return true;
     }
+    
+    /// <summary>
+    /// Curry parameter of this render fixing it. So f(x, y) and g = f(20) we will have g(10) = f(20, 10).
+    /// You can send vec2 or vec3 types to send more than one value at a time, so f(myVec2) is a valid invoke for f.
+    /// You can also use skip to currying other paremters, so g = f(Utils.skip, 20) we will have g(10) = f(10, 20).
+    /// Do not call this funtion inside Window.OnRender event.
+    /// </summary>
+    static Render Curry(Render render, params object?[] args)
+    {
+        if (Window.Phase == WindowPhase.OnRender)
+            throw new InvalidCurryPhaseException();
+
+        return new(render.function) {
+            arguments = DisplayArguments(render, args)
+        };
+    }
+
+    /// <summary>
+    /// Split objects by size and display a array considering skip operations.
+    /// </summary>
+    static object[] DisplayArguments(Render render, object?[] newArgs)
+    {
+        var addedValues = SplitObjectsBySize(newArgs);
+        return Display(render.arguments, addedValues, render.expectedArguments);
+    }
+
+    /// <summary>
+    /// Create a array of skip values with a especific size.
+    /// </summary>
+    static object[] InitArgumentArray(int expectedArguments)
+    {
+        var arguments = new object[expectedArguments];
+        
+        for (int i = 0; i < arguments.Length; i++)
+            arguments[i] = Utils.skip;
+        
+        return arguments;
+    }
+
+    /// <summary>
+    /// Get the count of values that a delegate need to recive
+    /// was a render.
+    /// </summary>
+    static int GetExpectedArgumentCount(Delegate function)
+    {
+        var parameters = function.GetMethodInfo().GetParameters();
+        var types = parameters.Select(p => p.ParameterType);
+        return GetTypeSize(types);
+    }
+    
+    /// <summary>
+    /// Get the size of values that a set of types can have.
+    /// </summary>
+    static int GetTypeSize(IEnumerable<Type> types)
+        => types.Sum(GetTypeSize);
+
+    /// <summary>
+    /// Get the size of values that a type can have.
+    /// </summary>
+    static int GetTypeSize(Type type)
+    {
+        if (type.IsAssignableTo(typeof(FloatShaderObject)))
+            return 1;
+        
+        if (type.IsAssignableTo(typeof(Vec2ShaderObject)))
+            return 2;
+        
+        if (type.IsAssignableTo(typeof(Vec3ShaderObject)))
+            return 3;
+        
+        if (type.IsAssignableTo(typeof(Vec4ShaderObject)))
+            return 4;
+        
+        if (type.IsAssignableTo(typeof(Sampler2DShaderObject)))
+            return 1;
+        
+        throw new UnhandleableArgumentsException(type);
+    }
 
     /// <summary>
     /// Function called on try execute or curry a render.
@@ -102,7 +160,7 @@ public class Render : DynamicObject
             return null;
         }
 
-        var arguments = DisplayArguments(args);
+        var arguments = DisplayArguments(this, args);
         var canExecute = arguments.Length == expectedArguments;
         var inRenderization = Window.Phase is WindowPhase.OnRender;
 
@@ -119,7 +177,7 @@ public class Render : DynamicObject
         {
             (true, false) => throw new InvalidCurryPhaseException(),
             (true, true) => execute(),
-            (false, _) => Curry(args)
+            (false, _) => Curry(this, args)
         };
 
         object? execute()
@@ -257,15 +315,6 @@ public class Render : DynamicObject
     /// </summary>
     static object[] RemoveSkip(object[] values)
         => values.Where(val => val is not SkipCurryingParameter).ToArray();
-
-    /// <summary>
-    /// Split objects by size and display a array considering skip operations.
-    /// </summary>
-    object[] DisplayArguments(object?[] newArgs)
-    {
-        var addedValues = SplitObjectsBySize(newArgs);
-        return Display(arguments, addedValues, expectedArguments);
-    }
 
     /// <summary>
     /// Fill parameters data on a vector skipping values
