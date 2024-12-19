@@ -38,7 +38,7 @@ public class Render : DynamicObject
     public Render(Delegate renderFunc)
     {
         expectedArguments = GetExpectedArgumentCount(renderFunc);
-        arguments = InitArgumentArray(expectedArguments);
+        arguments = CreateEmptySkipArray(expectedArguments);
         function = renderFunc;
     }
     
@@ -68,6 +68,64 @@ public class Render : DynamicObject
         result = ReceiveParameters(args ?? []);
         return true;
     }
+
+    /// <summary>
+    /// Function called on try execute or curry a render.
+    /// This functions decides the render behaviour.
+    /// </summary>
+    object? ReceiveParameters(object?[] args)
+    {
+        var inShaderAnalisys = RenderContext.GetContext() is not null;
+        if (inShaderAnalisys)
+        {
+            MakeSubCall(this, args);
+            return null;
+        }
+
+        var arguments = DisplayArguments(this, args);
+        var canExecute = arguments.Length == expectedArguments;
+        var inRenderization = Window.Phase is WindowPhase.OnRender;
+
+        if (arguments.Length == 0)
+            return null;
+        
+        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
+            throw new MissingPolygonException();
+
+        if (arguments.Length > expectedArguments)
+            throw new ExcessOfArgumentsException();
+        
+        return (inRenderization, canExecute) switch
+        {
+            (true, false) => throw new InvalidCurryPhaseException(),
+            (true, true) => execute(),
+            (false, _) => Curry(this, args)
+        };
+
+        object? execute()
+        {
+            var (ctx, deps) = Load(arguments);
+            Invoke(arguments, ctx, deps);
+            return null;
+        }
+    }
+
+    /// <summary>
+    /// Run this render inside another render.
+    /// </summary>
+    static void MakeSubCall(Render render, object?[] input)
+    {
+        var func = render.function;
+        var parameters = func.Method.GetParameters();
+        var args = SplitShaderObjectsBySide(input);
+        args = Display(render.arguments, args);
+        args = RemoveSkip(args);
+        
+        if (parameters.Length != args.Length)
+            throw new SubRenderArgumentCountException(parameters.Length, args.Length);
+
+        func.DynamicInvoke(args);
+    }
     
     /// <summary>
     /// Curry parameter of this render fixing it. So f(x, y) and g = f(20) we will have g(10) = f(20, 10).
@@ -91,7 +149,7 @@ public class Render : DynamicObject
     static object[] DisplayArguments(Render render, object?[] newArgs)
     {
         var splitedValues = SplitObjectsBySize(newArgs);
-        return Display(render.arguments, splitedValues, render.expectedArguments);
+        return Display(render.arguments, splitedValues);
     }
     
     /// <summary>
@@ -101,9 +159,9 @@ public class Render : DynamicObject
     /// can curryied by g = f(skip, 20) and so called g(10) where
     /// x = 10 and y = 20.
     /// </summary>
-    static object[] Display(object[] arguments, object?[] newArgs, int expectedArgs)
+    static object[] Display(object[] arguments, object?[] newArgs)
     {
-        var result = new object[expectedArgs];
+        var result = new object[arguments.Length];
         for (int i = 0; i < arguments.Length; i++)
             result[i] = arguments[i];
         
@@ -131,16 +189,13 @@ public class Render : DynamicObject
     /// </summary>
     static object[] SplitObjectsBySize(object?[] args)
     {
-        // TODO: Handle multi-size buffers!
-
         List<object> result = [];
 
         foreach (var arg in args)
         {
             _ = arg switch
             {
-                IBufferedData data => add(data),
-                IBufferedData[] data => add(data),
+                IBufferedData data => addBuffer(data),
                 Vec2 vec => add(vec.X, vec.Y),
                 Vec3 vec => add(vec.X, vec.Y, vec.Z),
                 Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
@@ -156,6 +211,13 @@ public class Render : DynamicObject
 
         return [.. result];
 
+        bool addBuffer(IBufferedData data)
+        {
+            for (int i = 0; i < data.Columns; i++)
+                result.Add(data);
+            return true;
+        }
+
         bool add(params object[] objs)
         {
             result.AddRange(objs);
@@ -166,7 +228,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Create a array of skip values with a especific size.
     /// </summary>
-    static object[] InitArgumentArray(int expectedArguments)
+    static object[] CreateEmptySkipArray(int expectedArguments)
     {
         var arguments = new object[expectedArguments];
         
@@ -214,47 +276,6 @@ public class Render : DynamicObject
             return 1;
         
         throw new UnhandleableArgumentsException(type);
-    }
-
-    /// <summary>
-    /// Function called on try execute or curry a render.
-    /// This functions decides the render behaviour.
-    /// </summary>
-    object? ReceiveParameters(object?[] args)
-    {
-        var inShaderAnalisys = RenderContext.GetContext() is not null;
-        if (inShaderAnalisys)
-        {
-            MakeSubCall(args);
-            return null;
-        }
-
-        var arguments = DisplayArguments(this, args);
-        var canExecute = arguments.Length == expectedArguments;
-        var inRenderization = Window.Phase is WindowPhase.OnRender;
-
-        if (arguments.Length == 0)
-            return null;
-        
-        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
-            throw new MissingPolygonException();
-
-        if (arguments.Length > expectedArguments)
-            throw new ExcessOfArgumentsException();
-        
-        return (inRenderization, canExecute) switch
-        {
-            (true, false) => throw new InvalidCurryPhaseException(),
-            (true, true) => execute(),
-            (false, _) => Curry(this, args)
-        };
-
-        object? execute()
-        {
-            var (ctx, deps) = Load(arguments);
-            Invoke(arguments, ctx, deps);
-            return null;
-        }
     }
 
     /// <summary>
@@ -361,22 +382,6 @@ public class Render : DynamicObject
 
             _ => throw new InvalidRenderException(parameter)
         };
-    }
-
-    /// <summary>
-    /// Run this render inside another render.
-    /// </summary>
-    void MakeSubCall(object?[] input)
-    {
-        var parameters = function.Method.GetParameters();
-        var args = SplitShaderObjectsBySide(input);
-        args = Display(arguments, args, expectedArguments);
-        args = RemoveSkip(args);
-        
-        if (parameters.Length != args.Length)
-            throw new SubRenderArgumentCountException(parameters.Length, args.Length);
-
-        function.DynamicInvoke(args);
     }
 
     /// <summary>
