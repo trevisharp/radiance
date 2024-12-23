@@ -34,6 +34,7 @@ public class Render : DynamicObject
         ShaderDependence[] ShaderDependences,
         RenderContext Context
     );
+    record BufferUse(IBufferedData Buffer, int Column);
 
     public Render(Delegate renderFunc)
     {
@@ -73,7 +74,7 @@ public class Render : DynamicObject
     /// Function called on try execute or curry a render.
     /// This functions decides the render behaviour.
     /// </summary>
-    object? ReceiveParameters(object?[] args) // To Validate
+    object? ReceiveParameters(object?[] args)
     {
         var inShaderAnalisys = RenderContext.GetContext() is not null;
         if (inShaderAnalisys)
@@ -82,18 +83,12 @@ public class Render : DynamicObject
             return null;
         }
 
-        var arguments = DisplayArguments(this, args);
-        var canExecute = arguments.Length == expectedArguments;
+        var arguments = DisplayArguments(this.arguments, args);
+        var canExecute = !HasSkipValues(arguments);
         var inRenderization = Window.Phase is WindowPhase.OnRender;
-
-        if (arguments.Length == 0)
-            return null;
         
         if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
             throw new MissingPolygonException();
-
-        if (arguments.Length > expectedArguments)
-            throw new ExcessOfArgumentsException();
         
         return (inRenderization, canExecute) switch
         {
@@ -118,7 +113,7 @@ public class Render : DynamicObject
         var func = render.function;
         var parameters = func.Method.GetParameters();
         var args = SplitShaderObjectsBySide(input);
-        args = Display(render.arguments, args);
+        args = DisplayOnSkipPlaces(render.arguments, args);
         args = RemoveSkip(args);
         
         if (parameters.Length != args.Length)
@@ -139,47 +134,31 @@ public class Render : DynamicObject
             throw new InvalidCurryPhaseException();
 
         return new(render.function) {
-            arguments = DisplayArguments(render, args)
+            arguments = DisplayArguments(render.arguments, args)
         };
     }
 
     /// <summary>
     /// Split objects by size and display a array considering skip operations.
     /// </summary>
-    static object[] DisplayArguments(Render render, object?[] newArgs) // To Validate
+    static object[] DisplayArguments(object[] currentArguments, object?[] newArgs) // To Validate
     {
         var splitedValues = SplitObjectsBySize(newArgs);
-        return Display(render.arguments, splitedValues);
+        return DisplayOnSkipPlaces(currentArguments, splitedValues);
     }
-    
+
     /// <summary>
-    /// Fill parameters data on a vector skipping values
-    /// when using a Utils.Skip or any SkipCurryingParameter object.
-    /// This function implements the fact that a render f(x, y)
-    /// can curryied by g = f(skip, 20) and so called g(10) where
-    /// x = 10 and y = 20.
+    /// Get if argument array has a skip value.
     /// </summary>
-    static object[] Display(object[] arguments, object?[] newArgs) // To Validate
+    static bool HasSkipValues(object[] arguments)
     {
-        var result = new object[arguments.Length];
-        for (int i = 0; i < arguments.Length; i++)
-            result[i] = arguments[i];
-        
-        for (int i = 0, j = 0; i < newArgs.Length; j++)
+        foreach (var arg in arguments)
         {
-            if (result[j] is not null and not SkipCurryingParameter)
-                continue;
-
-            var arg = newArgs[i] ?? 
-                throw new CallingNullArgumentException(
-                    i == 0 ? null : newArgs[i - 1], i
-                );
-            i++;
-
-            result[j] = arg;
+            if (arg is SkipCurryingParameter)
+                return true;
         }
 
-        return result;
+        return false;
     }
 
     /// <summary>
@@ -187,7 +166,7 @@ public class Render : DynamicObject
     /// This function implements the fact that a render f(x, y)
     /// can be called by f(v) wheres v is a vec2 with 2 values.
     /// </summary>
-    static object[] SplitObjectsBySize(object?[] args) // To Validate
+    static object[] SplitObjectsBySize(object?[] args)
     {
         List<object> result = [];
 
@@ -214,7 +193,7 @@ public class Render : DynamicObject
         bool addBuffer(IBufferedData data)
         {
             for (int i = 0; i < data.Columns; i++)
-                result.Add(data);
+                result.Add(new BufferUse(data, i));
             return true;
         }
 
@@ -223,6 +202,39 @@ public class Render : DynamicObject
             result.AddRange(objs);
             return true;
         }
+    }
+    
+    /// <summary>
+    /// Fill parameters data on a vector skipping values
+    /// when using a Utils.Skip or any SkipCurryingParameter object.
+    /// This function implements the fact that a render f(x, y)
+    /// can curryied by g = f(skip, 20) and so called g(10) where
+    /// x = 10 and y = 20.
+    /// </summary>
+    static object[] DisplayOnSkipPlaces(object[] arguments, object?[] newArgs)
+    {
+        var result = new object[arguments.Length];
+        for (int i = 0; i < arguments.Length; i++)
+            result[i] = arguments[i];
+        
+        for (int i = 0, j = 0; j < newArgs.Length; i++)
+        {
+            if (i >= result.Length)
+                throw new ExcessOfArgumentsException();
+
+            if (result[i] is not null and not SkipCurryingParameter)
+                continue;
+
+            var arg = newArgs[j] ?? 
+                throw new CallingNullArgumentException(
+                    j == 0 ? null : newArgs[j - 1], j
+                );
+            j++;
+
+            result[i] = arg;
+        }
+
+        return result;
     }
 
     /// <summary>
