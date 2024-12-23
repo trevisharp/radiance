@@ -246,7 +246,7 @@ public class Render : DynamicObject
     {
         var parameters = function.GetMethodInfo().GetParameters();
         var types = parameters.Select(p => p.ParameterType);
-        return GetTypeSize(types);
+        return GetTypeSize(types) + 1;
     }
     
     /// <summary>
