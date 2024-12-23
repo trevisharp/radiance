@@ -3,10 +3,10 @@
  */
 namespace Radiance.Exceptions;
 
-public class ShaderOnlyResourceException : RadianceException
+public class ShaderOnlyResourceException(string name) : RadianceException
 {
     public override string ErrorMessage =>
-        """
-        This resource only be called inside of a render.
+        $"""
+        The resource {name} only be called inside of a render.
         """;
 }

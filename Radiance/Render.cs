@@ -174,6 +174,7 @@ public class Render : DynamicObject
         {
             _ = arg switch
             {
+                IPolygon polygon => add(polygon),
                 IBufferedData data => addBuffer(data),
                 Vec2 vec => add(vec.X, vec.Y),
                 Vec3 vec => add(vec.X, vec.Y, vec.Z),

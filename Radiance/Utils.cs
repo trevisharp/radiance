@@ -619,13 +619,13 @@ public static class Utils
         get
         {
             var ctx = RenderContext.GetContext()
-                ?? throw new ShaderOnlyResourceException();
+                ?? throw new ShaderOnlyResourceException(nameof(pos));
             return ctx.Position;
         }
         set
         {
             var ctx = RenderContext.GetContext()
-                ?? throw new ShaderOnlyResourceException();
+                ?? throw new ShaderOnlyResourceException(nameof(pos));
             ctx.Position = value;
         }
     }
@@ -660,13 +660,13 @@ public static class Utils
         get
         {
             var ctx = RenderContext.GetContext()
-                ?? throw new ShaderOnlyResourceException();
+                ?? throw new ShaderOnlyResourceException(nameof(color));
             return ctx.Color;
         }
         set
         {
             var ctx = RenderContext.GetContext()
-                ?? throw new ShaderOnlyResourceException();
+                ?? throw new ShaderOnlyResourceException(nameof(color));
 
             var fragmentAccess = ShaderObject.MergeOrigin(value, ShaderOrigin.FragmentShader);
 
@@ -684,7 +684,7 @@ public static class Utils
     public static void plot(float size = 1f)
     {
         var ctx = RenderContext.GetContext()
-            ?? throw new ShaderOnlyResourceException();
+            ?? throw new ShaderOnlyResourceException(nameof(plot));
         ctx.AddPlot(size);
     }
 
@@ -694,7 +694,7 @@ public static class Utils
     public static void draw(float width = 1f)
     {
         var ctx = RenderContext.GetContext()
-            ?? throw new ShaderOnlyResourceException();
+            ?? throw new ShaderOnlyResourceException(nameof(draw));
         ctx.AddDraw(width);
     }
 
@@ -704,7 +704,7 @@ public static class Utils
     public static void fill()
     {
         var ctx = RenderContext.GetContext()
-            ?? throw new ShaderOnlyResourceException();
+            ?? throw new ShaderOnlyResourceException(nameof(fill));
         ctx.AddFill();
     }
     
