@@ -28,8 +28,8 @@ public class Render : DynamicObject
     object[] arguments;
     readonly Delegate function;
     readonly int expectedArguments;
-    readonly FeatureMap<CallMatch> map = [];
-    record CallMatch(
+    readonly FeatureMap<CallMatch> map = [];  // To Validate
+    record CallMatch(  // To Validate
         int[] Depth,
         ShaderDependence[] ShaderDependences,
         RenderContext Context
@@ -41,11 +41,20 @@ public class Render : DynamicObject
         arguments = CreateEmptySkipArray(expectedArguments);
         function = renderFunc;
     }
+
+    public sealed override bool TryInvoke(
+        InvokeBinder binder, 
+        object?[]? args, 
+        out object? result)
+    {
+        result = ReceiveParameters(args ?? []);
+        return true;
+    }
     
     /// <summary>
     /// Load the shader code based on received function.
     /// </summary>
-    public (RenderContext ctx, ShaderDependence[] deps) Load(object[] args)
+    public (RenderContext ctx, ShaderDependence[] deps) Load(object[] args) // To Validate
     {
         var depths = DiscoverDepths(args);
         var info = map.Get(depths);
@@ -60,20 +69,11 @@ public class Render : DynamicObject
         return (ctx, deps);
     }
 
-    public sealed override bool TryInvoke(
-        InvokeBinder binder, 
-        object?[]? args, 
-        out object? result)
-    {
-        result = ReceiveParameters(args ?? []);
-        return true;
-    }
-
     /// <summary>
     /// Function called on try execute or curry a render.
     /// This functions decides the render behaviour.
     /// </summary>
-    object? ReceiveParameters(object?[] args)
+    object? ReceiveParameters(object?[] args) // To Validate
     {
         var inShaderAnalisys = RenderContext.GetContext() is not null;
         if (inShaderAnalisys)
@@ -113,7 +113,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Run this render inside another render.
     /// </summary>
-    static void MakeSubCall(Render render, object?[] input)
+    static void MakeSubCall(Render render, object?[] input) // To Validate
     {
         var func = render.function;
         var parameters = func.Method.GetParameters();
@@ -133,7 +133,7 @@ public class Render : DynamicObject
     /// You can also use skip to currying other paremters, so g = f(Utils.skip, 20) we will have g(10) = f(10, 20).
     /// Do not call this funtion inside Window.OnRender event.
     /// </summary>
-    static Render Curry(Render render, params object?[] args)
+    static Render Curry(Render render, params object?[] args) // To Validate
     {
         if (Window.Phase == WindowPhase.OnRender)
             throw new InvalidCurryPhaseException();
@@ -146,7 +146,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Split objects by size and display a array considering skip operations.
     /// </summary>
-    static object[] DisplayArguments(Render render, object?[] newArgs)
+    static object[] DisplayArguments(Render render, object?[] newArgs) // To Validate
     {
         var splitedValues = SplitObjectsBySize(newArgs);
         return Display(render.arguments, splitedValues);
@@ -159,7 +159,7 @@ public class Render : DynamicObject
     /// can curryied by g = f(skip, 20) and so called g(10) where
     /// x = 10 and y = 20.
     /// </summary>
-    static object[] Display(object[] arguments, object?[] newArgs)
+    static object[] Display(object[] arguments, object?[] newArgs) // To Validate
     {
         var result = new object[arguments.Length];
         for (int i = 0; i < arguments.Length; i++)
@@ -187,7 +187,7 @@ public class Render : DynamicObject
     /// This function implements the fact that a render f(x, y)
     /// can be called by f(v) wheres v is a vec2 with 2 values.
     /// </summary>
-    static object[] SplitObjectsBySize(object?[] args)
+    static object[] SplitObjectsBySize(object?[] args) // To Validate
     {
         List<object> result = [];
 
@@ -282,7 +282,7 @@ public class Render : DynamicObject
     /// Call the function passing real data and running the draw pipeline.
     /// Match the argument with the lasts dependencies.
     /// </summary>
-    static void Invoke(object[] arguments, RenderContext ctx, ShaderDependence[] deps)
+    static void Invoke(object[] arguments, RenderContext ctx, ShaderDependence[] deps) // To Validate
     {
         if (arguments[0] is not IPolygon)
             throw new MissingPolygonException();
@@ -303,7 +303,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Call the function using shader objects to analyze your behaviour.
     /// </summary>
-    ShaderDependence[] AnalisysInvoke(object[] args)
+    ShaderDependence[] AnalisysInvoke(object[] args) // To Validate
     {
         var objs = GenerateObjects(args);
 
@@ -319,7 +319,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate objects of this render based on curryied values.
     /// </summary>
-    ShaderObject[] GenerateObjects(object[] args)
+    ShaderObject[] GenerateObjects(object[] args) // To Validate
     {
         var parameters = function.Method.GetParameters();
         
@@ -331,7 +331,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate a object based on their dependences.
     /// </summary>
-    static ShaderObject GenerateObject(string name, ShaderDependence dependence)
+    static ShaderObject GenerateObject(string name, ShaderDependence dependence) // To Validate
     {
         return dependence switch {
             FloatBufferDependence dep => new FloatShaderObject(
@@ -350,7 +350,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate the dependencies from this calling. 
     /// </summary>
-    ShaderDependence[] GenerateDependences(object[] args)
+    ShaderDependence[] GenerateDependences(object[] args) // To Validate
     {
         var parameters = function.Method.GetParameters();
         var nonPolyArgs = args.Skip(1).ToArray();
@@ -363,7 +363,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate a ShaderObject based on a paramter and curryiedValues.
     /// </summary>
-    ShaderDependence GenerateDependence(ParameterInfo parameter, int index, object?[] args)
+    ShaderDependence GenerateDependence(ParameterInfo parameter, int index, object?[] args) // To Validate
     {
         ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
 
@@ -387,7 +387,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Remove SKipCurryingParameter values.
     /// </summary>
-    static object[] RemoveSkip(object[] values)
+    static object[] RemoveSkip(object[] values) // To Validate
         => values.Where(val => val is not SkipCurryingParameter).ToArray();
 
     /// <summary>
@@ -395,7 +395,7 @@ public class Render : DynamicObject
     /// This function implements the fact that a render f(x, y)
     /// can be called by f(v) wheres v is a vec2 with 2 values.
     /// </summary>
-    static object[] SplitShaderObjectsBySide(object?[] args)
+    static object[] SplitShaderObjectsBySide(object?[] args) // To Validate
     {
         List<ShaderObject> result = [];
 
@@ -437,7 +437,7 @@ public class Render : DynamicObject
     /// <summary>
     /// Discover the depth of a array of inputs.
     /// </summary>
-    static int[] DiscoverDepths(object[] inputs) => [
+    static int[] DiscoverDepths(object[] inputs) => [ // To Validate
         ..from input in inputs
         select input switch
         {
