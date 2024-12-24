@@ -969,15 +969,6 @@ public static class Utils
     /// </summary>
     public static Float mix(Float x, Float y, Float a) 
         => func<Float>("mix", x, y, a);
-    
-    /// <summary>
-    /// Open a image file to use in your shader.
-    /// </summary>
-    public static Texture open(string imgFile)
-    {
-        var texture = new Texture(imgFile);
-        return texture;
-    }
 
     /// <summary>
     /// Get a pixel color of a img in a specific position of a texture.
