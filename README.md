@@ -17,7 +17,7 @@ Radiance is a library that can generate GLSL (The language of OpenGL) automatica
 
 ```bash
 dotnet new console # Create project
-dotnet add package Radiance --version 3.0.0-preview3 # Install Radiance
+dotnet add package Radiance --version 3.0.0-preview4 # Install Radiance
 ```
 
 # Learn by examples
@@ -84,8 +84,8 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a) => {
-    color = (r, g, b, a);
+var myRender = render((vec4 myColor) => {
+    color = myColor;
     fill();
 });
 
@@ -108,8 +108,8 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a) => {
-    color = (r, g, b, a);
+var myRender = render((vec4 myColor) => {
+    color = myColor;
     fill();
 });
 
@@ -139,10 +139,10 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a, size, dx, dy) => {
+var myRender = render((vec4 myColor, val size, val dx, val dy) => {
     zoom(size); // zoom in (0, 0)
     move(dx, dy);
-    color = (r, g, b, a);
+    color = myColor;
     fill();
 });
 
@@ -161,7 +161,7 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a, size, dx, dy) => {
+var myRender = render((val r, val g, val a, val size, val dx, val dy) => {
     zoom(size);
     move(dx, dy);
     // modify the position of polygon vertex
@@ -186,10 +186,10 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a, size, dx, dy) => {
+var myRender = render((vec4 myColor, val size, val dx, val dy) => {
     zoom(size);
     move(dx + 10 * t, dy + 10 * t);
-    color = (r, g, b, a);
+    color = myColor;
     fill();
 });
 
@@ -208,7 +208,7 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((size, dx, dy) => {
+var myRender = render((val size, val dx, val dy) => {
     zoom(size);
     move(dx, dy);
     // mix recive two values and a coeficient between 0 and 1
@@ -298,10 +298,16 @@ Coming soon...
 
 # Versions
 
-### Radiance v3.1.0 (Coming soon)
+### Radiance v3.2.0 (Coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Added triangulation of non-monotone polygons.
  - ![](https://img.shields.io/badge/new-green) Added text buffers allowing draw texts easily.
+
+### Radiance v3.1.0 (Coming soon)
+ - ![](https://img.shields.io/badge/new-green) Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
+ - ![](https://img.shields.io/badge/update-blue) Improve multi-window bindings.
+ - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
+ - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
 
 ### Radiance v3.0.0 (preview released)
 
@@ -432,20 +438,8 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
-# TODO 3.0.0-preview4
- - Improve Render class abstractions allowing extensibiltiy and customization.
- - Validate depths of input of renders consistence.
- - Allow multi-size buffers.
- - Add more buffer functions.
-
- # TODO 3.0.0-preview5
+ # TODO 3.0.0-rc1
  - Study remove the AddLayout.
  - Enable Buffer mutability.
  - Use BufferSubData to improve update performance.
  - Create the Graphics class for call simple draw operations.
-
-# TODO 3.0.0-rc1
- - Improve multi-window bindings.
- - Improve variable generation name to improve shader reutilization.
- - Avaliate dependency cycles on GLSLGenerator.
- - Improve polygon initialize to avoid bugs when a polygon is created on OnRender.

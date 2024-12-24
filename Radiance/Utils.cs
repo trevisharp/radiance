@@ -1,46 +1,30 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    05/12/2024
+ * Date:    24/12/2024
  */
 #pragma warning disable IDE1006
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Radiance;
 
 using Buffers;
 using Shaders;
-using Shaders.Objects;
 using Shaders.Dependencies;
 using Contexts;
 using Primitives;
 using Exceptions;
+using Animations;
 
-using Float = Shaders.Objects.FloatShaderObject;
-using Sampler = Shaders.Objects.Sampler2DShaderObject;
-using Radiance.Animations;
+using Float = val;
+using Sampler = img;
 
 /// <summary>
 /// A facade with all utils to use Radiance shader features.
 /// </summary>
 public static class Utils
 {
-    #region TYPE UTILS
-
-    /// <summary>
-    /// A function to indicate the type of the parameter on render functions.
-    /// Use when the compiler cannot identify a type of a parameter.
-    /// </summary>
-    public static Float f(Float value) => value;
-
-    /// <summary>
-    /// A function to indicate the type of the parameter on render functions.
-    /// Use when the compiler cannot identify a type of a parameter.
-    /// </summary>
-    public static Sampler s(Sampler value) => value;
-
-    #endregion
-    
     #region PRIMITIVE UTILS
 
     /// <summary>
@@ -68,6 +52,138 @@ public static class Utils
     /// </summary>
     public static readonly SkipCurryingParameter skip = new();
 
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec2 vec(float x, float y)
+        => new(x, y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3 vec(float x, float y, float z)
+        => new(x, y, z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3 vec(Vec2 v, float z)
+        => new(v.X, v.Y, z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec3 vec(float x, Vec2 v)
+        => new(x, v.X, v.Y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(float x, float y, float z, float w)
+        => new(x, y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(Vec2 v, float z, float w)
+        => new(v.X, v.Y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(float x, float y, Vec2 v)
+        => new(x, y, v.X, v.Y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(float x, Vec2 v, float w)
+        => new(x, v.X, v.Y, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(Vec2 v, Vec2 u)
+        => new(v.X, v.Y, u.X, u.Y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(Vec3 v, float w)
+        => new(v.X, v.Y, v.Z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static Vec4 vec(float x, Vec3 v)
+        => new(x, v.X, v.Y, v.Z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec2 vec(Float x, Float y)
+        => (x, y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec3 vec(Float x, Float y, Float z)
+        => (x, y, z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec3 vec(vec2 v, Float z)
+        => (v.x, v.y, z);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec3 vec(Float x, vec2 v)
+        => (x, v.x, v.y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec4 vec(Float x, Float y, Float z, Float w)
+        => (x, y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec4 vec(vec2 v, Float z, Float w)
+        => (v.x, v.y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec4 vec(Float x, Float y, vec2 v)
+        => (x, y, v.x, v.y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec4 vec(Float x, vec2 v, Float w)
+        => (x, v.x, v.y, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec4 vec(vec2 v, vec2 u)
+        => (v.x, v.y, u.x, u.y);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec4 vec(vec3 v, Float w)
+        => (v.x, v.y, v.z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
+    public static vec4 vec(Float x, vec3 v)
+        => (x, v.x, v.y, v.z);
+
     public static readonly Vec4 red = new(1, 0, 0, 1);
     public static readonly Vec4 green = new(0, 1, 0, 1);
     public static readonly Vec4 blue = new(0, 0, 1, 1);
@@ -81,6 +197,31 @@ public static class Utils
     #endregion
 
     #region BUFFER UTILS
+
+    static BufferedDataArray fillBuffer<T>(int rows, int columns, Func<int, T> factory)
+        where T : IBufferizable
+    {
+        List<BufferData> streams = [];
+
+        for (int i = 0; i < columns; i++)
+        {
+            var stream = new BufferData(1, 1, false);
+            streams.Add(stream);
+            stream.PrepareSize(rows);
+        }
+
+        var buffer = new float[columns];
+        for (int i = 0; i < rows; i++)
+        {
+            var bufferizable = factory(i);
+            bufferizable.Bufferize(buffer, 0);
+
+            for (int j = 0; j < columns; j++)
+                streams[j].Add(buffer[j]);
+        }
+
+        return new BufferedDataArray(streams);
+    }
 
     /// <summary>
     /// Create a buffer based on a function.
@@ -97,45 +238,134 @@ public static class Utils
     }
 
     /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferedDataArray buffer(int size, Func<int, Vec2> factory)
+        => fillBuffer(size, 2, factory);
+
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferedDataArray buffer(int size, Func<int, Vec3> factory)
+        => fillBuffer(size, 3, factory);
+
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferedDataArray buffer(int size, Func<int, Vec4> factory)
+        => fillBuffer(size, 4, factory);
+
+    /// <summary>
     /// Create a buffer from a array.
     /// </summary>
-    public static BufferData buffer(float[] data)
+    public static BufferData buffer(params float[] data)
     {
         var stream = new BufferData(1, 1, false);
 
         stream.PrepareSize(data.Length);
-        for (int i = 0; i < data.Length; i++)
-            stream.Add(data[i]);
+        stream.AddRange(data);
 
         return stream;
     }
-
+        
     /// <summary>
-    /// Generate a buffer with random values.
+    /// Get factories for use to create buffers.
     /// </summary>
-    /// <param name="size">The size of buffer.</param>
-    /// <param name="repeat">The number of times that all values repeat. This is util for use the same value to all sides of a triangule.</param>
-    /// <param name="max">Max value generated.</param>
-    /// <param name="min">Min value generated.</param>
-    /// <param name="seed">The seed of random algorithm. If -1 create a seed based on time.</param>
-    public static BufferData randBuffer(int size, float max = 1, float min = 0, int seed = -1)
+    public static readonly Factories factories = new();
+    public class Factories
     {
-        seed = seed != -1 ? seed :
-            (int)(DateTime.UtcNow.Ticks % int.MaxValue);
-        var random = new Random(seed);
+        /// <summary>
+        /// factory for rand values. Uniform between 0 and 1.
+        /// </summary>
+        public Func<int, float> urand => rand(0, 1f);
 
-        var stream = new BufferData(1, 1, false);
-        stream.PrepareSize(size);
+        /// <summary>
+        /// factory for rand values. Uniform between 0 and 1.
+        /// </summary>
+        public Func<int, Vec2> urand2 => rand2(0, 1f);
 
-        var band = max - min;
-        for (int i = 0; i < size; i++)
+        /// <summary>
+        /// factory for rand values. Uniform between 0 and 1.
+        /// </summary>
+        public Func<int, Vec3> urand3 => rand3(0, 1f);
+
+        /// <summary>
+        /// factory for rand values. Uniform between 0 and 1.
+        /// </summary>
+        public Func<int, Vec4> urand4 => rand4(0, 1f);
+
+        /// <summary>
+        /// factory for rand values.
+        /// </summary>
+        /// <param name="max">Max value generated.</param>
+        /// <param name="min">Min value generated.</param>
+        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
+        public Func<int, float> rand(float min, float max, int? seed = null)
         {
-            var rand = random.NextSingle();
-            var value = band  * rand + min;
-            stream.Add(value);
+            var rand = getRand(min, max, seed);
+            return _ => rand();
         }
 
-        return stream;
+        /// <summary>
+        /// factory for rand values on vec2(x, y) format.
+        /// </summary>
+        /// <param name="max">Max value generated.</param>
+        /// <param name="min">Min value generated.</param>
+        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
+        public Func<int, Vec2> rand2(float min, float max, int? seed = null)
+        {
+            var rand = getRand(min, max, seed);
+            return _ => (rand(), rand());
+        }
+
+        /// <summary>
+        /// factory for rand values on vec3(x, y, z) format.
+        /// </summary>
+        /// <param name="max">Max value generated.</param>
+        /// <param name="min">Min value generated.</param>
+        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
+        public Func<int, Vec3> rand3(float min, float max, int? seed = null)
+        {
+            var rand = getRand(min, max, seed);
+            return _ => (rand(), rand(), rand());
+        }
+
+        /// <summary>
+        /// factory for rand values on vec3(x, y, z) format.
+        /// </summary>
+        /// <param name="max">Max value generated.</param>
+        /// <param name="min">Min value generated.</param>
+        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
+        public Func<int, Vec4> rand4(float min, float max, int? seed = null)
+        {
+            var rand = getRand(min, max, seed);
+            return _ => (rand(), rand(), rand(), rand());
+        }
+
+        /// <summary>
+        /// Build a function that generates random values between min and max using a seed.
+        /// </summary>
+        private Func<float> getRand(float min, float max, int? seed)
+        {
+            seed ??= (int)(DateTime.UtcNow.Ticks % int.MaxValue);
+            var random = new Random(seed.Value);
+            var band = max - min;
+
+            return () => band * random.NextSingle() + min;
+        }
+
+        /// <summary>
+        /// Generate a repetitive sequence of values.
+        /// </summary>
+        public Func<int, float> mod(params float[] values)
+            => i => values[i % values.Length];
+            
+        /// <summary>
+        /// Generate a repetitive sequence of values.
+        /// </summary>
+        public Func<int, T> mod<T>(params T[] values)
+            where T : IBufferizable
+            => i => values[i % values.Length];
     }
 
     #endregion
@@ -145,276 +375,58 @@ public static class Utils
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(Action function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
     public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
+        Action function)
         => renderDelegate(function);
     
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(Action<Sampler> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Sampler, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Sampler, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Sampler, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(Action<Sampler, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
+    public static dynamic render<T1>(
+        Action<T1> function)
+        // where T1 : IAlias
         => renderDelegate(function);
     
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(Action<Sampler, Sampler> function)
+    public static dynamic render<T1, T2>(
+        Action<T1, T2> function)
+        // where T1 : IAlias where T2 : IAlias
         => renderDelegate(function);
-
+    
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(Action<Sampler, Sampler, Float> function)
+    public static dynamic render<T1, T2, T3>(
+        Action<T1, T2, T3> function)
+        // where T1 : IAlias where T2 : IAlias where T3 : IAlias
         => renderDelegate(function);
-
+    
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float, Float> function)
+    public static dynamic render<T1, T2, T3, T4>(
+        Action<T1, T2, T3, T4> function)
+        // where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
         => renderDelegate(function);
-
+    
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float, Float, Float> function)
+    public static dynamic render<T1, T2, T3, T4, T5>(
+        Action<T1, T2, T3, T4, T5> function)
+        // where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
+        // where T5 : IAlias
         => renderDelegate(function);
-
+    
     /// <summary>
     /// Create render based on received function.
     /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float,
-            Float, Float, Float, Float, Float> function)
-        => renderDelegate(function);
-
-    /// <summary>
-    /// Create render based on received function.
-    /// </summary>
-    public static dynamic render(
-        Action<Sampler, Sampler, Float,
-            Float, Float, Float,
-            Float, Float, Float,
-            Float, Float, Float> function)
+    public static dynamic render<T1, T2, T3, T4, T5, T6>(
+        Action<T1, T2, T3, T4, T5, T6> function)
+        // where T1 : IAlias where T2 : IAlias where T3 : IAlias where T4 : IAlias
+        // where T5 : IAlias where T6 : IAlias
         => renderDelegate(function);
 
     private static dynamic renderDelegate(Delegate function)
@@ -430,8 +442,8 @@ public static class Utils
     private static dynamic? moveRender;
     private static void initMoveRender()
     {
-        moveRender ??= render((dx, dy, dz) => {
-            var moveValue = autoVar(pos + (dx, dy, dz));
+        moveRender ??= render((vec3 delta) => {
+            var moveValue = autoVar(pos + delta);
             pos = moveValue;
         });
     }
@@ -444,18 +456,18 @@ public static class Utils
     {
         initMoveRender();
 
-        moveRender(x, y, 0);
+        moveRender(vec(x, y, 0));
     }
     
     /// <summary>
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Vec2ShaderObject vec)
+    public static void move(vec2 vec2)
     {
         initMoveRender();
 
-        moveRender(vec, 0);
+        moveRender(vec(vec2.x, vec2.y, 0));
     }
     
     /// <summary>
@@ -466,14 +478,14 @@ public static class Utils
     {
         initMoveRender();
 
-        moveRender(x, y, z);
+        moveRender(vec(x, y, z));
     }
     
     /// <summary>
     /// Move the polygon by a (x, y, z) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Vec3ShaderObject vec)
+    public static void move(vec3 vec)
     {
         initMoveRender();
 
@@ -502,7 +514,7 @@ public static class Utils
     /// </summary>
     public static void zoom(Float x, Float y, Float factor)
     {
-        zoomRender ??= render((cx, cy, factor) => {
+        zoomRender ??= render((Float cx, Float cy, Float factor) => {
             var cxValue = autoVar(cx);
             var cyValue = autoVar(cy);
             var factorValue = autoVar(factor);
@@ -524,7 +536,7 @@ public static class Utils
     /// </summary>
     public static void zoom(Float factor)
     {
-        originZoomRender ??= render((factor) => {
+        originZoomRender ??= render((Float factor) => {
             var factorValue = autoVar(factor);
 
             var nx = factorValue * pos.x;
@@ -543,7 +555,7 @@ public static class Utils
     /// </summary>
     public static void rotate(Float angle)
     {
-        rotateRender ??= render(angle => {
+        rotateRender ??= render((Float angle) => {
             var paramValue = autoVar(angle);
             var cosValue = autoVar(cos(paramValue));
             var sinValue = autoVar(sin(paramValue));
@@ -614,18 +626,18 @@ public static class Utils
     /// Get ou update the actual position of a generic point of the drawed polygon.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject pos
+    public static vec3 pos
     {
         get
         {
             var ctx = RenderContext.GetContext()
-                ?? throw new ShaderOnlyResourceException();
+                ?? throw new ShaderOnlyResourceException(nameof(pos));
             return ctx.Position;
         }
         set
         {
             var ctx = RenderContext.GetContext()
-                ?? throw new ShaderOnlyResourceException();
+                ?? throw new ShaderOnlyResourceException(nameof(pos));
             ctx.Position = value;
         }
     }
@@ -655,23 +667,23 @@ public static class Utils
     /// Get ou update the actual color of a generic point inside drawed area.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject color
+    public static vec4 color
     {
         get
         {
             var ctx = RenderContext.GetContext()
-                ?? throw new ShaderOnlyResourceException();
+                ?? throw new ShaderOnlyResourceException(nameof(color));
             return ctx.Color;
         }
         set
         {
             var ctx = RenderContext.GetContext()
-                ?? throw new ShaderOnlyResourceException();
+                ?? throw new ShaderOnlyResourceException(nameof(color));
 
             var fragmentAccess = ShaderObject.MergeOrigin(value, ShaderOrigin.FragmentShader);
 
             var variable = new VariableDependence(fragmentAccess);
-            ctx.Color = new Vec4ShaderObject(
+            ctx.Color = new vec4(
                 variable.Name, ShaderOrigin.FragmentShader,
                 [ ..fragmentAccess.Dependencies, variable ]
             );
@@ -684,7 +696,7 @@ public static class Utils
     public static void plot(float size = 1f)
     {
         var ctx = RenderContext.GetContext()
-            ?? throw new ShaderOnlyResourceException();
+            ?? throw new ShaderOnlyResourceException(nameof(plot));
         ctx.AddPlot(size);
     }
 
@@ -694,7 +706,7 @@ public static class Utils
     public static void draw(float width = 1f)
     {
         var ctx = RenderContext.GetContext()
-            ?? throw new ShaderOnlyResourceException();
+            ?? throw new ShaderOnlyResourceException(nameof(draw));
         ctx.AddDraw(width);
     }
 
@@ -704,7 +716,7 @@ public static class Utils
     public static void fill()
     {
         var ctx = RenderContext.GetContext()
-            ?? throw new ShaderOnlyResourceException();
+            ?? throw new ShaderOnlyResourceException(nameof(fill));
         ctx.AddFill();
     }
     
@@ -794,68 +806,68 @@ public static class Utils
     /// Generate a step function by comparing two values.
     /// Shader Only.
     /// </summary>
-    public static Vec2ShaderObject step(
-        Vec2ShaderObject edge0,
-        Vec2ShaderObject x
-    )  => func<Vec2ShaderObject>("step", edge0, x);
+    public static vec2 step(
+        vec2 edge0,
+        vec2 x
+    )  => func<vec2>("step", edge0, x);
     
     /// <summary>
     /// Generate a step function by comparing two values.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject step(
-        Vec3ShaderObject edge0,
-        Vec3ShaderObject x
-    )  => func<Vec3ShaderObject>("step", edge0, x);
+    public static vec3 step(
+        vec3 edge0,
+        vec3 x
+    )  => func<vec3>("step", edge0, x);
     
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
-    public static Float length(Vec2ShaderObject vec) 
+    public static Float length(vec2 vec) 
         => autoVar(func<Float>("length", vec));
 
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
-    public static Float length(Vec3ShaderObject vec) 
+    public static Float length(vec3 vec) 
         => autoVar(func<Float>("length", vec));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
-    public static Float distance(Vec2ShaderObject p0, Vec2ShaderObject p1)
+    public static Float distance(vec2 p0, vec2 p1)
         => autoVar(func<Float>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
-    public static Float distance(Vec3ShaderObject p0, Vec3ShaderObject p1)
+    public static Float distance(vec3 p0, vec3 p1)
         => autoVar(func<Float>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the dot product of two vectors.
     /// Shader Only.
     /// </summary>
-    public static Float dot(Vec3ShaderObject v0, Vec3ShaderObject v1) 
+    public static Float dot(vec3 v0, vec3 v1) 
         => func<Float>("dot", v0, v1);
 
     /// <summary>
     /// Calculate the dot product of two vectors.
     /// Shader Only.
     /// </summary>
-    public static Float dot(Vec2ShaderObject v0, Vec2ShaderObject v1)
+    public static Float dot(vec2 v0, vec2 v1)
         => func<Float>("dot", v0, v1);
 
     /// <summary>
     /// Calculate the cross product of two vectors.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject cross(Vec3ShaderObject v0, Vec3ShaderObject v1) 
-        => func<Vec3ShaderObject>("cross", v0, v1);
+    public static vec3 cross(vec3 v0, vec3 v1) 
+        => func<vec3>("cross", v0, v1);
     
     /// <summary>
     /// Find the nearest integer to the parameter.
@@ -911,7 +923,7 @@ public static class Utils
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float rand(Vec2ShaderObject point)
+    public static Float rand(vec2 point)
         => autoVar(func<Float>("rand", point), ShaderDependence.RandDep);
     
     /// <summary>
@@ -919,7 +931,7 @@ public static class Utils
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float noise(Vec2ShaderObject point)
+    public static Float noise(vec2 point)
         => autoVar(func<Float>("noise", point), ShaderDependence.NoiseDep);
     
     /// <summary>
@@ -927,29 +939,29 @@ public static class Utils
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float brownian(Vec2ShaderObject point)
+    public static Float brownian(vec2 point)
         => autoVar(func<Float>("fbm", point), ShaderDependence.BrownianDep);
     
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject mix(Vec4ShaderObject x, Vec4ShaderObject y, Float a) 
-        => func<Vec4ShaderObject>("mix", x, y, a);
+    public static vec4 mix(vec4 x, vec4 y, Float a) 
+        => func<vec4>("mix", x, y, a);
 
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject mix(Vec3ShaderObject x, Vec3ShaderObject y, Float a) 
-        => func<Vec3ShaderObject>("mix", x, y, a);
+    public static vec3 mix(vec3 x, vec3 y, Float a) 
+        => func<vec3>("mix", x, y, a);
     
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static Vec2ShaderObject mix(Vec2ShaderObject x, Vec2ShaderObject y, Float a) 
-        => func<Vec2ShaderObject>("mix", x, y, a);
+    public static vec2 mix(vec2 x, vec2 y, Float a) 
+        => func<vec2>("mix", x, y, a);
 
     /// <summary>
     /// Linearly interpolate between two values.
@@ -971,10 +983,10 @@ public static class Utils
     /// Get a pixel color of a img in a specific position of a texture.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject texture(Sampler img, Float posX, Float posY)
+    public static vec4 texture(Sampler img, Float posX, Float posY)
     {
         var transformatedPos = autoVar((posX / img.width, posY / img.height));
-        var pixel = autoVar(func<Vec4ShaderObject>("texture", img, transformatedPos));
+        var pixel = autoVar(func<vec4>("texture", img, transformatedPos));
         return pixel;
     }
 
@@ -992,7 +1004,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec2ShaderObject autoVar(Vec2ShaderObject obj, params ShaderDependence[] otherDeps)
+    public static vec2 autoVar(vec2 obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
@@ -1002,7 +1014,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject autoVar(Vec3ShaderObject obj, params ShaderDependence[] otherDeps)
+    public static vec3 autoVar(vec3 obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
@@ -1012,31 +1024,59 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject autoVar(Vec4ShaderObject obj, params ShaderDependence[] otherDeps)
+    public static vec4 autoVar(vec4 obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
     }
 
-    static Float var(Float obj, string name)
-        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Float var(Float obj, string name)
+    {
+        var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        );
+        return new (name, obj.Origin, [ ..obj.Dependencies, dep ]);
+    }
 
-    static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
-        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 var(vec2 obj, string name)
+    {
+        var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        );
+        return new (name, obj.Origin, [ ..obj.Dependencies, dep ]);
+    }
 
-    static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
-        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 var(vec3 obj, string name)
+    {
+        var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        );
+        return new (name, obj.Origin, [ ..obj.Dependencies, dep ]);
+    }
 
-    static Vec4ShaderObject var(Vec4ShaderObject obj, string name)
-        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 var(vec4 obj, string name)
+    {
+        var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        );
+        return new (name, obj.Origin, [ ..obj.Dependencies, dep ]);
+    }
 
     static R func<R>(string name, params ShaderObject[] objs)
         where R : ShaderObject => ShaderObject.Union<R>(buildObject(name, objs), objs);

@@ -5,12 +5,10 @@ using System;
 
 namespace Radiance.Animations.Operations;
 
-using Shaders.Objects;
-
 /// <summary>
 /// A operation that execute a function between a start and a end point.
 /// </summary>
-public class StepOperation(float duration, Action<FloatShaderObject> setpFunc) : AnimationOperation
+public class StepOperation(float duration, Action<val> setpFunc) : AnimationOperation
 {
     float start;
     float end;

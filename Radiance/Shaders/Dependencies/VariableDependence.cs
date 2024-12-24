@@ -15,7 +15,8 @@ public class VariableDependence(string type, string name, string expr) : ShaderD
     public string Name => name;
     private readonly string type = type, name = name, expr = expr;
 
-    public VariableDependence(string type, string expr) : this(type, AutoVariableName.Next(type), expr) { }
+    public VariableDependence(string type, string expr)
+        : this(type, AutoVariableName.Next(type), expr) {}
 
     public VariableDependence(ShaderObject obj)
         : this(obj.Type.TypeName, obj.Expression) {}

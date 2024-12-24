@@ -7,7 +7,6 @@ namespace Radiance.Primitives;
 
 using Buffers;
 using Shaders;
-using Shaders.Objects;
 
 /// <summary>
 /// Represents a four dimension float vector.
@@ -35,7 +34,7 @@ public record Vec4(float X, float Y, float Z, float W) : IBufferizable
     public static Vec4 operator *(Vec4 v, float a)
         => new(a * v.X, a * v.Y, a * v.Z, a * v.W);
     
-    public static implicit operator Vec4ShaderObject(Vec4 vec)
+    public static implicit operator vec4(Vec4 vec)
         => new($"vec4({ToTxt(vec.X)}, {ToTxt(vec.Y)}, {ToTxt(vec.Z)}, {ToTxt(vec.W)})", ShaderOrigin.Global, []);
     
     static string ToTxt(float value)

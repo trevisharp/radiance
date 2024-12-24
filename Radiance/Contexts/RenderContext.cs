@@ -9,7 +9,6 @@ namespace Radiance.Contexts;
 
 using Buffers;
 using Shaders;
-using Shaders.Objects;
 using Exceptions;
 using Implementations;
 
@@ -77,12 +76,12 @@ public class RenderContext
     /// <summary>
     /// Get or set the shader object representing the position transformation.
     /// </summary>
-    public Vec3ShaderObject Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ ShaderDependence.BufferDep ]);
+    public vec3 Position { get; set; } = new("pos", ShaderOrigin.VertexShader, [ ShaderDependence.BufferDep ]);
 
     /// <summary>
     /// Get or set the shader object representing the color transformation.
     /// </summary>
-    public Vec4ShaderObject Color { get; set; } = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
+    public vec4 Color { get; set; } = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
     
 
     /// <summary>

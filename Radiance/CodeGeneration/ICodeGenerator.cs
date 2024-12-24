@@ -3,7 +3,6 @@
  */
 namespace Radiance.CodeGeneration;
 
-using Shaders.Objects;
 using Contexts;
 
 public interface ICodeGenerator
@@ -14,8 +13,8 @@ public interface ICodeGenerator
     /// context and generate GPU code.
     /// </summary>
     ShaderPair GenerateShaders(
-        Vec3ShaderObject vertObj,
-        Vec4ShaderObject fragObj,
+        vec3 vertObj,
+        vec4 fragObj,
         IShaderConfiguration ctx,
         GeneratorOptions? options = null
     );
