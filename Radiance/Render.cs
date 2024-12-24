@@ -29,10 +29,13 @@ public class Render : DynamicObject
     readonly Delegate function;
     readonly int expectedArguments;
     readonly FeatureMap<CallMatch> map = [];  // To Validate
+    record CallInfo(
+        IEnumerable<ShaderDependence[]> ShaderDependences,
+        RenderContext Context
+    );
     record CallMatch(  // To Validate
         int[] Depth,
-        ShaderDependence[] ShaderDependences,
-        RenderContext Context
+        CallInfo Info
     );
     record BufferUse(IBufferedData Buffer, int Column);
 
@@ -53,21 +56,13 @@ public class Render : DynamicObject
     }
     
     /// <summary>
-    /// Load the shader code based on received function.
+    /// PreLoad this render to avoid performance issues
+    /// that may occurs when a render is loaded during
+    /// program execution.
     /// </summary>
-    public (RenderContext ctx, ShaderDependence[] deps) Load(object[] args) // To Validate
+    public void PreLoad(object[] args)
     {
-        var depths = DiscoverDepths(args);
-        var info = map.Get(depths);
-        if (info is not null)
-            return (info.Context, info.ShaderDependences);
-        
-        var ctx = RenderContext.OpenContext();
-        var deps = AnalisysInvoke(args);
-        RenderContext.CloseContext();
-        
-        map.Add(depths, new(depths, deps, ctx));
-        return (ctx, deps);
+        throw new NotImplementedException();
     }
 
     /// <summary>
@@ -99,11 +94,34 @@ public class Render : DynamicObject
 
         object? execute()
         {
-            var (ctx, deps) = Load(arguments);
+            var (deps, ctx) = Load(arguments);
             Invoke(arguments, ctx, deps);
             return null;
         }
     }
+
+    /// <summary>
+    /// Load the shader code based on received function.
+    /// </summary>
+    CallInfo Load(object[] args) // To Validate
+    {
+        var depths = DiscoverDepths(args);
+        var match = map.Get(depths);
+        if (match is not null)
+            return match.Info;
+        
+        var nonPolyArgs = RemovePolygonParameter(args);
+        var info = AnalisysInvoke(function, nonPolyArgs);
+        
+        map.Add(depths, new(depths, info));
+        return info;
+    }
+
+    /// <summary>
+    /// Remove the first parameter that need be a polygon.
+    /// </summary>
+    static object[] RemovePolygonParameter(object[] args)
+        => args.Skip(1).ToArray();
 
     /// <summary>
     /// Run this render inside another render.
@@ -113,7 +131,7 @@ public class Render : DynamicObject
         var func = render.function;
         var parameters = func.Method.GetParameters();
         var args = SplitShaderObjectsBySide(input);
-        args = DisplayOnSkipPlaces(render.arguments, args);
+        args = DisplayValuesOnEmptyPlaces(render.arguments, args);
         args = RemoveSkip(args);
         
         if (parameters.Length != args.Length)
@@ -144,7 +162,7 @@ public class Render : DynamicObject
     static object[] DisplayArguments(object[] currentArguments, object?[] newArgs) // To Validate
     {
         var splitedValues = SplitObjectsBySize(newArgs);
-        return DisplayOnSkipPlaces(currentArguments, splitedValues);
+        return DisplayValuesOnEmptyPlaces(currentArguments, splitedValues);
     }
 
     /// <summary>
@@ -174,8 +192,8 @@ public class Render : DynamicObject
         {
             _ = arg switch
             {
-                IPolygon polygon => add(polygon),
-                IBufferedData data => addBuffer(data),
+                BufferedDataArray array => add([ ..array ]),
+                IBufferedData data => add(data),
                 Vec2 vec => add(vec.X, vec.Y),
                 Vec3 vec => add(vec.X, vec.Y, vec.Z),
                 Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
@@ -191,13 +209,6 @@ public class Render : DynamicObject
 
         return [.. result];
 
-        bool addBuffer(IBufferedData data)
-        {
-            for (int i = 0; i < data.Columns; i++)
-                result.Add(new BufferUse(data, i));
-            return true;
-        }
-
         bool add(params object[] objs)
         {
             result.AddRange(objs);
@@ -212,7 +223,7 @@ public class Render : DynamicObject
     /// can curryied by g = f(skip, 20) and so called g(10) where
     /// x = 10 and y = 20.
     /// </summary>
-    static object[] DisplayOnSkipPlaces(object[] arguments, object?[] newArgs)
+    static object[] DisplayValuesOnEmptyPlaces(object[] arguments, object?[] newArgs)
     {
         var result = new object[arguments.Length];
         for (int i = 0; i < arguments.Length; i++)
@@ -295,19 +306,20 @@ public class Render : DynamicObject
     /// Call the function passing real data and running the draw pipeline.
     /// Match the argument with the lasts dependencies.
     /// </summary>
-    static void Invoke(object[] arguments, RenderContext ctx, ShaderDependence[] deps) // To Validate
+    static void Invoke(object[] arguments, RenderContext ctx, IEnumerable<ShaderDependence[]> depsconfig) // To Validate
     {
         if (arguments[0] is not IPolygon)
             throw new MissingPolygonException();
         
         var extraArgs = SplitObjectsBySize(arguments[1..]);
 
-        foreach (var (arg, dep) in extraArgs.Zip(deps!))
+        foreach (var (arg, deps) in extraArgs.Zip(depsconfig!))
         {
-            if (dep is null)
+            if (deps is null)
                 continue;
             
-            dep.UpdateData(arg);
+            foreach (var dep in deps)
+                dep.UpdateData(arg);
         }
 
         ctx?.Render(arguments);
@@ -316,36 +328,109 @@ public class Render : DynamicObject
     /// <summary>
     /// Call the function using shader objects to analyze your behaviour.
     /// </summary>
-    ShaderDependence[] AnalisysInvoke(object[] args) // To Validate
+    static CallInfo AnalisysInvoke(Delegate function, object[] args)
     {
-        var objs = GenerateObjects(args);
+        var objs = GenerateObjects(function, args);
 
-        var deps = objs
-            .Select(obj => obj.Dependencies.First())
-            .ToArray();
-
+        var ctx = RenderContext.OpenContext();
         function.DynamicInvoke(objs);
+        RenderContext.CloseContext();
 
-        return deps;
+        return new CallInfo(
+            [ ..objs.Select(obj => obj.Dependencies.ToArray()) ],
+            ctx
+        );
     }
 
     /// <summary>
-    /// Generate objects of this render based on curryied values.
+    /// Recive a function and parameters for this function and generates
+    /// ShaderObjects to call the function considering the intent of user
+    /// based on args types and sizes. The args may be a array of float
+    /// values or float buffers.
     /// </summary>
-    ShaderObject[] GenerateObjects(object[] args) // To Validate
+    static ShaderObject[] GenerateObjects(Delegate function, object[] args)
     {
         var parameters = function.Method.GetParameters();
-        
-        return parameters.Zip(GenerateDependences(args))
-            .Select(x => GenerateObject(x.First.Name!, x.Second))
-            .ToArray();
+        var result = new ShaderObject[parameters.Length];
+
+        int currentArgumentIndex = 0;
+        return parameters.Select(parameter =>
+        {
+            var size = GetTypeSize(parameter.ParameterType);
+            var endOfParameterArguments = currentArgumentIndex + size;
+            var paramArgs = args[currentArgumentIndex..endOfParameterArguments];
+            currentArgumentIndex = endOfParameterArguments;
+            return GenerateObject(parameter, paramArgs);
+        }).ToArray();
     }
 
     /// <summary>
-    /// Generate a object based on their dependences.
+    /// Generate a object based on their use.
     /// </summary>
-    static ShaderObject GenerateObject(string name, ShaderDependence dependence) // To Validate
+    static ShaderObject GenerateObject(ParameterInfo parameter, object[] arguments)
     {
+        var type = parameter.ParameterType;
+        if (type.IsAssignableTo(typeof(FloatShaderObject)))
+            return ToFloatShaderObject(parameter, arguments[0]);
+        
+        if (type.IsAssignableTo(typeof(Vec2ShaderObject)))
+        {
+            var x = ToFloatShaderObject(parameter, arguments[0]);
+            var y = ToFloatShaderObject(parameter, arguments[1]);
+            Vec2ShaderObject vec2 = (x, y);
+            return vec2;
+        }
+        
+        if (type.IsAssignableTo(typeof(Vec3ShaderObject)))
+        {
+            var x = ToFloatShaderObject(parameter, arguments[0]);
+            var y = ToFloatShaderObject(parameter, arguments[1]);
+            var z = ToFloatShaderObject(parameter, arguments[2]);
+            Vec3ShaderObject vec3 = (x, y, z);
+            return vec3;
+        }
+        
+        if (type.IsAssignableTo(typeof(Vec3ShaderObject)))
+        {
+            var x = ToFloatShaderObject(parameter, arguments[0]);
+            var y = ToFloatShaderObject(parameter, arguments[1]);
+            var z = ToFloatShaderObject(parameter, arguments[2]);
+            var w = ToFloatShaderObject(parameter, arguments[3]);
+            Vec4ShaderObject vec4 = (x, y, z, w);
+            return vec4;
+        }
+        
+        if (type.IsAssignableTo(typeof(Sampler2DShaderObject)))
+            return ToSample2DShaderObject(parameter, arguments[0]);
+            
+        throw new UnhandleableArgumentsException(type);
+    }
+
+    /// <summary>
+    /// Generate a Sampler2DShaderObject object based on their use.
+    /// </summary>
+    static Sampler2DShaderObject ToSample2DShaderObject(ParameterInfo parameter, object argument)
+    {
+        var name = parameter.Name!;
+        return new Sampler2DShaderObject(
+            name,
+            ShaderOrigin.FragmentShader,
+            [ new TextureDependence(name) ]
+        );
+    }
+
+    /// <summary>
+    /// Generate a FloatShaderObject object based on their use.
+    /// </summary>
+    static FloatShaderObject ToFloatShaderObject(ParameterInfo parameter, object argument)
+    {
+
+        var name = parameter.Name!;
+        var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
+        var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
+        var isBuffer = argument[index] is IBufferedData;
+
+
         return dependence switch {
             FloatBufferDependence dep => new FloatShaderObject(
                 name, ShaderOrigin.VertexShader, [ dep ]),
@@ -358,19 +443,6 @@ public class Render : DynamicObject
             
             _ => throw new NotImplementedException()
         };
-    }
-
-    /// <summary>
-    /// Generate the dependencies from this calling. 
-    /// </summary>
-    ShaderDependence[] GenerateDependences(object[] args) // To Validate
-    {
-        var parameters = function.Method.GetParameters();
-        var nonPolyArgs = args.Skip(1).ToArray();
-        var deps = parameters.Select(
-            (p, i) => GenerateDependence(p, i, nonPolyArgs)
-        );
-        return [ ..deps ];
     }
 
     /// <summary>
@@ -391,7 +463,7 @@ public class Render : DynamicObject
 
             (true, false, false) => new UniformFloatDependence(name),
 
-            (false, true, false) => new TextureDependence(name),
+            (false, true, false) => ,
 
             _ => throw new InvalidRenderException(parameter)
         };
