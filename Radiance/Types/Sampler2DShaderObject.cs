@@ -1,18 +1,24 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    30/09/2023
+ * Date:    24/12/2023
  */
+#pragma warning disable CS8981
+#pragma warning disable IDE1006
+#pragma warning disable IDE0130
+
 using System.Linq;
 using System.Collections.Generic;
 
-namespace Radiance.Shaders.Objects;
+namespace Radiance;
 
 using Exceptions;
-using Dependencies;
+
+using Shaders;
+using Shaders.Dependencies;
 
 /// <summary>
 /// Represents a Sampler2D used by textures in OpenGL.
 /// </summary>
-public class Sampler2DShaderObject(
+public class img(
     string value, ShaderOrigin origin,
     IEnumerable<ShaderDependence> deps
         ) : ShaderObject(ShaderType.Sampler, value, origin, deps)
@@ -31,24 +37,24 @@ public class Sampler2DShaderObject(
     /// <summary>
     /// The width of input image.
     /// </summary>
-    public FloatShaderObject width
+    public val width
     {
         get
         {
             var dep = GetDataDep();
-            return new FloatShaderObject($"{dep.name}.x", ShaderOrigin.Global, [ dep ]);
+            return new val($"{dep.name}.x", ShaderOrigin.Global, [ dep ]);
         }
     }
     
     /// <summary>
     /// The height of input image.
     /// </summary>
-    public FloatShaderObject height
+    public val height
     {
         get
         {
             var dep = GetDataDep();
-            return new FloatShaderObject($"{dep.name}.y", ShaderOrigin.Global, [ dep ]);
+            return new val($"{dep.name}.y", ShaderOrigin.Global, [ dep ]);
         }
     }
 
@@ -56,11 +62,11 @@ public class Sampler2DShaderObject(
     /// The relationship between the screen width and the current image width.
     /// On expression like texture(im, x, y) multiply x per xratio to get fullscreen image.
     /// </summary>
-    public FloatShaderObject xratio => width / Utils.width;
+    public val xratio => width / Utils.width;
 
     /// <summary>
     /// The relationship between the screen height and the current image height.
     /// On expression like texture(im, x, y) multiply y per yratio to get fullscreen image.
     /// </summary>
-    public FloatShaderObject yratio => height / Utils.height;
+    public val yratio => height / Utils.height;
 }

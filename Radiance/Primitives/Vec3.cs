@@ -7,7 +7,6 @@ namespace Radiance.Primitives;
 
 using Buffers;
 using Shaders;
-using Shaders.Objects;
 
 /// <summary>
 /// Represents a three dimension float vector.
@@ -35,7 +34,7 @@ public record Vec3(float X, float Y, float Z) : IBufferizable
     public static implicit operator Vec3((float x, float y, float z) tuple)
         => new(tuple.x, tuple.y, tuple.z);
     
-    public static implicit operator Vec3ShaderObject(Vec3 vec)
+    public static implicit operator vec3(Vec3 vec)
         => new($"vec3({ToTxt(vec.X)}, {ToTxt(vec.Y)}, {ToTxt(vec.Z)})", ShaderOrigin.Global, []);
 
     static string ToTxt(float value)

@@ -11,7 +11,6 @@ namespace Radiance;
 
 using Buffers;
 using Shaders;
-using Shaders.Objects;
 using Shaders.Dependencies;
 using Windows;
 using Contexts;
@@ -269,19 +268,19 @@ public class Render : DynamicObject
     /// </summary>
     static int GetTypeSize(Type type)
     {
-        if (type.IsAssignableTo(typeof(FloatShaderObject)))
+        if (type.IsAssignableTo(typeof(val)))
             return 1;
         
-        if (type.IsAssignableTo(typeof(Vec2ShaderObject)))
+        if (type.IsAssignableTo(typeof(vec2)))
             return 2;
         
-        if (type.IsAssignableTo(typeof(Vec3ShaderObject)))
+        if (type.IsAssignableTo(typeof(vec3)))
             return 3;
         
-        if (type.IsAssignableTo(typeof(Vec4ShaderObject)))
+        if (type.IsAssignableTo(typeof(vec4)))
             return 4;
         
-        if (type.IsAssignableTo(typeof(Sampler2DShaderObject)))
+        if (type.IsAssignableTo(typeof(img)))
             return 1;
         
         throw new UnhandleableArgumentsException(type);
@@ -356,13 +355,13 @@ public class Render : DynamicObject
     {
         var type = parameter.ParameterType;
         var name = parameter.Name!;
-        if (type.IsAssignableTo(typeof(FloatShaderObject)))
+        if (type.IsAssignableTo(typeof(val)))
         {
             var x = ToFloatShaderObject(name, arguments[0], ref layoutLocations);
             return (x, [ ..x.Dependencies ]);
         }
         
-        if (type.IsAssignableTo(typeof(Vec2ShaderObject)))
+        if (type.IsAssignableTo(typeof(vec2)))
         {
             var x = ToFloatShaderObject($"{name}1", arguments[0], ref layoutLocations);
             var y = ToFloatShaderObject($"{name}2", arguments[1], ref layoutLocations);
@@ -372,7 +371,7 @@ public class Render : DynamicObject
             );
         }
         
-        if (type.IsAssignableTo(typeof(Vec3ShaderObject)))
+        if (type.IsAssignableTo(typeof(vec3)))
         {
             var x = ToFloatShaderObject($"{name}1", arguments[0], ref layoutLocations);
             var y = ToFloatShaderObject($"{name}2", arguments[1], ref layoutLocations);
@@ -383,7 +382,7 @@ public class Render : DynamicObject
             );
         }
         
-        if (type.IsAssignableTo(typeof(Vec3ShaderObject)))
+        if (type.IsAssignableTo(typeof(vec3)))
         {
             var x = ToFloatShaderObject($"{name}1", arguments[0], ref layoutLocations);
             var y = ToFloatShaderObject($"{name}2", arguments[1], ref layoutLocations);
@@ -395,7 +394,7 @@ public class Render : DynamicObject
             );
         }
         
-        if (type.IsAssignableTo(typeof(Sampler2DShaderObject)))
+        if (type.IsAssignableTo(typeof(img)))
         {
             var x = ToSample2DShaderObject(name);
             return (x, [ ..x.Dependencies ]);
@@ -407,9 +406,9 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate a Sampler2DShaderObject object based on their use.
     /// </summary>
-    static Sampler2DShaderObject ToSample2DShaderObject(string name)
+    static img ToSample2DShaderObject(string name)
     {
-        return new Sampler2DShaderObject(
+        return new img(
             name,
             ShaderOrigin.FragmentShader,
             [ new TextureDependence(name) ]
@@ -419,18 +418,18 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate a FloatShaderObject object based on their use.
     /// </summary>
-    static FloatShaderObject ToFloatShaderObject(string name, object argument, ref int layoutLocations)
+    static val ToFloatShaderObject(string name, object argument, ref int layoutLocations)
     {
         var isBuffer = argument is IBufferedData;
 
         return isBuffer switch {
 
-            true => new FloatShaderObject(
+            true => new val(
                 name, ShaderOrigin.VertexShader, 
                 [ new FloatBufferDependence(name, layoutLocations++) ]
             ),
 
-            false => new FloatShaderObject(
+            false => new val(
                 name, ShaderOrigin.Global, 
                 [ new UniformFloatDependence(name), ]
             ),

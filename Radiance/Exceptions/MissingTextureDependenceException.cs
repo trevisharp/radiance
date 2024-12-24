@@ -3,14 +3,13 @@
  */
 namespace Radiance.Exceptions;
 
-using Shaders.Objects;
 using Shaders.Dependencies;
 
 public class MissingTextureDependenceException : RadianceException
 {
     public override string ErrorMessage =>
         $"""
-        A {nameof(Sampler2DShaderObject)} cannot be create wihtout a
+        A {nameof(img)} cannot be create wihtout a
         {nameof(TextureDependence)} has a dependence.
         """;
 }

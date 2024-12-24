@@ -11,15 +11,14 @@ namespace Radiance;
 
 using Buffers;
 using Shaders;
-using Shaders.Objects;
 using Shaders.Dependencies;
 using Contexts;
 using Primitives;
 using Exceptions;
 using Animations;
 
-using Float = Shaders.Objects.FloatShaderObject;
-using Sampler = Shaders.Objects.Sampler2DShaderObject;
+using Float = val;
+using Sampler = img;
 
 /// <summary>
 /// A facade with all utils to use Radiance shader features.
@@ -122,67 +121,67 @@ public static class Utils
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec2ShaderObject vec(Float x, Float y)
+    public static vec2 vec(Float x, Float y)
         => (x, y);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec3ShaderObject vec(Float x, Float y, Float z)
+    public static vec3 vec(Float x, Float y, Float z)
         => (x, y, z);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec3ShaderObject vec(Vec2ShaderObject v, Float z)
+    public static vec3 vec(vec2 v, Float z)
         => (v.x, v.y, z);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec3ShaderObject vec(Float x, Vec2ShaderObject v)
+    public static vec3 vec(Float x, vec2 v)
         => (x, v.x, v.y);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4ShaderObject vec(Float x, Float y, Float z, Float w)
+    public static vec4 vec(Float x, Float y, Float z, Float w)
         => (x, y, z, w);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4ShaderObject vec(Vec2ShaderObject v, Float z, Float w)
+    public static vec4 vec(vec2 v, Float z, Float w)
         => (v.x, v.y, z, w);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4ShaderObject vec(Float x, Float y, Vec2ShaderObject v)
+    public static vec4 vec(Float x, Float y, vec2 v)
         => (x, y, v.x, v.y);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4ShaderObject vec(Float x, Vec2ShaderObject v, Float w)
+    public static vec4 vec(Float x, vec2 v, Float w)
         => (x, v.x, v.y, w);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4ShaderObject vec(Vec2ShaderObject v, Vec2ShaderObject u)
+    public static vec4 vec(vec2 v, vec2 u)
         => (v.x, v.y, u.x, u.y);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4ShaderObject vec(Vec3ShaderObject v, Float w)
+    public static vec4 vec(vec3 v, Float w)
         => (v.x, v.y, v.z, w);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4ShaderObject vec(Float x, Vec3ShaderObject v)
+    public static vec4 vec(Float x, vec3 v)
         => (x, v.x, v.y, v.z);
 
     public static readonly Vec4 red = new(1, 0, 0, 1);
@@ -443,7 +442,7 @@ public static class Utils
     private static dynamic? moveRender;
     private static void initMoveRender()
     {
-        moveRender ??= render((Vec3ShaderObject delta) => {
+        moveRender ??= render((vec3 delta) => {
             var moveValue = autoVar(pos + delta);
             pos = moveValue;
         });
@@ -464,7 +463,7 @@ public static class Utils
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Vec2ShaderObject vec2)
+    public static void move(vec2 vec2)
     {
         initMoveRender();
 
@@ -486,7 +485,7 @@ public static class Utils
     /// Move the polygon by a (x, y, z) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Vec3ShaderObject vec)
+    public static void move(vec3 vec)
     {
         initMoveRender();
 
@@ -627,7 +626,7 @@ public static class Utils
     /// Get ou update the actual position of a generic point of the drawed polygon.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject pos
+    public static vec3 pos
     {
         get
         {
@@ -668,7 +667,7 @@ public static class Utils
     /// Get ou update the actual color of a generic point inside drawed area.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject color
+    public static vec4 color
     {
         get
         {
@@ -684,7 +683,7 @@ public static class Utils
             var fragmentAccess = ShaderObject.MergeOrigin(value, ShaderOrigin.FragmentShader);
 
             var variable = new VariableDependence(fragmentAccess);
-            ctx.Color = new Vec4ShaderObject(
+            ctx.Color = new vec4(
                 variable.Name, ShaderOrigin.FragmentShader,
                 [ ..fragmentAccess.Dependencies, variable ]
             );
@@ -807,68 +806,68 @@ public static class Utils
     /// Generate a step function by comparing two values.
     /// Shader Only.
     /// </summary>
-    public static Vec2ShaderObject step(
-        Vec2ShaderObject edge0,
-        Vec2ShaderObject x
-    )  => func<Vec2ShaderObject>("step", edge0, x);
+    public static vec2 step(
+        vec2 edge0,
+        vec2 x
+    )  => func<vec2>("step", edge0, x);
     
     /// <summary>
     /// Generate a step function by comparing two values.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject step(
-        Vec3ShaderObject edge0,
-        Vec3ShaderObject x
-    )  => func<Vec3ShaderObject>("step", edge0, x);
+    public static vec3 step(
+        vec3 edge0,
+        vec3 x
+    )  => func<vec3>("step", edge0, x);
     
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
-    public static Float length(Vec2ShaderObject vec) 
+    public static Float length(vec2 vec) 
         => autoVar(func<Float>("length", vec));
 
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
-    public static Float length(Vec3ShaderObject vec) 
+    public static Float length(vec3 vec) 
         => autoVar(func<Float>("length", vec));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
-    public static Float distance(Vec2ShaderObject p0, Vec2ShaderObject p1)
+    public static Float distance(vec2 p0, vec2 p1)
         => autoVar(func<Float>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
-    public static Float distance(Vec3ShaderObject p0, Vec3ShaderObject p1)
+    public static Float distance(vec3 p0, vec3 p1)
         => autoVar(func<Float>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the dot product of two vectors.
     /// Shader Only.
     /// </summary>
-    public static Float dot(Vec3ShaderObject v0, Vec3ShaderObject v1) 
+    public static Float dot(vec3 v0, vec3 v1) 
         => func<Float>("dot", v0, v1);
 
     /// <summary>
     /// Calculate the dot product of two vectors.
     /// Shader Only.
     /// </summary>
-    public static Float dot(Vec2ShaderObject v0, Vec2ShaderObject v1)
+    public static Float dot(vec2 v0, vec2 v1)
         => func<Float>("dot", v0, v1);
 
     /// <summary>
     /// Calculate the cross product of two vectors.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject cross(Vec3ShaderObject v0, Vec3ShaderObject v1) 
-        => func<Vec3ShaderObject>("cross", v0, v1);
+    public static vec3 cross(vec3 v0, vec3 v1) 
+        => func<vec3>("cross", v0, v1);
     
     /// <summary>
     /// Find the nearest integer to the parameter.
@@ -924,7 +923,7 @@ public static class Utils
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float rand(Vec2ShaderObject point)
+    public static Float rand(vec2 point)
         => autoVar(func<Float>("rand", point), ShaderDependence.RandDep);
     
     /// <summary>
@@ -932,7 +931,7 @@ public static class Utils
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float noise(Vec2ShaderObject point)
+    public static Float noise(vec2 point)
         => autoVar(func<Float>("noise", point), ShaderDependence.NoiseDep);
     
     /// <summary>
@@ -940,29 +939,29 @@ public static class Utils
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float brownian(Vec2ShaderObject point)
+    public static Float brownian(vec2 point)
         => autoVar(func<Float>("fbm", point), ShaderDependence.BrownianDep);
     
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject mix(Vec4ShaderObject x, Vec4ShaderObject y, Float a) 
-        => func<Vec4ShaderObject>("mix", x, y, a);
+    public static vec4 mix(vec4 x, vec4 y, Float a) 
+        => func<vec4>("mix", x, y, a);
 
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject mix(Vec3ShaderObject x, Vec3ShaderObject y, Float a) 
-        => func<Vec3ShaderObject>("mix", x, y, a);
+    public static vec3 mix(vec3 x, vec3 y, Float a) 
+        => func<vec3>("mix", x, y, a);
     
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static Vec2ShaderObject mix(Vec2ShaderObject x, Vec2ShaderObject y, Float a) 
-        => func<Vec2ShaderObject>("mix", x, y, a);
+    public static vec2 mix(vec2 x, vec2 y, Float a) 
+        => func<vec2>("mix", x, y, a);
 
     /// <summary>
     /// Linearly interpolate between two values.
@@ -984,10 +983,10 @@ public static class Utils
     /// Get a pixel color of a img in a specific position of a texture.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject texture(Sampler img, Float posX, Float posY)
+    public static vec4 texture(Sampler img, Float posX, Float posY)
     {
         var transformatedPos = autoVar((posX / img.width, posY / img.height));
-        var pixel = autoVar(func<Vec4ShaderObject>("texture", img, transformatedPos));
+        var pixel = autoVar(func<vec4>("texture", img, transformatedPos));
         return pixel;
     }
 
@@ -1005,7 +1004,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec2ShaderObject autoVar(Vec2ShaderObject obj, params ShaderDependence[] otherDeps)
+    public static vec2 autoVar(vec2 obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
@@ -1015,7 +1014,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject autoVar(Vec3ShaderObject obj, params ShaderDependence[] otherDeps)
+    public static vec3 autoVar(vec3 obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
@@ -1025,7 +1024,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject autoVar(Vec4ShaderObject obj, params ShaderDependence[] otherDeps)
+    public static vec4 autoVar(vec4 obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
@@ -1047,7 +1046,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
+    public static vec2 var(vec2 obj, string name)
     {
         var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
@@ -1059,7 +1058,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
+    public static vec3 var(vec3 obj, string name)
     {
         var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
@@ -1071,7 +1070,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Vec4ShaderObject var(Vec4ShaderObject obj, string name)
+    public static vec4 var(vec4 obj, string name)
     {
         var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression

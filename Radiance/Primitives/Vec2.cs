@@ -7,7 +7,6 @@ namespace Radiance.Primitives;
 
 using Buffers;
 using Shaders;
-using Shaders.Objects;
 
 /// <summary>
 /// Represents a two dimension float vector.
@@ -35,7 +34,7 @@ public record Vec2(float X, float Y) : IBufferizable
     public static implicit operator Vec2((float x, float y) tuple)
         => new(tuple.x, tuple.y);
     
-    public static implicit operator Vec2ShaderObject(Vec2 vec)
+    public static implicit operator vec2(Vec2 vec)
         => new($"vec2({ToTxt(vec.X)}, {ToTxt(vec.Y)})", ShaderOrigin.Global, []);
 
     static string ToTxt(float value)

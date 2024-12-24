@@ -7,7 +7,6 @@ using System.Collections.Generic;
 namespace Radiance.Animations;
 
 using Operations;
-using Shaders.Objects;
 
 /// <summary>
 /// A Builder for any animation.
@@ -26,7 +25,7 @@ public class AnimationBuilder
     /// <summary>
     /// Add a step on animation.
     /// </summary>
-    public void Step(float duration, Action<FloatShaderObject> action)
+    public void Step(float duration, Action<val> action)
         => Add(new StepOperation(duration, action));
     
     /// <summary>

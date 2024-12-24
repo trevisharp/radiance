@@ -9,7 +9,6 @@ using System.Collections.Generic;
 namespace Radiance.CodeGeneration.GLSL;
 
 using Shaders;
-using Shaders.Objects;
 using Contexts;
 
 /// <summary>
@@ -27,8 +26,8 @@ public class GLSLGenerator : ICodeGenerator
     /// a Color Shader Object and a ShaderContext.
     /// </summary>
     public ShaderPair GenerateShaders(
-        Vec3ShaderObject vertObj,
-        Vec4ShaderObject fragObj,
+        vec3 vertObj,
+        vec4 fragObj,
         IShaderConfiguration ctx,
         GeneratorOptions? options = null)
     {
