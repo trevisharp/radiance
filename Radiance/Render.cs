@@ -27,12 +27,12 @@ public class Render : DynamicObject
     object[] arguments;
     readonly Delegate function;
     readonly int expectedArguments;
-    readonly FeatureMap<CallMatch> map = [];  // To Validate
+    readonly FeatureMap<CallMatch> map = [];
     record CallInfo(
         IEnumerable<ShaderDependence[]> ShaderDependences,
         RenderContext Context
     );
-    record CallMatch(  // To Validate
+    record CallMatch(
         int[] Depth,
         CallInfo Info
     );
@@ -40,7 +40,7 @@ public class Render : DynamicObject
 
     public Render(Delegate renderFunc)
     {
-        expectedArguments = GetExpectedArgumentCount(renderFunc);
+        expectedArguments = GetExpectedArgumentCount(renderFunc) + 1;
         arguments = CreateEmptySkipArray(expectedArguments);
         function = renderFunc;
     }
@@ -252,7 +252,7 @@ public class Render : DynamicObject
     {
         var parameters = function.GetMethodInfo().GetParameters();
         var types = parameters.Select(p => p.ParameterType);
-        return GetTypeSize(types) + 1;
+        return GetTypeSize(types);
     }
     
     /// <summary>
@@ -288,7 +288,7 @@ public class Render : DynamicObject
     /// Call the function passing real data and running the draw pipeline.
     /// Match the argument with the lasts dependencies.
     /// </summary>
-    static void Invoke(object[] arguments, RenderContext ctx, IEnumerable<ShaderDependence[]> depsconfig) // To Validate
+    static void Invoke(object[] arguments, RenderContext ctx, IEnumerable<ShaderDependence[]> depsconfig)
     {
         if (arguments[0] is not IPolygon)
             throw new MissingPolygonException();
@@ -438,16 +438,21 @@ public class Render : DynamicObject
     /// <summary>
     /// Run this render inside another render.
     /// </summary>
-    static void MakeSubCall(Render render, object?[] input) // To Validate
+    static void MakeSubCall(Render render, object?[] input)
     {
         var func = render.function;
-        var parameters = func.Method.GetParameters();
-        var args = SplitShaderObjectsBySide(input);
-        args = DisplayValuesOnEmptyPlaces(render.arguments, args);
-        args = RemoveSkip(args);
+        var expectedTypes = func.Method
+            .GetParameters()
+            .Select(p => p.ParameterType);
+        var expectedSize = GetTypeSize(expectedTypes);
         
-        if (parameters.Length != args.Length)
-            throw new SubRenderArgumentCountException(parameters.Length, args.Length);
+        var args = DisplayValuesOnEmptyPlaces(render.arguments, input);
+        args = RemoveSkip(args);
+        var acctualyTypes = args.Select(arg => arg.GetType());
+        var acctualySize = GetTypeSize(acctualyTypes);
+        
+        if (expectedSize != acctualySize)
+            throw new SubRenderArgumentCountException(expectedSize, acctualySize);
 
         func.DynamicInvoke(args);
     }
@@ -455,52 +460,8 @@ public class Render : DynamicObject
     /// <summary>
     /// Remove SKipCurryingParameter values.
     /// </summary>
-    static object[] RemoveSkip(object[] values) // To Validate
-        => values.Where(val => val is not SkipCurryingParameter).ToArray();
-
-    /// <summary>
-    /// Fill parameters data on a shader object vector based on their sizes.
-    /// This function implements the fact that a render f(x, y)
-    /// can be called by f(v) wheres v is a vec2 with 2 values.
-    /// </summary>
-    static object[] SplitShaderObjectsBySide(object?[] args) // To Validate
-    {
-        List<ShaderObject> result = [];
-
-        foreach (var arg in args)
-        {
-            _ = arg switch
-            {
-                FloatShaderObject fso => add(fso),
-                Sampler2DShaderObject sso => add(sso),
-
-                Vec2ShaderObject vec => add(vec.x, vec.y),
-                Vec3ShaderObject vec => add(vec.x, vec.y, vec.z),
-                Vec4ShaderObject vec => add(vec.x, vec.y, vec.z, vec.w),
-
-                Vec2 vec => add(convert(vec.X), convert(vec.Y)),
-                Vec3 vec => add(convert(vec.X), convert(vec.Y), convert(vec.Z)),
-                Vec4 vec => add(convert(vec.X), convert(vec.Y), convert(vec.Z), convert(vec.W)),
-
-                float value => add(convert(value)),
-                double value => add(convert((float)value)),
-                int value => add(convert(value)),
-
-                _ => throw new InvalidPrimitiveException(arg)
-            };
-        }
-
-        return [.. result];
-
-        FloatShaderObject convert(float value)
-            => new(ShaderObject.ToShaderExpression(value), ShaderOrigin.Global, []);
-
-        bool add(params ShaderObject[] objs)
-        {
-            result.AddRange(objs);
-            return true;
-        }
-    }
+    static object[] RemoveSkip(object?[] values)
+        => values.Where(val => val is not SkipCurryingParameter and not null).ToArray()!;
     
     /// <summary>
     /// Discover the depth of a array of inputs.

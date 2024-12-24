@@ -457,18 +457,18 @@ public static class Utils
     {
         initMoveRender();
 
-        moveRender(x, y, 0);
+        moveRender(vec(x, y, 0));
     }
     
     /// <summary>
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Vec2ShaderObject vec)
+    public static void move(Vec2ShaderObject vec2)
     {
         initMoveRender();
 
-        moveRender(vec, 0);
+        moveRender(vec(vec2.x, vec2.y, 0));
     }
     
     /// <summary>
@@ -479,7 +479,7 @@ public static class Utils
     {
         initMoveRender();
 
-        moveRender(x, y, z);
+        moveRender(vec(x, y, z));
     }
     
     /// <summary>
