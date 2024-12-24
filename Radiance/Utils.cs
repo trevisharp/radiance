@@ -1031,25 +1031,53 @@ public static class Utils
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
     }
 
-    static Float var(Float obj, string name)
-        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Float var(Float obj, string name)
+    {
+        var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        );
+        return new (name, obj.Origin, [ ..obj.Dependencies, dep ]);
+    }
 
-    static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
-        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec2ShaderObject var(Vec2ShaderObject obj, string name)
+    {
+        var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        );
+        return new (name, obj.Origin, [ ..obj.Dependencies, dep ]);
+    }
 
-    static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
-        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec3ShaderObject var(Vec3ShaderObject obj, string name)
+    {
+        var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        );
+        return new (name, obj.Origin, [ ..obj.Dependencies, dep ]);
+    }
 
-    static Vec4ShaderObject var(Vec4ShaderObject obj, string name)
-        => new (name, obj.Origin, [..obj.Dependencies, new VariableDependence(
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static Vec4ShaderObject var(Vec4ShaderObject obj, string name)
+    {
+        var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
-        )]);
+        );
+        return new (name, obj.Origin, [ ..obj.Dependencies, dep ]);
+    }
 
     static R func<R>(string name, params ShaderObject[] objs)
         where R : ShaderObject => ShaderObject.Union<R>(buildObject(name, objs), objs);
