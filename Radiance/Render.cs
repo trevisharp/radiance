@@ -104,12 +104,15 @@ public class Render : DynamicObject
     /// </summary>
     CallInfo Load(object[] args)
     {
+        var nonPolyArgs = RemovePolygonParameter(args);
+        
+        ValidateDepths(nonPolyArgs);
         var depths = DiscoverDepths(args);
+        
         var match = map.Get(depths);
         if (match is not null)
             return match.Info;
         
-        var nonPolyArgs = RemovePolygonParameter(args);
         var info = AnalisysInvoke(function, nonPolyArgs);
         
         map.Add(depths, new(depths, info));
@@ -474,4 +477,23 @@ public class Render : DynamicObject
             _ => 1
         }
     ];
+
+    /// <summary>
+    /// Validate recived object depths.
+    /// </summary>
+    static void ValidateDepths(object[] inputs)
+    {
+        int? dataSize = null;
+        foreach (var input in inputs)
+        {
+            if (input is not IBufferedData buffered)
+                continue;
+            var rows = buffered.Rows;
+            
+            if (dataSize.HasValue && rows != dataSize)
+                throw new InvalidDataDepthsException(buffered, rows, dataSize.Value);
+            
+            dataSize = rows;
+        }
+    }
 }
