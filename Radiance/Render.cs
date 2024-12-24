@@ -382,7 +382,7 @@ public class Render : DynamicObject
             );
         }
         
-        if (type.IsAssignableTo(typeof(vec3)))
+        if (type.IsAssignableTo(typeof(vec4)))
         {
             var x = ToFloatShaderObject($"{name}1", arguments[0], ref layoutLocations);
             var y = ToFloatShaderObject($"{name}2", arguments[1], ref layoutLocations);
