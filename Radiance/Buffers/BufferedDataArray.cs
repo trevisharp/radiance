@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    24/12/2024
  */
+using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
@@ -19,4 +20,10 @@ public class BufferedDataArray(IEnumerable<IBufferedData> buffers) : IEnumerable
 
     IEnumerator IEnumerable.GetEnumerator()
         => GetEnumerator();
+        
+    public static BufferedDataArray operator *(int times, BufferedDataArray stream)
+        => new(stream.Select(buffer => times * buffer));
+    
+    public static BufferedDataArray operator *(BufferedDataArray stream, int times)
+        => new(stream.Select(buffer => times * buffer));
 }
