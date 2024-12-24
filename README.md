@@ -438,12 +438,6 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
 
-# TODO 3.0.0-preview4
- - Improve Render class abstractions allowing extensibiltiy and customization.
- - Validate depths of input of renders consistence.
- - Allow multi-size buffers.
- - Add more buffer functions.
-
  # TODO 3.0.0-rc1
  - Study remove the AddLayout.
  - Enable Buffer mutability.
