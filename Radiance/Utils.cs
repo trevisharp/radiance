@@ -1,10 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    18/12/2024
+ * Date:    24/12/2024
  */
 #pragma warning disable IDE1006
 
 using System;
 using System.Text;
+using System.Collections.Generic;
 
 namespace Radiance;
 
@@ -198,16 +199,29 @@ public static class Utils
 
     #region BUFFER UTILS
 
-    static BufferData fillBuffer<T>(int rows, int columns, Func<int, T> factory)
+    static BufferedDataArray fillBuffer<T>(int rows, int columns, Func<int, T> factory)
         where T : IBufferizable
     {
-        var stream = new BufferData(columns, 1, false);
+        List<BufferData> streams = [];
 
-        stream.PrepareSize(rows);
+        for (int i = 0; i < columns; i++)
+        {
+            var stream = new BufferData(1, 1, false);
+            streams.Add(stream);
+            stream.PrepareSize(rows);
+        }
+
+        var buffer = new float[columns];
         for (int i = 0; i < rows; i++)
-            stream.Add(factory(i));
+        {
+            var bufferizable = factory(i);
+            bufferizable.Bufferize(buffer, 0);
 
-        return stream;
+            for (int j = 0; j < columns; j++)
+                streams[j].Add(buffer[j]);
+        }
+
+        return new BufferedDataArray(streams);
     }
 
     /// <summary>
@@ -227,19 +241,19 @@ public static class Utils
     /// <summary>
     /// Create a buffer based on a function.
     /// </summary>
-    public static BufferData buffer(int size, Func<int, Vec2> factory)
+    public static BufferedDataArray buffer(int size, Func<int, Vec2> factory)
         => fillBuffer(size, 2, factory);
 
     /// <summary>
     /// Create a buffer based on a function.
     /// </summary>
-    public static BufferData buffer(int size, Func<int, Vec3> factory)
+    public static BufferedDataArray buffer(int size, Func<int, Vec3> factory)
         => fillBuffer(size, 3, factory);
 
     /// <summary>
     /// Create a buffer based on a function.
     /// </summary>
-    public static BufferData buffer(int size, Func<int, Vec4> factory)
+    public static BufferedDataArray buffer(int size, Func<int, Vec4> factory)
         => fillBuffer(size, 4, factory);
 
     /// <summary>
@@ -250,8 +264,7 @@ public static class Utils
         var stream = new BufferData(1, 1, false);
 
         stream.PrepareSize(data.Length);
-        for (int i = 0; i < data.Length; i++)
-            stream.Add(data[i]);
+        stream.AddRange(data);
 
         return stream;
     }
