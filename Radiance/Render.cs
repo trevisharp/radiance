@@ -24,7 +24,6 @@ using Exceptions;
 /// </summary>
 public class Render : DynamicObject
 {
-    int layoutLocations = 1;
     object[] arguments;
     readonly Delegate function;
     readonly int expectedArguments;
@@ -354,48 +353,49 @@ public class Render : DynamicObject
         var result = new ShaderObject[parameters.Length];
 
         int currentArgumentIndex = 0;
+        int layoutLocations = 0;
         return parameters.Select(parameter =>
         {
             var size = GetTypeSize(parameter.ParameterType);
             var endOfParameterArguments = currentArgumentIndex + size;
             var paramArgs = args[currentArgumentIndex..endOfParameterArguments];
             currentArgumentIndex = endOfParameterArguments;
-            return GenerateObject(parameter, paramArgs);
+            return GenerateObject(parameter, paramArgs, ref layoutLocations);
         }).ToArray();
     }
 
     /// <summary>
     /// Generate a object based on their use.
     /// </summary>
-    static ShaderObject GenerateObject(ParameterInfo parameter, object[] arguments)
+    static ShaderObject GenerateObject(ParameterInfo parameter, object[] arguments, ref int layoutLocations)
     {
         var type = parameter.ParameterType;
         if (type.IsAssignableTo(typeof(FloatShaderObject)))
-            return ToFloatShaderObject(parameter, arguments[0]);
+            return ToFloatShaderObject(parameter, arguments[0], ref layoutLocations);
         
         if (type.IsAssignableTo(typeof(Vec2ShaderObject)))
         {
-            var x = ToFloatShaderObject(parameter, arguments[0]);
-            var y = ToFloatShaderObject(parameter, arguments[1]);
+            var x = ToFloatShaderObject(parameter, arguments[0], ref layoutLocations);
+            var y = ToFloatShaderObject(parameter, arguments[1], ref layoutLocations);
             Vec2ShaderObject vec2 = (x, y);
             return vec2;
         }
         
         if (type.IsAssignableTo(typeof(Vec3ShaderObject)))
         {
-            var x = ToFloatShaderObject(parameter, arguments[0]);
-            var y = ToFloatShaderObject(parameter, arguments[1]);
-            var z = ToFloatShaderObject(parameter, arguments[2]);
+            var x = ToFloatShaderObject(parameter, arguments[0], ref layoutLocations);
+            var y = ToFloatShaderObject(parameter, arguments[1], ref layoutLocations);
+            var z = ToFloatShaderObject(parameter, arguments[2], ref layoutLocations);
             Vec3ShaderObject vec3 = (x, y, z);
             return vec3;
         }
         
         if (type.IsAssignableTo(typeof(Vec3ShaderObject)))
         {
-            var x = ToFloatShaderObject(parameter, arguments[0]);
-            var y = ToFloatShaderObject(parameter, arguments[1]);
-            var z = ToFloatShaderObject(parameter, arguments[2]);
-            var w = ToFloatShaderObject(parameter, arguments[3]);
+            var x = ToFloatShaderObject(parameter, arguments[0], ref layoutLocations);
+            var y = ToFloatShaderObject(parameter, arguments[1], ref layoutLocations);
+            var z = ToFloatShaderObject(parameter, arguments[2], ref layoutLocations);
+            var w = ToFloatShaderObject(parameter, arguments[3], ref layoutLocations);
             Vec4ShaderObject vec4 = (x, y, z, w);
             return vec4;
         }
@@ -422,50 +422,23 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate a FloatShaderObject object based on their use.
     /// </summary>
-    static FloatShaderObject ToFloatShaderObject(ParameterInfo parameter, object argument)
+    static FloatShaderObject ToFloatShaderObject(ParameterInfo parameter, object argument, ref int layoutLocations)
     {
-
         var name = parameter.Name!;
-        var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
-        var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var isBuffer = argument[index] is IBufferedData;
+        var isBuffer = argument is IBufferedData;
 
+        return isBuffer switch {
 
-        return dependence switch {
-            FloatBufferDependence dep => new FloatShaderObject(
-                name, ShaderOrigin.VertexShader, [ dep ]),
+            true => new FloatShaderObject(
+                name, ShaderOrigin.VertexShader, 
+                [ new FloatBufferDependence(name, layoutLocations++) ]
+            ),
 
-            UniformFloatDependence dep => new FloatShaderObject(
-                name, ShaderOrigin.Global, [ dep ]),
-            
-            TextureDependence dep => new Sampler2DShaderObject(
-                name, ShaderOrigin.FragmentShader, [ dep ]),
-            
-            _ => throw new NotImplementedException()
-        };
-    }
+            false => new FloatShaderObject(
+                name, ShaderOrigin.Global, 
+                [ new UniformFloatDependence(name), ]
+            ),
 
-    /// <summary>
-    /// Generate a ShaderObject based on a paramter and curryiedValues.
-    /// </summary>
-    ShaderDependence GenerateDependence(ParameterInfo parameter, int index, object?[] args) // To Validate
-    {
-        ArgumentNullException.ThrowIfNull(parameter, nameof(parameter));
-
-        var name = parameter.Name!;
-        var isFloat = parameter.ParameterType == typeof(FloatShaderObject);
-        var isTexture = parameter.ParameterType == typeof(Sampler2DShaderObject);
-        var isBuffer = args[index] is IBufferedData;
-        
-        return (isFloat, isTexture, isBuffer) switch
-        {
-            (true, false, true) => new FloatBufferDependence(name, layoutLocations++),
-
-            (true, false, false) => new UniformFloatDependence(name),
-
-            (false, true, false) => ,
-
-            _ => throw new InvalidRenderException(parameter)
         };
     }
 

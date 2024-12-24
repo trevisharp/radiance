@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    17/09/2024
+ * Date:    24/12/2024
  */
 using System.Reflection;
 
