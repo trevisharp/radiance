@@ -17,7 +17,7 @@ Radiance is a library that can generate GLSL (The language of OpenGL) automatica
 
 ```bash
 dotnet new console # Create project
-dotnet add package Radiance --version 3.0.0-preview3 # Install Radiance
+dotnet add package Radiance --version 3.0.0-preview4 # Install Radiance
 ```
 
 # Learn by examples
@@ -84,8 +84,8 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a) => {
-    color = (r, g, b, a);
+var myRender = render((vec4 myColor) => {
+    color = myColor;
     fill();
 });
 
@@ -108,8 +108,8 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a) => {
-    color = (r, g, b, a);
+var myRender = render((vec4 myColor) => {
+    color = myColor;
     fill();
 });
 
@@ -139,10 +139,10 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a, size, dx, dy) => {
+var myRender = render((vec4 myColor, val size, val dx, val dy) => {
     zoom(size); // zoom in (0, 0)
     move(dx, dy);
-    color = (r, g, b, a);
+    color = myColor;
     fill();
 });
 
@@ -161,7 +161,7 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a, size, dx, dy) => {
+var myRender = render((val r, val g, val a, val size, val dx, val dy) => {
     zoom(size);
     move(dx, dy);
     // modify the position of polygon vertex
@@ -186,10 +186,10 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((r, g, b, a, size, dx, dy) => {
+var myRender = render((vec4 myColor, val size, val dx, val dy) => {
     zoom(size);
     move(dx + 10 * t, dy + 10 * t);
-    color = (r, g, b, a);
+    color = myColor;
     fill();
 });
 
@@ -208,7 +208,7 @@ Window.Open();
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((size, dx, dy) => {
+var myRender = render((val size, val dx, val dy) => {
     zoom(size);
     move(dx, dy);
     // mix recive two values and a coeficient between 0 and 1
