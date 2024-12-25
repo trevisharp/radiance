@@ -6,7 +6,7 @@ using static System.Console;
 
 namespace Radiance.Contexts;
 
-using Buffers;
+using BufferData;
 using Primitives;
 using CodeGeneration;
 

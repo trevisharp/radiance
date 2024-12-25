@@ -11,7 +11,7 @@ using OpenTKShaderType = OpenTK.Graphics.OpenGL4.ShaderType;
 
 namespace Radiance.Implementations.OpenGL4;
 
-using Buffers;
+using BufferData;
 using Internal;
 using Contexts;
 using Primitives;

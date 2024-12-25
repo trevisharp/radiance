@@ -6,21 +6,21 @@ using System.Collections.Generic;
 
 namespace Radiance;
 
-using Buffers;
+using BufferData;
 using Primitives;
 
 /// <summary>
 /// Class with utils to work with buffers and
 /// stream of data.
 /// </summary>
-public static class Streams
+public class Buffers
 {
     /// <summary>
     /// Create a buffer based on a function.
     /// </summary>
-    public static BufferData Create(int size, Func<int, float> factory)
+    public static BufferData.BufferData Create(int size, Func<int, float> factory)
     {
-        var stream = new BufferData(1, 1, false);
+        var stream = new BufferData.BufferData(1, 1, false);
 
         stream.PrepareSize(size);
         for (int i = 0; i < size; i++)
@@ -50,9 +50,9 @@ public static class Streams
     /// <summary>
     /// Create a buffer from a array.
     /// </summary>
-    public static BufferData Create(params float[] data)
+    public static BufferData.BufferData Create(params float[] data)
     {
-        var stream = new BufferData(1, 1, false);
+        var stream = new BufferData.BufferData(1, 1, false);
 
         stream.PrepareSize(data.Length);
         stream.AddRange(data);
@@ -63,11 +63,11 @@ public static class Streams
     static BufferedDataArray FillBuffer<T>(int rows, int columns, Func<int, T> factory)
         where T : IBufferizable
     {
-        List<BufferData> streams = [];
+        List<BufferData.BufferData> streams = [];
 
         for (int i = 0; i < columns; i++)
         {
-            var stream = new BufferData(1, 1, false);
+            var stream = new BufferData.BufferData(1, 1, false);
             streams.Add(stream);
             stream.PrepareSize(rows);
         }

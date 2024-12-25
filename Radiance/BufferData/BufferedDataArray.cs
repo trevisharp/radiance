@@ -5,7 +5,7 @@ using System.Linq;
 using System.Collections;
 using System.Collections.Generic;
 
-namespace Radiance.Buffers;
+namespace Radiance.BufferData;
 
 /// <summary>
 /// A collection of buffered data objects.
