@@ -71,12 +71,6 @@ public class OpenGL4ShaderContext : ShaderContext
     readonly FeatureMap<VertexArrayObject> vertexArrayMap = new();
     record VertexArrayObject(int[] Buffers, int Id);
 
-    readonly Queue<LayoutInfo> layoutConfigs = [];
-    record LayoutInfo(
-        int Index, int Size, int Offset, 
-        VertexAttribPointerType Type
-    );
-
     public override void SetFloat(string name, float value)
     {
         var program = ProgramId ?? throw new UncreatedProgramException();
@@ -136,22 +130,6 @@ public class OpenGL4ShaderContext : ShaderContext
         Console.WriteLine($"GL.GetUniformLocation({program}, {name}) = {code}");
         Console.WriteLine($"GL.Uniform4({code}, ...)");
         #endif
-    }
-
-    public override void AddLayout(int size, DataType dataType)
-    {
-        var stride = size * sizeof(float);
-
-        var openGLType = dataType switch
-        {
-            DataType.Float => VertexAttribPointerType.Float,
-            _ => throw new Exception("Invalid layout type")
-        };
-
-        layoutConfigs.Enqueue(new(LayoutCount, size, TotalOffset, openGLType));
-
-        TotalOffset += stride;
-        LayoutCount++;
     }
 
     public override void CreateProgram(ShaderPair pair, bool verbose = false)

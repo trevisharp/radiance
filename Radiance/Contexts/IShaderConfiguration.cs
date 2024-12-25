@@ -38,11 +38,6 @@ public interface IShaderConfiguration : IDisposable
     void SetTextureData(string name, Texture texture);
 
     /// <summary>
-    /// Add float values on layout of data buffers.
-    /// </summary>
-    void AddLayout(int size, DataType dataType);
-
-    /// <summary>
     /// Set the width of next drawn lines.
     /// </summary>
     void SetLineWidth(float width);
