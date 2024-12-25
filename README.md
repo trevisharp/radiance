@@ -303,7 +303,6 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Added triangulation of non-monotone polygons.
  - ![](https://img.shields.io/badge/new-green) Added text buffers allowing draw texts easily.
  - ![](https://img.shields.io/badge/new-green) Improve polygon initialize to avoid bugs when a polygon is created on OnRender.
- - ![](https://img.shields.io/badge/update-blue) Improve multi-window bindings.
  - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
  - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
 
