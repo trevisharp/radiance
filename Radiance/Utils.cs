@@ -1,24 +1,19 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    24/12/2024
+ * Date:    25/12/2024
  */
 #pragma warning disable IDE1006
 
 using System;
 using System.Text;
-using System.Collections.Generic;
 
 namespace Radiance;
 
-using Buffers;
 using Shaders;
 using Shaders.Dependencies;
 using Contexts;
 using Primitives;
 using Exceptions;
 using Animations;
-
-using Float = val;
-using Sampler = img;
 
 /// <summary>
 /// A facade with all utils to use Radiance shader features.
@@ -121,49 +116,49 @@ public static class Utils
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec2 vec(Float x, Float y)
+    public static vec2 vec(val x, val y)
         => (x, y);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec3 vec(Float x, Float y, Float z)
+    public static vec3 vec(val x, val y, val z)
         => (x, y, z);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec3 vec(vec2 v, Float z)
+    public static vec3 vec(vec2 v, val z)
         => (v.x, v.y, z);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec3 vec(Float x, vec2 v)
+    public static vec3 vec(val x, vec2 v)
         => (x, v.x, v.y);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec4 vec(Float x, Float y, Float z, Float w)
+    public static vec4 vec(val x, val y, val z, val w)
         => (x, y, z, w);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec4 vec(vec2 v, Float z, Float w)
+    public static vec4 vec(vec2 v, val z, val w)
         => (v.x, v.y, z, w);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec4 vec(Float x, Float y, vec2 v)
+    public static vec4 vec(val x, val y, vec2 v)
         => (x, y, v.x, v.y);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec4 vec(Float x, vec2 v, Float w)
+    public static vec4 vec(val x, vec2 v, val w)
         => (x, v.x, v.y, w);
 
     /// <summary>
@@ -175,13 +170,13 @@ public static class Utils
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec4 vec(vec3 v, Float w)
+    public static vec4 vec(vec3 v, val w)
         => (v.x, v.y, v.z, w);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static vec4 vec(Float x, vec3 v)
+    public static vec4 vec(val x, vec3 v)
         => (x, v.x, v.y, v.z);
 
     public static readonly Vec4 red = new(1, 0, 0, 1);
@@ -193,180 +188,6 @@ public static class Utils
     public static readonly Vec4 cyan = new(0, 1, 1, 1);
     public static readonly Vec4 magenta = new(1, 0, 1, 1);
     public static readonly Vec4 trasnparent = new(0, 0, 0, 0);
-
-    #endregion
-
-    #region BUFFER UTILS
-
-    static BufferedDataArray fillBuffer<T>(int rows, int columns, Func<int, T> factory)
-        where T : IBufferizable
-    {
-        List<BufferData> streams = [];
-
-        for (int i = 0; i < columns; i++)
-        {
-            var stream = new BufferData(1, 1, false);
-            streams.Add(stream);
-            stream.PrepareSize(rows);
-        }
-
-        var buffer = new float[columns];
-        for (int i = 0; i < rows; i++)
-        {
-            var bufferizable = factory(i);
-            bufferizable.Bufferize(buffer, 0);
-
-            for (int j = 0; j < columns; j++)
-                streams[j].Add(buffer[j]);
-        }
-
-        return new BufferedDataArray(streams);
-    }
-
-    /// <summary>
-    /// Create a buffer based on a function.
-    /// </summary>
-    public static BufferData buffer(int size, Func<int, float> factory)
-    {
-        var stream = new BufferData(1, 1, false);
-
-        stream.PrepareSize(size);
-        for (int i = 0; i < size; i++)
-            stream.Add(factory(i));
-
-        return stream;
-    }
-
-    /// <summary>
-    /// Create a buffer based on a function.
-    /// </summary>
-    public static BufferedDataArray buffer(int size, Func<int, Vec2> factory)
-        => fillBuffer(size, 2, factory);
-
-    /// <summary>
-    /// Create a buffer based on a function.
-    /// </summary>
-    public static BufferedDataArray buffer(int size, Func<int, Vec3> factory)
-        => fillBuffer(size, 3, factory);
-
-    /// <summary>
-    /// Create a buffer based on a function.
-    /// </summary>
-    public static BufferedDataArray buffer(int size, Func<int, Vec4> factory)
-        => fillBuffer(size, 4, factory);
-
-    /// <summary>
-    /// Create a buffer from a array.
-    /// </summary>
-    public static BufferData buffer(params float[] data)
-    {
-        var stream = new BufferData(1, 1, false);
-
-        stream.PrepareSize(data.Length);
-        stream.AddRange(data);
-
-        return stream;
-    }
-        
-    /// <summary>
-    /// Get factories for use to create buffers.
-    /// </summary>
-    public static readonly Factories factories = new();
-    public class Factories
-    {
-        /// <summary>
-        /// factory for rand values. Uniform between 0 and 1.
-        /// </summary>
-        public Func<int, float> urand => rand(0, 1f);
-
-        /// <summary>
-        /// factory for rand values. Uniform between 0 and 1.
-        /// </summary>
-        public Func<int, Vec2> urand2 => rand2(0, 1f);
-
-        /// <summary>
-        /// factory for rand values. Uniform between 0 and 1.
-        /// </summary>
-        public Func<int, Vec3> urand3 => rand3(0, 1f);
-
-        /// <summary>
-        /// factory for rand values. Uniform between 0 and 1.
-        /// </summary>
-        public Func<int, Vec4> urand4 => rand4(0, 1f);
-
-        /// <summary>
-        /// factory for rand values.
-        /// </summary>
-        /// <param name="max">Max value generated.</param>
-        /// <param name="min">Min value generated.</param>
-        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
-        public Func<int, float> rand(float min, float max, int? seed = null)
-        {
-            var rand = getRand(min, max, seed);
-            return _ => rand();
-        }
-
-        /// <summary>
-        /// factory for rand values on vec2(x, y) format.
-        /// </summary>
-        /// <param name="max">Max value generated.</param>
-        /// <param name="min">Min value generated.</param>
-        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
-        public Func<int, Vec2> rand2(float min, float max, int? seed = null)
-        {
-            var rand = getRand(min, max, seed);
-            return _ => (rand(), rand());
-        }
-
-        /// <summary>
-        /// factory for rand values on vec3(x, y, z) format.
-        /// </summary>
-        /// <param name="max">Max value generated.</param>
-        /// <param name="min">Min value generated.</param>
-        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
-        public Func<int, Vec3> rand3(float min, float max, int? seed = null)
-        {
-            var rand = getRand(min, max, seed);
-            return _ => (rand(), rand(), rand());
-        }
-
-        /// <summary>
-        /// factory for rand values on vec3(x, y, z) format.
-        /// </summary>
-        /// <param name="max">Max value generated.</param>
-        /// <param name="min">Min value generated.</param>
-        /// <param name="seed">The seed of random algorithm. If null create a seed based on time.</param>
-        public Func<int, Vec4> rand4(float min, float max, int? seed = null)
-        {
-            var rand = getRand(min, max, seed);
-            return _ => (rand(), rand(), rand(), rand());
-        }
-
-        /// <summary>
-        /// Build a function that generates random values between min and max using a seed.
-        /// </summary>
-        private Func<float> getRand(float min, float max, int? seed)
-        {
-            seed ??= (int)(DateTime.UtcNow.Ticks % int.MaxValue);
-            var random = new Random(seed.Value);
-            var band = max - min;
-
-            return () => band * random.NextSingle() + min;
-        }
-
-        /// <summary>
-        /// Generate a repetitive sequence of values.
-        /// </summary>
-        public Func<int, float> mod(params float[] values)
-            => i => values[i % values.Length];
-            
-        /// <summary>
-        /// Generate a repetitive sequence of values.
-        /// </summary>
-        public Func<int, T> mod<T>(params T[] values)
-            where T : IBufferizable
-            => i => values[i % values.Length];
-    }
 
     #endregion
 
@@ -452,7 +273,7 @@ public static class Utils
     /// Move the polygon by a (x, y) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Float x, Float y)
+    public static void move(val x, val y)
     {
         initMoveRender();
 
@@ -474,7 +295,7 @@ public static class Utils
     /// Move the polygon by a (x, y, z) vector.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void move(Float x, Float y, Float z)
+    public static void move(val x, val y, val z)
     {
         initMoveRender();
 
@@ -512,9 +333,9 @@ public static class Utils
     /// Receiving x, y and a factor, performa a zoom on polygon on point (x, y) with the factor scale.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void zoom(Float x, Float y, Float factor)
+    public static void zoom(val x, val y, val factor)
     {
-        zoomRender ??= render((Float cx, Float cy, Float factor) => {
+        zoomRender ??= Utils.render((val cx, val cy, val factor) => {
             var cxValue = autoVar(cx);
             var cyValue = autoVar(cy);
             var factorValue = autoVar(factor);
@@ -522,7 +343,7 @@ public static class Utils
             var nx = factorValue * (pos.x - cxValue) + cxValue;
             var ny = factorValue * (pos.y - cyValue) + cyValue;
             var zoomValue = autoVar((nx, ny, pos.z));
-            
+
             pos = zoomValue;
         });
 
@@ -534,15 +355,15 @@ public static class Utils
     /// Receiving a factor, performa a zoom on polygon on point (x, y) with the factor scale.
     /// This render cannot perform draw/fill, consider using inside another shader.
     /// </summary>
-    public static void zoom(Float factor)
+    public static void zoom(val factor)
     {
-        originZoomRender ??= render((Float factor) => {
+        originZoomRender ??= Utils.render((val factor) => {
             var factorValue = autoVar(factor);
 
             var nx = factorValue * pos.x;
             var ny = factorValue * pos.y;
             var zoomValue = autoVar((nx, ny, pos.z));
-            
+
             pos = zoomValue;
         });
 
@@ -553,9 +374,9 @@ public static class Utils
     /// <summary>
     /// Rotate the polygon a specific angle.
     /// </summary>
-    public static void rotate(Float angle)
+    public static void rotate(val angle)
     {
-        rotateRender ??= render((Float angle) => {
+        rotateRender ??= Utils.render((val angle) => {
             var paramValue = autoVar(angle);
             var cosValue = autoVar(cos(paramValue));
             var sinValue = autoVar(sin(paramValue));
@@ -578,28 +399,28 @@ public static class Utils
     /// Return the current width of screen.
     /// Shader Only.
     /// </summary>
-    public static readonly Float width =
+    public static readonly val width =
         new("width", ShaderOrigin.Global, [ShaderDependence.WidthDep]);
 
     /// <summary>
     /// Return the current height of screen.
     /// Shader Only.
     /// </summary>
-    public static readonly Float height =
+    public static readonly val height =
         new("height", ShaderOrigin.Global, [ShaderDependence.HeightDep]);
 
     /// <summary>
     /// Return the current time of application.
     /// Shader Only.
     /// </summary>
-    public static readonly Float t =
+    public static readonly val t =
         new("t", ShaderOrigin.Global, [ShaderDependence.TimeDep]);
     
     /// <summary>
     /// Get the id of current processed vertex.
     /// Shader Only.
     /// </summary>
-    public static readonly Float id = 
+    public static readonly val id = 
         new("gl_VertexID", ShaderOrigin.VertexShader, []);
 
     /// <summary>
@@ -645,21 +466,21 @@ public static class Utils
     /// <summary>
     /// Get the x position of pixel.
     /// </summary>
-    public static readonly Float x = new(
+    public static readonly val x = new(
         "pixelPos.x", ShaderOrigin.FragmentShader, [ShaderDependence.PixelDep, ShaderDependence.BufferDep]
     );
 
     /// <summary>
     /// Get the y position of pixel.
     /// </summary>
-    public static readonly Float y = new(
+    public static readonly val y = new(
         "pixelPos.y", ShaderOrigin.FragmentShader, [ShaderDependence.PixelDep, ShaderDependence.BufferDep]
     );
 
     /// <summary>
     /// Get the z position of pixel.
     /// </summary>
-    public static readonly Float z = new(
+    public static readonly val z = new(
         "pixelPos.z", ShaderOrigin.FragmentShader, [ShaderDependence.PixelDep, ShaderDependence.BufferDep]
     );
 
@@ -724,83 +545,83 @@ public static class Utils
     /// Returns the cosine of the specified angle.
     /// Shader Only.
     /// </summary>
-    public static Float cos(Float angle)
-        => func<Float>("cos", angle);
+    public static val cos(val angle)
+        => func<val>("cos", angle);
 
     /// <summary>
     /// Returns the sine of the specified angle.
     /// Shader Only.
     /// </summary>
-    public static Float sin(Float angle)
-        => func<Float>("sin", angle);
+    public static val sin(val angle)
+        => func<val>("sin", angle);
 
     /// <summary>
     /// Returns the tangent of the specified angle.
     /// Shader Only.
     /// </summary>
-    public static Float tan(Float angle)
-        => func<Float>("tan", angle);
+    public static val tan(val angle)
+        => func<val>("tan", angle);
 
     /// <summary>
     /// Returns the exponential (e^x) of the specified value.
     /// Shader Only.
     /// </summary>
-    public static Float exp(Float value)
-        => func<Float>("exp", value);
+    public static val exp(val value)
+        => func<val>("exp", value);
 
     /// <summary>
     /// Returns the exponential (2^x) of the specified value.
     /// Shader Only.
     /// </summary>
-    public static Float exp2(Float value)
-        => func<Float>("exp2", value);
+    public static val exp2(val value)
+        => func<val>("exp2", value);
 
     /// <summary>
     /// Returns the square root of the specified value.
     /// Shader Only.
     /// </summary>
-    public static Float sqrt(Float value)
-        => func<Float>("sqrt", value);
+    public static val sqrt(val value)
+        => func<val>("sqrt", value);
 
     /// <summary>
     /// Returns the logarithm (base e) of the specified value.
     /// Shader Only.
     /// </summary>
-    public static Float log(Float value)
-        => func<Float>("log", value);
+    public static val log(val value)
+        => func<val>("log", value);
 
     /// <summary>
     /// Returns the logarithm (base 2) of the specified value.
     /// Shader Only.
     /// </summary>
-    public static Float log2(Float value)
-        => func<Float>("log2", value);
+    public static val log2(val value)
+        => func<val>("log2", value);
     
     /// <summary>
     /// Returns the value of x modulo y. This is computed as x - y * floor(x/y).
     /// Shader Only.
     /// </summary>
-    public static Float mod(Float a, Float b)
-        => autoVar(func<Float>("mod", a, b));
+    public static val mod(val a, val b)
+        => autoVar(func<val>("mod", a, b));
 
     /// <summary>
     /// Perform Hermite interpolation between two values.
     /// Shader Only.
     /// </summary>
-    public static Float smoothstep(
-        Float edge0,
-        Float edge1,
-        Float x
-    )  => func<Float>("smoothstep", edge0, edge1, x);
+    public static val smoothstep(
+        val edge0,
+        val edge1,
+        val x
+    )  => func<val>("smoothstep", edge0, edge1, x);
 
     /// <summary>
     /// Generate a step function by comparing two values.
     /// Shader Only.
     /// </summary>
-    public static Float step(
-        Float edge0,
-        Float x
-    )  => func<Float>("step", edge0, x);
+    public static val step(
+        val edge0,
+        val x
+    )  => func<val>("step", edge0, x);
     
     /// <summary>
     /// Generate a step function by comparing two values.
@@ -824,43 +645,43 @@ public static class Utils
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
-    public static Float length(vec2 vec) 
-        => autoVar(func<Float>("length", vec));
+    public static val length(vec2 vec) 
+        => autoVar(func<val>("length", vec));
 
     /// <summary>
     /// Calculate the length of a vector.
     /// Shader Only.
     /// </summary>
-    public static Float length(vec3 vec) 
-        => autoVar(func<Float>("length", vec));
+    public static val length(vec3 vec) 
+        => autoVar(func<val>("length", vec));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
-    public static Float distance(vec2 p0, vec2 p1)
-        => autoVar(func<Float>("distance", p0, p1));
+    public static val distance(vec2 p0, vec2 p1)
+        => autoVar(func<val>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the distance between two points.
     /// Shader Only.
     /// </summary>
-    public static Float distance(vec3 p0, vec3 p1)
-        => autoVar(func<Float>("distance", p0, p1));
+    public static val distance(vec3 p0, vec3 p1)
+        => autoVar(func<val>("distance", p0, p1));
 
     /// <summary>
     /// Calculate the dot product of two vectors.
     /// Shader Only.
     /// </summary>
-    public static Float dot(vec3 v0, vec3 v1) 
-        => func<Float>("dot", v0, v1);
+    public static val dot(vec3 v0, vec3 v1) 
+        => func<val>("dot", v0, v1);
 
     /// <summary>
     /// Calculate the dot product of two vectors.
     /// Shader Only.
     /// </summary>
-    public static Float dot(vec2 v0, vec2 v1)
-        => func<Float>("dot", v0, v1);
+    public static val dot(vec2 v0, vec2 v1)
+        => func<val>("dot", v0, v1);
 
     /// <summary>
     /// Calculate the cross product of two vectors.
@@ -873,108 +694,108 @@ public static class Utils
     /// Find the nearest integer to the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float round(Float value)
-        => func<Float>("round", value);
+    public static val round(val value)
+        => func<val>("round", value);
 
     /// <summary>
     /// Find the nearest integer less than or equal to the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float floor(Float value)
-        => func<Float>("floor", value);
+    public static val floor(val value)
+        => func<val>("floor", value);
 
     /// <summary>
     /// Find the nearest integer that is greater than or equal to the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float ceil(Float value)
-        => func<Float>("ceil", value);
+    public static val ceil(val value)
+        => func<val>("ceil", value);
 
     /// <summary>
     /// Find the truncated value of the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float trunc(Float value)
-        => func<Float>("trunc", value);
+    public static val trunc(val value)
+        => func<val>("trunc", value);
 
     /// <summary>
     /// Find the truncated value of the parameter.
     /// Shader Only.
     /// </summary>
-    public static Float fract(Float value)
-        => func<Float>("fract", value);
+    public static val fract(val value)
+        => func<val>("fract", value);
 
     /// <summary>
     /// Return the greater of two values.
     /// Shader Only.
     /// </summary>
-    public static Float max(Float x, Float y)
-        => func<Float>("max", x, y);
+    public static val max(val x, val y)
+        => func<val>("max", x, y);
     
     /// <summary>
     /// Return the lesser of two values.
     /// Shader Only.
     /// </summary>
-    public static Float min(Float x, Float y)
-        => func<Float>("min", x, y);
+    public static val min(val x, val y)
+        => func<val>("min", x, y);
     
     /// <summary>
     /// Return a random value based ona point.
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float rand(vec2 point)
-        => autoVar(func<Float>("rand", point), ShaderDependence.RandDep);
+    public static val rand(vec2 point)
+        => autoVar(func<val>("rand", point), ShaderDependence.RandDep);
     
     /// <summary>
     /// Return a noise for a point.
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float noise(vec2 point)
-        => autoVar(func<Float>("noise", point), ShaderDependence.NoiseDep);
+    public static val noise(vec2 point)
+        => autoVar(func<val>("noise", point), ShaderDependence.NoiseDep);
     
     /// <summary>
     /// Return the Fractal Brownian Motion.
     /// Source: @patriciogv on https://thebookofshaders.com/13, 2015
     /// Shader Only.
     /// </summary>
-    public static Float brownian(vec2 point)
-        => autoVar(func<Float>("fbm", point), ShaderDependence.BrownianDep);
+    public static val brownian(vec2 point)
+        => autoVar(func<val>("fbm", point), ShaderDependence.BrownianDep);
     
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static vec4 mix(vec4 x, vec4 y, Float a) 
+    public static vec4 mix(vec4 x, vec4 y, val a) 
         => func<vec4>("mix", x, y, a);
 
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static vec3 mix(vec3 x, vec3 y, Float a) 
+    public static vec3 mix(vec3 x, vec3 y, val a) 
         => func<vec3>("mix", x, y, a);
     
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static vec2 mix(vec2 x, vec2 y, Float a) 
+    public static vec2 mix(vec2 x, vec2 y, val a) 
         => func<vec2>("mix", x, y, a);
 
     /// <summary>
     /// Linearly interpolate between two values.
     /// Shader Only.
     /// </summary>
-    public static Float mix(Float x, Float y, Float a) 
-        => func<Float>("mix", x, y, a);
+    public static val mix(val x, val y, val a) 
+        => func<val>("mix", x, y, a);
 
     /// <summary>
     /// Get a pixel color of a img in a specific position of a texture.
     /// Shader Only.
     /// </summary>
-    public static vec4 texture(Sampler img, Float posX, Float posY)
+    public static vec4 texture(Radiance.img img, val posX, val posY)
     {
         var transformatedPos = autoVar((posX / img.width, posY / img.height));
         var pixel = autoVar(func<vec4>("texture", img, transformatedPos));
@@ -985,7 +806,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Float autoVar(Float obj, params ShaderDependence[] otherDeps)
+    public static val autoVar(val obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable , ..otherDeps]);
@@ -1025,7 +846,7 @@ public static class Utils
     /// For radiance to create a intermediate variable to compute this value.
     /// Shader Only.
     /// </summary>
-    public static Float var(Float obj, string name)
+    public static val var(val obj, string name)
     {
         var dep = new VariableDependence(
             obj.Type.TypeName, name, obj.Expression
