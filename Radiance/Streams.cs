@@ -15,7 +15,52 @@ using Primitives;
 /// </summary>
 public static class Streams
 {
-    static BufferedDataArray fillBuffer<T>(int rows, int columns, Func<int, T> factory)
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferData Create(int size, Func<int, float> factory)
+    {
+        var stream = new BufferData(1, 1, false);
+
+        stream.PrepareSize(size);
+        for (int i = 0; i < size; i++)
+            stream.Add(factory(i));
+
+        return stream;
+    }
+
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferedDataArray Create(int size, Func<int, Vec2> factory)
+        => FillBuffer(size, 2, factory);
+
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferedDataArray Create(int size, Func<int, Vec3> factory)
+        => FillBuffer(size, 3, factory);
+
+    /// <summary>
+    /// Create a buffer based on a function.
+    /// </summary>
+    public static BufferedDataArray Create(int size, Func<int, Vec4> factory)
+        => FillBuffer(size, 4, factory);
+
+    /// <summary>
+    /// Create a buffer from a array.
+    /// </summary>
+    public static BufferData Create(params float[] data)
+    {
+        var stream = new BufferData(1, 1, false);
+
+        stream.PrepareSize(data.Length);
+        stream.AddRange(data);
+
+        return stream;
+    }
+    
+    static BufferedDataArray FillBuffer<T>(int rows, int columns, Func<int, T> factory)
         where T : IBufferizable
     {
         List<BufferData> streams = [];
@@ -39,52 +84,7 @@ public static class Streams
 
         return new BufferedDataArray(streams);
     }
-
-    /// <summary>
-    /// Create a buffer based on a function.
-    /// </summary>
-    public static BufferData Create(int size, Func<int, float> factory)
-    {
-        var stream = new BufferData(1, 1, false);
-
-        stream.PrepareSize(size);
-        for (int i = 0; i < size; i++)
-            stream.Add(factory(i));
-
-        return stream;
-    }
-
-    /// <summary>
-    /// Create a buffer based on a function.
-    /// </summary>
-    public static BufferedDataArray buffer(int size, Func<int, Vec2> factory)
-        => fillBuffer(size, 2, factory);
-
-    /// <summary>
-    /// Create a buffer based on a function.
-    /// </summary>
-    public static BufferedDataArray buffer(int size, Func<int, Vec3> factory)
-        => fillBuffer(size, 3, factory);
-
-    /// <summary>
-    /// Create a buffer based on a function.
-    /// </summary>
-    public static BufferedDataArray buffer(int size, Func<int, Vec4> factory)
-        => fillBuffer(size, 4, factory);
-
-    /// <summary>
-    /// Create a buffer from a array.
-    /// </summary>
-    public static BufferData buffer(params float[] data)
-    {
-        var stream = new BufferData(1, 1, false);
-
-        stream.PrepareSize(data.Length);
-        stream.AddRange(data);
-
-        return stream;
-    }
-        
+    
     /// <summary>
     /// Get factories for use to create buffers.
     /// </summary>
