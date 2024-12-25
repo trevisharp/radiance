@@ -3,7 +3,7 @@
  */
 namespace Radiance.Contexts;
 
-using Buffers;
+using BufferData;
 using CodeGeneration;
 
 /// <summary>

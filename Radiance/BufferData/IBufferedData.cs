@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    04/12/2024
  */
-namespace Radiance.Buffers;
+namespace Radiance.BufferData;
 
 /// <summary>
 /// Represent a object data that can be sended to a GPU Buffer.

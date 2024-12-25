@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/11/2024
+ * Date:    25/12/2024
  */
 using System;
 using System.Linq;
@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Radiance;
 
-using Buffers;
+using BufferData;
 using Shaders;
 using Shaders.Dependencies;
 using Windows;
@@ -103,15 +103,14 @@ public class Render : DynamicObject
     /// </summary>
     CallInfo Load(object[] args)
     {
-        var nonPolyArgs = RemovePolygonParameter(args);
-        
-        ValidateDepths(nonPolyArgs);
+        ValidateDepths(args);
         var depths = DiscoverDepths(args);
         
         var match = map.Get(depths);
         if (match is not null)
             return match.Info;
         
+        var nonPolyArgs = RemovePolygonParameter(args);
         var info = AnalisysInvoke(function, nonPolyArgs);
         
         map.Add(depths, new(depths, info));
@@ -472,7 +471,7 @@ public class Render : DynamicObject
         ..from input in inputs
         select input switch
         {
-            IBufferedData buffer => buffer.Rows,
+            IBufferedData buffer => buffer.Instances,
             _ => 1
         }
     ];
@@ -487,12 +486,12 @@ public class Render : DynamicObject
         {
             if (input is not IBufferedData buffered)
                 continue;
-            var rows = buffered.Rows;
+            var instances = buffered.Instances;
             
-            if (dataSize.HasValue && rows != dataSize)
-                throw new InvalidDataDepthsException(buffered, rows, dataSize.Value);
+            if (dataSize.HasValue && instances != dataSize)
+                throw new InvalidDataDepthsException(buffered, instances, dataSize.Value);
             
-            dataSize = rows;
+            dataSize = instances;
         }
     }
 }

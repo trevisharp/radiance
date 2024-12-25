@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    03/12/2024
  */
-namespace Radiance.Buffers;
+namespace Radiance.BufferData;
 
 /// <summary>
 /// Virtual repetation of a values of a a polygon.

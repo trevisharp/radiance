@@ -6,7 +6,7 @@ using static System.Console;
 
 namespace Radiance.Contexts;
 
-using Buffers;
+using BufferData;
 using Primitives;
 using CodeGeneration;
 
@@ -17,7 +17,6 @@ public abstract class ShaderContext : IShaderInvoker, IShaderConfiguration
     public abstract void SetVec(string name, float x, float y, float z);
     public abstract void SetVec(string name, float x, float y, float z, float w);
     public abstract void SetTextureData(string name, Texture texture);
-    public abstract void AddLayout(int size, DataType dataType);
     public abstract void Dispose();
     public abstract void CreateProgram(ShaderPair pair, bool verbose = false);
     public abstract void Draw(PrimitiveType primitiveType, IBufferedData data);
