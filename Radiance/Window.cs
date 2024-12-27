@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/09/2024
+ * Date:    27/12/2024
  */
 using System;
 
@@ -115,6 +115,18 @@ public static class Window
     /// </summary>
     public static void CloseOn(Input input)
         => Current.CloseOn(input);
+        
+    /// <summary>
+    /// Add a frame measurer.
+    /// </summary>
+    public static void AddMeasurer(FrameMeasurer measurer)
+        => Current.AddMeasurer(measurer);
+
+    /// <summary>
+    /// remove a frame measurer.
+    /// </summary>
+    public static void RemoveMeasurer(FrameMeasurer measurer)
+        => Current.RemoveMeasurer(measurer);
     
     /// <summary>
     /// The time between the current and the last frame.

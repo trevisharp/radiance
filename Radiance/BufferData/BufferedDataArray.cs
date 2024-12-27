@@ -22,8 +22,8 @@ public class BufferedDataArray(IEnumerable<IBufferedData> buffers) : IEnumerable
         => GetEnumerator();
         
     public static BufferedDataArray operator *(int times, BufferedDataArray stream)
-        => new(stream.Select(buffer => times * buffer));
+        => new(stream.Select(buffer => times * buffer).ToArray());
     
     public static BufferedDataArray operator *(BufferedDataArray stream, int times)
-        => new(stream.Select(buffer => times * buffer));
+        => new(stream.Select(buffer => times * buffer).ToArray());
 }

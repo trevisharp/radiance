@@ -505,7 +505,7 @@ public class OpenGL4ShaderContext : ShaderContext
 
     static void CreateIfNotExists(IBufferedData data)
     {
-        var created = CreateBuffer(data);
+        var created = TryCreateBuffer(data);
         if (!created)
             return;
 
@@ -515,7 +515,7 @@ public class OpenGL4ShaderContext : ShaderContext
         Store(data.GetBufferData(), buffer.DynamicDraw);
     }
 
-    static bool CreateBuffer(IBufferedData data)
+    static bool TryCreateBuffer(IBufferedData data)
     {
         if (data.Buffer.BufferId is not null)
             return false;
