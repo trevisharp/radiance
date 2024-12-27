@@ -180,6 +180,65 @@ public class OpenGL4Window : BaseWindow
         }
     }
 
+    bool scissorTest = false;
+    public override bool ScissorTest
+    {
+        get => scissorTest;
+        set
+        {
+            RunOrSchedule(() =>
+            {
+                scissorTest = value;
+                if (value) GL.Enable(EnableCap.ScissorTest);
+                else GL.Disable(EnableCap.ScissorTest);
+
+                #if DEBUG_OPENGL4
+                if (value)
+                    Console.WriteLine($"GL.Enable(EnableCap.ScissorTest)");
+                else Console.WriteLine($"GL.Disable(EnableCap.ScissorTest)");
+                #endif
+            });
+        }
+    }
+
+    int scissorX = 0;
+    int scissorY = 0;
+    int scissorWidth = 0;
+    int scissorHeight = 0;
+    public override (int x, int y) ScissorPoint
+    {
+        get => (scissorX, scissorY);
+        set
+        {
+            RunOrSchedule(() =>
+            {
+                (scissorX, scissorY) = value;
+                GL.Scissor(scissorX, scissorY, scissorWidth, scissorHeight);
+
+                #if DEBUG_OPENGL4
+                Console.WriteLine($"GL.Scissor({scissorX}, {scissorY}, {scissorWidth}, {scissorHeight});");
+                #endif
+            });
+        }
+    }
+    
+    public override (int width, int height) ScissorSize
+    {
+        get => (scissorWidth, scissorHeight);
+        set
+        {
+            RunOrSchedule(() =>
+            {
+                (scissorWidth, scissorHeight) = value;
+                GL.Scissor(scissorX, scissorY, scissorWidth, scissorHeight);
+
+                #if DEBUG_OPENGL4
+                Console.WriteLine($"GL.Scissor({scissorX}, {scissorY}, {scissorWidth}, {scissorHeight});");
+                #endif
+            });
+        }
+    }
+
     public override void Clear()
     {
         GL.Clear(clearMask);

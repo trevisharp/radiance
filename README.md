@@ -315,6 +315,7 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Use of many buffer has parameters for renders is allowed.
  - ![](https://img.shields.io/badge/new-green) Move RenderKit content to Utils with more renders.
  - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
+ - ![](https://img.shields.io/badge/new-green) Added Scissor Test compatibility.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
  - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
  - ![](https://img.shields.io/badge/update-blue) Improve Window abstaction and configuration.
