@@ -13,6 +13,7 @@ using Primitives;
 /// </summary>
 public abstract class BaseWindow
 {
+    private bool renderStarted = false;
     private readonly FrameMeasurer mainMeasure = new(1);
     private readonly List<FrameMeasurer> otherMeasurers = [];
 
@@ -284,9 +285,12 @@ public abstract class BaseWindow
     {
         mainMeasure.RegisterFrame();
         foreach (var measurer in otherMeasurers)
-            measurer.RegisterFrame();   
+            measurer.RegisterFrame();
         
         if (!Active)
+            return;
+
+        if (!renderStarted)
             return;
 
         if (OnFrame is null)
@@ -311,6 +315,7 @@ public abstract class BaseWindow
         Phase = WindowPhase.OnRender;
         OnRender();
         Phase = WindowPhase.None;
+        renderStarted = true;
     }
 
     protected void Load()

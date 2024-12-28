@@ -449,6 +449,7 @@ public class Render : DynamicObject
         
         var args = DisplayValuesOnEmptyPlaces(render.arguments, input);
         args = RemoveSkip(args);
+        args = ConvertObjects(args);
         var acctualyTypes = args.Select(arg => arg.GetType());
         var acctualySize = GetTypeSize(acctualyTypes);
         
@@ -456,6 +457,22 @@ public class Render : DynamicObject
             throw new SubRenderArgumentCountException(expectedSize, acctualySize);
 
         func.DynamicInvoke(args);
+    }
+
+    /// <summary>
+    /// Convert real values on shader object values
+    /// </summary>
+    static object[] ConvertObjects(object[] args)
+    {
+        return args.Select(arg => arg switch
+        {
+            int value => (val)value,
+            float value => (val)value,
+            Vec2 value => (vec2)value,
+            Vec3 value => (vec3)value,
+            Vec4 value => (vec4)value,
+            _ => arg
+        }).ToArray();
     }
 
     /// <summary>

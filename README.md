@@ -17,7 +17,7 @@ Radiance is a library that can generate GLSL (The language of OpenGL) automatica
 
 ```bash
 dotnet new console # Create project
-dotnet add package Radiance --version 3.0.0-rc1 # Install Radiance
+dotnet add package Radiance # Install Radiance
 ```
 
 # Learn by examples
@@ -38,41 +38,98 @@ Window.OnKeyDown += (key, mod) => {
 Window.Open();
 ```
 
-### Draw Objects using Graphics
-
-Coming soon...
-
 ### Create your polygons
 
-Coming soon...
+```cs
+var mypolygon1 = Polygons.FromData(
+    (0, 0), (300, 100), (300, 50), (200, 10)
+);
+var mypolygon2 = Polygons.Rect(50, 50, 0, 100, 100); // point (50, 50, 0)
+var mypolygon3 = Polygons.Rect(100, 100); // point (0, 0)
+var mypolygon4 = Polygons.Square; // size 1 centralized on (0, 0)
+var myPolygon5 = Polygons.Ellipse(100, 200);
+var myPolygon6 = Polygons.Circle;
+var myPolygon7 = Polygons.Polar(angle => 10 + MathF.Sin(angle));
+```
 
-### Use buffers to draw very fast
-
-Coming soon...
-
-### Use Clock to control time
-
-Coming soon...
-
-### Create a custom render
+### Draw Object using renders
 
 ```cs
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render(() => {
+var myRender = render(() =>
+{
     color = red;
-    fill();
+    fill(); // fill polygon
 
-    color = white;
-    draw();
+    color = black;
+    draw(5); // draw border
+
+    color = blue;
+    plot(5); // draw points 
 });
 
-var myPolygon = Polygons.FromData(
-    (0, 0), (100, 0), (100, 100), (0, 100)
-);
+var poly = Polygons.Rect(200, 200, 0, 300, 300);
+Window.OnRender += () => myRender(poly);
 
-Window.OnRender += () => myRender(myPolygon);
+Window.ClearColor = white; // The color of the screen.
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Transfor Polygons and use many built-in functions
+
+```cs
+using Radiance;
+using Radiance.Bufferings;
+using static Radiance.Utils;
+
+var myRender = render(() =>
+{
+    zoom(100);
+    centralize();
+    color = red;
+    fill();
+});
+
+Polygon[] polys = [ Polygons.Square, Polygons.Circle, Polygons.Triangule ];
+int i = 0;
+Window.OnRender += () => myRender(polys[i]);
+
+Window.OnKeyDown += (key, mod) => {
+    if (key == Input.Up)
+        i = (i + 1) % 3;
+    
+    if (key == Input.Down)
+        i = (i + 2) % 3;
+};
+
+Window.ClearColor = white;
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Transform the polygon as you want
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((val r, val g, val a, val size, val dx, val dy) => {
+    zoom(size);
+    move(dx, dy);
+    // modify the position of polygon vertex
+    pos = (pos.x, pos.y + pos.x / 5, pos.z);
+    // use x, y, z, variables to define each pixel color
+    color = (r, g, x / 300, a);
+    fill();
+});
+
+Window.OnRender += () => myRender(
+    Polygons.Square,
+    red, 100, 200, 200
+);
 
 Window.CloseOn(Input.Escape);
 Window.Open();
@@ -132,49 +189,114 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
-
-### Use built-in renders to simplify the work
+### Handle renders
 
 ```cs
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((vec4 myColor, val size, val dx, val dy) => {
-    zoom(size); // zoom in (0, 0)
-    move(dx, dy);
-    color = myColor;
+var myRender = render((val zoomForce, val rotate) =>
+{
+    zoom(zoomForce);
+    move(
+        zoomForce * sin(rotate), 
+        zoomForce * cos(rotate)
+    );
+});
+
+var myOtherRender = render((val speed, vec4 clr) =>
+{
+    val size = 100;
+    myRender(size, speed * t);
+    centralize(); // move (0, 0) to center of screen
+
+    color = clr;
     fill();
 });
 
-Window.OnRender += () => myRender(
-    Polygons.Square, // A square with 1x1 size on (0, 0) coridnate
-    red, 100, 200, 200
-);
+int speed = 5;
 
+var myCurriedRender = myOtherRender(Polygons.Square, skip, red);
+Window.OnRender += () => myCurriedRender(speed);
+
+Window.ClearColor = white;
 Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
-### Transform the polygon as you want
+### Use buffers to draw very fast
 
 ```cs
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((val r, val g, val a, val size, val dx, val dy) => {
-    zoom(size);
-    move(dx, dy);
-    // modify the position of polygon vertex
-    pos = (pos.x, pos.y + pos.x / 5, pos.z);
-    // use x, y, z, variables to define each pixel color
-    color = (r, g, x / 300, a);
+// Use N * buffer repeat data but virtually
+int N = 10_000;
+ // 10'000 circles.
+var poly = N * Polygons.Circle;
+// 100 colors repeating 100 times each
+var colors = N / 100 * Buffers.Create(100, Buffers.Factories.Urand3);
+// 10'000 random positions (x, y)
+var positions = Buffers.Create(N, Buffers.Factories.Rand2(0, 2048));
+
+float[] speedsY = new float[N];
+
+var myRender = render((vec3 clr, vec2 position) =>
+{
+    zoom(10);
+    move(position);
+    color = vec(clr, 1);
+    fill();
+    color = black;
+    draw(2);
+});
+
+Window.OnRender += () => myRender(poly, colors, positions);
+
+Window.OnFrame += () =>
+{;
+    for (int i = 0; i < N; i++)
+    {
+        speedsY[i] -= 100f * Window.DeltaTime;
+        positions[1, i] += speedsY[i] * Window.DeltaTime;
+        if (positions[1, i] < 0)
+        {
+            positions[1, i] = 0;
+            speedsY[i] *= -0.8f;
+        }
+    }
+};
+
+Window.ClearColor = white;
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Use Clock to control time
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var clock = new Clock();
+
+var myRender = render((val time) => {
+    zoom(100);
+    rotate(time);
+    centralize();
+    color = red;
     fill();
 });
 
 Window.OnRender += () => myRender(
-    Polygons.Square,
-    red, 100, 200, 200
+    Polygons.Square, clock.Time
 );
+
+Window.OnKeyDown += (key, mod) =>
+{
+    if (key == Input.Space)
+        clock.ToogleFreeze();
+};
 
 Window.CloseOn(Input.Escape);
 Window.Open();
@@ -286,15 +408,86 @@ Window.Open();
 
 ### Get FPS
 
-Coming soon...
+```cs
+using Radiance;
+using Radiance.Windows;
+using static Radiance.Utils;
 
-### Manage the window events
+// use custom measurer
+// window size 10 = most stable and slow update speed values
+// The default Window.Fps use window 1
+var measurer = new FrameMeasurer(10);
+Window.AddMeasurer(measurer);
 
-Coming soon...
+var myRender = render(() => {
+    zoom(100);
+    centralize();
+    color = red;
+    fill();
+});
+
+Window.OnRender += () => myRender(Polygons.Square);
+
+Window.OnFrame += () => Console.WriteLine($"{Window.Fps} {measurer}");
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
 
 ### Work with text easily
 
-Coming soon...
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var photo = Textures.Open("photo.png");
+
+var myRender = render((img photo) =>
+{
+    color = texture(photo, x * photo.xratio, y * photo.yratio);
+    fill();
+});
+
+Window.OnRender += () => myRender(Polygons.Screen, photo);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Create amazing effect handling textures
+
+```cs
+using Radiance;
+using Radiance.Primitives;
+using static Radiance.Utils;
+
+var photo = Textures.Open("photo.png");
+
+var myRender = render((img photo, vec2 cursor, val lastClick) =>
+{
+    var time = t - lastClick;
+    var bouceForce = 1 / (1 + t - lastClick);
+    var force = 30 * sin(10 * t) * bouceForce * bouceForce * bouceForce;
+    var d = distance(cursor, (x, y)) + 100;
+    var dx = cursor.x - x;
+    var dy = cursor.y - y;
+    color = texture(
+        photo,
+        x * photo.xratio + force * dx / d,
+        y * photo.yratio + force * dy / d
+    );
+    fill();
+});
+
+float lastClk = 0;
+Vec2 cursor = (0, 0);
+Window.OnMouseMove += p => cursor = p;
+Window.OnMouseDown += b => lastClk = Clock.Shared.Time;
+Window.OnRender += () => myRender(Polygons.Screen, photo, cursor, lastClk);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
 
 # Versions
 
@@ -306,7 +499,15 @@ Coming soon...
  - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
  - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
 
-### Radiance v3.0.0 (preview released)
+### Radiance v3.0.1 (Coming soon)
+
+ - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.9.3.
+ - ![](https://img.shields.io/badge/update-blue) Improve the logic of changes calculation.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix bugs on currying and sub render call.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix Fps bug when app start.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix the changes bug that occurs if the last edited value.
+
+### Radiance v3.0.0
 
  - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
  - ![](https://img.shields.io/badge/new-green) Add Vsync property on Window object to activate OpenGL Vsync.
