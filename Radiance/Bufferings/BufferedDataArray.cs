@@ -12,9 +12,17 @@ namespace Radiance.Bufferings;
 /// </summary>
 public class BufferedDataArray(IEnumerable<IBufferedData> buffers) : IEnumerable<IBufferedData>
 {
+    readonly IBufferedData[] array = buffers.ToArray();
+
+    public float this[int i, int j]
+    {
+        get => array[i][j];
+        set => array[i][j] = value;
+    }
+
     public IEnumerator<IBufferedData> GetEnumerator()
     {
-        foreach (var buffer in buffers)
+        foreach (var buffer in array)
             yield return buffer;
     }
 

@@ -4,6 +4,7 @@
 namespace Radiance.Bufferings;
 
 using Internal;
+using Exceptions;
 
 /// <summary>
 /// A buffer with a Polygon points.
@@ -26,6 +27,8 @@ public class Polygon(float[] data) : IPolygon
     public bool IsGeometry => true;
 
     public Buffer Buffer => buffer ??= Buffer.From(this);
+    
+    public Changes Changes { get; set; } = [];
 
     public IBufferedData Triangules
         => triangulationPair ??= FindTriangules();
@@ -35,6 +38,12 @@ public class Polygon(float[] data) : IPolygon
     
     public IBufferedData Points
         => pointsPair ??= FindPoints();
+
+    public float this[int index]
+    {
+        get => data[index];
+        set => throw new ImutablePolygonException();
+    }
 
     public float[] GetBufferData()
         => data[..];

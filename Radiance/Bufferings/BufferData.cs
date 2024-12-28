@@ -8,25 +8,21 @@ namespace Radiance.Bufferings;
 /// <summary>
 /// Represents a Data used on a buffer.
 /// </summary>
-public class BufferData(int rowSize, int instanceLen, bool isGeometry) : IBufferedData
+public class BufferData(int rowSize, int instanceLen, bool isGeometry) : MutableBufferedData(new float[10])
 {
     int valueCount = 0;
-    float[] data = new float[10];
-    Buffer? buffer = null;
     
-    public int Rows => valueCount / rowSize;
+    public override int Rows => valueCount / rowSize;
 
-    public int Columns => rowSize;
+    public override int Columns => rowSize;
 
-    public int Instances => Rows / instanceLen;
+    public override int Instances => Rows / instanceLen;
 
-    public int InstanceLength => instanceLen;
+    public override int InstanceLength => instanceLen;
 
-    public bool IsGeometry => isGeometry;
+    public override bool IsGeometry => isGeometry;
 
-    public Buffer Buffer => buffer ??= Buffer.From(this);
-
-    public float[] GetBufferData()
+    public override float[] GetBufferData()
         => data[..valueCount];
     
     /// <summary>
@@ -118,4 +114,9 @@ public class BufferData(int rowSize, int instanceLen, bool isGeometry) : IBuffer
             IsGeometry: {{IsGeometry}}
         }
         """;
+
+    public float Modify(int index, params float[] newData)
+    {
+        throw new NotImplementedException();
+    }
 }

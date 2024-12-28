@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/12/2024
+ * Date:    27/12/2024
  */
 namespace Radiance.Bufferings;
 
@@ -21,13 +21,20 @@ public class VirtualBufferData(IBufferedData data, int repeat) : IBufferedData
     public bool IsGeometry => baseData.IsGeometry;
 
     public Buffer Buffer => buffer ??= Buffer.From(this);
+    
+    public Changes Changes => baseData.Changes;
 
     public int InstanceLength => baseData.InstanceLength;
 
+    public float this[int index]
+    {
+        get => baseData[index / baseRepeat];
+        set => baseData[index / baseRepeat] = value;
+    }
+
     public float[] GetBufferData()
         => baseData.GetBufferData();
-        
-
+    
     public static VirtualBufferData operator *(VirtualBufferData stream, int times)
         => new(stream.baseData, times * stream.baseRepeat);
         
