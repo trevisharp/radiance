@@ -14,6 +14,11 @@ public class Changes : IEnumerable<Change>
 {
     const int minDistance = 64;
     readonly List<Change> changes = [];
+    
+    /// <summary>
+    /// Get if has changes in this collection
+    /// </summary>
+    public bool HasChanges => changes.Count > 0;
 
     /// <summary>
     /// Add a new change.
@@ -58,7 +63,7 @@ public class Changes : IEnumerable<Change>
     {
         ArgumentNullException.ThrowIfNull(change, nameof(change));
 
-        if (change.Start < change.End)
+        if (change.Start <= change.End)
             return;
         
         throw new Exception("A change starts after their end.");

@@ -197,8 +197,6 @@ public class OpenGL4ShaderContext : ShaderContext
         
         foreach (var data in bufferedData)
             CreateIfNotExists(data);
-        
-        UseArgs(bufferedData);
     }
 
     public override void UseArgs(object[] args)
@@ -208,13 +206,34 @@ public class OpenGL4ShaderContext : ShaderContext
             .Select(arg => (IBufferedData)arg)
             .ToArray();
         
-        UseArgs(bufferedData);
-    }
-
-    void UseArgs(IBufferedData[] bufferedData)
-    {
+        foreach (var data in bufferedData)
+            UpdateIfNeeded(data);
+        
         int id = GetVertexArrayObject(bufferedData);
         BindVerteArrayObject(id);
+    }
+
+    static unsafe void UpdateIfNeeded(IBufferedData data)
+    {
+        if (!data.Changes.HasChanges)
+            return;
+
+        BindVerteArrayObject(data.Buffer.BufferId ?? -1);
+        var newData = data.GetBufferData();
+        fixed (float* ptr = newData)
+        {
+            foreach (var change in data.Changes)
+            {
+                GL.BufferSubData(
+                    BufferTarget.ArrayBuffer,
+                    change.Start * sizeof(float),
+                    (change.End - change.Start) * sizeof(float),
+                    (nint)(ptr + change.Start)
+                );
+            }
+        }
+        
+        data.Changes.Clear();
     }
 
     static void BindVerteArrayObject(int id)
