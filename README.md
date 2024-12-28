@@ -499,7 +499,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
  - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
 
-### Radiance v3.0.1 (Coming soon)
+### Radiance v3.0.1
 
  - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.9.3.
  - ![](https://img.shields.io/badge/update-blue) Improve the logic of changes calculation.
