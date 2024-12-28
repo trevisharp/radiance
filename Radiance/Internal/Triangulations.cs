@@ -147,7 +147,7 @@ public static class Triangulations
         MonotonePlaneTriangulation(orderMap, 
             points, triangules, 5
         );
-        return triangules.ToArray();
+        return [.. triangules];
     }
 
     static void MonotonePlaneTriangulation(
@@ -310,10 +310,8 @@ public static class Triangulations
 
             if (i >= j)
                 break;
-            
-            var temp = map[i];
-            map[i] = map[j];
-            map[j] = temp;
+
+            (map[j], map[i]) = (map[i], map[j]);
         }
 
         if (data[map[j] + offsetA] < pivo)
