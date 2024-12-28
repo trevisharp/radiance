@@ -227,7 +227,7 @@ public class OpenGL4ShaderContext : ShaderContext
                 GL.BufferSubData(
                     BufferTarget.ArrayBuffer,
                     change.Start * sizeof(float),
-                    (change.End - change.Start) * sizeof(float),
+                    (change.End - change.Start + 1) * sizeof(float),
                     (nint)(ptr + change.Start)
                 );
             }

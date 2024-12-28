@@ -48,7 +48,7 @@ public abstract class MutableBufferedData(float[] initial) : IBufferedData
                 return;
             }
 
-            if (currentChangeEnd + 1 == index)
+            if (currentChangeEnd < index && index < currentChangeEnd + 5)
             {
                 currentChangeEnd = index;
                 return;
