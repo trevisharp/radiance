@@ -6,7 +6,7 @@ using System.Collections.Generic;
 
 namespace Radiance;
 
-using BufferData;
+using Bufferings;
 using Primitives;
 using Exceptions;
 

@@ -5,7 +5,7 @@ using System.Globalization;
 
 namespace Radiance.Primitives;
 
-using BufferData;
+using Bufferings;
 using Shaders;
 
 /// <summary>

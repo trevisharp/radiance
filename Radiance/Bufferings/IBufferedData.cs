@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    04/12/2024
+ * Date:    27/12/2024
  */
-namespace Radiance.BufferData;
+namespace Radiance.Bufferings;
 
 /// <summary>
 /// Represent a object data that can be sended to a GPU Buffer.
@@ -41,10 +41,20 @@ public interface IBufferedData
     Buffer Buffer { get; }
 
     /// <summary>
+    /// The object of changes of buffered data.
+    /// </summary>
+    Changes Changes { get; }
+
+    /// <summary>
     /// Generate the data of this buffer.
     /// Prefer to not modify this vector to avoid incorrect behaviours.
     /// </summary>
     float[] GetBufferData();
+
+    /// <summary>
+    /// Get or Set the raw data.
+    /// </summary>
+    float this[int index] { get; set; }
         
     public static VirtualBufferData operator *(int times, IBufferedData stream)
         => new(stream, times);

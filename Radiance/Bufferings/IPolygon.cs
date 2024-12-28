@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    02/12/2024
  */
-namespace Radiance.BufferData;
+namespace Radiance.Bufferings;
 
 /// <summary>
 /// A interface for all bufferd data that contains

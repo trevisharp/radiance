@@ -47,7 +47,6 @@ public abstract class BaseWindow
     /// <summary>
     /// Get or Set if the frames of renderization will be called.
     /// </summary>
-    /// <value></value>
     public bool CanRender { get; set; } = true;
 
     /// <summary>
@@ -104,6 +103,21 @@ public abstract class BaseWindow
     /// Get or set the clear color.
     /// </summary>
     public abstract Vec4 ClearColor { get; set; }
+
+    /// <summary>
+    /// Active the Scissor test on some area.
+    /// </summary>
+    public abstract bool ScissorTest { get; set; }
+
+    /// <summary>
+    /// The position were Scissor test is applied
+    /// </summary>
+    public abstract (int x, int y) ScissorPoint { get; set; }
+
+    /// <summary>
+    /// The position were Scissor test is applied
+    /// </summary>
+    public abstract (int width, int height) ScissorSize { get; set; }
 
     /// <summary>
     /// Open main application window.

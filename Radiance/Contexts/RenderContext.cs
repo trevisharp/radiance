@@ -7,7 +7,7 @@ using System.Collections.Generic;
 
 namespace Radiance.Contexts;
 
-using BufferData;
+using Bufferings;
 using Shaders;
 using Exceptions;
 using Implementations;

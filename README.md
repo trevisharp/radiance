@@ -315,6 +315,7 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Use of many buffer has parameters for renders is allowed.
  - ![](https://img.shields.io/badge/new-green) Move RenderKit content to Utils with more renders.
  - ![](https://img.shields.io/badge/new-green) Add more functions like rand and noise.
+ - ![](https://img.shields.io/badge/new-green) Added Scissor Test compatibility.
  - ![](https://img.shields.io/badge/new-green) Add a Pipeline abstraction to speedup render by the union of Render objects in less calls.
  - ![](https://img.shields.io/badge/update-blue) Improve on internal abstractions and some break changes. Make Radiance more extensible.
  - ![](https://img.shields.io/badge/update-blue) Improve Window abstaction and configuration.
@@ -434,7 +435,3 @@ Coming soon...
  - ![](https://img.shields.io/badge/new-green) Many functions of GLSL like cos, sin distance, round, smoothstep and others...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
-
- # TODO 3.0.0-rc2
- - Enable Buffer mutability.
- - Use BufferSubData to improve update performance.

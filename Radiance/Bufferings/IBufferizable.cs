@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    04/12/2024
  */
-namespace Radiance.BufferData;
+namespace Radiance.Bufferings;
 
 /// <summary>
 /// A interface for data types that can be stored in a buffer.
