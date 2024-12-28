@@ -9,7 +9,7 @@ using System.Collections.Generic;
 
 namespace Radiance;
 
-using BufferData;
+using Bufferings;
 using Shaders;
 using Shaders.Dependencies;
 using Windows;

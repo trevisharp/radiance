@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/11/2024
  */
-namespace Radiance.BufferData;
+namespace Radiance.Bufferings;
 
 /// <summary>
 /// Represents a GPU Buffer Data.

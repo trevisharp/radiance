@@ -3,7 +3,7 @@
  */
 using System;
 
-namespace Radiance.BufferData;
+namespace Radiance.Bufferings;
 
 /// <summary>
 /// Represents a Data used on a buffer.
