@@ -110,6 +110,31 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Transform the polygon as you want
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((val r, val g, val a, val size, val dx, val dy) => {
+    zoom(size);
+    move(dx, dy);
+    // modify the position of polygon vertex
+    pos = (pos.x, pos.y + pos.x / 5, pos.z);
+    // use x, y, z, variables to define each pixel color
+    color = (r, g, x / 300, a);
+    fill();
+});
+
+Window.OnRender += () => myRender(
+    Polygons.Square,
+    red, 100, 200, 200
+);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
 ### Create a render with parameters
 
 ```cs
@@ -134,7 +159,37 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
-### Use Curry and handle renders
+### Curry parameters
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((vec4 myColor) => {
+    color = myColor;
+    fill();
+});
+
+var myPolygon = Polygons.FromData(
+    (0, 0), (100, 0), (100, 100), (0, 100)
+);
+
+// mySquareRender every is called with the myPolygon value
+// but still expect a 'r', 'g', 'b' and 'a' parameters
+var mySquareRender = myRender(myPolygon);
+
+// myRedRender no fix a polygon, using Utils.skip field
+// but he fix the color red for (r, g, b, a) arguments
+var myRedRender = myRender(skip, red);
+
+// now we can call myRedRender with only myPolygon
+Window.OnRender += () => myRedRender(myPolygon);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Handle renders
 
 ```cs
 using Radiance;
@@ -175,80 +230,29 @@ Coming soon...
 
 ### Use Clock to control time
 
-Coming soon...
-
-### Curry parameters
-
 ```cs
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render((vec4 myColor) => {
-    color = myColor;
-    fill();
-});
+var clock = new Clock();
 
-var myPolygon = Polygons.FromData(
-    (0, 0), (100, 0), (100, 100), (0, 100)
-);
-
-// mySquareRender every is called with the myPolygon value
-// but still expect a 'r', 'g', 'b' and 'a' parameters
-var mySquareRender = myRender(myPolygon);
-
-// myRedRender no fix a polygon, using Utils.skip field
-// but he fix the color red for (r, g, b, a) arguments
-var myRedRender = myRender(skip, red);
-
-// now we can call myRedRender with only myPolygon
-Window.OnRender += () => myRedRender(myPolygon);
-
-Window.CloseOn(Input.Escape);
-Window.Open();
-```
-
-### Use built-in renders to simplify the work
-
-```cs
-using Radiance;
-using static Radiance.Utils;
-
-var myRender = render((vec4 myColor, val size, val dx, val dy) => {
-    zoom(size); // zoom in (0, 0)
-    move(dx, dy);
-    color = myColor;
+var myRender = render((val time) => {
+    zoom(100);
+    rotate(time);
+    centralize();
+    color = red;
     fill();
 });
 
 Window.OnRender += () => myRender(
-    Polygons.Square, // A square with 1x1 size on (0, 0) coridnate
-    red, 100, 200, 200
+    Polygons.Square, clock.Time
 );
 
-Window.CloseOn(Input.Escape);
-Window.Open();
-```
-
-### Transform the polygon as you want
-
-```cs
-using Radiance;
-using static Radiance.Utils;
-
-var myRender = render((val r, val g, val a, val size, val dx, val dy) => {
-    zoom(size);
-    move(dx, dy);
-    // modify the position of polygon vertex
-    pos = (pos.x, pos.y + pos.x / 5, pos.z);
-    // use x, y, z, variables to define each pixel color
-    color = (r, g, x / 300, a);
-    fill();
-});
-
-Window.OnRender += () => myRender(
-    Polygons.Square,
-    red, 100, 200, 200
-);
+Window.OnKeyDown += (key, mod) =>
+{
+    if (key == Input.Space)
+        clock.ToogleFreeze();
+};
 
 Window.CloseOn(Input.Escape);
 Window.Open();
@@ -360,11 +364,31 @@ Window.Open();
 
 ### Get FPS
 
-Coming soon...
+```cs
+using Radiance;
+using Radiance.Windows;
+using static Radiance.Utils;
 
-### Manage the window events
+// use custom measurer
+// window size 10 = most stable and slow update speed values
+// The default Window.Fps use window 1
+var measurer = new FrameMeasurer(10);
+Window.AddMeasurer(measurer);
 
-Coming soon...
+var myRender = render(() => {
+    zoom(100);
+    centralize();
+    color = red;
+    fill();
+});
+
+Window.OnRender += () => myRender(Polygons.Square);
+
+Window.OnFrame += () => Console.WriteLine($"{Window.Fps} {measurer}");
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
 
 ### Work with text easily
 
@@ -384,6 +408,7 @@ Coming soon...
 
  - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.9.3.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix bugs on currying and sub render call.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix Fps bug when app start.
 
 ### Radiance v3.0.0
 
