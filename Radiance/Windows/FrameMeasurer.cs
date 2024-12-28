@@ -61,4 +61,6 @@ public class FrameMeasurer(int windowSize)
             return 1f / delta;
         }
     }
+
+    public override string ToString() => Fps.ToString();
 }
