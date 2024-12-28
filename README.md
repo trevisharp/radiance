@@ -17,7 +17,7 @@ Radiance is a library that can generate GLSL (The language of OpenGL) automatica
 
 ```bash
 dotnet new console # Create project
-dotnet add package Radiance --version 3.0.0-rc1 # Install Radiance
+dotnet add package Radiance --version 3.0.0 # Install Radiance
 ```
 
 # Learn by examples
@@ -38,42 +38,74 @@ Window.OnKeyDown += (key, mod) => {
 Window.Open();
 ```
 
-### Draw Objects using Graphics
-
-Coming soon...
-
 ### Create your polygons
 
-Coming soon...
+```cs
+var mypolygon1 = Polygons.FromData(
+    (0, 0), (300, 100), (300, 50), (200, 10)
+);
+var mypolygon2 = Polygons.Rect(50, 50, 0, 100, 100); // point (50, 50, 0)
+var mypolygon3 = Polygons.Rect(100, 100); // point (0, 0)
+var mypolygon4 = Polygons.Square; // size 1 centralized on (0, 0)
+var myPolygon5 = Polygons.Ellipse(100, 200);
+var myPolygon6 = Polygons.Circle;
+var myPolygon7 = Polygons.Polar(angle => 10 + MathF.Sin(angle));
+```
 
-### Use buffers to draw very fast
-
-Coming soon...
-
-### Use Clock to control time
-
-Coming soon...
-
-### Create a custom render
+### Draw Object using renders
 
 ```cs
 using Radiance;
 using static Radiance.Utils;
 
-var myRender = render(() => {
+var myRender = render(() =>
+{
     color = red;
-    fill();
+    fill(); // fill polygon
 
-    color = white;
-    draw();
+    color = black;
+    draw(5); // draw border
+
+    color = blue;
+    plot(5); // draw points 
 });
 
-var myPolygon = Polygons.FromData(
-    (0, 0), (100, 0), (100, 100), (0, 100)
-);
+var poly = Polygons.Rect(200, 200, 0, 300, 300);
+Window.OnRender += () => myRender(poly);
 
-Window.OnRender += () => myRender(myPolygon);
+Window.ClearColor = white; // The color of the screen.
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
 
+### Transfor Polygons and use many built-in functions
+
+```cs
+using Radiance;
+using Radiance.Bufferings;
+using static Radiance.Utils;
+
+var myRender = render(() =>
+{
+    zoom(100);
+    centralize();
+    color = red;
+    fill();
+});
+
+Polygon[] polys = [ Polygons.Square, Polygons.Circle, Polygons.Triangule ];
+int i = 0;
+Window.OnRender += () => myRender(polys[i]);
+
+Window.OnKeyDown += (key, mod) => {
+    if (key == Input.Up)
+        i = (i + 1) % 3;
+    
+    if (key == Input.Down)
+        i = (i + 2) % 3;
+};
+
+Window.ClearColor = white;
 Window.CloseOn(Input.Escape);
 Window.Open();
 ```
@@ -101,6 +133,49 @@ Window.OnRender += () => myRender(myPolygon, red);
 Window.CloseOn(Input.Escape);
 Window.Open();
 ```
+
+### Use Curry and handle renders
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render((val zoomForce, val rotate) =>
+{
+    zoom(zoomForce);
+    move(
+        zoomForce * sin(rotate), 
+        zoomForce * cos(rotate)
+    );
+});
+
+var myOtherRender = render((val speed, vec4 clr) =>
+{
+    val size = 100;
+    myRender(size, speed * t);
+    centralize(); // move (0, 0) to center of screen
+
+    color = clr;
+    fill();
+});
+
+int speed = 5;
+
+var myCurriedRender = myOtherRender(Polygons.Square, skip, red);
+Window.OnRender += () => myCurriedRender(speed);
+
+Window.ClearColor = white;
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+### Use buffers to draw very fast
+
+Coming soon...
+
+### Use Clock to control time
+
+Coming soon...
 
 ### Curry parameters
 
@@ -131,7 +206,6 @@ Window.OnRender += () => myRedRender(myPolygon);
 Window.CloseOn(Input.Escape);
 Window.Open();
 ```
-
 
 ### Use built-in renders to simplify the work
 
@@ -306,7 +380,12 @@ Coming soon...
  - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
  - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
 
-### Radiance v3.0.0 (preview released)
+### Radiance v3.0.1 (Coming soon)
+
+ - ![](https://img.shields.io/badge/update-blue) Update OpenTK version to 4.9.3.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix bugs on currying and sub render call.
+
+### Radiance v3.0.0
 
  - ![](https://img.shields.io/badge/new-green) Now, renders can be called insine another shaders.
  - ![](https://img.shields.io/badge/new-green) Add Vsync property on Window object to activate OpenGL Vsync.
