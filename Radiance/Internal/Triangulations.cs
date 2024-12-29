@@ -13,9 +13,357 @@ public static class Triangulations
     private const int sortTreshold = 8;
 
     /// <summary>
-    /// Find a plane (ax + by + cz + d = 0) that better match the points
+    /// Get a triangulation of a polygon with points in a
+    /// clockwise order.
     /// </summary>
-    public static (float a, float b, float c, float d) PlaneRegression(float[] pts)
+    public static float[] PlanarPolygonTriangulation(float[] pts)
+    {
+        var N = pts.Length / 3;
+        if (N < 4)
+            return pts;
+        
+        var points = ToPlanarPoints(pts);
+        var orderMap = Sort(points, 5, 3, 4);
+        
+        // TODO
+        // monotone subdivision
+        
+        var triangules = MonotonePlaneTriangulation(orderMap, points, 5);
+        return [ ..triangules ];
+    }
+
+    /// <summary>
+    /// Receveing a map of ordenation and data with format (x, y, z, ...),
+    /// if the points represetns a monotone polygon, return the triangularization
+    /// of then.
+    /// </summary>
+    static List<float> MonotonePlaneTriangulation(int[] polyOrderMap, float[] data, int dataSize)
+    {
+        var triangules = new List<float>();
+
+        var edges = new PolygonEdgeCollection(polyOrderMap.Length);
+
+        var stack = new Stack<(int index, bool chain)>();
+        stack.Push((polyOrderMap[0], false));
+        stack.Push((polyOrderMap[1], true));
+
+        for (int k = 2; k < polyOrderMap.Length; k++)
+        {
+            var crrIndex = polyOrderMap[k];
+            var last = stack.Pop();
+            var isConn = edges.IsConnected(
+                last.index / dataSize,
+                crrIndex / dataSize
+            );
+            (int index, bool chain) next = (crrIndex, !(isConn ^ last.chain));
+            
+            if (isConn)
+            {
+                (int index, bool chain) mid;
+                do
+                {
+                    if (stack.Count == 0)
+                    {
+                        stack.Push(last);
+                        stack.Push(next);
+                        break;
+                    }
+                    
+                    mid = last;
+                    last = stack.Pop();
+                    if (left(last.index, mid.index, next.index) < 0)
+                    {
+                        stack.Push(last);
+                        stack.Push(mid);
+                        stack.Push(next);
+                        break;
+                    }
+                    
+                    edges.Connect(
+                        last.index / dataSize,
+                        next.index / dataSize
+                    );
+                    addTriangule(last.index, mid.index, next.index);
+                } while (true);
+            }
+            else
+            {
+                var top = last;
+                var mid = stack.Pop();
+                edges.Connect(
+                    last.index / dataSize,
+                    next.index / dataSize
+                );
+                addTriangule(last.index, mid.index, next.index);
+
+                while (stack.Count > 0)
+                {
+                    last = mid;
+                    mid = stack.Pop();
+                    edges.Connect(
+                        last.index / dataSize,
+                        next.index / dataSize
+                    );
+                    addTriangule(last.index, mid.index, next.index);
+                }
+                stack.Push(top);
+                stack.Push(next);
+            }
+        }
+        if (stack.Count > 2)
+        {
+            int a = stack.Pop().index,
+                b = stack.Pop().index,
+                c = stack.Pop().index;
+            addTriangule(a, b, c);
+        }
+
+        return triangules;
+
+        /// <summary>
+        /// Add trinagule (p, q, r) to list of triangules data
+        /// </summary>
+        void addTriangule(int p, int q, int r)
+        {
+            addPoint(p);
+            addPoint(q);
+            addPoint(r);
+        }
+
+        /// <summary>
+        /// Add point p to list of triangules data 
+        /// </summary>
+        void addPoint(int p)
+        {
+            triangules.Add(data[p + 0]);
+            triangules.Add(data[p + 1]);
+            triangules.Add(data[p + 2]);
+        }
+
+        /// <summary>
+        /// Teste if the r is left from (p, q) line 
+        /// </summary>
+        float left(int p, int q, int r)
+        {
+            var vx = data[p + 3] - data[q + 3];
+            var vy = data[p + 4] - data[q + 4];
+            
+            var ux = data[r + 3] - data[q + 3];
+            var uy = data[r + 4] - data[q + 4];
+
+            return vx * uy - ux * vy;
+        }
+    }
+
+    /// <summary>
+    /// Sort elements usings values has data[map[i] + offsetA] to order
+    /// and data[map[i] + offsetB] on ties. Return a array of positions.
+    /// </summary>
+    static int[] Sort(float[] data, int size, int offsetA, int offsetB)
+    {
+        var orderMap = new int[data.Length / size];
+        for (int i = 0, n = 0; i < orderMap.Length; i++, n += size)
+            orderMap[i] = n;
+
+        QuickSort(data, offsetA, offsetB, orderMap, 0, orderMap.Length);
+
+        return orderMap;
+    }
+
+    /// <summary>
+    /// Considering a map of positions and a data, sort elements between start and end - 1
+    /// values using data[map[i] + offsetA] to order and data[map[i] + offsetB] on ties.
+    /// </summary>
+    static void QuickSort(float[] data, int offsetA, int offsetB, int[] map, int start, int end)
+    {
+        int len = end - start;
+        if (len < sortTreshold)
+        {
+            SlowSort(data, offsetA, offsetB, map, start, end);
+            return;
+        }
+
+        var goodPivoIndex = start + len / 4;
+        var pivoIndex = map[goodPivoIndex];
+        var pivo = data[pivoIndex + offsetA];
+
+        map[goodPivoIndex] = map[end - 1];
+        map[end - 1] = pivoIndex;
+
+        int i = start, j = end - 2;
+        while (i < j)
+        {
+            float iv = data[map[i] + offsetA];
+            while(iv < pivo && i < j)
+                iv = data[map[++i] + offsetA];
+            
+            float jv = data[map[j] + offsetA];
+            while (jv > pivo && i < j)
+                jv = data[map[--j] + offsetA];
+
+            if (i >= j)
+                break;
+
+            (map[j], map[i]) = (map[i], map[j]);
+        }
+
+        if (data[map[j] + offsetA] < pivo)
+            j++;
+
+        (map[end - 1], map[j]) = (map[j], map[end - 1]);
+        QuickSort(data, offsetA, offsetB, map, start, j);
+        QuickSort(data, offsetA, offsetB, map, j, end);
+    }
+
+    /// <summary>
+    /// Considering a map of positions and a data, sort elements between start and end - 1
+    /// values using data[map[i] + offsetA] to order and data[map[i] + offsetB] on ties.
+    /// Fast for tiny vectors.
+    /// </summary>
+    static void SlowSort(float[] data, int offsetA, int offsetB, int[] map, int start, int end)
+    {
+        bool sorted = false;
+        while (!sorted)
+        {
+            sorted = true;
+            for (int i = start; i < end - 1; i++)
+            {
+                int j = map[i],
+                    k = map[i + 1];
+                var v1 = data[j + offsetA];
+                var v2 = data[k + offsetA];
+                if (v1 < v2)
+                    continue;
+
+                if (v1 == v2)
+                {
+                    v1 = data[j + offsetB];
+                    v2 = data[k + offsetB];
+                    if (v1 <= v2)
+                        continue;
+                }
+                
+                map[i] = k;
+                map[i + 1] = j;
+                sorted = false;
+            }
+        }
+    }
+    
+    /// <summary>
+    /// Transforma (x, y, z)[] array into a (x, y, z, x', y') array wheres
+    /// x' and y' is the projection on a specific plane. 
+    /// </summary>
+    static float[] ToPlanarPoints(float[] original)
+    {
+        var plane = PlaneRegression(original);
+        var result = new float[5 * original.Length / 3];
+        int n = 0;
+
+        float a = plane.a,
+              b = plane.b,
+              c = plane.c,
+              d = plane.d;
+        var mod = a * a + b * b + c * c;
+
+        var originDist = -d / mod;
+        float xo = a * originDist,
+              yo = b * originDist,
+              zo = c * originDist;
+        
+        float A, B1, B2;
+        int j, k;
+        
+        if (a != 0)
+        {
+            /**
+            u = (-b, a, 0)
+            v = (-c, 0, a)
+
+            r * u + s * v + o = p
+            r * a + yo = yp -> r = (yp - yo) / a
+            s * a + zo = zp -> s = (zp - zo) / a
+            **/
+
+            A = 1 / a;
+            B1 = -yo / a;
+            B2 = -zo / a;
+            j = 1;
+            k = 2;
+        }
+        else if (b != 0)
+        {
+            /**
+            u = (0, -c, b)
+            v = (b, -a, 0)
+
+            r * u + s * v + o = p
+            r * b + xo = xp -> r = (xp - xo) / b
+            s * b + zo = zp -> s = (zp - zo) / b
+            **/
+
+            A = 1 / b;
+            B1 = -xo / b;
+            B2 = -zo / b;
+            j = 0;
+            k = 2;
+        }
+        else // c != 0
+        {
+            /**
+            u = (c, 0, -a)
+            v = (0, c, -b)
+
+            r * u + s * v + o = p
+            r * c + xo = xp -> r = (xp - xo) / c
+            s * c + yo = yp -> s = (yp - yo) / c
+            **/
+
+            A = 1 / c;
+            B1 = -yo / c;
+            B2 = -yo / c;
+            j = 0;
+            k = 1;
+        }
+
+        for (int i = 0; i < original.Length; i += 3)
+        {
+            float x = original[i + 0],
+                  y = original[i + 1],
+                  z = original[i + 2];
+
+            result[n + 0] = x;
+            result[n + 1] = y;
+            result[n + 2] = z;
+
+            /**
+            a (x + a * t) + b (y + b * t) + c (z + c * t) + d = 0
+            a x + a^2 t + b y + b^2 t + c z + c^2 t + d = 0
+            t = -(ax + by + cz + d) / (a^2 + b^2 + c^2)
+
+            xp = x + a * t
+            yp = y + b * t
+            zp = z + c * t
+            p = (xp, yp, zp)
+            **/
+            var t = -(a * x + b * y + c * z + d) / mod;
+
+            float xp = x + a * t,
+                  yp = y + b * t,
+                  zp = z + b * t;
+            
+            result[n + 3] = A * original[i + j] + B1;
+            result[n + 4] = A * original[i + k] + B2;
+            n += 5;
+        }
+        
+        return result;
+    }
+
+    /// <summary>
+    /// Find a plane (ax + by + cz + d = 0) that better match the points.
+    /// </summary>
+    static (float a, float b, float c, float d) PlaneRegression(float[] pts)
     {
         /*
         E = S (a*x_i + b*y_i + c*z_i + d)^2 / N
@@ -122,344 +470,8 @@ public static class Triangulations
     }
     
     /// <summary>
-    /// Get a triangulation of a polygon with points in a
-    /// clockwise order.
+    /// Represents how points connect with each other.
     /// </summary>
-    public static float[] PlanarPolygonTriangulation(float[] pts)
-    {
-        var N = pts.Length / 3;
-        if (N < 4)
-            return pts;
-        
-        var triangules = new List<float>();
-        
-        var plane = PlaneRegression(pts);
-        var points = ToPlanarPoints(pts, plane);
-        var orderMap = Sort(points, 5, 3, 4);
-        var edges = new PolygonEdgeCollection(N);
-        var status = new OrderedEdgeCollection(points, 3, 4);
-        var visited = new bool[N];
-        var helper = new Dictionary<(int, int), int>();
-        
-        // TODO
-        // monotone subdivision
-        
-        MonotonePlaneTriangulation(orderMap, 
-            points, triangules, 5
-        );
-        return [.. triangules];
-    }
-
-    static void MonotonePlaneTriangulation(
-        int[] polyOrderMap, float[] data,
-        List<float> triangules, int dataSize
-    )
-    {
-        var edges = new PolygonEdgeCollection(polyOrderMap.Length);
-
-        var stack = new Stack<(int index, bool chain)>();
-        stack.Push((polyOrderMap[0], false));
-        stack.Push((polyOrderMap[1], true));
-
-        for (int k = 2; k < polyOrderMap.Length; k++)
-        {
-            var crrIndex = polyOrderMap[k];
-            var last = stack.Pop();
-            var isConn = edges.IsConnected(
-                last.index / dataSize,
-                crrIndex / dataSize
-            );
-            (int index, bool chain) next = (crrIndex, !(isConn ^ last.chain));
-            
-            if (isConn)
-            {
-                (int index, bool chain) mid;
-                do
-                {
-                    if (stack.Count == 0)
-                    {
-                        stack.Push(last);
-                        stack.Push(next);
-                        break;
-                    }
-                    
-                    mid = last;
-                    last = stack.Pop();
-                    if (left(last.index, mid.index, next.index) < 0)
-                    {
-                        stack.Push(last);
-                        stack.Push(mid);
-                        stack.Push(next);
-                        break;
-                    }
-                    
-                    edges.Connect(
-                        last.index / dataSize,
-                        next.index / dataSize
-                    );
-                    addTriangule(last.index, mid.index, next.index);
-                } while (true);
-            }
-            else
-            {
-                var top = last;
-                var mid = stack.Pop();
-                edges.Connect(
-                    last.index / dataSize,
-                    next.index / dataSize
-                );
-                addTriangule(last.index, mid.index, next.index);
-
-                while (stack.Count > 0)
-                {
-                    last = mid;
-                    mid = stack.Pop();
-                    edges.Connect(
-                        last.index / dataSize,
-                        next.index / dataSize
-                    );
-                    addTriangule(last.index, mid.index, next.index);
-                }
-                stack.Push(top);
-                stack.Push(next);
-            }
-        }
-        if (stack.Count > 2)
-        {
-            int a = stack.Pop().index,
-                b = stack.Pop().index,
-                c = stack.Pop().index;
-            addTriangule(a, b, c);
-        }
-
-        /// <summary>
-        /// Add trinagule (p, q, r) to list of triangules data
-        /// </summary>
-        void addTriangule(int p, int q, int r)
-        {
-            addPoint(p);
-            addPoint(q);
-            addPoint(r);
-        }
-
-        /// <summary>
-        /// Add point p to list of triangules data 
-        /// </summary>
-        void addPoint(int p)
-        {
-            triangules.Add(data[p + 0]);
-            triangules.Add(data[p + 1]);
-            triangules.Add(data[p + 2]);
-        }
-
-        /// <summary>
-        /// Teste if the r is left from (p, q) line 
-        /// </summary>
-        float left(int p, int q, int r)
-        {
-            var vx = data[p + 3] - data[q + 3];
-            var vy = data[p + 4] - data[q + 4];
-            
-            var ux = data[r + 3] - data[q + 3];
-            var uy = data[r + 4] - data[q + 4];
-
-            return vx * uy - ux * vy;
-        }
-    }
-
-    static int[] Sort(float[] data, int size, int offsetA, int offsetB = -1)
-    {
-        var orderMap = new int[data.Length / size];
-        for (int i = 0, n = 0; i < orderMap.Length; i++, n += size)
-            orderMap[i] = n;
-
-        QuickSort(data, offsetA, offsetB, size, orderMap, 0, orderMap.Length);
-
-        return orderMap;
-    }
-
-    static void QuickSort(
-        float[] data, int offsetA, int offsetB, int size, 
-        int[] map, int start, int end
-    )
-    {
-        int len = end - start;
-        if (len < sortTreshold)
-        {
-            SlowSort(data, offsetA, offsetB, size, map, start, end);
-            return;
-        }
-
-        var goodPivoIndex = start + len / 4;
-        var pivoIndex = map[goodPivoIndex];
-        var pivo = data[pivoIndex + offsetA];
-
-        map[goodPivoIndex] = map[end - 1];
-        map[end - 1] = pivoIndex;
-
-        int i = start, j = end - 2;
-        while (i < j)
-        {
-            float iv = data[map[i] + offsetA];
-            while(iv < pivo && i < j)
-                iv = data[map[++i] + offsetA];
-            
-            float jv = data[map[j] + offsetA];
-            while (jv > pivo && i < j)
-                jv = data[map[--j] + offsetA];
-
-            if (i >= j)
-                break;
-
-            (map[j], map[i]) = (map[i], map[j]);
-        }
-
-        if (data[map[j] + offsetA] < pivo)
-            j++;
-
-        (map[end - 1], map[j]) = (map[j], map[end - 1]);
-        QuickSort(data, offsetA, offsetB, size, map, start, j);
-        QuickSort(data, offsetA, offsetB, size, map, j, end);
-    }
-
-    static void SlowSort(
-        float[] data, int offsetA, int offsetB, int size, 
-        int[] map, int start, int end
-    )
-    {
-        bool sorted = false;
-        while (!sorted)
-        {
-            sorted = true;
-            for (int i = start; i < end - 1; i++)
-            {
-                int j = map[i],
-                    k = map[i + 1];
-                var v1 = data[j + offsetA];
-                var v2 = data[k + offsetA];
-                if (v1 < v2)
-                    continue;
-
-                if (v1 == v2)
-                {
-                    v1 = data[j + offsetB];
-                    v2 = data[k + offsetB];
-                    if (v1 <= v2)
-                        continue;
-                }
-                
-                map[i] = k;
-                map[i + 1] = j;
-                sorted = false;
-            }
-        }
-    }
-    
-    static float[] ToPlanarPoints(float[] original, (float a, float b, float c, float d) plane)
-    {
-        var result = new float[5 * original.Length / 3];
-        int n = 0;
-
-        float a = plane.a,
-              b = plane.b,
-              c = plane.c,
-              d = plane.d;
-        var mod = a * a + b * b + c * c;
-
-        var originDist = -d / mod;
-        float xo = a * originDist,
-              yo = b * originDist,
-              zo = c * originDist;
-        
-        float A, B1, B2;
-        int j, k;
-        
-        if (a != 0)
-        {
-            /**
-            u = (-b, a, 0)
-            v = (-c, 0, a)
-
-            r * u + s * v + o = p
-            r * a + yo = yp -> r = (yp - yo) / a
-            s * a + zo = zp -> s = (zp - zo) / a
-            **/
-
-            A = 1 / a;
-            B1 = -yo / a;
-            B2 = -zo / a;
-            j = 1;
-            k = 2;
-        }
-        else if (b != 0)
-        {
-            /**
-            u = (0, -c, b)
-            v = (b, -a, 0)
-
-            r * u + s * v + o = p
-            r * b + xo = xp -> r = (xp - xo) / b
-            s * b + zo = zp -> s = (zp - zo) / b
-            **/
-
-            A = 1 / b;
-            B1 = -xo / b;
-            B2 = -zo / b;
-            j = 0;
-            k = 2;
-        }
-        else // c != 0
-        {
-            /**
-            u = (c, 0, -a)
-            v = (0, c, -b)
-
-            r * u + s * v + o = p
-            r * c + xo = xp -> r = (xp - xo) / c
-            s * c + yo = yp -> s = (yp - yo) / c
-            **/
-
-            A = 1 / c;
-            B1 = -yo / c;
-            B2 = -yo / c;
-            j = 0;
-            k = 1;
-        }
-
-        for (int i = 0; i < original.Length; i += 3)
-        {
-            float x = original[i + 0],
-                  y = original[i + 1],
-                  z = original[i + 2];
-
-            result[n + 0] = x;
-            result[n + 1] = y;
-            result[n + 2] = z;
-
-            /**
-            a (x + a * t) + b (y + b * t) + c (z + c * t) + d = 0
-            a x + a^2 t + b y + b^2 t + c z + c^2 t + d = 0
-            t = -(ax + by + cz + d) / (a^2 + b^2 + c^2)
-
-            xp = x + a * t
-            yp = y + b * t
-            zp = z + c * t
-            p = (xp, yp, zp)
-            **/
-            var t = -(a * x + b * y + c * z + d) / mod;
-
-            float xp = x + a * t,
-                  yp = y + b * t,
-                  zp = z + b * t;
-            
-            result[n + 3] = A * original[i + j] + B1;
-            result[n + 4] = A * original[i + k] + B2;
-            n += 5;
-        }
-        
-        return result;
-    }
-
     internal class PolygonEdgeCollection(int verticesCount)
     {
         readonly int last = verticesCount - 1;
@@ -488,7 +500,7 @@ public static class Triangulations
             list[j].Add(i);
         }
 
-        private void Init(int index)
+        void Init(int index)
         {
             if (list[index] is not null)
                 return;
