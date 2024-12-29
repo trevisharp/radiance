@@ -1,6 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    29/08/2024
  */
+using System;
 using System.Collections.Generic;
 
 namespace Radiance.Internal;
@@ -24,6 +25,9 @@ public static class Triangulations
         
         var points = ToPlanarPoints(pts);
         var orderMap = Sort(points, 5, 3, 4);
+
+        Span<PlanarVertex> v = stackalloc PlanarVertex[pts.Length / 3];
+        PlanarVertex.ToPlanarVertex(pts, v);
         
         // TODO
         // monotone subdivision
