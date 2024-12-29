@@ -3,7 +3,6 @@
  */
 using System;
 using System.Collections.Generic;
-using System.Diagnostics;
 using System.Runtime.CompilerServices;
 
 namespace Radiance.Internal;
@@ -23,24 +22,58 @@ public static class Triangulations
         if (N < 4)
             return pts;
 
-        Span<PlanarVertex> v = 
+        Span<PlanarVertex> points = 
             N < 2048 ?
             stackalloc PlanarVertex[N] :
             new PlanarVertex[N];
-        PlanarVertex.ToPlanarVertex(pts, v);
+        PlanarVertex.ToPlanarVertex(pts, points);
         
         Span<int> map =
             N < 2048 ?
             stackalloc int[N] :
             new int[N];
-        var sweepLine = SweepLine.Create(v, map);
+        var sweepLine = SweepLine.Create(points, map);
 
-        // TODO
-        // monotone subdivision
-        
-        var x = MonotonePlaneTriangulation(v, sweepLine);
+        var dcel = new DCEL(points);
 
-        return x;
+        if (MonotoneDivision(dcel, sweepLine))
+        {
+            // TODO
+        }
+
+        return MonotonePlaneTriangulation(dcel, points, sweepLine);
+    }
+    
+    /// <summary>
+    /// Divide a polygon on many monotone polygons.
+    /// Return true if some polygon has created.
+    /// </summary>
+    static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
+    {
+        for (int i = 0; i < sweepLine.Length; i++)
+        {
+            ref var v = ref sweepLine[i];
+            var type = dcel.DiscoverType(v.Id);
+
+            switch (type)
+            {
+                case VertexType.Start:
+                    break;
+                    
+                case VertexType.End:
+                    break;
+
+                case VertexType.Split:
+                    break;
+
+                case VertexType.Merge:
+                    break;
+
+                case VertexType.Regular:
+                    break;
+            }
+        }
+        return false;
     }
 
     /// <summary>
@@ -48,20 +81,19 @@ public static class Triangulations
     /// if the points represetns a monotone polygon, return the triangularization
     /// of then.
     /// </summary>
-    static float[] MonotonePlaneTriangulation(Span<PlanarVertex> points, SweepLine sweep)
+    static float[] MonotonePlaneTriangulation(DCEL dcel, Span<PlanarVertex> points, SweepLine sweepLine)
     {
         var index = 0;
         int expectedTriangules = points.Length - 2;
         var triangules = new float[9 * expectedTriangules];
-        var dcel = new DCEL(points);
 
         var stack = new Stack<(int id, bool chain)>();
-        stack.Push((sweep[0].Id, false));
-        stack.Push((sweep[1].Id, true));
+        stack.Push((sweepLine[0].Id, false));
+        stack.Push((sweepLine[1].Id, true));
 
         for (int k = 2; k < points.Length; k++)
         {
-            ref var crrIndex = ref sweep[k];
+            ref var crrIndex = ref sweepLine[k];
             var last = stack.Pop();
             var isConn = dcel.IsConnected(last.id, crrIndex.Id);
             (int id, bool chain) mid, next = (crrIndex.Id, !(isConn ^ last.chain));

@@ -47,4 +47,12 @@ public readonly ref struct DCEL
         Edges[v].Add(u);
         Edges[u].Add(v);
     }
+
+    /// <summary>
+    /// Discover the type of the vertex with specific id.
+    /// </summary>
+    public VertexType DiscoverType(int v)
+    {
+        throw new NotImplementedException();
+    }
 }
