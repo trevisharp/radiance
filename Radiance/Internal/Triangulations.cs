@@ -58,7 +58,6 @@ public static class Triangulations
         {
             ref var v = ref sweepLine[i];
             var type = dcel.DiscoverType(v.Id);
-            System.Console.WriteLine($"{v.Xp} {v.Yp}");
             System.Console.WriteLine(type);
 
             switch (type)
