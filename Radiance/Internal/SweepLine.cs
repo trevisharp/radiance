@@ -2,6 +2,7 @@
  * Date:    29/12/2024
  */
 using System;
+using System.Threading.Tasks;
 
 namespace Radiance.Internal;
 
@@ -21,7 +22,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
         return new SweepLine(points, map);
     }
 
-    const int sortTreshold = 8;
+    const int sortTreshold = 16;
     
     /// <summary>
     /// Sort elements usings values has data[map[i] + offsetA] to order
@@ -87,31 +88,20 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
     /// </summary>
     static void SlowSort(Span<PlanarVertex> data, Span<int> map, int start, int end)
     {
-        bool sorted = false;
-        while (!sorted)
+        for (int i = start + 1; i < end; i++)
         {
-            sorted = true;
-            for (int i = start; i < end - 1; i++)
-            {
-                int j = map[i],
-                    k = map[i + 1];
-                var v1 = data[j].Y;
-                var v2 = data[k].Y;
-                if (v1 < v2)
-                    continue;
+            var index = map[i];
+            var value = data[index].Y;
 
-                if (v1 == v2)
-                {
-                    v1 = data[j].X;
-                    v2 = data[k].X;
-                    if (v1 <= v2)
-                        continue;
-                }
-                
-                map[i] = k;
-                map[i + 1] = j;
-                sorted = false;
+            var cmpPos = i - 1;
+
+            while (cmpPos >= start && data[map[cmpPos]].Y > value)
+            {
+                map[cmpPos + 1] = map[cmpPos];
+                cmpPos--;
             }
+            
+            map[cmpPos + 1] = index;
         }
     }
 }

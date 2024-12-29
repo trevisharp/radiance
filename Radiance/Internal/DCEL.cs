@@ -36,6 +36,9 @@ public readonly ref struct DCEL
         return Edges[v].Contains(u);
     }
 
+    /// <summary>
+    /// Add a Edge between two vertex.
+    /// </summary>
     public void Connect(int v, int u)
     {
         if (v == u)
