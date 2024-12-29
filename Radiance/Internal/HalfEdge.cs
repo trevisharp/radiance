@@ -6,10 +6,9 @@ namespace Radiance.Internal;
 /// <summary>
 /// Represents a HalfEdge with start and end.
 /// </summary>
-public class HalfEdge(int origin, int face, int end)
+public class HalfEdge(int origin, int end)
 {
     public readonly int OriginId = origin;
-    public readonly int FaceId = face;
     public readonly int EndId = end;
     
     public HalfEdge? Twin { get; set; }

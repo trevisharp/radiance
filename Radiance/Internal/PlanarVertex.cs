@@ -8,8 +8,9 @@ namespace Radiance.Internal;
 /// <summary>
 /// Represents a Planar Vertex.
 /// </summary>
-public readonly struct PlanarVertex(float[] points, int index, float[] planePoints, int pindex)
+public readonly struct PlanarVertex(int id, float[] points, int index, float[] planePoints, int pindex)
 {
+    public readonly int Id = id;
     public readonly float X = points[index];
     public readonly float Y = points[index + 1];
     public readonly float Z = points[index + 2];
@@ -21,7 +22,7 @@ public readonly struct PlanarVertex(float[] points, int index, float[] planePoin
         var planarPoints = ToPlanarPoints(points);
 
         for (int i = 0, j = 0, k = 0; k < vertices.Length; i += 3, j += 2, k++)
-            vertices[k] = new PlanarVertex(points, i, planarPoints, j);
+            vertices[k] = new PlanarVertex(k, points, i, planarPoints, j);
     }
     
     /// <summary>

@@ -13,7 +13,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
     readonly Span<PlanarVertex> points = points;
     readonly Span<int> map = map;
 
-    public PlanarVertex this[int index] => points[map[index]];
+    public ref PlanarVertex this[int index] => ref points[map[index]];
 
     public static SweepLine Create(Span<PlanarVertex> points, Span<int> map)
     {

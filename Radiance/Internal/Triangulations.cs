@@ -34,46 +34,38 @@ public static class Triangulations
             stackalloc int[N] :
             new int[N];
         var sweepLine = SweepLine.Create(v, map);
-        
-        var points = ToPlanarPoints(pts);
-        var orderMap = Sort(points, 5, 3, 4);
 
-        
         // TODO
         // monotone subdivision
         
-        var triangules = MonotonePlaneTriangulation(orderMap, points, 5);
-        return [ ..triangules ];
+        return MonotonePlaneTriangulation(v, sweepLine);
     }
 
-        /// <summary>
+    /// <summary>
     /// Receveing a map of ordenation and data with format (x, y, z, ...),
     /// if the points represetns a monotone polygon, return the triangularization
     /// of then.
     /// </summary>
-    static List<float> MonotonePlaneTriangulation(Span<PlanarVertex> points, SweepLine map)
+    static float[] MonotonePlaneTriangulation(Span<PlanarVertex> points, SweepLine sweep)
     {
-        var triangules = new List<float>();
+        var index = 0;
+        int expectedTriangules = points.Length - 2;
+        var triangules = new float[9 * expectedTriangules];
+        var dcel = new DCEL(points);
 
-        var edges = new PolygonEdgeCollection(points.Length);
-
-        var stack = new Stack<(PlanarVertex index, bool chain)>();
-        stack.Push((map[0], false));
-        stack.Push((map[1], true));
+        var stack = new Stack<(int id, bool chain)>();
+        stack.Push((sweep[0].Id, false));
+        stack.Push((sweep[1].Id, true));
 
         for (int k = 2; k < points.Length; k++)
         {
-            var crrIndex = map[k];
+            ref var crrIndex = ref sweep[k];
             var last = stack.Pop();
-            var isConn = edges.IsConnected(
-                last.index / dataSize,
-                crrIndex / dataSize
-            );
-            (int index, bool chain) next = (crrIndex, !(isConn ^ last.chain));
+            var isConn = dcel.IsConnected(last.id, crrIndex.Id);
+            (int id, bool chain) mid, next = (crrIndex.Id, !(isConn ^ last.chain));
             
             if (isConn)
             {
-                (int index, bool chain) mid;
                 do
                 {
                     if (stack.Count == 0)
@@ -85,7 +77,12 @@ public static class Triangulations
                     
                     mid = last;
                     last = stack.Pop();
-                    if (left(last.index, mid.index, next.index) < 0)
+                    var leftOp = left(
+                        ref points[last.id],
+                        ref points[mid.id],
+                        ref points[next.id]
+                    );
+                    if (leftOp < 0)
                     {
                         stack.Push(last);
                         stack.Push(mid);
@@ -93,32 +90,35 @@ public static class Triangulations
                         break;
                     }
                     
-                    edges.Connect(
-                        last.index / dataSize,
-                        next.index / dataSize
+                    dcel.Connect(last.id, next.id);
+                    addTriangule(
+                        ref points[last.id],
+                        ref points[mid.id],
+                        ref points[next.id]
                     );
-                    addTriangule(last.index, mid.index, next.index);
                 } while (true);
             }
             else
             {
                 var top = last;
-                var mid = stack.Pop();
-                edges.Connect(
-                    last.index / dataSize,
-                    next.index / dataSize
+                mid = stack.Pop();
+                dcel.Connect(last.id, next.id);
+                addTriangule(
+                    ref points[last.id],
+                    ref points[mid.id],
+                    ref points[next.id]
                 );
-                addTriangule(last.index, mid.index, next.index);
 
                 while (stack.Count > 0)
                 {
                     last = mid;
                     mid = stack.Pop();
-                    edges.Connect(
-                        last.index / dataSize,
-                        next.index / dataSize
+                    dcel.Connect(last.id, next.id);
+                    addTriangule(
+                        ref points[last.id],
+                        ref points[mid.id],
+                        ref points[next.id]
                     );
-                    addTriangule(last.index, mid.index, next.index);
                 }
                 stack.Push(top);
                 stack.Push(next);
@@ -126,10 +126,11 @@ public static class Triangulations
         }
         if (stack.Count > 2)
         {
-            int a = stack.Pop().index,
-                b = stack.Pop().index,
-                c = stack.Pop().index;
-            addTriangule(a, b, c);
+            addTriangule(
+                ref points[stack.Pop().id],
+                ref points[stack.Pop().id],
+                ref points[stack.Pop().id]
+            );
         }
 
         return triangules;
@@ -137,33 +138,33 @@ public static class Triangulations
         /// <summary>
         /// Add trinagule (p, q, r) to list of triangules data
         /// </summary>
-        void addTriangule(int p, int q, int r)
+        void addTriangule(ref PlanarVertex p, ref PlanarVertex q, ref PlanarVertex r)
         {
-            addPoint(p);
-            addPoint(q);
-            addPoint(r);
+            addPoint(ref p);
+            addPoint(ref q);
+            addPoint(ref r);
         }
 
         /// <summary>
         /// Add point p to list of triangules data 
         /// </summary>
-        void addPoint(int p)
+        void addPoint(ref PlanarVertex point)
         {
-            triangules.Add(points[p + 0]);
-            triangules.Add(points[p + 1]);
-            triangules.Add(points[p + 2]);
+            triangules[index++] = point.X;
+            triangules[index++] = point.Y;
+            triangules[index++] = point.Z;
         }
 
         /// <summary>
         /// Teste if the r is left from (p, q) line 
         /// </summary>
-        float left(int p, int q, int r)
+        float left(ref PlanarVertex p, ref PlanarVertex q, ref PlanarVertex r)
         {
-            var vx = points[p + 3] - points[q + 3];
-            var vy = points[p + 4] - points[q + 4];
+            var vx = p.Xp - q.Xp;
+            var vy = p.Yp - q.Yp;
             
-            var ux = points[r + 3] - points[q + 3];
-            var uy = points[r + 4] - points[q + 4];
+            var ux = r.Xp - q.Xp;
+            var uy = r.Yp - q.Yp;
 
             return vx * uy - ux * vy;
         }
