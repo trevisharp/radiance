@@ -67,85 +67,101 @@ public static class Triangulations
         for (int i = 0; i < sweepLine.Length; i++)
         {
             ref var v = ref sweepLine[i];
-            var type = dcel.DiscoverType(v.Id);
-            var edges = dcel.Edges[v.Id];
+            var vi = v.Id;
+            var vprev = vi - 1;
+            if (vprev == -1)
+                vprev = sweepLine.Length - 1;
+            var vnext = vi + 1;
+            if (vnext == sweepLine.Length)
+                vnext = 0;
+            
+            var type = dcel.DiscoverType(vi);
+            var edges = dcel.Edges[vi];
             var ei = edges[0];
+            var eprev = ei - 1;
+            if (eprev == -1)
+                eprev = sweepLine.Length - 1;
 
             switch (type)
             {
                 case VertexType.Start:
 
                     edgesCollect.Add(ei);
-                    helper[ei] = v.Id;
+                    helper[ei] = vi;
 
                     break;
                     
                 case VertexType.End:
 
-                    edgesCollect.Remove(ei - 1);
+                    edgesCollect.Remove(eprev);
 
-                    if (helper[ei - 1] == -1)
+                    if (helper[eprev] == -1)
                         break;
                     
-                    if (types[helper[ei - 1]] != VertexType.Merge)
+                    if (types[helper[eprev]] != VertexType.Merge)
                         break;
                     
-                    dcel.Connect(v.Id, helper[ei - 1]);
+                    dcel.Connect(vi, helper[eprev]);
 
                     break;
 
                 case VertexType.Split:
 
-                    var ej1 = dcel.FindLeftEdge(v.Id);
-                    dcel.Connect(helper[ej1], v.Id);
-                    helper[ej1] = v.Id;
+                    var ej1 = dcel.FindLeftEdge(vi);
+                    dcel.Connect(helper[ej1], vi);
+                    helper[ej1] = vi;
                     edgesCollect.Add(ej1);
 
                     break;
 
                 case VertexType.Merge:
 
-                    if (helper[ei - 1] != -1 && types[helper[ei - 1]] == VertexType.Merge)
+                    if (helper[eprev] != -1 && types[helper[eprev]] == VertexType.Merge)
                     {
-                        dcel.Connect(v.Id, helper[ei - 1]);
+                        dcel.Connect(vi, helper[eprev]);
                     }
 
-                    edgesCollect.Remove(ei - 1);
+                    edgesCollect.Remove(eprev);
 
-                    var ej2 = dcel.FindLeftEdge(v.Id);
+                    var ej2 = dcel.FindLeftEdge(vi);
                     if (helper[ej2] != -1 && types[helper[ej2]] == VertexType.Merge)
                     {
-                        dcel.Connect(helper[ej2], v.Id);
+                        dcel.Connect(helper[ej2], vi);
                     }
-                    helper[ej2] = v.Id;
+                    helper[ej2] = vi;
 
                     break;
 
                 case VertexType.Regular:
 
-                    if (left(points, v.Id - 1, v.Id, v.Id + 1) > 0)
+                    if (left(points, vprev, vi, vnext) < 0)
                     {
-                        if (helper[ei - 1] != -1 && types[helper[ei - 1]] == VertexType.Merge)
+                        if (helper[eprev] != -1 && types[helper[eprev]] == VertexType.Merge)
                         {
-                            dcel.Connect(v.Id, helper[ei - 1]);
+                            dcel.Connect(vi, helper[eprev]);
                         }
-                        dcel.Connect(v.Id, helper[ei - 1]);
 
+                        edgesCollect.Remove(eprev);
                         edgesCollect.Add(ei);
-                        helper[ei] = v.Id;
+                        helper[ei] = vi;
                         break;
                     }
 
-                    var ej3 = dcel.FindLeftEdge(v.Id);
+                    var ej3 = dcel.FindLeftEdge(vi);
                     if (helper[ej3] != -1 && types[helper[ej3]] == VertexType.Merge)
                     {
-                        dcel.Connect(helper[ej3], v.Id);
+                        dcel.Connect(helper[ej3], vi);
                     }
-                    helper[ej3] = v.Id;
+                    helper[ej3] = vi;
                     break;
             }
 
-            // System.Console.WriteLine(string.Join('_', helper.Select(x => (x.Key, x.Value))));
+            System.Console.WriteLine(
+                $"on v{vi}: " +
+                string.Join(", ", edgesCollect.Select(x => $"e{x}")) +
+                " ; " + 
+                string.Join(", ", helper.Where(x => x.Value > -1).Select(x => $"e{x.Key}->v{x.Value}"))
+            );
         }
 
         return true;
