@@ -23,11 +23,21 @@ public static class Triangulations
         if (N < 4)
             return pts;
         
+        Span<PlanarVertex> v = 
+            N < 2048 ?
+            stackalloc PlanarVertex[N] :
+            new PlanarVertex[N];
+        PlanarVertex.ToPlanarVertex(pts, v);
+
+        Span<int> map =
+            N < 2048 ?
+            stackalloc int[N] :
+            new int[N];
+        var sweepLine = SweepLine.Create(v, map);
+        
         var points = ToPlanarPoints(pts);
         var orderMap = Sort(points, 5, 3, 4);
 
-        Span<PlanarVertex> v = stackalloc PlanarVertex[pts.Length / 3];
-        PlanarVertex.ToPlanarVertex(pts, v);
         
         // TODO
         // monotone subdivision
@@ -35,6 +45,130 @@ public static class Triangulations
         var triangules = MonotonePlaneTriangulation(orderMap, points, 5);
         return [ ..triangules ];
     }
+
+        /// <summary>
+    /// Receveing a map of ordenation and data with format (x, y, z, ...),
+    /// if the points represetns a monotone polygon, return the triangularization
+    /// of then.
+    /// </summary>
+    static List<float> MonotonePlaneTriangulation(Span<PlanarVertex> points, SweepLine map)
+    {
+        var triangules = new List<float>();
+
+        var edges = new PolygonEdgeCollection(points.Length);
+
+        var stack = new Stack<(PlanarVertex index, bool chain)>();
+        stack.Push((map[0], false));
+        stack.Push((map[1], true));
+
+        for (int k = 2; k < points.Length; k++)
+        {
+            var crrIndex = map[k];
+            var last = stack.Pop();
+            var isConn = edges.IsConnected(
+                last.index / dataSize,
+                crrIndex / dataSize
+            );
+            (int index, bool chain) next = (crrIndex, !(isConn ^ last.chain));
+            
+            if (isConn)
+            {
+                (int index, bool chain) mid;
+                do
+                {
+                    if (stack.Count == 0)
+                    {
+                        stack.Push(last);
+                        stack.Push(next);
+                        break;
+                    }
+                    
+                    mid = last;
+                    last = stack.Pop();
+                    if (left(last.index, mid.index, next.index) < 0)
+                    {
+                        stack.Push(last);
+                        stack.Push(mid);
+                        stack.Push(next);
+                        break;
+                    }
+                    
+                    edges.Connect(
+                        last.index / dataSize,
+                        next.index / dataSize
+                    );
+                    addTriangule(last.index, mid.index, next.index);
+                } while (true);
+            }
+            else
+            {
+                var top = last;
+                var mid = stack.Pop();
+                edges.Connect(
+                    last.index / dataSize,
+                    next.index / dataSize
+                );
+                addTriangule(last.index, mid.index, next.index);
+
+                while (stack.Count > 0)
+                {
+                    last = mid;
+                    mid = stack.Pop();
+                    edges.Connect(
+                        last.index / dataSize,
+                        next.index / dataSize
+                    );
+                    addTriangule(last.index, mid.index, next.index);
+                }
+                stack.Push(top);
+                stack.Push(next);
+            }
+        }
+        if (stack.Count > 2)
+        {
+            int a = stack.Pop().index,
+                b = stack.Pop().index,
+                c = stack.Pop().index;
+            addTriangule(a, b, c);
+        }
+
+        return triangules;
+
+        /// <summary>
+        /// Add trinagule (p, q, r) to list of triangules data
+        /// </summary>
+        void addTriangule(int p, int q, int r)
+        {
+            addPoint(p);
+            addPoint(q);
+            addPoint(r);
+        }
+
+        /// <summary>
+        /// Add point p to list of triangules data 
+        /// </summary>
+        void addPoint(int p)
+        {
+            triangules.Add(points[p + 0]);
+            triangules.Add(points[p + 1]);
+            triangules.Add(points[p + 2]);
+        }
+
+        /// <summary>
+        /// Teste if the r is left from (p, q) line 
+        /// </summary>
+        float left(int p, int q, int r)
+        {
+            var vx = points[p + 3] - points[q + 3];
+            var vy = points[p + 4] - points[q + 4];
+            
+            var ux = points[r + 3] - points[q + 3];
+            var uy = points[r + 4] - points[q + 4];
+
+            return vx * uy - ux * vy;
+        }
+    }
+
 
     /// <summary>
     /// Receveing a map of ordenation and data with format (x, y, z, ...),
