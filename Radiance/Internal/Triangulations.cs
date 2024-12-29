@@ -38,9 +38,9 @@ public static class Triangulations
 
         var dcel = new DCEL(points);
 
-        if (MonotoneDivision(dcel, points, sweepLine))
+        if (MonotoneDivision(dcel, sweepLine))
         {
-            // TODO
+            
         }
 
         return MonotonePlaneTriangulation(dcel, points, sweepLine);
@@ -50,7 +50,7 @@ public static class Triangulations
     /// Divide a polygon on many monotone polygons.
     /// Return true if some polygon has created.
     /// </summary>
-    static bool MonotoneDivision(DCEL dcel, Span<PlanarVertex> points, SweepLine sweepLine)
+    static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
     {
         var types = new VertexType[sweepLine.Length];
         for (int i = 0; i < sweepLine.Length; i++)
@@ -76,7 +76,7 @@ public static class Triangulations
             polygonRight[crr] = !polygonRight[crr];
         }
 
-        List<int> edgesCollect = [];
+        HashSet<int> edgesCollect = [];
         Dictionary<int, int> helper = [];
         for (int i = 0; i < sweepLine.Length; i++)
             helper[i] = -1;
@@ -85,12 +85,6 @@ public static class Triangulations
         {
             ref var v = ref sweepLine[i];
             var vi = v.Id;
-            var vprev = vi - 1;
-            if (vprev == -1)
-                vprev = sweepLine.Length - 1;
-            var vnext = vi + 1;
-            if (vnext == sweepLine.Length)
-                vnext = 0;
             
             var type = dcel.DiscoverType(vi);
             var edges = dcel.Edges[vi];
@@ -172,35 +166,9 @@ public static class Triangulations
                     helper[ej3] = vi;
                     break;
             }
-
-            System.Console.WriteLine(
-                $"on v{vi}: " +
-                string.Join(", ", edgesCollect.Select(x => $"e{x}")) +
-                " ; " + 
-                string.Join(", ", helper.Where(x => x.Value > -1).Select(x => $"e{x.Key}->v{x.Value}"))
-            );
         }
 
         return true;
-
-        /// <summary>
-        /// Teste if the r is left from (p, q) line 
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float left(Span<PlanarVertex> points, int pi, int qi, int ri)
-        {
-            ref var p = ref points[pi];
-            ref var q = ref points[qi];
-            ref var r = ref points[ri];
-
-            var vx = p.Xp - q.Xp;
-            var vy = p.Yp - q.Yp;
-            
-            var ux = r.Xp - q.Xp;
-            var uy = r.Yp - q.Yp;
-
-            return vx * uy - ux * vy;
-        }
     }
 
     /// <summary>
