@@ -63,7 +63,7 @@ public class Polygon(float[] data) : IPolygon
     }
 
     BufferData FindTriangules()
-    {   
+    {
         var triangules = Triangulations
             .PlanarPolygonTriangulation(data[..]);
         
