@@ -2,7 +2,6 @@
  * Date:    29/12/2024
  */
 using System;
-using System.Threading.Tasks;
 
 namespace Radiance.Internal;
 
@@ -53,7 +52,8 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
 
         var goodPivoIndex = start + len / 4;
         var pivoIndex = map[goodPivoIndex];
-        var pivo = data[pivoIndex].Y;
+        var pivo = data[pivoIndex].Yp;
+        var pivo2 = data[pivoIndex].Xp;
 
         map[goodPivoIndex] = map[end - 1];
         map[end - 1] = pivoIndex;
@@ -61,13 +61,21 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
         int i = start, j = end - 2;
         while (i < j)
         {
-            float iv = data[map[i]].Y;
-            while(iv < pivo && i < j)
-                iv = data[map[++i]].Y;
+            float iv = data[map[i]].Yp;
+            float iv2 = data[map[i]].Xp;
+            while((iv > pivo || (iv == pivo && iv2 > pivo2)) && i < j)
+            {
+                iv = data[map[++i]].Yp;
+                iv2 = data[map[i]].Xp;
+            }
             
-            float jv = data[map[j]].Y;
-            while (jv > pivo && i < j)
-                jv = data[map[--j]].Y;
+            float jv = data[map[j]].Yp;
+            float jv2 = data[map[j]].Xp;
+            while ((jv < pivo || (jv == pivo && jv2 < pivo2)) && i < j)
+            {
+                jv = data[map[--j]].Yp;
+                jv2 = data[map[j]].Xp;
+            }
 
             if (i >= j)
                 break;
@@ -75,7 +83,9 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
             (map[j], map[i]) = (map[i], map[j]);
         }
 
-        if (data[map[j]].Y < pivo)
+        float lv = data[map[j]].Yp;
+        float lv2 = data[map[j]].Xp;
+        if (lv > pivo || (lv == pivo && lv2 > pivo2))
             j++;
 
         (map[end - 1], map[j]) = (map[j], map[end - 1]);
@@ -93,14 +103,19 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
         for (int i = start + 1; i < end; i++)
         {
             var index = map[i];
-            var value = data[index].Y;
+            var value = data[index].Yp;
+            var value2 = data[index].Xp;
 
             var cmpPos = i - 1;
+            var point = data[map[cmpPos]];
 
-            while (cmpPos >= start && data[map[cmpPos]].Y > value)
+            while (point.Yp < value || (point.Yp == value && point.Xp < value2))
             {
                 map[cmpPos + 1] = map[cmpPos];
                 cmpPos--;
+                if (cmpPos < start)
+                    break;
+                point = data[map[cmpPos]];
             }
             
             map[cmpPos + 1] = index;

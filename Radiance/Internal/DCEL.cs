@@ -3,6 +3,7 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Runtime.CompilerServices;
 
 namespace Radiance.Internal;
 
@@ -53,6 +54,35 @@ public readonly ref struct DCEL
     /// </summary>
     public VertexType DiscoverType(int v)
     {
-        throw new NotImplementedException();
+        var edges = Edges[v];
+        ref var self = ref Vertex[v];
+        ref var e1 = ref Vertex[edges[0]];
+        ref var e2 = ref Vertex[edges[1]];
+        
+        if (over(ref self, ref e1) && over(ref self, ref e2))
+            return left(ref e1, ref self, ref e2) > 0 ?
+                VertexType.Split : VertexType.Start;
+        
+        if (over(ref e1, ref self) && over(ref e2, ref self))
+            return left(ref e1, ref self, ref e2) > 0 ?
+                VertexType.Merge : VertexType.End;
+
+        return VertexType.Regular;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        bool over(ref PlanarVertex p, ref PlanarVertex q)
+            => p.Yp > q.Yp || (p.Yp == q.Yp && p.Xp > q.Xp);
+            
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        float left(ref PlanarVertex p, ref PlanarVertex q, ref PlanarVertex r)
+        {
+            var vx = p.Xp - q.Xp;
+            var vy = p.Yp - q.Yp;
+            
+            var ux = r.Xp - q.Xp;
+            var uy = r.Yp - q.Yp;
+
+            return vx * uy - ux * vy;
+        }
     }
 }

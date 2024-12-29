@@ -50,10 +50,16 @@ public static class Triangulations
     /// </summary>
     static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
     {
+        var types = new VertexType[sweepLine.Length];
+        for (int i = 0; i < sweepLine.Length; i++)
+            types[i] = dcel.DiscoverType(i);
+
         for (int i = 0; i < sweepLine.Length; i++)
         {
             ref var v = ref sweepLine[i];
             var type = dcel.DiscoverType(v.Id);
+            System.Console.WriteLine($"{v.Xp} {v.Yp}");
+            System.Console.WriteLine(type);
 
             switch (type)
             {
