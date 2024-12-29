@@ -85,4 +85,36 @@ public readonly ref struct DCEL
             return vx * uy - ux * vy;
         }
     }
+
+    /// <summary>
+    /// Find the left edge from a vertex.
+    /// </summary>
+    /// <returns></returns>
+    public int FindLeftEdge(int v)
+    {
+        var vert = Vertex[v];
+        var level = vert.Yp;
+        var xpos = vert.Xp;
+        bool? lastRelation = null;
+
+        var crr = v;
+        while (true)
+        {
+            var next = Edges[crr][0];
+            var newLevel = Vertex[next].Yp;
+            var newRelation = newLevel < level;
+
+            crr = next;
+
+            lastRelation ??= newRelation;
+            if (lastRelation == newRelation)
+                continue;
+            
+            lastRelation = newRelation;
+            if (Vertex[next].Xp > xpos)
+                continue;
+            
+            return crr;
+        }
+    }
 }

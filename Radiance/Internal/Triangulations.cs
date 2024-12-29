@@ -3,6 +3,8 @@
  */
 using System;
 using System.Collections.Generic;
+using System.Linq;
+using System.Net.Http.Headers;
 using System.Runtime.CompilerServices;
 
 namespace Radiance.Internal;
@@ -36,7 +38,7 @@ public static class Triangulations
 
         var dcel = new DCEL(points);
 
-        if (MonotoneDivision(dcel, sweepLine))
+        if (MonotoneDivision(dcel, points, sweepLine))
         {
             // TODO
         }
@@ -48,37 +50,124 @@ public static class Triangulations
     /// Divide a polygon on many monotone polygons.
     /// Return true if some polygon has created.
     /// </summary>
-    static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
+    static bool MonotoneDivision(DCEL dcel, Span<PlanarVertex> points, SweepLine sweepLine)
     {
         var types = new VertexType[sweepLine.Length];
         for (int i = 0; i < sweepLine.Length; i++)
             types[i] = dcel.DiscoverType(i);
+        
+        if (!types.Contains(VertexType.Merge) && !types.Contains(VertexType.Split))
+            return false;
+        
+        List<int> edgesCollect = [];
+        Dictionary<int, int> helper = [];
+        for (int i = 0; i < sweepLine.Length; i++)
+            helper[i] = -1;
 
         for (int i = 0; i < sweepLine.Length; i++)
         {
             ref var v = ref sweepLine[i];
             var type = dcel.DiscoverType(v.Id);
-            System.Console.WriteLine(type);
+            var edges = dcel.Edges[v.Id];
+            var ei = edges[0];
 
             switch (type)
             {
                 case VertexType.Start:
+
+                    edgesCollect.Add(ei);
+                    helper[ei] = v.Id;
+
                     break;
                     
                 case VertexType.End:
+
+                    edgesCollect.Remove(ei - 1);
+
+                    if (helper[ei - 1] == -1)
+                        break;
+                    
+                    if (types[helper[ei - 1]] != VertexType.Merge)
+                        break;
+                    
+                    dcel.Connect(v.Id, helper[ei - 1]);
+
                     break;
 
                 case VertexType.Split:
+
+                    var ej1 = dcel.FindLeftEdge(v.Id);
+                    dcel.Connect(helper[ej1], v.Id);
+                    helper[ej1] = v.Id;
+                    edgesCollect.Add(ej1);
+
                     break;
 
                 case VertexType.Merge:
+
+                    if (helper[ei - 1] != -1 && types[helper[ei - 1]] == VertexType.Merge)
+                    {
+                        dcel.Connect(v.Id, helper[ei - 1]);
+                    }
+
+                    edgesCollect.Remove(ei - 1);
+
+                    var ej2 = dcel.FindLeftEdge(v.Id);
+                    if (helper[ej2] != -1 && types[helper[ej2]] == VertexType.Merge)
+                    {
+                        dcel.Connect(helper[ej2], v.Id);
+                    }
+                    helper[ej2] = v.Id;
+
                     break;
 
                 case VertexType.Regular:
+
+                    if (left(points, v.Id - 1, v.Id, v.Id + 1) > 0)
+                    {
+                        if (helper[ei - 1] != -1 && types[helper[ei - 1]] == VertexType.Merge)
+                        {
+                            dcel.Connect(v.Id, helper[ei - 1]);
+                        }
+                        dcel.Connect(v.Id, helper[ei - 1]);
+
+                        edgesCollect.Add(ei);
+                        helper[ei] = v.Id;
+                        break;
+                    }
+
+                    var ej3 = dcel.FindLeftEdge(v.Id);
+                    if (helper[ej3] != -1 && types[helper[ej3]] == VertexType.Merge)
+                    {
+                        dcel.Connect(helper[ej3], v.Id);
+                    }
+                    helper[ej3] = v.Id;
                     break;
             }
+
+            // System.Console.WriteLine(string.Join('_', helper.Select(x => (x.Key, x.Value))));
         }
-        return false;
+
+        return true;
+
+        /// <summary>
+        /// Teste if the r is left from (p, q) line 
+        /// </summary>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        float left(Span<PlanarVertex> points, int pi, int qi, int ri)
+        {
+            ref var p = ref points[pi];
+            ref var q = ref points[qi];
+            ref var r = ref points[ri];
+
+            var vx = p.Xp - q.Xp;
+            var vy = p.Yp - q.Yp;
+            
+            var ux = r.Xp - q.Xp;
+            var uy = r.Yp - q.Yp;
+
+            return vx * uy - ux * vy;
+        }
     }
 
     /// <summary>
