@@ -60,7 +60,7 @@ public readonly ref struct DCEL
         ref var e2 = ref Vertex[edges[1]];
         
         if (over(ref self, ref e1) && over(ref self, ref e2))
-            return left(ref e1, ref self, ref e2) > 0 ?
+            return left(ref e1, ref self, ref e2) < 0 ?
                 VertexType.Split : VertexType.Start;
         
         if (over(ref e1, ref self) && over(ref e2, ref self))
