@@ -12,12 +12,12 @@ namespace Radiance.Internal;
 /// </summary>
 public readonly ref struct DCEL
 {
-    readonly Span<PlanarVertex> Vertex;
+    public readonly Span<PlanarVertex> Vertexs;
     public readonly Dictionary<int, List<int>> Edges = [];
 
     public DCEL(Span<PlanarVertex> points)
     {
-        Vertex = points;
+        Vertexs = points;
 
         Edges.Add(0, [ points.Length - 1, 1 ]);
         Edges.Add(points.Length - 1, [ points.Length - 2, 0 ]);
@@ -46,6 +46,8 @@ public readonly ref struct DCEL
             return;
         
         Edges[v].Add(u);
+        Edges[v].Add(u);
+        Edges[u].Add(v);
         Edges[u].Add(v);
     }
 
@@ -55,9 +57,9 @@ public readonly ref struct DCEL
     public VertexType DiscoverType(int v)
     {
         var edges = Edges[v];
-        ref var self = ref Vertex[v];
-        ref var e1 = ref Vertex[edges[0]];
-        ref var e2 = ref Vertex[edges[1]];
+        ref var self = ref Vertexs[v];
+        ref var e1 = ref Vertexs[edges[0]];
+        ref var e2 = ref Vertexs[edges[1]];
         
         if (over(ref self, ref e1) && over(ref self, ref e2))
             return left(ref e1, ref self, ref e2) < 0 ?
@@ -92,7 +94,7 @@ public readonly ref struct DCEL
     /// <returns></returns>
     public int FindLeftEdge(int v)
     {
-        var vert = Vertex[v];
+        var vert = Vertexs[v];
         var level = vert.Yp;
         var xpos = vert.Xp;
         bool? lastRelation = null;
@@ -101,7 +103,7 @@ public readonly ref struct DCEL
         while (true)
         {
             var next = Edges[crr][0];
-            var newLevel = Vertex[next].Yp;
+            var newLevel = Vertexs[next].Yp;
             var newRelation = newLevel < level;
 
             crr = next;
@@ -111,7 +113,7 @@ public readonly ref struct DCEL
                 continue;
             
             lastRelation = newRelation;
-            if (Vertex[next].Xp > xpos)
+            if (Vertexs[next].Xp > xpos)
                 continue;
             
             return crr;
