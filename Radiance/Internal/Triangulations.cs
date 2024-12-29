@@ -59,6 +59,23 @@ public static class Triangulations
         if (!types.Contains(VertexType.Merge) && !types.Contains(VertexType.Split))
             return false;
         
+        // information if polygon lies right or left te vertex
+        int start = sweepLine[0].Id;
+        int index = start + sweepLine.Length;
+        var polygonRight = new bool[sweepLine.Length];
+        polygonRight[(index - 1) % sweepLine.Length] = true;
+        for (int i = 0; i < sweepLine.Length; i++, index++)
+        {
+            int crr = index % sweepLine.Length;
+            int prev = (index - 1) % sweepLine.Length;
+            polygonRight[crr] = polygonRight[prev];
+
+            if (types[crr] == VertexType.Regular)
+                continue;
+            
+            polygonRight[crr] = !polygonRight[crr];
+        }
+
         List<int> edgesCollect = [];
         Dictionary<int, int> helper = [];
         for (int i = 0; i < sweepLine.Length; i++)
@@ -134,7 +151,7 @@ public static class Triangulations
 
                 case VertexType.Regular:
 
-                    if (left(points, vprev, vi, vnext) < 0)
+                    if (polygonRight[vi])
                     {
                         if (helper[eprev] != -1 && types[helper[eprev]] == VertexType.Merge)
                         {
