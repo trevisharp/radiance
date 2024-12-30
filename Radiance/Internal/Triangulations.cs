@@ -2,9 +2,8 @@
  * Date:    29/12/2024
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Radiance.Internal;
@@ -40,7 +39,13 @@ public static class Triangulations
 
         if (MonotoneDivision(dcel, sweepLine))
         {
-            
+            foreach (var edge in dcel.Edges)
+            {
+                Console.Write($"{edge.Key}: ");
+                foreach (var vertex in edge.Value)
+                    Console.Write($"{vertex}, ");
+                Console.WriteLine();
+            }
         }
 
         return MonotonePlaneTriangulation(dcel, sweepLine);
@@ -88,7 +93,7 @@ public static class Triangulations
             
             var type = dcel.DiscoverType(vi);
             var edges = dcel.Edges[vi];
-            var ei = edges[0];
+            var ei = edges[0].Id;
             var eprev = ei - 1;
             if (eprev == -1)
                 eprev = sweepLine.Length - 1;
@@ -195,7 +200,7 @@ public static class Triangulations
             
             if (isConn)
             {
-                do
+                while (true)
                 {
                     if (stack.Count == 0)
                     {
@@ -221,7 +226,7 @@ public static class Triangulations
                         dcel.Vertexs[mid.id],
                         dcel.Vertexs[next.id]
                     );
-                } while (true);
+                }
 
                 continue;
             }
