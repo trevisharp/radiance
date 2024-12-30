@@ -11,35 +11,35 @@ namespace Radiance.Internal;
 /// <summary>
 /// Represents a Double Connected Edge List.
 /// </summary>
-public readonly ref struct DCEL
+public ref struct DCEL
 {
-    readonly int[] nextEdgeId = [ 0 ];
-    readonly int[] nextFaceId = [ 1 ];
+    int nextEdgeId = 0;
+    int nextFaceId = 1;
     public readonly Span<PlanarVertex> Vertexs;
     public readonly Dictionary<int, List<HalfEdge>> Edges = [];
     public readonly Dictionary<int, List<int>> Faces = [];
+    public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
 
     public DCEL(Span<PlanarVertex> points)
     {
         Vertexs = points;
 
         HalfEdge fst, prv;
-        fst = prv = CreateEdge(0, 1);
+        fst = prv = CreateEdge(0, 1, 0);
 
         int i = 1;
         while (i < points.Length - 1)
         {
-            var crr = CreateEdge(i, i + 1);
+            var crr = CreateEdge(i, i + 1, 0);
             crr.SetPrevious(prv);
 
             prv = crr;
             i++;
         }
 
-        var lst = new HalfEdge(i, i, 0);
+        var lst = CreateEdge(i, 0, 0);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
-        Edges.Add(i, [ lst ]);
 
         List<int> vertexes = [];
         Faces[0] = vertexes;
@@ -62,15 +62,27 @@ public readonly ref struct DCEL
         if (v == u)
             return;
         
+        var sharedFace = GetSharedFace(v, u);
+        var newFace = CreateFace();
+        
         List<int> faceA = [];
         List<int> faceB = [];
 
-        var edge = Edges[v];
-        faceA.Add(v);
-        
+        int i = v;
+        while (true)
+        {
+            faceA.Add(i);
+            if (i == u)
+                break;
 
-        var e1 = CreateEdge(v, u);
-        var e2 = CreateEdge(u, v);
+            var edge = Edges[v];
+            edge.
+        }
+
+        faceA.Add(v);
+
+        var e1 = CreateEdge(v, u, sharedFace);
+        var e2 = CreateEdge(u, v, newFace);
     }
 
     /// <summary>
@@ -84,11 +96,11 @@ public readonly ref struct DCEL
         ref var e2 = ref Vertexs[edges[1].Id];
         
         if (over(ref self, ref e1) && over(ref self, ref e2))
-            return left(ref e1, ref self, ref e2) < 0 ?
+            return Left(ref e1, ref self, ref e2) < 0 ?
                 VertexType.Split : VertexType.Start;
         
         if (over(ref e1, ref self) && over(ref e2, ref self))
-            return left(ref e1, ref self, ref e2) < 0 ?
+            return Left(ref e1, ref self, ref e2) < 0 ?
                 VertexType.Merge : VertexType.End;
 
         return VertexType.Regular;
@@ -96,18 +108,6 @@ public readonly ref struct DCEL
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         bool over(ref PlanarVertex p, ref PlanarVertex q)
             => p.Yp > q.Yp || (p.Yp == q.Yp && p.Xp > q.Xp);
-            
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float left(ref PlanarVertex p, ref PlanarVertex q, ref PlanarVertex r)
-        {
-            var vx = p.Xp - q.Xp;
-            var vy = p.Yp - q.Yp;
-            
-            var ux = r.Xp - q.Xp;
-            var uy = r.Yp - q.Yp;
-
-            return vx * uy - ux * vy;
-        }
     }
 
     /// <summary>
@@ -142,14 +142,119 @@ public readonly ref struct DCEL
         }
     }
 
-    HalfEdge CreateEdge(int to, int from)
+    /// <summary>
+    /// Get the face shader by two vertex
+    /// with id 'v' and 'u'.
+    /// </summary>
+    int GetSharedFace(int v, int u)
     {
-        var id = nextEdgeId[0];
-        nextEdgeId[0]++;
+        var midPoint = GetMidPoint(ref Vertexs[v], ref Vertexs[u]);
 
-        var edge = new HalfEdge(id, to, from);
-        Edges[to].Add(edge);
+        for (int i = 0; i < Faces.Count; i++)
+        {
+            if (IsInFace(midPoint.x, midPoint.y, i))
+                return i;
+        }
+
+        throw new Exception("point out of face");
+    }
+
+    /// <summary>
+    /// Get if a point is in a face.
+    /// </summary>
+    bool IsInFace(float x, float y, int faceId)
+    {
+        var face = Faces[faceId];
+
+        for (int i = 0; i < face.Count; i++)
+        {
+            int j = (i + 1) % face.Count;
+            int k = (i + 2) % face.Count;
+
+            if (Left(ref Vertexs[i], ref Vertexs[j], ref Vertexs[k]) < 0)
+                return false;
+        }
+
+        return true;
+    }
+
+    int CreateFace()
+    {
+        var id = nextEdgeId;
+        nextEdgeId++;
+
+        Faces.Add(id, []);
+        FacesEdges.Add(id, []);
+        return id;
+    }
+
+    /// <summary>
+    /// Create a new Edge between 'from' and 'to'
+    /// on specific face. Do not create new face
+    /// and do not keep face consistency.
+    /// </summary>
+    HalfEdge CreateEdge(int from, int to, int face)
+    {
+        var id = nextEdgeId;
+        nextEdgeId++;
+
+        var edge = new HalfEdge(id, from, to, face);
+        var edges = GetEdgeList(id);
+        edges.Add(edge);
+
+        var faceEdges = GetFaceEdgeList(id);
+        faceEdges.Add(edge);
 
         return edge;
     }
+
+    /// <summary>
+    /// Get, and init if needed, edges connect
+    /// to a vertex with specific id.
+    /// </summary>
+    List<HalfEdge> GetEdgeList(int id)
+    {
+        if (Edges.TryGetValue(id, out var edges))
+            return edges;
+        
+        edges = [];
+        Edges.Add(0, edges);
+        return edges;
+    }
+
+    /// <summary>
+    /// Get, and init if needed, edges in
+    /// a specific face.
+    /// </summary>
+    List<HalfEdge> GetFaceEdgeList(int id)
+    {
+        if (FacesEdges.TryGetValue(id, out var edges))
+            return edges;
+        
+        edges = [];
+        FacesEdges.Add(0, edges);
+        return edges;
+    }
+    
+    /// <summary>
+    /// The left operation. https://en.wikipedia.org/wiki/Left_and_right_(algebra)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static float Left(ref PlanarVertex p, ref PlanarVertex q, ref PlanarVertex r)
+    {
+        var vx = p.Xp - q.Xp;
+        var vy = p.Yp - q.Yp;
+        
+        var ux = r.Xp - q.Xp;
+        var uy = r.Yp - q.Yp;
+
+        return vx * uy - ux * vy;
+    }
+
+    /// <summary>
+    /// Get the mid point between two points.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static (float x, float y) GetMidPoint(ref PlanarVertex p, ref PlanarVertex q)
+        => ((p.Xp + q.Xp) / 2, (p.Yp + q.Yp) / 2);
 }
