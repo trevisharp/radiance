@@ -11,11 +11,11 @@ namespace Radiance.Internal;
 public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
 {
     readonly Span<PlanarVertex> points = points;
-    readonly Span<int> map = map;
 
-    public ref PlanarVertex this[int index] => ref points[map[index]];
+    public readonly Span<int> MapBuffer = map;
+    public ref PlanarVertex this[int index] => ref points[MapBuffer[index]];
 
-    public int Length => map.Length;
+    public int Length => points.Length;
 
     public static SweepLine Create(Span<PlanarVertex> points, Span<int> map)
     {
@@ -31,10 +31,10 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
     /// </summary>
     static void Sort(Span<PlanarVertex> data, Span<int> map)
     {
-        for (int i = 0; i < map.Length; i++)
+        for (int i = 0; i < data.Length; i++)
             map[i] = i;
 
-        QuickSort(data, map, 0, map.Length);
+        QuickSort(data, map, 0, data.Length);
     }
 
     /// <summary>

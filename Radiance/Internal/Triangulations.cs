@@ -1,11 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/12/2024
+ * Date:    30/12/2024
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
-using System.Net.Http.Headers;
-using System.Runtime.CompilerServices;
+using System.Collections.Generic;
 
 namespace Radiance.Internal;
 
@@ -39,9 +37,7 @@ public static class Triangulations
         var dcel = new DCEL(points);
 
         if (MonotoneDivision(dcel, sweepLine))
-        {
-            
-        }
+            return NonMonotonePlaneTriangularization(dcel, sweepLine);
 
         return MonotonePlaneTriangulation(dcel, sweepLine);
     }
@@ -80,15 +76,15 @@ public static class Triangulations
         Dictionary<int, int> helper = [];
         for (int i = 0; i < sweepLine.Length; i++)
             helper[i] = -1;
-
+        
         for (int i = 0; i < sweepLine.Length; i++)
         {
             ref var v = ref sweepLine[i];
             var vi = v.Id;
             
-            var type = dcel.DiscoverType(vi);
+            var type = types[vi];
             var edges = dcel.Edges[vi];
-            var ei = edges[0];
+            var ei = edges[0].Id;
             var eprev = ei - 1;
             if (eprev == -1)
                 eprev = sweepLine.Length - 1;
@@ -172,131 +168,84 @@ public static class Triangulations
     }
 
     /// <summary>
+    /// Get a nonmonotone DCEL divide inot monotone polygons and returns
+    /// the triangularization.
+    /// </summary>
+    static float[] NonMonotonePlaneTriangularization(DCEL dcel, SweepLine sweepLine)
+    {
+        var index = 0;
+        int expectedTriangules = dcel.Vertexes.Length - 2;
+        var triangules = new float[9 * expectedTriangules];
+
+        float[] data;
+        while (dcel.Faces.Count > 0)
+        {
+            var subDcel = dcel.RemoveSubPolygon();
+            if (subDcel.Vertexes.Length < 4)
+            {
+                data = subDcel.ToArray();
+                Array.Copy(data, 0, triangules, index, data.Length);
+                index += data.Length;
+                continue;
+            }
+            
+            var subSweepLine = SweepLine.Create(subDcel.Vertexes, sweepLine.MapBuffer);
+            data = MonotonePlaneTriangulation(subDcel, subSweepLine);
+            Array.Copy(data, 0, triangules, index, data.Length);
+            index += data.Length;
+        }
+
+        return triangules;
+    }
+
+    /// <summary>
     /// Receveing a map of ordenation and data with format (x, y, z, ...),
     /// if the points represetns a monotone polygon, return the triangularization
     /// of then.
     /// </summary>
     static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
     {
-        var index = 0;
-        int expectedTriangules = dcel.Vertexs.Length - 2;
-        var triangules = new float[9 * expectedTriangules];
-
         var stack = new Stack<(int id, bool chain)>();
         stack.Push((sweepLine[0].Id, false));
         stack.Push((sweepLine[1].Id, true));
 
-        for (int k = 2; k < dcel.Vertexs.Length; k++)
+        for (int k = 2; k < dcel.Vertexes.Length; k++)
         {
-            ref var crrIndex = ref sweepLine[k];
-            var last = stack.Pop();
-            var isConn = dcel.IsConnected(last.id, crrIndex.Id);
-            (int id, bool chain) mid, next = (crrIndex.Id, !(isConn ^ last.chain));
-            
-            if (isConn)
+            var top = stack.Peek();
+            ref var nxt = ref sweepLine[k];
+            var isConn = dcel.IsConnected(top.id, nxt.Id);
+            (int id, bool chain) current = (nxt.Id, !(isConn ^ top.chain));
+
+            if (current.chain == top.chain)
             {
-                do
+                var nextConn = stack.Pop();
+                while (dcel.Connect(nextConn.id, current.id) && stack.Count > 0)
                 {
-                    if (stack.Count == 0)
-                    {
-                        stack.Push(last);
-                        stack.Push(next);
-                        break;
-                    }
-                    
-                    mid = last;
-                    last = stack.Pop();
-                    
-                    if (left(dcel.Vertexs, last.id, mid.id, next.id) < 0)
-                    {
-                        stack.Push(last);
-                        stack.Push(mid);
-                        stack.Push(next);
-                        break;
-                    }
-                    
-                    dcel.Connect(last.id, next.id);
-                    addTriangule(
-                        dcel.Vertexs[last.id],
-                        dcel.Vertexs[mid.id],
-                        dcel.Vertexs[next.id]
-                    );
-                } while (true);
-
-                continue;
+                    nextConn = stack.Pop();
+                } 
+                stack.Push(nextConn);
+                stack.Push(current);
             }
-            
-            var top = last;
-            mid = stack.Pop();
-            dcel.Connect(last.id, next.id);
-            addTriangule(
-                dcel.Vertexs[last.id],
-                dcel.Vertexs[mid.id],
-                dcel.Vertexs[next.id]
-            );
-
-            while (stack.Count > 0)
+            else
             {
-                last = mid;
-                mid = stack.Pop();
-                dcel.Connect(last.id, next.id);
-                addTriangule(
-                    dcel.Vertexs[last.id],
-                    dcel.Vertexs[mid.id],
-                    dcel.Vertexs[next.id]
-                );
+                while (stack.Count > 0)
+                {
+                    dcel.Connect(current.id, stack.Pop().id);
+                }
+
+                stack.Push(top);
+                stack.Push(current);
             }
-            stack.Push(top);
-            stack.Push(next);
         }
 
-        if (stack.Count > 2)
+        var bot = sweepLine[^1];
+        stack.Pop();
+        while (stack.Count > 1)
         {
-            addTriangule(
-                dcel.Vertexs[stack.Pop().id],
-                dcel.Vertexs[stack.Pop().id],
-                dcel.Vertexs[stack.Pop().id]
-            );
+            var vert = stack.Pop();
+            dcel.Connect(bot.Id, vert.id);
         }
 
-        return triangules;
-
-        /// <summary>
-        /// Add trinagule (p, q, r) to list of triangules data
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void addTriangule(PlanarVertex p, PlanarVertex q, PlanarVertex r)
-        {
-            triangules[index++] = p.X;
-            triangules[index++] = p.Y;
-            triangules[index++] = p.Z;
-            
-            triangules[index++] = q.X;
-            triangules[index++] = q.Y;
-            triangules[index++] = q.Z;
-            
-            triangules[index++] = r.X;
-            triangules[index++] = r.Y;
-            triangules[index++] = r.Z;
-        }
-
-        /// <summary>
-        /// Teste if the r is left from (p, q) line 
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float left(Span<PlanarVertex> points, int pi, int qi, int ri)
-        {
-            ref var p = ref points[pi];
-            ref var q = ref points[qi];
-            ref var r = ref points[ri];
-
-            var vx = p.Xp - q.Xp;
-            var vy = p.Yp - q.Yp;
-            
-            var ux = r.Xp - q.Xp;
-            var uy = r.Yp - q.Yp;
-
-            return vx * uy - ux * vy;
-        }
+        return dcel.ToArray();
     }
 }
