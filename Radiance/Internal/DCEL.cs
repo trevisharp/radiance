@@ -1,9 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/12/2024
+ * Date:    30/12/2024
  */
 using System;
-using System.Collections.Generic;
 using System.Linq;
+using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 
 namespace Radiance.Internal;
@@ -181,7 +181,7 @@ public ref struct DCEL
         var crr = v;
         while (true)
         {
-            var next = Edges[crr][0].Id;
+            var next = Edges[crr][0].To;
             var newLevel = Vertexs[next].Yp;
             var newRelation = newLevel < level;
 
@@ -205,11 +205,11 @@ public ref struct DCEL
     /// </summary>
     readonly int GetSharedFace(int v, int u)
     {
-        var midPoint = GetMidPoint(ref Vertexs[v], ref Vertexs[u]);
+        var (x, y) = GetMidPoint(ref Vertexs[v], ref Vertexs[u]);
 
         for (int i = 0; i < Faces.Count; i++)
         {
-            if (IsInFace(midPoint.x, midPoint.y, i))
+            if (IsInFace(x, y, i))
                 return i;
         }
 
@@ -226,9 +226,8 @@ public ref struct DCEL
         for (int i = 0; i < face.Count; i++)
         {
             int j = (i + 1) % face.Count;
-            int k = (i + 2) % face.Count;
 
-            if (Left(ref Vertexs[i], ref Vertexs[j], ref Vertexs[k]) < 0)
+            if (Left(Vertexs[i].Xp, Vertexs[i].Yp, Vertexs[j].Xp, Vertexs[j].Yp, x, y) < 0)
                 return false;
         }
 
@@ -301,12 +300,19 @@ public ref struct DCEL
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static float Left(ref PlanarVertex p, ref PlanarVertex q, ref PlanarVertex r)
+        => Left(p.Xp, p.Yp, q.Xp, q.Yp, r.Xp, r.Yp);
+    
+    /// <summary>
+    /// The left operation. https://en.wikipedia.org/wiki/Left_and_right_(algebra)
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static float Left(float px, float py, float qx, float qy, float rx, float ry)
     {
-        var vx = p.Xp - q.Xp;
-        var vy = p.Yp - q.Yp;
+        var vx = px - qx;
+        var vy = py - qy;
         
-        var ux = r.Xp - q.Xp;
-        var uy = r.Yp - q.Yp;
+        var ux = rx - qx;
+        var uy = ry - qy;
 
         return vx * uy - ux * vy;
     }

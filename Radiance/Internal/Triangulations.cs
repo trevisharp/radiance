@@ -145,7 +145,6 @@ public static class Triangulations
                     edgesCollect.Remove(eprev);
 
                     var ej2 = dcel.FindLeftEdge(vi);
-                    System.Console.WriteLine("aposta");
                     if (helper[ej2] != -1 && types[helper[ej2]] == VertexType.Merge)
                     {
                         dcel.Connect(helper[ej2], vi);
