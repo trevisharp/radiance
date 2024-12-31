@@ -16,6 +16,7 @@ namespace Radiance.Internal;
  * -Other problem related with the first item is some code that use index
  *      equals Id and do not will broken with simple polygons but can
  *      broke in the future with complex polygons.
+ * -The possibilities are bigger, but the performance is awful.
  */
 
 /// <summary>
