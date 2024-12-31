@@ -493,6 +493,7 @@ Window.Open();
 
 ### Radiance v3.1.0 (Coming soon)
 
+ - ![](https://img.shields.io/badge/new-green) Added a system of color to make conversion and handle color spaces easily.
  - ![](https://img.shields.io/badge/new-green) Added triangulation of non-monotone polygons.
  - ![](https://img.shields.io/badge/new-green) Added text buffers allowing draw texts easily.
  - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
