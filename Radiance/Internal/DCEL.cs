@@ -8,6 +8,21 @@ using System.Runtime.CompilerServices;
 
 namespace Radiance.Internal;
 
+/*
+ * Future improvements:
+ * -FindById affect performance. In a initial moment PlanarVertex.Id is equal
+ *      to ther index on Vertexex prop, but for complex polygons on monotone
+ *      division this assimetry is broke and FindById is needed.
+ * -Other problem related with the first item is some code that use index
+ *      equals Id and do not will broken with simple polygons but can
+ *      broke in the future with complex polygons.
+ * -On Connect opeartion is dificult to discover if we need to connect
+ *      u to v on face A or v to u, the direction make difference because on
+ *      computational geomtry polygons are oriented clock wise. For this moment
+ *      we order u and v and use v has lower and v has bigger to solve this
+ *      problem.
+ */
+
 /// <summary>
 /// Represents a Double Connected Edge List.
 /// </summary>
@@ -29,15 +44,23 @@ public ref struct DCEL
         List<HalfEdge> faceEdges = FacesEdges[face];
 
         for (int j = 0; j < points.Length; j++)
-            faceVertexes.Add(j);
+            faceVertexes.Add(Vertexes[j].Id);
 
         HalfEdge fst, prv;
-        fst = prv = CreateEdge(0, 1, face);
+        fst = prv = CreateEdge(
+            Vertexes[0].Id,
+            Vertexes[1].Id,
+            face
+        );
 
         int i = 1;
         while (i < points.Length - 1)
         {
-            var crr = CreateEdge(i, i + 1, face);
+            var crr = CreateEdge(
+                Vertexes[i].Id,
+                Vertexes[i + 1].Id,
+                face
+            );
             faceEdges.Add(crr);
             crr.SetPrevious(prv);
 
@@ -45,7 +68,11 @@ public ref struct DCEL
             i++;
         }
 
-        var lst = CreateEdge(i, 0, face);
+        var lst = CreateEdge(
+            Vertexes[i].Id, 
+            Vertexes[0].Id,
+            face
+        );
         faceEdges.Add(lst);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
@@ -55,8 +82,8 @@ public ref struct DCEL
     /// Receiving 2 ids for vertex return if them are connected.
     /// </summary>
     public readonly bool IsConnected(int v, int u)
-        => Edges[v].Any(e => e.From == u) 
-        || Edges[u].Any(e => e.From == v);
+        => Edges[v].Any(e => e.To == u) 
+        || Edges[u].Any(e => e.To == v);
 
     /// <summary>
     /// Add a Edge between two vertex.
@@ -65,6 +92,10 @@ public ref struct DCEL
     {
         if (v == u)
             return;
+        int min = int.Min(v, u);
+        int max = int.Max(v, u);
+        v = min;
+        u = max;
         
         var currFace = GetSharedFace(v, u);
         var othrFace = CreateFace();
@@ -206,7 +237,7 @@ public ref struct DCEL
     /// </summary>
     readonly int GetSharedFace(int v, int u)
     {
-        var (x, y) = GetMidPoint(ref Vertexes[v], ref Vertexes[u]);
+        var (x, y) = GetMidPoint(ref FindById(v), ref FindById(u));
 
         for (int i = 0; i < Faces.Count; i++)
         {
@@ -268,13 +299,27 @@ public ref struct DCEL
         {
             foreach (var vertexId in face.Value)
             {
-                ref var vertex = ref Vertexes[vertexId];
+                ref var vertex = ref FindById(vertexId);
                 values.Add(vertex.X);
                 values.Add(vertex.Y);
                 values.Add(vertex.Z);
             }
         }
         return [.. values];
+    }
+
+    /// <summary>
+    /// Find a Planar Vertex by id.
+    /// </summary>
+    public readonly ref PlanarVertex FindById(int id)
+    {
+        for (int i = 0; i < Vertexes.Length; i++)
+        {
+            ref var vertex = ref Vertexes[i];
+            if (vertex.Id == id)
+                return ref vertex;
+        }
+        throw new Exception("Invalid vertex id");
     }
 
     /// <summary>
@@ -338,6 +383,17 @@ public ref struct DCEL
         return edges;
     }
     
+    /// <summary>
+    /// Apply left between points based on ther Ids.
+    /// </summary>
+    public readonly float Left(int pid, int qId, int rId)
+    {
+        ref var p = ref FindById(pid);
+        ref var q = ref FindById(qId);
+        ref var r = ref FindById(rId);
+        return Left(ref p, ref q, ref r);
+    }
+
     /// <summary>
     /// The left operation. https://en.wikipedia.org/wiki/Left_and_right_(algebra)
     /// </summary>

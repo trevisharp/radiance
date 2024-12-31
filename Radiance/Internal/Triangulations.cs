@@ -214,11 +214,22 @@ public static class Triangulations
         var stack = new Stack<(int id, bool chain)>();
         stack.Push((sweepLine[0].Id, false));
         stack.Push((sweepLine[1].Id, true));
+        show("A");
+
+        void show(string point) {
+            Console.WriteLine(
+                point + ": " + string.Join(
+                    ",",
+                    stack.Select(x => x.id)
+                )
+            );
+        }
 
         for (int k = 2; k < dcel.Vertexes.Length; k++)
         {
             ref var crrIndex = ref sweepLine[k];
             var last = stack.Pop();
+            show("B");
             var isConn = dcel.IsConnected(last.id, crrIndex.Id);
             (int id, bool chain) mid, next = (crrIndex.Id, !(isConn ^ last.chain));
             
@@ -230,25 +241,28 @@ public static class Triangulations
                     {
                         stack.Push(last);
                         stack.Push(next);
+                        show("C");
                         break;
                     }
                     
                     mid = last;
                     last = stack.Pop();
+                    show("D");
                     
-                    if (left(dcel.Vertexes, last.id, mid.id, next.id) < 0)
+                    if (dcel.Left(last.id, mid.id, next.id) < 0)
                     {
                         stack.Push(last);
                         stack.Push(mid);
                         stack.Push(next);
+                        show("E");
                         break;
                     }
                     
                     dcel.Connect(last.id, next.id);
                     addTriangule(
-                        dcel.Vertexes[last.id],
-                        dcel.Vertexes[mid.id],
-                        dcel.Vertexes[next.id]
+                        dcel.FindById(last.id),
+                        dcel.FindById(mid.id),
+                        dcel.FindById(next.id)
                     );
                 }
 
@@ -257,35 +271,39 @@ public static class Triangulations
             
             var top = last;
             mid = stack.Pop();
+            show("F");
             dcel.Connect(last.id, next.id);
             addTriangule(
-                dcel.Vertexes[last.id],
-                dcel.Vertexes[mid.id],
-                dcel.Vertexes[next.id]
+                dcel.FindById(last.id),
+                dcel.FindById(mid.id),
+                dcel.FindById(next.id)
             );
 
             while (stack.Count > 0)
             {
                 last = mid;
                 mid = stack.Pop();
+                show("G");
                 dcel.Connect(last.id, next.id);
                 addTriangule(
-                    dcel.Vertexes[last.id],
-                    dcel.Vertexes[mid.id],
-                    dcel.Vertexes[next.id]
+                    dcel.FindById(last.id),
+                    dcel.FindById(mid.id),
+                    dcel.FindById(next.id)
                 );
             }
             stack.Push(top);
             stack.Push(next);
+            show("H");
         }
 
         if (stack.Count > 2)
         {
             addTriangule(
-                dcel.Vertexes[stack.Pop().id],
-                dcel.Vertexes[stack.Pop().id],
-                dcel.Vertexes[stack.Pop().id]
+                dcel.FindById(stack.Pop().id),
+                dcel.FindById(stack.Pop().id),
+                dcel.FindById(stack.Pop().id)
             );
+            show("I");
         }
 
         return triangules;
@@ -307,25 +325,6 @@ public static class Triangulations
             triangules[index++] = r.X;
             triangules[index++] = r.Y;
             triangules[index++] = r.Z;
-        }
-
-        /// <summary>
-        /// Teste if the r is left from (p, q) line 
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        float left(Span<PlanarVertex> points, int pi, int qi, int ri)
-        {
-            ref var p = ref points[pi];
-            ref var q = ref points[qi];
-            ref var r = ref points[ri];
-
-            var vx = p.Xp - q.Xp;
-            var vy = p.Yp - q.Yp;
-            
-            var ux = r.Xp - q.Xp;
-            var uy = r.Yp - q.Yp;
-
-            return vx * uy - ux * vy;
         }
     }
 }
