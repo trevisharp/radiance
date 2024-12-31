@@ -24,6 +24,6 @@ public class HalfEdge(int id, int from, int to, int face)
     public void SetPrevious(HalfEdge prev)
     {
         Previous = prev;
-        Previous.Next = this;
+        prev.Next = this;
     }
 }

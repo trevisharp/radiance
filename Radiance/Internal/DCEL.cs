@@ -14,37 +14,41 @@ namespace Radiance.Internal;
 public ref struct DCEL
 {
     int nextEdgeId = 0;
-    int nextFaceId = 1;
-    public readonly Span<PlanarVertex> Vertexs;
+    int nextFaceId = 0;
+    public readonly Span<PlanarVertex> Vertexes;
     public readonly Dictionary<int, List<HalfEdge>> Edges = [];
     public readonly Dictionary<int, List<int>> Faces = [];
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
 
     public DCEL(Span<PlanarVertex> points)
     {
-        Vertexs = points;
+        Vertexes = points;
+
+        int face = CreateFace();
+        List<int> faceVertexes = Faces[face];
+        List<HalfEdge> faceEdges = FacesEdges[face];
+
+        for (int j = 0; j < points.Length; j++)
+            faceVertexes.Add(j);
 
         HalfEdge fst, prv;
-        fst = prv = CreateEdge(0, 1, 0);
+        fst = prv = CreateEdge(0, 1, face);
 
         int i = 1;
         while (i < points.Length - 1)
         {
-            var crr = CreateEdge(i, i + 1, 0);
+            var crr = CreateEdge(i, i + 1, face);
+            faceEdges.Add(crr);
             crr.SetPrevious(prv);
 
             prv = crr;
             i++;
         }
 
-        var lst = CreateEdge(i, 0, 0);
+        var lst = CreateEdge(i, 0, face);
+        faceEdges.Add(lst);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
-
-        List<int> vertexes = [];
-        Faces[0] = vertexes;
-        for (int j = 0; j < points.Length; j++)
-            vertexes.Add(j);
     }
 
     /// <summary>
@@ -62,53 +66,52 @@ public ref struct DCEL
         if (v == u)
             return;
         
-        var faceA = GetSharedFace(v, u);
-        var faceB = CreateFace();
+        var currFace = GetSharedFace(v, u);
+        var othrFace = CreateFace();
         
-        List<int> faceAPoints = [];
-        List<int> faceBPoints = [];
+        List<int> currPoints = [];
+        List<int> othrPoits = [];
 
-        List<HalfEdge> faceEdgesA = [];
-        List<HalfEdge> faceEdgesB = [];
+        List<HalfEdge> currEdges = [];
+        List<HalfEdge> othrEdges = [];
 
-        var sharedEdges = GetEdgeList(faceA);
+        var sharedEdges = GetEdgeList(currFace);
         var fstEdge = sharedEdges[0];
-        var crrEdge = fstEdge;
+        var edge = fstEdge;
         
         do
         {
-            var vertex = crrEdge.From;
-            crrEdge.FaceId = faceA;
-            faceAPoints.Add(vertex);
-            faceEdgesA.Add(crrEdge);
-            crrEdge = crrEdge.Next!;
+            var vertex = edge.To;
+            edge.FaceId = currFace;
+            currPoints.Add(vertex);
+            currEdges.Add(edge);
+            edge = edge.Next!;
 
             if (vertex == v)
             {
-                faceAPoints.Add(u);
-                (faceA, faceB) = (faceB, faceA);
-                (faceAPoints, faceBPoints) = (faceBPoints, faceAPoints);
-                (faceEdgesA, faceEdgesB) = (faceEdgesB, faceEdgesA);
+                currPoints.Add(u);
+                (currFace, othrFace) = (othrFace, currFace);
+                (currPoints, othrPoits) = (othrPoits, currPoints);
+                (currEdges, othrEdges) = (othrEdges, currEdges);
             }
 
             if (vertex == u)
             {
-                faceAPoints.Add(v);
-                (faceA, faceB) = (faceB, faceA);
-                (faceAPoints, faceBPoints) = (faceBPoints, faceAPoints);
-                (faceEdgesA, faceEdgesB) = (faceEdgesB, faceEdgesA);
+                currPoints.Add(v);
+                (currFace, othrFace) = (othrFace, currFace);
+                (currPoints, othrPoits) = (othrPoits, currPoints);
+                (currEdges, othrEdges) = (othrEdges, currEdges);
             }
 
-        } while (crrEdge != fstEdge);
+        } while (edge != fstEdge);
 
-        Faces[faceA] = faceAPoints;
-        Faces[faceB] = faceBPoints;
-        FacesEdges[faceA] = faceEdgesA;
-        FacesEdges[faceB] = faceEdgesB;
+        Faces[currFace] = currPoints;
+        Faces[othrFace] = othrPoits;
+        FacesEdges[currFace] = currEdges;
+        FacesEdges[othrFace] = othrEdges;
 
-        var e1 = CreateEdge(v, u, faceA);
-        faceEdgesA.Add(e1);
-        foreach (var e in faceEdgesA)
+        var e1 = CreateEdge(v, u, currFace);
+        foreach (var e in currEdges)
         {
             if (e.To == v)
             {
@@ -123,9 +126,8 @@ public ref struct DCEL
             }
         }
 
-        var e2 = CreateEdge(u, v, faceB);
-        faceEdgesB.Add(e2);
-        foreach (var e in faceEdgesB)
+        var e2 = CreateEdge(u, v, othrFace);
+        foreach (var e in othrEdges)
         {
             if (e.To == v)
             {
@@ -148,9 +150,9 @@ public ref struct DCEL
     {
         var edges = Edges[v];
         var edge = edges[0];
-        ref var self = ref Vertexs[v];
-        ref var e1 = ref Vertexs[edge.To];
-        ref var e2 = ref Vertexs[edge.Previous!.From];
+        ref var self = ref Vertexes[v];
+        ref var e1 = ref Vertexes[edge.To];
+        ref var e2 = ref Vertexes[edge.Previous!.From];
         
         if (over(ref self, ref e1) && over(ref self, ref e2))
             return Left(ref e1, ref self, ref e2) > 0 ?
@@ -170,10 +172,9 @@ public ref struct DCEL
     /// <summary>
     /// Find the left edge from a vertex.
     /// </summary>
-    /// <returns></returns>
     public readonly int FindLeftEdge(int v)
     {
-        var vert = Vertexs[v];
+        var vert = Vertexes[v];
         var level = vert.Yp;
         var xpos = vert.Xp;
         bool? lastRelation = null;
@@ -182,7 +183,7 @@ public ref struct DCEL
         while (true)
         {
             var next = Edges[crr][0].To;
-            var newLevel = Vertexs[next].Yp;
+            var newLevel = Vertexes[next].Yp;
             var newRelation = newLevel < level;
 
             crr = next;
@@ -192,7 +193,7 @@ public ref struct DCEL
                 continue;
             
             lastRelation = newRelation;
-            if (Vertexs[next].Xp > xpos)
+            if (Vertexes[next].Xp > xpos)
                 continue;
             
             return crr;
@@ -205,7 +206,7 @@ public ref struct DCEL
     /// </summary>
     readonly int GetSharedFace(int v, int u)
     {
-        var (x, y) = GetMidPoint(ref Vertexs[v], ref Vertexs[u]);
+        var (x, y) = GetMidPoint(ref Vertexes[v], ref Vertexes[u]);
 
         for (int i = 0; i < Faces.Count; i++)
         {
@@ -227,7 +228,7 @@ public ref struct DCEL
         {
             int j = (i + 1) % face.Count;
 
-            if (Left(Vertexs[i].Xp, Vertexs[i].Yp, Vertexs[j].Xp, Vertexs[j].Yp, x, y) < 0)
+            if (Left(Vertexes[i].Xp, Vertexes[i].Yp, Vertexes[j].Xp, Vertexes[j].Yp, x, y) < 0)
                 return false;
         }
 
@@ -235,12 +236,35 @@ public ref struct DCEL
     }
 
     /// <summary>
+    /// Remove a random subpolygon and return a new DCEL.
+    /// </summary>
+    public DCEL RemoveSubPolygon()
+    {
+        var face = Faces.Keys.Last();
+        var points = Faces[face];
+        Faces.Remove(face);
+
+        var edges = FacesEdges[face];
+        FacesEdges.Remove(face);
+        var edge = edges[0];
+
+        var vertexes = new PlanarVertex[points.Count];
+        for (int i = 0; i < points.Count; i++)
+        {
+            vertexes[i] = Vertexes[edge.From];
+            edge = edge.Next!;
+        }
+
+        return new DCEL(vertexes);
+    }
+
+    /// <summary>
     /// Create a new empty face.
     /// </summary>
     int CreateFace()
     {
-        var id = nextEdgeId;
-        nextEdgeId++;
+        var id = nextFaceId;
+        nextFaceId++;
 
         Faces.Add(id, []);
         FacesEdges.Add(id, []);
@@ -258,10 +282,10 @@ public ref struct DCEL
         nextEdgeId++;
 
         var edge = new HalfEdge(id, from, to, face);
-        var edges = GetEdgeList(id);
+        var edges = GetEdgeList(from);
         edges.Add(edge);
 
-        var faceEdges = GetFaceEdgeList(id);
+        var faceEdges = GetFaceEdgeList(face);
         faceEdges.Add(edge);
 
         return edge;

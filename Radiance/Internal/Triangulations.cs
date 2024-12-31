@@ -40,16 +40,8 @@ public static class Triangulations
 
         if (MonotoneDivision(dcel, sweepLine))
         {
-            foreach (var edge in dcel.Edges)
-            {
-                Console.Write($"{edge.Key}: ");
-                foreach (var vertex in edge.Value)
-                    Console.Write($"{vertex}, ");
-                Console.WriteLine();
-            }
+            
         }
-
-        return null;
 
         return MonotonePlaneTriangulation(dcel, sweepLine);
     }
@@ -93,8 +85,6 @@ public static class Triangulations
         {
             ref var v = ref sweepLine[i];
             var vi = v.Id;
-            
-            System.Console.WriteLine(vi);
             
             var type = types[vi];
             var edges = dcel.Edges[vi];
@@ -189,14 +179,14 @@ public static class Triangulations
     static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
     {
         var index = 0;
-        int expectedTriangules = dcel.Vertexs.Length - 2;
+        int expectedTriangules = dcel.Vertexes.Length - 2;
         var triangules = new float[9 * expectedTriangules];
 
         var stack = new Stack<(int id, bool chain)>();
         stack.Push((sweepLine[0].Id, false));
         stack.Push((sweepLine[1].Id, true));
 
-        for (int k = 2; k < dcel.Vertexs.Length; k++)
+        for (int k = 2; k < dcel.Vertexes.Length; k++)
         {
             ref var crrIndex = ref sweepLine[k];
             var last = stack.Pop();
@@ -217,7 +207,7 @@ public static class Triangulations
                     mid = last;
                     last = stack.Pop();
                     
-                    if (left(dcel.Vertexs, last.id, mid.id, next.id) < 0)
+                    if (left(dcel.Vertexes, last.id, mid.id, next.id) < 0)
                     {
                         stack.Push(last);
                         stack.Push(mid);
@@ -227,9 +217,9 @@ public static class Triangulations
                     
                     dcel.Connect(last.id, next.id);
                     addTriangule(
-                        dcel.Vertexs[last.id],
-                        dcel.Vertexs[mid.id],
-                        dcel.Vertexs[next.id]
+                        dcel.Vertexes[last.id],
+                        dcel.Vertexes[mid.id],
+                        dcel.Vertexes[next.id]
                     );
                 }
 
@@ -240,9 +230,9 @@ public static class Triangulations
             mid = stack.Pop();
             dcel.Connect(last.id, next.id);
             addTriangule(
-                dcel.Vertexs[last.id],
-                dcel.Vertexs[mid.id],
-                dcel.Vertexs[next.id]
+                dcel.Vertexes[last.id],
+                dcel.Vertexes[mid.id],
+                dcel.Vertexes[next.id]
             );
 
             while (stack.Count > 0)
@@ -251,9 +241,9 @@ public static class Triangulations
                 mid = stack.Pop();
                 dcel.Connect(last.id, next.id);
                 addTriangule(
-                    dcel.Vertexs[last.id],
-                    dcel.Vertexs[mid.id],
-                    dcel.Vertexs[next.id]
+                    dcel.Vertexes[last.id],
+                    dcel.Vertexes[mid.id],
+                    dcel.Vertexes[next.id]
                 );
             }
             stack.Push(top);
@@ -263,9 +253,9 @@ public static class Triangulations
         if (stack.Count > 2)
         {
             addTriangule(
-                dcel.Vertexs[stack.Pop().id],
-                dcel.Vertexs[stack.Pop().id],
-                dcel.Vertexs[stack.Pop().id]
+                dcel.Vertexes[stack.Pop().id],
+                dcel.Vertexes[stack.Pop().id],
+                dcel.Vertexes[stack.Pop().id]
             );
         }
 
