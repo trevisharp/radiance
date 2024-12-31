@@ -16,11 +16,6 @@ namespace Radiance.Internal;
  * -Other problem related with the first item is some code that use index
  *      equals Id and do not will broken with simple polygons but can
  *      broke in the future with complex polygons.
- * -On Connect opeartion is dificult to discover if we need to connect
- *      u to v on face A or v to u, the direction make difference because on
- *      computational geomtry polygons are oriented clock wise. For this moment
- *      we order u and v and use v has lower and v has bigger to solve this
- *      problem.
  */
 
 /// <summary>
@@ -90,12 +85,9 @@ public ref struct DCEL
     /// </summary>
     public void Connect(int v, int u)
     {
+        System.Console.WriteLine($"connect {v} to {u}");
         if (v == u)
             return;
-        int min = int.Min(v, u);
-        int max = int.Max(v, u);
-        v = min;
-        u = max;
         
         var currFace = GetSharedFace(v, u);
         var othrFace = CreateFace();
@@ -141,7 +133,12 @@ public ref struct DCEL
         FacesEdges[currFace] = currEdges;
         FacesEdges[othrFace] = othrEdges;
 
+        if (!currEdges.Any(x => x.To == v))
+            (v, u) = (u, v);
         var e1 = CreateEdge(v, u, currFace);
+        System.Console.WriteLine(
+            string.Join(",  ", currEdges)
+        );
         foreach (var e in currEdges)
         {
             if (e.To == v)
@@ -158,6 +155,9 @@ public ref struct DCEL
         }
 
         var e2 = CreateEdge(u, v, othrFace);
+        System.Console.WriteLine(
+            string.Join(",  ", othrEdges)
+        );
         foreach (var e in othrEdges)
         {
             if (e.To == v)
