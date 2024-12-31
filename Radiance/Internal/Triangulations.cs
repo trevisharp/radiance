@@ -214,22 +214,11 @@ public static class Triangulations
         var stack = new Stack<(int id, bool chain)>();
         stack.Push((sweepLine[0].Id, false));
         stack.Push((sweepLine[1].Id, true));
-        show("A");
-
-        void show(string point) {
-            Console.WriteLine(
-                point + ": " + string.Join(
-                    ",",
-                    stack.Select(x => x.id)
-                )
-            );
-        }
 
         for (int k = 2; k < dcel.Vertexes.Length; k++)
         {
             ref var crrIndex = ref sweepLine[k];
             var last = stack.Pop();
-            show("B");
             var isConn = dcel.IsConnected(last.id, crrIndex.Id);
             (int id, bool chain) mid, next = (crrIndex.Id, !(isConn ^ last.chain));
             
@@ -241,20 +230,17 @@ public static class Triangulations
                     {
                         stack.Push(last);
                         stack.Push(next);
-                        show("C");
                         break;
                     }
                     
                     mid = last;
                     last = stack.Pop();
-                    show("D");
                     
                     if (dcel.Left(last.id, mid.id, next.id) < 0)
                     {
                         stack.Push(last);
                         stack.Push(mid);
                         stack.Push(next);
-                        show("E");
                         break;
                     }
                     
@@ -271,7 +257,6 @@ public static class Triangulations
             
             var top = last;
             mid = stack.Pop();
-            show("F");
             dcel.Connect(last.id, next.id);
             addTriangule(
                 dcel.FindById(last.id),
@@ -283,7 +268,6 @@ public static class Triangulations
             {
                 last = mid;
                 mid = stack.Pop();
-                show("G");
                 dcel.Connect(last.id, next.id);
                 addTriangule(
                     dcel.FindById(last.id),
@@ -293,7 +277,6 @@ public static class Triangulations
             }
             stack.Push(top);
             stack.Push(next);
-            show("H");
         }
 
         if (stack.Count > 2)
@@ -303,7 +286,6 @@ public static class Triangulations
                 dcel.FindById(stack.Pop().id),
                 dcel.FindById(stack.Pop().id)
             );
-            show("I");
         }
 
         return triangules;

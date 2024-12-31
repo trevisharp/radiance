@@ -138,6 +138,9 @@ public ref struct DCEL
         var e1 = CreateEdge(v, u, currFace);
         foreach (var e in currEdges)
         {
+            if (e == e1)
+                continue;
+
             if (e.To == v)
             {
                 e.SetNext(e1);
@@ -150,22 +153,35 @@ public ref struct DCEL
                 continue;
             }
         }
+        System.Console.WriteLine(
+            string.Join(
+                ", ", currEdges
+            )
+        );
 
         var e2 = CreateEdge(u, v, othrFace);
         foreach (var e in othrEdges)
         {
-            if (e.From == v)
+            if (e == e2)
+                continue;
+            
+            if (e.To == u)
             {
                 e.SetNext(e2);
                 continue;
             }
             
-            if (e.To == u)
+            if (e.From == v)
             {
                 e.SetPrevious(e2);
                 continue;
             }
         }
+        System.Console.WriteLine(
+            string.Join(
+                ", ", othrEdges
+            )
+        );
     }
 
     /// <summary>
