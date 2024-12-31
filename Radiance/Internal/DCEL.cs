@@ -17,6 +17,8 @@ namespace Radiance.Internal;
  *      equals Id and do not will broken with simple polygons but can
  *      broke in the future with complex polygons.
  * -The possibilities are bigger, but the performance is awful.
+ * -Complex polygons break the current implementation.
+ * -Need some work to allow holes in polygons.
  */
 
 /// <summary>
