@@ -17,6 +17,9 @@ public readonly struct PlanarVertex(int id, float[] points, int index, float[] p
     public readonly float Xp = planePoints[pindex];
     public readonly float Yp = planePoints[pindex + 1];
 
+    public override string ToString()
+        => $"({Xp}, {Yp})";
+
     /// <summary>
     /// Load points transforming data on PLanarVertex points.
     /// </summary>

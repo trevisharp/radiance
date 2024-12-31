@@ -147,22 +147,23 @@ public ref struct DCEL
     public readonly VertexType DiscoverType(int v)
     {
         var edges = Edges[v];
+        var edge = edges[0];
         ref var self = ref Vertexs[v];
-        ref var e1 = ref Vertexs[edges[0].Id];
-        ref var e2 = ref Vertexs[edges[1].Id];
+        ref var e1 = ref Vertexs[edge.To];
+        ref var e2 = ref Vertexs[edge.Previous!.From];
         
         if (over(ref self, ref e1) && over(ref self, ref e2))
-            return Left(ref e1, ref self, ref e2) < 0 ?
+            return Left(ref e1, ref self, ref e2) > 0 ?
                 VertexType.Split : VertexType.Start;
         
         if (over(ref e1, ref self) && over(ref e2, ref self))
-            return Left(ref e1, ref self, ref e2) < 0 ?
+            return Left(ref e1, ref self, ref e2) > 0 ?
                 VertexType.Merge : VertexType.End;
 
         return VertexType.Regular;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        bool over(ref PlanarVertex p, ref PlanarVertex q)
+        static bool over(ref PlanarVertex p, ref PlanarVertex q)
             => p.Yp > q.Yp || (p.Yp == q.Yp && p.Xp > q.Xp);
     }
 

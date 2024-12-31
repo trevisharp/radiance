@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using OpenTK.Graphics.OpenGL;
 
 namespace Radiance.Internal;
 
@@ -48,6 +49,8 @@ public static class Triangulations
             }
         }
 
+        return null;
+
         return MonotonePlaneTriangulation(dcel, sweepLine);
     }
     
@@ -85,13 +88,15 @@ public static class Triangulations
         Dictionary<int, int> helper = [];
         for (int i = 0; i < sweepLine.Length; i++)
             helper[i] = -1;
-
+        
         for (int i = 0; i < sweepLine.Length; i++)
         {
             ref var v = ref sweepLine[i];
             var vi = v.Id;
             
-            var type = dcel.DiscoverType(vi);
+            System.Console.WriteLine(vi);
+            
+            var type = types[vi];
             var edges = dcel.Edges[vi];
             var ei = edges[0].Id;
             var eprev = ei - 1;
@@ -140,6 +145,7 @@ public static class Triangulations
                     edgesCollect.Remove(eprev);
 
                     var ej2 = dcel.FindLeftEdge(vi);
+                    System.Console.WriteLine("aposta");
                     if (helper[ej2] != -1 && types[helper[ej2]] == VertexType.Merge)
                     {
                         dcel.Connect(helper[ej2], vi);
