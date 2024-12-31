@@ -1,11 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/12/2024
+ * Date:    30/12/2024
  */
 using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Runtime.CompilerServices;
-using OpenTK.Graphics.OpenGL;
 
 namespace Radiance.Internal;
 
@@ -207,106 +205,47 @@ public static class Triangulations
     /// </summary>
     static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
     {
-        var index = 0;
-        int expectedTriangules = dcel.Vertexes.Length - 2;
-        var triangules = new float[9 * expectedTriangules];
-
         var stack = new Stack<(int id, bool chain)>();
         stack.Push((sweepLine[0].Id, false));
         stack.Push((sweepLine[1].Id, true));
 
         for (int k = 2; k < dcel.Vertexes.Length; k++)
         {
-            ref var crrIndex = ref sweepLine[k];
-            var last = stack.Pop();
-            var isConn = dcel.IsConnected(last.id, crrIndex.Id);
-            (int id, bool chain) mid, next = (crrIndex.Id, !(isConn ^ last.chain));
-            
-            if (isConn)
+            var top = stack.Peek();
+            ref var nxt = ref sweepLine[k];
+            var isConn = dcel.IsConnected(top.id, nxt.Id);
+            (int id, bool chain) current = (nxt.Id, !(isConn ^ top.chain));
+
+            if (current.chain == top.chain)
             {
-                while (true)
+                var nextConn = stack.Pop();
+                while (dcel.Connect(nextConn.id, current.id) && stack.Count > 0)
                 {
-                    if (stack.Count == 0)
-                    {
-                        stack.Push(last);
-                        stack.Push(next);
-                        break;
-                    }
-                    
-                    mid = last;
-                    last = stack.Pop();
-                    
-                    if (dcel.Left(last.id, mid.id, next.id) < 0)
-                    {
-                        stack.Push(last);
-                        stack.Push(mid);
-                        stack.Push(next);
-                        break;
-                    }
-                    
-                    dcel.Connect(last.id, next.id);
-                    addTriangule(
-                        dcel.FindById(last.id),
-                        dcel.FindById(mid.id),
-                        dcel.FindById(next.id)
-                    );
+                    nextConn = stack.Pop();
+                } 
+                stack.Push(nextConn);
+                stack.Push(current);
+            }
+            else
+            {
+                while (stack.Count > 0)
+                {
+                    dcel.Connect(current.id, stack.Pop().id);
                 }
 
-                continue;
+                stack.Push(top);
+                stack.Push(current);
             }
-            
-            var top = last;
-            mid = stack.Pop();
-            dcel.Connect(last.id, next.id);
-            addTriangule(
-                dcel.FindById(last.id),
-                dcel.FindById(mid.id),
-                dcel.FindById(next.id)
-            );
-
-            while (stack.Count > 0)
-            {
-                last = mid;
-                mid = stack.Pop();
-                dcel.Connect(last.id, next.id);
-                addTriangule(
-                    dcel.FindById(last.id),
-                    dcel.FindById(mid.id),
-                    dcel.FindById(next.id)
-                );
-            }
-            stack.Push(top);
-            stack.Push(next);
         }
 
-        if (stack.Count > 2)
+        var bot = sweepLine[^1];
+        stack.Pop();
+        while (stack.Count > 1)
         {
-            addTriangule(
-                dcel.FindById(stack.Pop().id),
-                dcel.FindById(stack.Pop().id),
-                dcel.FindById(stack.Pop().id)
-            );
+            var vert = stack.Pop();
+            dcel.Connect(bot.Id, vert.id);
         }
 
-        return triangules;
-
-        /// <summary>
-        /// Add trinagule (p, q, r) to list of triangules data
-        /// </summary>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        void addTriangule(PlanarVertex p, PlanarVertex q, PlanarVertex r)
-        {
-            triangules[index++] = p.X;
-            triangules[index++] = p.Y;
-            triangules[index++] = p.Z;
-            
-            triangules[index++] = q.X;
-            triangules[index++] = q.Y;
-            triangules[index++] = q.Z;
-            
-            triangules[index++] = r.X;
-            triangules[index++] = r.Y;
-            triangules[index++] = r.Z;
-        }
+        return dcel.ToArray();
     }
 }

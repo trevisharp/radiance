@@ -15,7 +15,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
     public readonly Span<int> MapBuffer = map;
     public ref PlanarVertex this[int index] => ref points[MapBuffer[index]];
 
-    public int Length => MapBuffer.Length;
+    public int Length => points.Length;
 
     public static SweepLine Create(Span<PlanarVertex> points, Span<int> map)
     {

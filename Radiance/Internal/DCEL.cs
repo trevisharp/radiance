@@ -83,13 +83,19 @@ public ref struct DCEL
     /// <summary>
     /// Add a Edge between two vertex.
     /// </summary>
-    public void Connect(int v, int u)
+    public bool Connect(int v, int u)
     {
-        System.Console.WriteLine($"connect {v} to {u}");
         if (v == u)
-            return;
+            return false;
         
-        var currFace = GetSharedFace(v, u);
+        var faceId = GetSharedFace(v, u);
+        if (faceId is null)
+            return false;
+        
+        if (IsConnected(v, u))
+            return false;
+        
+        var currFace = faceId.Value;
         var othrFace = CreateFace();
         
         List<int> currPoints = [];
@@ -153,11 +159,6 @@ public ref struct DCEL
                 continue;
             }
         }
-        System.Console.WriteLine(
-            string.Join(
-                ", ", currEdges
-            )
-        );
 
         var e2 = CreateEdge(u, v, othrFace);
         foreach (var e in othrEdges)
@@ -177,11 +178,8 @@ public ref struct DCEL
                 continue;
             }
         }
-        System.Console.WriteLine(
-            string.Join(
-                ", ", othrEdges
-            )
-        );
+
+        return true;
     }
 
     /// <summary>
@@ -245,7 +243,7 @@ public ref struct DCEL
     /// Get the face shader by two vertex
     /// with id 'v' and 'u'.
     /// </summary>
-    readonly int GetSharedFace(int v, int u)
+    readonly int? GetSharedFace(int v, int u)
     {
         var (x, y) = GetMidPoint(ref FindById(v), ref FindById(u));
 
@@ -255,7 +253,7 @@ public ref struct DCEL
                 return i;
         }
 
-        throw new Exception("point out of face");
+        return null;
     }
 
     /// <summary>
