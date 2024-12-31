@@ -28,5 +28,5 @@ public class HalfEdge(int id, int from, int to, int face)
     }
 
     public override string ToString()
-        => $"{Id}: {From} > {To}";
+        => $"{Id}: {Previous?.To} > {Next?.From}";
 }

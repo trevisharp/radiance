@@ -98,7 +98,7 @@ public ref struct DCEL
         List<HalfEdge> currEdges = [];
         List<HalfEdge> othrEdges = [];
 
-        var sharedEdges = GetEdgeList(currFace);
+        var sharedEdges = GetFaceEdgeList(currFace);
         var fstEdge = sharedEdges[0];
         var edge = fstEdge;
         
@@ -136,9 +136,6 @@ public ref struct DCEL
         if (!currEdges.Any(x => x.To == v))
             (v, u) = (u, v);
         var e1 = CreateEdge(v, u, currFace);
-        System.Console.WriteLine(
-            string.Join(",  ", currEdges)
-        );
         foreach (var e in currEdges)
         {
             if (e.To == v)
@@ -155,18 +152,15 @@ public ref struct DCEL
         }
 
         var e2 = CreateEdge(u, v, othrFace);
-        System.Console.WriteLine(
-            string.Join(",  ", othrEdges)
-        );
         foreach (var e in othrEdges)
         {
-            if (e.To == v)
+            if (e.From == v)
             {
                 e.SetNext(e2);
                 continue;
             }
             
-            if (e.From == u)
+            if (e.To == u)
             {
                 e.SetPrevious(e2);
                 continue;
@@ -259,7 +253,13 @@ public ref struct DCEL
         {
             int j = (i + 1) % face.Count;
 
-            if (Left(Vertexes[i].Xp, Vertexes[i].Yp, Vertexes[j].Xp, Vertexes[j].Yp, x, y) < 0)
+            var vertexAId = face[i];
+            var vertexBId = face[j];
+
+            ref var vertexA = ref FindById(vertexAId);
+            ref var vertexB = ref FindById(vertexBId);
+
+            if (Left(vertexA.Xp, vertexA.Yp, vertexB.Xp, vertexB.Yp, x, y) < 0)
                 return false;
         }
 
