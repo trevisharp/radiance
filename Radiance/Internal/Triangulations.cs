@@ -40,7 +40,12 @@ public static class Triangulations
 
         if (MonotoneDivision(dcel, sweepLine))
         {
-            
+            while (dcel.Faces.Count > 0)
+            {
+                var subDcel = dcel.RemoveSubPolygon();
+                var subSweepLine = SweepLine.Create(subDcel.Vertexes, map);
+                return MonotonePlaneTriangulation(dcel, sweepLine);
+            }
         }
 
         return MonotonePlaneTriangulation(dcel, sweepLine);

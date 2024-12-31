@@ -31,10 +31,10 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
     /// </summary>
     static void Sort(Span<PlanarVertex> data, Span<int> map)
     {
-        for (int i = 0; i < map.Length; i++)
+        for (int i = 0; i < data.Length; i++)
             map[i] = i;
 
-        QuickSort(data, map, 0, map.Length);
+        QuickSort(data, map, 0, data.Length);
     }
 
     /// <summary>

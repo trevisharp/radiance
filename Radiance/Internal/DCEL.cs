@@ -238,7 +238,7 @@ public ref struct DCEL
     /// <summary>
     /// Remove a random subpolygon and return a new DCEL.
     /// </summary>
-    public DCEL RemoveSubPolygon()
+    public readonly DCEL RemoveSubPolygon()
     {
         var face = Faces.Keys.Last();
         var points = Faces[face];
