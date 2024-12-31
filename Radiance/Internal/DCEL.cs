@@ -259,6 +259,25 @@ public ref struct DCEL
     }
 
     /// <summary>
+    /// Get a array of points.
+    /// </summary>
+    public readonly float[] ToArray()
+    {
+        List<float> values = [];
+        foreach (var face in Faces)
+        {
+            foreach (var vertexId in face.Value)
+            {
+                ref var vertex = ref Vertexes[vertexId];
+                values.Add(vertex.X);
+                values.Add(vertex.Y);
+                values.Add(vertex.Z);
+            }
+        }
+        return [.. values];
+    }
+
+    /// <summary>
     /// Create a new empty face.
     /// </summary>
     int CreateFace()

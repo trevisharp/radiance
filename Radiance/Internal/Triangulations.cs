@@ -39,14 +39,7 @@ public static class Triangulations
         var dcel = new DCEL(points);
 
         if (MonotoneDivision(dcel, sweepLine))
-        {
-            while (dcel.Faces.Count > 0)
-            {
-                var subDcel = dcel.RemoveSubPolygon();
-                var subSweepLine = SweepLine.Create(subDcel.Vertexes, map);
-                return MonotonePlaneTriangulation(dcel, sweepLine);
-            }
-        }
+            return NonMonotonePlaneTriangularization(dcel, sweepLine);
 
         return MonotonePlaneTriangulation(dcel, sweepLine);
     }
@@ -174,6 +167,37 @@ public static class Triangulations
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Get a nonmonotone DCEL divide inot monotone polygons and returns
+    /// the triangularization.
+    /// </summary>
+    static float[] NonMonotonePlaneTriangularization(DCEL dcel, SweepLine sweepLine)
+    {
+        var index = 0;
+        int expectedTriangules = dcel.Vertexes.Length - 2;
+        var triangules = new float[9 * expectedTriangules];
+
+        float[] data;
+        while (dcel.Faces.Count > 0)
+        {
+            var subDcel = dcel.RemoveSubPolygon();
+            if (subDcel.Vertexes.Length < 4)
+            {
+                data = subDcel.ToArray();
+                Array.Copy(data, 0, triangules, index, data.Length);
+                index += data.Length;
+                continue;
+            }
+            
+            var subSweepLine = SweepLine.Create(subDcel.Vertexes, sweepLine.MapBuffer);
+            data = MonotonePlaneTriangulation(subDcel, subSweepLine);
+            Array.Copy(data, 0, triangules, index, data.Length);
+            index += data.Length;
+        }
+
+        return triangules;
     }
 
     /// <summary>

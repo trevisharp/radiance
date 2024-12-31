@@ -11,11 +11,11 @@ namespace Radiance.Internal;
 public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
 {
     readonly Span<PlanarVertex> points = points;
-    readonly Span<int> map = map;
 
-    public ref PlanarVertex this[int index] => ref points[map[index]];
+    public readonly Span<int> MapBuffer = map;
+    public ref PlanarVertex this[int index] => ref points[MapBuffer[index]];
 
-    public int Length => map.Length;
+    public int Length => MapBuffer.Length;
 
     public static SweepLine Create(Span<PlanarVertex> points, Span<int> map)
     {
