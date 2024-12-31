@@ -22,7 +22,7 @@ public static class Color
     public static Vec3 ToRGB(HSV color)
     {
         float C = color.V * color.S;
-        float X = C * (1 - MathF.Floor(color.H / 60 % 2 - 1));
+        float X = C * (1 - MathF.Abs(color.H / 60 % 2 - 1));
         float m = color.V - C;
 
         Vec3 temp = color.H switch
