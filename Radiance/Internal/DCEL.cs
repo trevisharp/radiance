@@ -144,7 +144,7 @@ public ref struct DCEL
     /// <summary>
     /// Discover the type of the vertex with specific id.
     /// </summary>
-    public VertexType DiscoverType(int v)
+    public readonly VertexType DiscoverType(int v)
     {
         var edges = Edges[v];
         ref var self = ref Vertexs[v];
@@ -170,7 +170,7 @@ public ref struct DCEL
     /// Find the left edge from a vertex.
     /// </summary>
     /// <returns></returns>
-    public int FindLeftEdge(int v)
+    public readonly int FindLeftEdge(int v)
     {
         var vert = Vertexs[v];
         var level = vert.Yp;
@@ -202,7 +202,7 @@ public ref struct DCEL
     /// Get the face shader by two vertex
     /// with id 'v' and 'u'.
     /// </summary>
-    int GetSharedFace(int v, int u)
+    readonly int GetSharedFace(int v, int u)
     {
         var midPoint = GetMidPoint(ref Vertexs[v], ref Vertexs[u]);
 
@@ -218,7 +218,7 @@ public ref struct DCEL
     /// <summary>
     /// Get if a point is in a face.
     /// </summary>
-    bool IsInFace(float x, float y, int faceId)
+    readonly bool IsInFace(float x, float y, int faceId)
     {
         var face = Faces[faceId];
 
@@ -271,13 +271,13 @@ public ref struct DCEL
     /// Get, and init if needed, edges connect
     /// to a vertex with specific id.
     /// </summary>
-    List<HalfEdge> GetEdgeList(int id)
+    readonly List<HalfEdge> GetEdgeList(int id)
     {
         if (Edges.TryGetValue(id, out var edges))
             return edges;
         
         edges = [];
-        Edges.Add(0, edges);
+        Edges.Add(id, edges);
         return edges;
     }
 
@@ -285,13 +285,13 @@ public ref struct DCEL
     /// Get, and init if needed, edges in
     /// a specific face.
     /// </summary>
-    List<HalfEdge> GetFaceEdgeList(int id)
+    readonly List<HalfEdge> GetFaceEdgeList(int id)
     {
         if (FacesEdges.TryGetValue(id, out var edges))
             return edges;
         
         edges = [];
-        FacesEdges.Add(0, edges);
+        FacesEdges.Add(id, edges);
         return edges;
     }
     
