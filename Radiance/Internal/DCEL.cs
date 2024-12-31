@@ -62,27 +62,83 @@ public ref struct DCEL
         if (v == u)
             return;
         
-        var sharedFace = GetSharedFace(v, u);
-        var newFace = CreateFace();
+        var faceA = GetSharedFace(v, u);
+        var faceB = CreateFace();
         
-        List<int> faceA = [];
-        List<int> faceB = [];
+        List<int> faceAPoints = [];
+        List<int> faceBPoints = [];
 
-        int i = v;
-        while (true)
+        List<HalfEdge> faceEdgesA = [];
+        List<HalfEdge> faceEdgesB = [];
+
+        var sharedEdges = GetEdgeList(faceA);
+        var fstEdge = sharedEdges[0];
+        var crrEdge = fstEdge;
+        
+        do
         {
-            faceA.Add(i);
-            if (i == u)
-                break;
+            var vertex = crrEdge.From;
+            crrEdge.FaceId = faceA;
+            faceAPoints.Add(vertex);
+            faceEdgesA.Add(crrEdge);
+            crrEdge = crrEdge.Next!;
 
-            var edge = Edges[v];
-            edge.
+            if (vertex == v)
+            {
+                faceAPoints.Add(u);
+                (faceA, faceB) = (faceB, faceA);
+                (faceAPoints, faceBPoints) = (faceBPoints, faceAPoints);
+                (faceEdgesA, faceEdgesB) = (faceEdgesB, faceEdgesA);
+            }
+
+            if (vertex == u)
+            {
+                faceAPoints.Add(v);
+                (faceA, faceB) = (faceB, faceA);
+                (faceAPoints, faceBPoints) = (faceBPoints, faceAPoints);
+                (faceEdgesA, faceEdgesB) = (faceEdgesB, faceEdgesA);
+            }
+
+        } while (crrEdge != fstEdge);
+
+        Faces[faceA] = faceAPoints;
+        Faces[faceB] = faceBPoints;
+        FacesEdges[faceA] = faceEdgesA;
+        FacesEdges[faceB] = faceEdgesB;
+
+        var e1 = CreateEdge(v, u, faceA);
+        faceEdgesA.Add(e1);
+        foreach (var e in faceEdgesA)
+        {
+            if (e.To == v)
+            {
+                e.SetNext(e1);
+                continue;
+            }
+            
+            if (e.From == u)
+            {
+                e.SetPrevious(e1);
+                continue;
+            }
         }
 
-        faceA.Add(v);
-
-        var e1 = CreateEdge(v, u, sharedFace);
-        var e2 = CreateEdge(u, v, newFace);
+        var e2 = CreateEdge(u, v, faceB);
+        faceEdgesB.Add(e2);
+        foreach (var e in faceEdgesB)
+        {
+            if (e.To == v)
+            {
+                e.SetNext(e2);
+                continue;
+            }
+            
+            if (e.From == u)
+            {
+                e.SetPrevious(e2);
+                continue;
+            }
+        }
     }
 
     /// <summary>
@@ -178,6 +234,9 @@ public ref struct DCEL
         return true;
     }
 
+    /// <summary>
+    /// Create a new empty face.
+    /// </summary>
     int CreateFace()
     {
         var id = nextEdgeId;

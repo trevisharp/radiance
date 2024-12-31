@@ -11,7 +11,7 @@ public class HalfEdge(int id, int from, int to, int face)
     public readonly int Id = id;
     public readonly int From = from;
     public readonly int To = to;
-    public readonly int FaceId = face;
+    public int FaceId = face;
     public HalfEdge? Next { get; private set; }
     public HalfEdge? Previous { get; private set; }
 
