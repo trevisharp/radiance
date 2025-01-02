@@ -16,7 +16,6 @@ namespace Radiance.Internal;
  * -Other problem related with the first item is some code that use index
  *      equals Id and do not will broken with simple polygons but can
  *      broke in the future with complex polygons.
- * -The possibilities are bigger, but the performance is awful.
  * -Complex polygons break the current implementation.
  * -Need some work to allow holes in polygons.
  */
@@ -139,6 +138,9 @@ public ref struct DCEL
         
         var faceId = GetSharedFace(v, u);
         if (faceId is null)
+            return false;
+        
+        if (IsConnected(v, u))
             return false;
         
         var currFace = faceId.Value;
@@ -324,8 +326,9 @@ public ref struct DCEL
 
             ref var vertexA = ref GetVertex(vertexAId);
             ref var vertexB = ref GetVertex(vertexBId);
+            var leftRes = Left(vertexA.Xp, vertexA.Yp, vertexB.Xp, vertexB.Yp, x, y);
 
-            if (Left(vertexA.Xp, vertexA.Yp, vertexB.Xp, vertexB.Yp, x, y) < 0)
+            if (leftRes < 0)
                 return false;
         }
 
@@ -362,6 +365,7 @@ public ref struct DCEL
                 values.Add(vertex.Z);
             }
         }
+        
         return [.. values];
     }
 

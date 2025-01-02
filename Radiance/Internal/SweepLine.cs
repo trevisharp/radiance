@@ -13,8 +13,10 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
 {
     readonly Span<PlanarVertex> source = points;
 
-    public int Length => source.Length;
     public readonly Span<int> MapBuffer = map;
+
+    public int Length => MapBuffer.Length;
+    
     public ref PlanarVertex this[int index] => ref source[MapBuffer[index]];
 
     public SweepLine ApplyFilter(int[] points)
