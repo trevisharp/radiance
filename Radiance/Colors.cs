@@ -1,14 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/12/2024
+ * Date:    02/01/2025
  */
 using System;
 
 namespace Radiance;
 
-using Colors;
-using Primitives;
+using ColorSpaces;
 
-public static class Color
+public static class Colors
 {
     /// <summary>
     /// Create a HSV color using h (0 - 360), s (0 - 1) and v (0 - 1).
@@ -19,22 +18,22 @@ public static class Color
     /// <summary>
     /// Convert a color for to RGB.
     /// </summary>
-    public static Vec3 ToRGB(HSV color)
+    public static RGB ToRGB(this HSV color)
     {
         float C = color.V * color.S;
         float X = C * (1 - MathF.Abs(color.H / 60 % 2 - 1));
         float m = color.V - C;
 
-        Vec3 temp = color.H switch
+        RGB temp = color.H switch
         {
-            >= 0 and < 60 => (C, X, 0),
-            >= 60 and < 120 => (X, C, 0),
-            >= 120 and < 180 => (0, C, X),
-            >= 180 and < 240 => (0, X, C),
-            >= 240 and < 300 => (X, 0, C),
-            _ => (C, 0, X),
+            >= 0 and < 60 => new (C, X, 0),
+            >= 60 and < 120 => new (X, C, 0),
+            >= 120 and < 180 => new (0, C, X),
+            >= 180 and < 240 => new (0, X, C),
+            >= 240 and < 300 => new (X, 0, C),
+            _ => new (C, 0, X),
         };
 
-        return temp + (m, m, m);
+        return new(temp.R + m, temp.G + m, temp.B + m);
     }
 }

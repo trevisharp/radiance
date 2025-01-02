@@ -1,7 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    31/12/2024
+ * Date:    02/01/2024
  */
-namespace Radiance.Colors;
+namespace Radiance.ColorSpaces;
 
 using Exceptions;
 
@@ -12,13 +12,13 @@ public readonly struct HSV
 {
     public HSV(float h, float s, float v)
     {
-        if (h < 0 || h > 360)
+        if (h is < 0 or > 360)
             throw new ColorException("HSV", "H", 0, 360, h);
             
-        if (s < 0 || s > 1)
+        if (s is < 0 or > 1)
             throw new ColorException("HSV", "S", 0, 1, s);
             
-        if (v < 0 || v > 1)
+        if (v is < 0 or > 1)
             throw new ColorException("HSV", "V", 0, 1, v);
         
         H = h;
