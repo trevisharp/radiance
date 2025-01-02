@@ -8,18 +8,6 @@ using System.Runtime.CompilerServices;
 
 namespace Radiance.Internal;
 
-/*
- * Future improvements:
- * -FindById affect performance. In a initial moment PlanarVertex.Id is equal
- *      to ther index on Vertexex prop, but for complex polygons on monotone
- *      division this assimetry is broke and FindById is needed.
- * -Other problem related with the first item is some code that use index
- *      equals Id and do not will broken with simple polygons but can
- *      broke in the future with complex polygons.
- * -Complex polygons break the current implementation.
- * -Need some work to allow holes in polygons.
- */
-
 /// <summary>
 /// Represents a Double Connected Edge List.
 /// </summary>
