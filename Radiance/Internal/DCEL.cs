@@ -28,13 +28,15 @@ public ref struct DCEL
 {
     int nextEdgeId = 0;
     int nextFaceId = 0;
+    readonly Span<PlanarVertex> OriginalSource;
     public readonly Span<PlanarVertex> Vertexes;
     public readonly Dictionary<int, List<HalfEdge>> Edges = [];
     public readonly Dictionary<int, List<int>> Faces = [];
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
 
-    public DCEL(Span<PlanarVertex> points)
+    public DCEL(Span<PlanarVertex> source, Span<PlanarVertex> points)
     {
+        OriginalSource = source;
         Vertexes = points;
 
         int face = CreateFace();
@@ -75,6 +77,8 @@ public ref struct DCEL
         lst.SetPrevious(prv);
         lst.SetNext(fst);
     }
+
+    public DCEL(Span<PlanarVertex> points) : this(points, points) { }
 
     /// <summary>
     /// Receiving 2 ids for vertex return if them are connected.
@@ -192,9 +196,9 @@ public ref struct DCEL
     {
         var edges = Edges[v];
         var edge = edges[0];
-        ref var self = ref Vertexes[v];
-        ref var e1 = ref Vertexes[edge.To];
-        ref var e2 = ref Vertexes[edge.Previous!.From];
+        ref var self = ref GetVertex(v);
+        ref var e1 = ref GetVertex(edge.To);
+        ref var e2 = ref GetVertex(edge.Previous!.From);
         
         if (over(ref self, ref e1) && over(ref self, ref e2))
             return Left(ref e1, ref self, ref e2) > 0 ?
@@ -225,7 +229,7 @@ public ref struct DCEL
         while (true)
         {
             var next = Edges[crr][0].To;
-            var newLevel = Vertexes[next].Yp;
+            var newLevel = GetVertex(next).Yp;
             var newRelation = newLevel < level;
 
             crr = next;
@@ -248,7 +252,7 @@ public ref struct DCEL
     /// </summary>
     readonly int? GetSharedFace(int v, int u)
     {
-        var (x, y) = GetMidPoint(ref FindById(v), ref FindById(u));
+        var (x, y) = GetMidPoint(ref GetVertex(v), ref GetVertex(u));
 
         for (int i = 0; i < Faces.Count; i++)
         {
@@ -273,8 +277,8 @@ public ref struct DCEL
             var vertexAId = face[i];
             var vertexBId = face[j];
 
-            ref var vertexA = ref FindById(vertexAId);
-            ref var vertexB = ref FindById(vertexBId);
+            ref var vertexA = ref GetVertex(vertexAId);
+            ref var vertexB = ref GetVertex(vertexBId);
 
             if (Left(vertexA.Xp, vertexA.Yp, vertexB.Xp, vertexB.Yp, x, y) < 0)
                 return false;
@@ -299,11 +303,11 @@ public ref struct DCEL
         var vertexes = new PlanarVertex[points.Count];
         for (int i = 0; i < points.Count; i++)
         {
-            vertexes[i] = Vertexes[edge.From];
+            vertexes[i] = GetVertex(edge.From);
             edge = edge.Next!;
         }
 
-        return new DCEL(vertexes);
+        return new DCEL(OriginalSource, vertexes);
     }
 
     /// <summary>
@@ -316,7 +320,7 @@ public ref struct DCEL
         {
             foreach (var vertexId in face.Value)
             {
-                ref var vertex = ref FindById(vertexId);
+                ref var vertex = ref GetVertex(vertexId);
                 values.Add(vertex.X);
                 values.Add(vertex.Y);
                 values.Add(vertex.Z);
@@ -326,18 +330,11 @@ public ref struct DCEL
     }
 
     /// <summary>
-    /// Find a Planar Vertex by id.
+    /// Get a Planar Vertex by id.
     /// </summary>
-    public readonly ref PlanarVertex FindById(int id)
-    {
-        for (int i = 0; i < Vertexes.Length; i++)
-        {
-            ref var vertex = ref Vertexes[i];
-            if (vertex.Id == id)
-                return ref vertex;
-        }
-        throw new Exception("Invalid vertex id");
-    }
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    public readonly ref PlanarVertex GetVertex(int id)
+        => ref OriginalSource[id];
 
     /// <summary>
     /// Create a new empty face.
@@ -405,9 +402,9 @@ public ref struct DCEL
     /// </summary>
     public readonly float Left(int pid, int qId, int rId)
     {
-        ref var p = ref FindById(pid);
-        ref var q = ref FindById(qId);
-        ref var r = ref FindById(rId);
+        ref var p = ref GetVertex(pid);
+        ref var q = ref GetVertex(qId);
+        ref var r = ref GetVertex(rId);
         return Left(ref p, ref q, ref r);
     }
 

@@ -38,7 +38,7 @@ public static class Triangulations
 
         if (MonotoneDivision(dcel, sweepLine))
             return NonMonotonePlaneTriangularization(dcel, sweepLine);
-
+        
         return MonotonePlaneTriangulation(dcel, sweepLine);
     }
     
