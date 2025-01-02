@@ -636,9 +636,3 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Many functions of GLSL like cos, sin distance, round, smoothstep and others...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
-
-# Advices (problems to solve in Radiance in the future)
- - Sometimes its hard to handle images
- - Sometimes functions on Polygons can create polygons that our triangularization algorithm cannot handle.
- - The triangularization algorithm, in general, has some problems of performance and correctnes with some polygons.
- - Sometimes the code generation can result in incorrect behaviours, in particular when we send data between shaders.
