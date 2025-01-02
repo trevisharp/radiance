@@ -534,7 +534,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/update-blue) Improve the agregation of many poligons in a unique GPU call.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Improve triangulation to avoid fail in more polygons.
 
-### Radiance v2.3.1 (current)
+### Radiance v2.3.1
 
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we use 3d points and make a trinagulation.
   - ![](https://img.shields.io/badge/update-blue) Improve WindowClosedException message.
@@ -636,8 +636,3 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Many functions of GLSL like cos, sin distance, round, smoothstep and others...
  - ![](https://img.shields.io/badge/new-green) RadianceUtils static class with all util operations and data.
  - ![](https://img.shields.io/badge/new-green) Dependece system with auto add uniforms and variables like width, heigth and the time in the app (named t) to use in implementations.
-
-
-# Future Ideias
- - Improve image handling
- - Fix some generation code bugs (send data between shaders)

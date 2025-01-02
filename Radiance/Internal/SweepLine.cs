@@ -1,7 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/12/2024
+ * Date:    02/01/2025
  */
 using System;
+using System.Linq;
 
 namespace Radiance.Internal;
 
@@ -10,19 +11,33 @@ namespace Radiance.Internal;
 /// </summary>
 public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
 {
-    readonly Span<PlanarVertex> points = points;
+    readonly Span<PlanarVertex> source = points;
 
     public readonly Span<int> MapBuffer = map;
-    public ref PlanarVertex this[int index] => ref points[MapBuffer[index]];
 
-    public int Length => points.Length;
+    public int Length => MapBuffer.Length;
+    
+    public ref PlanarVertex this[int index] => ref source[MapBuffer[index]];
+
+    public SweepLine ApplyFilter(int[] points)
+    {
+        Span<int> modifiedMap = new int[points.Length];
+        
+        for (int i = 0, j = 0; i < MapBuffer.Length; i++)
+        {
+            if (points.Contains(MapBuffer[i]))
+                modifiedMap[j++] = MapBuffer[i];
+        }
+
+        return new SweepLine(this.source, modifiedMap);
+    }
 
     public static SweepLine Create(Span<PlanarVertex> points, Span<int> map)
     {
         Sort(points, map);
         return new SweepLine(points, map);
     }
-
+    
     const int sortTreshold = 16;
     
     /// <summary>
