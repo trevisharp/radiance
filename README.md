@@ -534,7 +534,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/update-blue) Improve the agregation of many poligons in a unique GPU call.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Improve triangulation to avoid fail in more polygons.
 
-### Radiance v2.3.1 (current)
+### Radiance v2.3.1
 
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix a bug when we use 3d points and make a trinagulation.
   - ![](https://img.shields.io/badge/update-blue) Improve WindowClosedException message.
