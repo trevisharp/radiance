@@ -29,27 +29,27 @@ public ref struct DCEL
     int nextEdgeId = 0;
     int nextFaceId = 0;
     readonly Span<PlanarVertex> OriginalSource;
-    public readonly Span<PlanarVertex> Vertexes;
+    public readonly int Length;
     public readonly Dictionary<int, List<HalfEdge>> Edges = [];
     public readonly Dictionary<int, List<int>> Faces = [];
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
 
-    public DCEL(Span<PlanarVertex> source, Span<PlanarVertex> points)
+    public DCEL(Span<PlanarVertex> source, int[] points)
     {
         OriginalSource = source;
-        Vertexes = points;
+        Length = points.Length;
 
         int face = CreateFace();
         List<int> faceVertexes = Faces[face];
         List<HalfEdge> faceEdges = FacesEdges[face];
 
         for (int j = 0; j < points.Length; j++)
-            faceVertexes.Add(Vertexes[j].Id);
+            faceVertexes.Add(points[j]);
 
         HalfEdge fst, prv;
         fst = prv = CreateEdge(
-            Vertexes[0].Id,
-            Vertexes[1].Id,
+            points[0],
+            points[1],
             face
         );
 
@@ -57,8 +57,8 @@ public ref struct DCEL
         while (i < points.Length - 1)
         {
             var crr = CreateEdge(
-                Vertexes[i].Id,
-                Vertexes[i + 1].Id,
+                points[i],
+                points[i + 1],
                 face
             );
             faceEdges.Add(crr);
@@ -69,8 +69,8 @@ public ref struct DCEL
         }
 
         var lst = CreateEdge(
-            Vertexes[i].Id, 
-            Vertexes[0].Id,
+            points[i], 
+            points[0],
             face
         );
         faceEdges.Add(lst);
@@ -78,7 +78,49 @@ public ref struct DCEL
         lst.SetNext(fst);
     }
 
-    public DCEL(Span<PlanarVertex> points) : this(points, points) { }
+    public DCEL(Span<PlanarVertex> points)
+    {
+        OriginalSource = points;
+        Length = points.Length;
+
+        int face = CreateFace();
+        List<int> faceVertexes = Faces[face];
+        List<HalfEdge> faceEdges = FacesEdges[face];
+
+        for (int j = 0; j < points.Length; j++)
+            faceVertexes.Add(j);
+
+        HalfEdge fst, prv;
+        fst = prv = CreateEdge(
+            0,
+            1,
+            face
+        );
+
+        int i = 1;
+        while (i < points.Length - 1)
+        {
+            var crr = CreateEdge(
+                i,
+                i + 1,
+                face
+            );
+            faceEdges.Add(crr);
+            crr.SetPrevious(prv);
+
+            prv = crr;
+            i++;
+        }
+
+        var lst = CreateEdge(
+            i, 
+            0,
+            face
+        );
+        faceEdges.Add(lst);
+        lst.SetPrevious(prv);
+        lst.SetNext(fst);
+    }
 
     /// <summary>
     /// Receiving 2 ids for vertex return if them are connected.
@@ -97,9 +139,6 @@ public ref struct DCEL
         
         var faceId = GetSharedFace(v, u);
         if (faceId is null)
-            return false;
-        
-        if (IsConnected(v, u))
             return false;
         
         var currFace = faceId.Value;
@@ -220,7 +259,7 @@ public ref struct DCEL
     /// </summary>
     public readonly int FindLeftEdge(int v)
     {
-        var vert = Vertexes[v];
+        var vert = GetVertex(v);
         var level = vert.Yp;
         var xpos = vert.Xp;
         bool? lastRelation = null;
@@ -239,12 +278,18 @@ public ref struct DCEL
                 continue;
             
             lastRelation = newRelation;
-            if (Vertexes[next].Xp > xpos)
+            if (GetVertex(next).Xp > xpos)
                 continue;
             
             return crr;
         }
     }
+
+    /// <summary>
+    /// Filter DCEL considering some points of original source.
+    /// </summary>
+    public readonly DCEL ApplyFilter(int[] points)
+        => new (OriginalSource, points);
 
     /// <summary>
     /// Get the face shader by two vertex
@@ -290,24 +335,15 @@ public ref struct DCEL
     /// <summary>
     /// Remove a random subpolygon and return a new DCEL.
     /// </summary>
-    public readonly DCEL RemoveSubPolygon()
+    public readonly int[] RemoveSubPolygon()
     {
         var face = Faces.Keys.Last();
         var points = Faces[face];
+
         Faces.Remove(face);
-
-        var edges = FacesEdges[face];
         FacesEdges.Remove(face);
-        var edge = edges[0];
 
-        var vertexes = new PlanarVertex[points.Count];
-        for (int i = 0; i < points.Count; i++)
-        {
-            vertexes[i] = GetVertex(edge.From);
-            edge = edge.Next!;
-        }
-
-        return new DCEL(OriginalSource, vertexes);
+        return [ ..points ];
     }
 
     /// <summary>
@@ -333,7 +369,7 @@ public ref struct DCEL
     /// Get a Planar Vertex by id.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly ref PlanarVertex GetVertex(int id)
+    readonly ref PlanarVertex GetVertex(int id)
         => ref OriginalSource[id];
 
     /// <summary>

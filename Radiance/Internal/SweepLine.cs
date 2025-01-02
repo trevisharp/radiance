@@ -2,6 +2,7 @@
  * Date:    29/12/2024
  */
 using System;
+using System.Linq;
 
 namespace Radiance.Internal;
 
@@ -10,19 +11,31 @@ namespace Radiance.Internal;
 /// </summary>
 public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
 {
-    readonly Span<PlanarVertex> points = points;
+    readonly Span<PlanarVertex> source = points;
 
+    public int Length => source.Length;
     public readonly Span<int> MapBuffer = map;
-    public ref PlanarVertex this[int index] => ref points[MapBuffer[index]];
+    public ref PlanarVertex this[int index] => ref source[MapBuffer[index]];
 
-    public int Length => points.Length;
+    public SweepLine ApplyFilter(int[] points)
+    {
+        Span<int> modifiedMap = new int[points.Length];
+        
+        for (int i = 0, j = 0; i < MapBuffer.Length; i++)
+        {
+            if (points.Contains(MapBuffer[i]))
+                modifiedMap[j++] = MapBuffer[i];
+        }
+
+        return new SweepLine(this.source, modifiedMap);
+    }
 
     public static SweepLine Create(Span<PlanarVertex> points, Span<int> map)
     {
         Sort(points, map);
         return new SweepLine(points, map);
     }
-
+    
     const int sortTreshold = 16;
     
     /// <summary>

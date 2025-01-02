@@ -174,14 +174,15 @@ public static class Triangulations
     static float[] NonMonotonePlaneTriangularization(DCEL dcel, SweepLine sweepLine)
     {
         var index = 0;
-        int expectedTriangules = dcel.Vertexes.Length - 2;
+        int expectedTriangules = dcel.Length - 2;
         var triangules = new float[9 * expectedTriangules];
 
         float[] data;
         while (dcel.Faces.Count > 0)
         {
-            var subDcel = dcel.RemoveSubPolygon();
-            if (subDcel.Vertexes.Length < 4)
+            var subPointsIds = dcel.RemoveSubPolygon();   
+            var subDcel = dcel.ApplyFilter(subPointsIds);
+            if (subDcel.Length < 4)
             {
                 data = subDcel.ToArray();
                 Array.Copy(data, 0, triangules, index, data.Length);
@@ -189,7 +190,7 @@ public static class Triangulations
                 continue;
             }
             
-            var subSweepLine = SweepLine.Create(subDcel.Vertexes, sweepLine.MapBuffer);
+            var subSweepLine = sweepLine.ApplyFilter(subPointsIds);
             data = MonotonePlaneTriangulation(subDcel, subSweepLine);
             Array.Copy(data, 0, triangules, index, data.Length);
             index += data.Length;
@@ -209,7 +210,7 @@ public static class Triangulations
         stack.Push((sweepLine[0].Id, false));
         stack.Push((sweepLine[1].Id, true));
 
-        for (int k = 2; k < dcel.Vertexes.Length; k++)
+        for (int k = 2; k < dcel.Length; k++)
         {
             var top = stack.Peek();
             ref var nxt = ref sweepLine[k];
