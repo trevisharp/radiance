@@ -55,7 +55,7 @@ public static class Triangulations
         if (!types.Contains(VertexType.Merge) && !types.Contains(VertexType.Split))
             return false;
         
-        // information if polygon lies right or left te vertex
+        // information if polygon lies right or left vertex
         int start = sweepLine[0].Id;
         int index = start + sweepLine.Length;
         var polygonRight = new bool[sweepLine.Length];
@@ -151,15 +151,17 @@ public static class Triangulations
                         edgesCollect.Remove(eprev);
                         edgesCollect.Add(ei);
                         helper[ei] = vi;
-                        break;
+                    }
+                    else
+                    {
+                        var ej3 = dcel.FindLeftEdge(vi);
+                        if (helper[ej3] != -1 && types[helper[ej3]] == VertexType.Merge)
+                        {
+                            dcel.Connect(helper[ej3], vi);
+                        }
+                        helper[ej3] = vi;
                     }
 
-                    var ej3 = dcel.FindLeftEdge(vi);
-                    if (helper[ej3] != -1 && types[helper[ej3]] == VertexType.Merge)
-                    {
-                        dcel.Connect(helper[ej3], vi);
-                    }
-                    helper[ej3] = vi;
                     break;
             }
         }

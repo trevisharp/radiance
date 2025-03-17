@@ -121,10 +121,12 @@ public ref struct DCEL
     /// </summary>
     public bool Connect(int v, int u)
     {
+        Console.WriteLine($"Connect({v}, {u})");
         if (v == u)
             return false;
         
         var faceId = GetSharedFace(v, u);
+        Console.WriteLine($"Shared Face {faceId}");
         if (faceId is null)
             return false;
         
@@ -287,40 +289,26 @@ public ref struct DCEL
     /// </summary>
     readonly int? GetSharedFace(int v, int u)
     {
-        var (x, y) = GetMidPoint(ref GetVertex(v), ref GetVertex(u));
-
-        for (int i = 0; i < Faces.Count; i++)
+        foreach (var (faceId, _) in Faces)
         {
-            if (IsInFace(x, y, i))
-                return i;
+            var edges = FacesEdges[faceId];
+            bool hasV = false,
+                 hasU = false;
+            
+            foreach (var edge in edges)
+            {
+                if (edge.From == v)
+                    hasV = true;
+                
+                if (edge.From == u)
+                    hasU = true;
+            }
+
+            if (hasV && hasU)
+                return faceId;
         }
 
         return null;
-    }
-
-    /// <summary>
-    /// Get if a point is in a face.
-    /// </summary>
-    readonly bool IsInFace(float x, float y, int faceId)
-    {
-        var face = Faces[faceId];
-
-        for (int i = 0; i < face.Count; i++)
-        {
-            int j = (i + 1) % face.Count;
-
-            var vertexAId = face[i];
-            var vertexBId = face[j];
-
-            ref var vertexA = ref GetVertex(vertexAId);
-            ref var vertexB = ref GetVertex(vertexBId);
-            var leftRes = Left(vertexA.Xp, vertexA.Yp, vertexB.Xp, vertexB.Yp, x, y);
-
-            if (leftRes < 0)
-                return false;
-        }
-
-        return true;
     }
 
     /// <summary>
