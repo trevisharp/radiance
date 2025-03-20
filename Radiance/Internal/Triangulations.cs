@@ -96,8 +96,8 @@ public static class Triangulations
             {
                 case VertexType.Start:
 
-                    edgesCollect.Add(ei);
-                    helper[ei] = vi;
+                    edgesCollect.Add(eprev);
+                    helper[eprev] = vi;
 
                     break;
                     
@@ -126,12 +126,12 @@ public static class Triangulations
 
                 case VertexType.Merge:
 
-                    if (helper[eprev] != -1 && types[helper[eprev]] == VertexType.Merge)
+                    if (helper[ei] != -1 && types[helper[ei]] == VertexType.Merge)
                     {
-                        dcel.Connect(vi, helper[eprev]);
+                        dcel.Connect(vi, helper[ei]);
                     }
 
-                    edgesCollect.Remove(eprev);
+                    edgesCollect.Remove(ei);
 
                     var ej2 = dcel.FindLeftEdge(vi);
                     Console.WriteLine($"\tLefEdge({vi}) = {ej2}");

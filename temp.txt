@@ -1,0 +1,19 @@
+using Radiance;
+using static Radiance.Utils;
+
+var poly = Polygons.Polar(a => 1 + 0.2f * MathF.Cos(10 * a), 0, 0, 0, 20);
+var myRender = render(() =>
+{
+    zoom(400);
+    centralize();
+
+    color = mix(red, blue, x / width);
+    fill();
+
+    color = white;
+    draw(2f);
+});
+
+Window.OnRender += () => myRender(poly);
+Window.CloseOn(Input.Escape);
+Window.Open();
