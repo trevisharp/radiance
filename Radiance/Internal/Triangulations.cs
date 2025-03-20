@@ -208,45 +208,83 @@ public static class Triangulations
     /// </summary>
     static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
     {
-        var stack = new Stack<(int id, bool chain)>();
-        stack.Push((sweepLine[0].Id, false));
-        stack.Push((sweepLine[1].Id, true));
+        var temp = dcel.FacesEdges.FirstOrDefault();
+        var pts = temp.Value.SelectMany(x => new int[] { x.To, x.From }).Distinct();
+        Console.WriteLine($"MonotonePlaneTriangulation({string.Join(", ", pts)})");
+
+        var chainA = new Stack<int>();
+        chainA.Push(sweepLine[0].Id);
+        chainA.Push(sweepLine[1].Id);
+        bool leftChain = sweepLine[0].X < sweepLine[1].X;
 
         for (int k = 2; k < dcel.Length; k++)
         {
-            var top = stack.Peek();
-            ref var nxt = ref sweepLine[k];
-            var isConn = dcel.IsConnected(top.id, nxt.Id);
-            (int id, bool chain) current = (nxt.Id, !(isConn ^ top.chain));
+            var nextId = sweepLine[k].Id;
+            if (dcel.IsConnected(chainA.Peek(), nextId))
+                chainA.Push(nextId);
+        }
 
-            if (current.chain == top.chain)
+        var stack = new Stack<int>();
+        stack.Push(sweepLine[0].Id);
+        stack.Push(sweepLine[1].Id);
+
+        for (int k = 2; k < dcel.Length - 1; k++)
+        {
+            var topId = stack.Pop();
+            var nextId = sweepLine[k].Id;
+
+            var topInChainA = chainA.Contains(topId);
+            var nextInChainA = chainA.Contains(nextId);
+            var sameChain = topInChainA == nextInChainA;
+
+            Console.WriteLine($"data: {string.Join(", ", stack)}, {topId}, {nextId}");
+            Console.WriteLine($"sameChain: {sameChain}");
+            if (sameChain)
             {
-                var nextConn = stack.Pop();
-                while (dcel.Connect(nextConn.id, current.id) && stack.Count > 0)
+                var currId = -1;
+                var midId = topId;
+                while (stack.Count > 0)
                 {
-                    nextConn = stack.Pop();
-                } 
-                stack.Push(nextConn);
-                stack.Push(current);
+                    currId = stack.Pop();
+                    ref var middle = ref dcel.GetVertex(midId);
+                    ref var top = ref dcel.GetVertex(currId);
+                    ref var next = ref dcel.GetVertex(nextId);
+
+                    var cross = (middle.X - top.X) * (next.Y - top.Y) - (middle.Y - top.Y) * (next.X - top.X);
+                    Console.WriteLine(cross);
+                    Console.WriteLine(leftChain);
+                    Console.WriteLine(nextInChainA);
+                    Console.WriteLine(topInChainA);
+                    var canConnect = 
+                        nextInChainA && leftChain && cross > 0 ||
+                        nextInChainA && !leftChain && cross < 0 ||
+                        !nextInChainA && leftChain && cross > 0 ||
+                        !nextInChainA && !leftChain && cross < 0;
+
+                    if (!canConnect)
+                        break;
+                    dcel.Connect(nextId, currId);
+                    midId = currId;
+                }
+
+                if (midId == topId)
+                    stack.Push(midId);
+                stack.Push(currId);
+                stack.Push(nextId);
             }
             else
             {
+                dcel.Connect(nextId, topId);
                 while (stack.Count > 0)
                 {
-                    dcel.Connect(current.id, stack.Pop().id);
+                    var currId = stack.Pop();
+                    dcel.Connect(nextId, currId);
                 }
-
-                stack.Push(top);
-                stack.Push(current);
+                stack.Push(topId);
+                stack.Push(nextId);
             }
-        }
 
-        var bot = sweepLine[^1];
-        stack.Pop();
-        while (stack.Count > 1)
-        {
-            var vert = stack.Pop();
-            dcel.Connect(bot.Id, vert.id);
+
         }
 
         return dcel.ToArray();

@@ -126,7 +126,6 @@ public ref struct DCEL
             return false;
         
         var faceId = GetSharedFace(v, u);
-        Console.WriteLine($"Shared Face {faceId}");
         if (faceId is null)
             return false;
         
@@ -349,7 +348,7 @@ public ref struct DCEL
     /// Get a Planar Vertex by id.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    readonly ref PlanarVertex GetVertex(int id)
+    public readonly ref PlanarVertex GetVertex(int id)
         => ref OriginalSource[id];
 
     /// <summary>
