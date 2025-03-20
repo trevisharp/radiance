@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/01/2025
+ * Date:    20/03/2025
  */
 using System;
 using System.Linq;
@@ -88,6 +88,9 @@ public static class Triangulations
             var eprev = ei - 1;
             if (eprev == -1)
                 eprev = sweepLine.Length - 1;
+            
+            Console.WriteLine($"vi = {vi}");
+            Console.WriteLine($"type = {types[vi]}");
 
             switch (type)
             {
@@ -131,6 +134,7 @@ public static class Triangulations
                     edgesCollect.Remove(eprev);
 
                     var ej2 = dcel.FindLeftEdge(vi);
+                    Console.WriteLine($"\tLefEdge({vi}) = {ej2}");
                     if (helper[ej2] != -1 && types[helper[ej2]] == VertexType.Merge)
                     {
                         dcel.Connect(helper[ej2], vi);
@@ -164,6 +168,10 @@ public static class Triangulations
 
                     break;
             }
+            
+            Console.WriteLine($"edgesCollect = [ {string.Join(", ", edgesCollect)} ]");
+            Console.WriteLine($"helper = {{ {string.Join(", ", helper.Where(k => k.Value != -1))} }}");
+            Console.WriteLine();
         }
 
         return true;
@@ -210,7 +218,7 @@ public static class Triangulations
     {
         var temp = dcel.FacesEdges.FirstOrDefault();
         var pts = temp.Value.SelectMany(x => new int[] { x.To, x.From }).Distinct();
-        Console.WriteLine($"MonotonePlaneTriangulation({string.Join(", ", pts)})");
+        // Console.WriteLine($"MonotonePlaneTriangulation({string.Join(", ", pts)})");
 
         var chainA = new Stack<int>();
         chainA.Push(sweepLine[0].Id);
@@ -237,8 +245,6 @@ public static class Triangulations
             var nextInChainA = chainA.Contains(nextId);
             var sameChain = topInChainA == nextInChainA;
 
-            Console.WriteLine($"data: {string.Join(", ", stack)}, {topId}, {nextId}");
-            Console.WriteLine($"sameChain: {sameChain}");
             if (sameChain)
             {
                 var currId = -1;
@@ -251,10 +257,6 @@ public static class Triangulations
                     ref var next = ref dcel.GetVertex(nextId);
 
                     var cross = (middle.X - top.X) * (next.Y - top.Y) - (middle.Y - top.Y) * (next.X - top.X);
-                    Console.WriteLine(cross);
-                    Console.WriteLine(leftChain);
-                    Console.WriteLine(nextInChainA);
-                    Console.WriteLine(topInChainA);
                     var canConnect = 
                         nextInChainA && leftChain && cross > 0 ||
                         nextInChainA && !leftChain && cross < 0 ||

@@ -121,7 +121,7 @@ public ref struct DCEL
     /// </summary>
     public bool Connect(int v, int u)
     {
-        Console.WriteLine($"Connect({v}, {u})");
+        Console.WriteLine($"\tConnect({v}, {u})");
         if (v == u)
             return false;
         
