@@ -1,11 +1,10 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/01/2025
+ * Date:    21/03/2025
  */
 using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using OpenTK.Graphics.OpenGL;
 
 namespace Radiance.Internal;
 
@@ -122,7 +121,7 @@ public ref struct DCEL
     /// </summary>
     public bool Connect(int v, int u)
     {
-        Console.WriteLine($"\tConnect({v}, {u})");
+        Console.WriteLine($"Connect({v}, {u})");
         if (v == u)
             return false;
         
