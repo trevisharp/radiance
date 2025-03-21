@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using OpenTK.Graphics.OpenGL;
 
 namespace Radiance.Internal;
 
@@ -248,32 +249,51 @@ public ref struct DCEL
     /// <summary>
     /// Find the left edge from a vertex.
     /// </summary>
-    public readonly int FindLeftEdge(int v)
+    public readonly int FindLeftEdge(int vertexId)
     {
-        var vert = GetVertex(v);
-        var level = vert.Yp;
-        var xpos = vert.Xp;
-        bool? lastRelation = null;
+        var vert = GetVertex(vertexId);
+        var y = vert.Yp;
+        var x = vert.Xp;
 
-        var crr = v;
-        while (true)
+        int selected = -1;
+        float bestX = float.MaxValue;
+
+        var edges = Edges.SelectMany(e => e.Value);
+        foreach (var edge in edges)
         {
-            var next = Edges[crr][0].To;
-            var newLevel = GetVertex(next).Yp;
-            var newRelation = newLevel < level;
-
-            crr = next;
-
-            lastRelation ??= newRelation;
-            if (lastRelation == newRelation)
+            if (edge.From == vertexId)
                 continue;
             
-            lastRelation = newRelation;
-            if (GetVertex(next).Xp > xpos)
+            if (edge.To == vertexId)
+                continue;
+
+            var v = GetVertex(edge.To);
+            var x1 = v.Xp;
+            var y1 = v.Yp;
+
+            var u = GetVertex(edge.From);
+            var x2 = u.Xp;
+            var y2 = u.Yp;
+
+            var between = y1 > y && y > y2 || y2 > y && y > y1;
+            if (!between)
+                continue;
+
+            var minX = float.Min(x1, x2);
+            if (minX > bestX)
                 continue;
             
-            return crr;
+            if (Left(v.Id, vertexId, u.Id) < 0)
+            {
+                Console.WriteLine("Maicon");
+                continue;
+            }
+
+            bestX = minX;
+            selected = edge.Id;
         }
+
+        return selected;
     }
 
     /// <summary>
