@@ -283,10 +283,7 @@ public ref struct DCEL
                 continue;
             
             if (Left(v.Id, vertexId, u.Id) < 0)
-            {
-                Console.WriteLine("Maicon");
                 continue;
-            }
 
             bestX = minX;
             selected = edge.Id;
