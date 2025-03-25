@@ -17,7 +17,8 @@ public ref struct DCEL
     int nextFaceId = 0;
     readonly Span<PlanarVertex> OriginalSource;
     public readonly int Length;
-    public readonly Dictionary<int, List<HalfEdge>> Edges = [];
+    public readonly List<HalfEdge> Edges = [];
+    public readonly Dictionary<int, List<HalfEdge>> VertexEdges = [];
     public readonly Dictionary<int, List<int>> Faces = [];
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
 
@@ -113,15 +114,14 @@ public ref struct DCEL
     /// Receiving 2 ids for vertex return if them are connected.
     /// </summary>
     public readonly bool IsConnected(int v, int u)
-        => Edges[v].Any(e => e.To == u) 
-        || Edges[u].Any(e => e.To == v);
+        => VertexEdges[v].Any(e => e.To == u) 
+        || VertexEdges[u].Any(e => e.To == v);
 
     /// <summary>
     /// Add a Edge between two vertex.
     /// </summary>
     public bool Connect(int v, int u)
     {
-        Console.WriteLine($"Connect({v}, {u})");
         if (v == u)
             return false;
         
@@ -220,11 +220,65 @@ public ref struct DCEL
     }
 
     /// <summary>
+    /// Return true if two vertices can connect with a line
+    /// inside the polygon.
+    /// </summary>
+    public readonly bool CanInternalConnect(int vid, int uid)
+    {
+        ref var v = ref GetVertex(vid);
+        ref var u = ref GetVertex(uid);
+
+        foreach (var edge in Edges)
+        {
+            if (edge.From == vid || edge.From == uid)
+                continue;
+            
+            if (edge.To == vid || edge.To == uid)
+                continue;
+
+            ref var v2 = ref GetVertex(edge.From);
+            ref var u2 = ref GetVertex(edge.To);
+
+            if (Intersect(ref v, ref u, ref v2, ref u2))
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Get two hash set of the left and right chain over a sweep line.
+    /// </summary>
+    public readonly (HashSet<int> left, HashSet<int> right) GetChains(SweepLine sweepLine)
+    {
+        HashSet<int> leftChain = [ sweepLine[0].Id ];
+        HashSet<int> rightChain = [ ];
+
+        var top = sweepLine[0].Id;
+        var bottom = sweepLine[^1].Id;
+        var current = top;
+
+        while (current != bottom)
+        {
+            leftChain.Add(current);
+            current = VertexEdges[current][0].To;
+        }
+        
+        while (current != top)
+        {
+            rightChain.Add(current);
+            current = VertexEdges[current][0].To;
+        }
+
+        return (leftChain, rightChain);
+    }
+
+    /// <summary>
     /// Discover the type of the vertex with specific id.
     /// </summary>
     public readonly VertexType DiscoverType(int v)
     {
-        var edges = Edges[v];
+        var edges = VertexEdges[v];
         var edge = edges[0];
         ref var self = ref GetVertex(v);
         ref var e1 = ref GetVertex(edge.To);
@@ -257,7 +311,7 @@ public ref struct DCEL
         int selected = -1;
         float bestX = float.MaxValue;
 
-        var edges = Edges.SelectMany(e => e.Value);
+        var edges = VertexEdges.SelectMany(e => e.Value);
         foreach (var edge in edges)
         {
             if (edge.From == vertexId)
@@ -302,7 +356,7 @@ public ref struct DCEL
     /// Get the face shader by two vertex
     /// with id 'v' and 'u'.
     /// </summary>
-    readonly int? GetSharedFace(int v, int u)
+    public readonly int? GetSharedFace(int vid, int uid)
     {
         foreach (var (faceId, _) in Faces)
         {
@@ -312,10 +366,10 @@ public ref struct DCEL
             
             foreach (var edge in edges)
             {
-                if (edge.From == v)
+                if (edge.From == vid)
                     hasV = true;
                 
-                if (edge.From == u)
+                if (edge.From == uid)
                     hasU = true;
             }
 
@@ -393,6 +447,7 @@ public ref struct DCEL
         var edge = new HalfEdge(id, from, to, face);
         var edges = GetEdgeList(from);
         edges.Add(edge);
+        Edges.Add(edge);
 
         var faceEdges = GetFaceEdgeList(face);
         faceEdges.Add(edge);
@@ -406,11 +461,11 @@ public ref struct DCEL
     /// </summary>
     readonly List<HalfEdge> GetEdgeList(int id)
     {
-        if (Edges.TryGetValue(id, out var edges))
+        if (VertexEdges.TryGetValue(id, out var edges))
             return edges;
         
         edges = [];
-        Edges.Add(id, edges);
+        VertexEdges.Add(id, edges);
         return edges;
     }
 
@@ -462,9 +517,31 @@ public ref struct DCEL
     }
 
     /// <summary>
-    /// Get the mid point between two points.
+    /// Returns true if two lines (p, pf) and (q, qf) intersects.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static (float x, float y) GetMidPoint(ref PlanarVertex p, ref PlanarVertex q)
-        => ((p.Xp + q.Xp) / 2, (p.Yp + q.Yp) / 2);
+    static bool Intersect(
+        ref PlanarVertex p, ref PlanarVertex pf,
+        ref PlanarVertex q, ref PlanarVertex qf
+    )
+    {
+        // alfa * vx + px = beta * ux + qx
+        // alfa * vy + py = beta * uy + qy
+        // alfa = (beta * ux + qx - px) / vx
+        // vy * (beta * ux + qx - px) / vx + py = beta * uy + qy
+        // beta * ux * vy / vx - beta * uy = qy - py - (qx - px) * vy / vx
+        // beta * (ux * vy / vx - uy) = qy - py - (qx - px) * vy / vx
+        
+        var vx = pf.Xp - p.Xp;
+        var vy = pf.Yp - p.Yp;
+        var ux = qf.Xp - q.Xp;
+        var uy = qf.Yp - q.Yp;
+
+        var beta = (q.Yp - p.Yp - (q.Xp - p.Xp) * vy / vx)
+            / (ux * vy / vx - uy);
+        
+        var alfa = (beta * ux + q.Xp - p.Xp) / vx;
+
+        return (alfa, beta) is (>0 and <1, >0 and <1);
+    }
 }
