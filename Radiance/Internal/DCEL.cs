@@ -79,11 +79,7 @@ public ref struct DCEL
             faceVertexes.Add(j);
 
         HalfEdge fst, prv;
-        fst = prv = CreateEdge(
-            0,
-            1,
-            face
-        );
+        fst = prv = CreateEdge(0, 1, face);
 
         int i = 1;
         while (i < points.Length - 1)
@@ -230,12 +226,6 @@ public ref struct DCEL
 
         foreach (var edge in Edges)
         {
-            if (edge.From == vid || edge.From == uid)
-                continue;
-            
-            if (edge.To == vid || edge.To == uid)
-                continue;
-
             ref var v2 = ref GetVertex(edge.From);
             ref var u2 = ref GetVertex(edge.To);
 
