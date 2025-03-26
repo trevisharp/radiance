@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/03/2025
+ * Date:    26/03/2025
  */
 using System;
 using System.Linq;
@@ -128,6 +128,8 @@ public ref struct DCEL
         if (IsConnected(v, u))
             return false;
         
+        Console.WriteLine($"Connect({v}, {u})");
+        
         var currFace = faceId.Value;
         var othrFace = CreateFace();
         
@@ -241,12 +243,12 @@ public ref struct DCEL
     /// </summary>
     public readonly (HashSet<int> left, HashSet<int> right) GetChains(SweepLine sweepLine)
     {
-        HashSet<int> leftChain = [ sweepLine[0].Id ];
-        HashSet<int> rightChain = [ ];
-
         var top = sweepLine[0].Id;
         var bottom = sweepLine[^1].Id;
         var current = top;
+
+        HashSet<int> leftChain = [ top ];
+        HashSet<int> rightChain = [ ];
 
         while (current != bottom)
         {
@@ -260,7 +262,7 @@ public ref struct DCEL
             current = VertexEdges[current][0].To;
         }
 
-        return (leftChain, rightChain);
+        return (rightChain, leftChain);
     }
 
     /// <summary>
@@ -332,7 +334,7 @@ public ref struct DCEL
             bestX = minX;
             selected = edge.Id;
         }
-
+        
         return selected;
     }
 
