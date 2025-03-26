@@ -303,8 +303,7 @@ public ref struct DCEL
         int selected = -1;
         float bestX = float.MaxValue;
 
-        var edges = VertexEdges.SelectMany(e => e.Value);
-        foreach (var edge in edges)
+        foreach (var edge in Edges)
         {
             if (edge.From == vertexId)
                 continue;
@@ -320,7 +319,7 @@ public ref struct DCEL
             var x2 = u.Xp;
             var y2 = u.Yp;
 
-            var between = y1 > y && y > y2 || y2 > y && y > y1;
+            var between = y1 >= y && y >= y2 || y2 >= y && y >= y1;
             if (!between)
                 continue;
 

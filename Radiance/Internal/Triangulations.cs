@@ -55,7 +55,7 @@ public static class Triangulations
         if (!types.Contains(VertexType.Merge) && !types.Contains(VertexType.Split))
             return false;
 
-        var (leftChain, rightChain) = dcel.GetChains(sweepLine);
+        var (leftChain, _) = dcel.GetChains(sweepLine);
 
         Dictionary<int, int> helper = [];
         
@@ -71,8 +71,6 @@ public static class Triangulations
             if (eprev == -1)
                 eprev = sweepLine.Length - 1;
 
-            System.Console.WriteLine(vi);
-            Console.WriteLine($"T = {string.Join(", ", helper.Select(p => (p.Key, p.Value)))}");
             switch (type)
             {
                 case VertexType.Start:
