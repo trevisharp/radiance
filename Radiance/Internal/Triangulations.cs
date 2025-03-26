@@ -97,6 +97,7 @@ public static class Triangulations
                     var ej1 = dcel.FindLeftEdge(vi);
                     dcel.Connect(helper[ej1], vi);
                     helper[ej1] = vi;
+                    helper[eprev] = vi;
 
                     break;
 
