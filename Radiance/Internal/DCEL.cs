@@ -223,6 +223,8 @@ public ref struct DCEL
     /// </summary>
     public readonly bool CanInternalConnect(int vid, int uid)
     {
+        Console.WriteLine($"\t\tCanInternalConnect({vid}, {uid})");
+
         ref var v = ref GetVertex(vid);
         ref var u = ref GetVertex(uid);
 
@@ -231,10 +233,16 @@ public ref struct DCEL
             ref var v2 = ref GetVertex(edge.From);
             ref var u2 = ref GetVertex(edge.To);
 
+            Console.WriteLine($"\t\t\ttest if {edge.From} -> {edge.To} intersects");
+
             if (Intersect(ref v, ref u, ref v2, ref u2))
+            {
+                Console.WriteLine($"\t\tresult = false");
                 return false;
+            }
         }
 
+        Console.WriteLine($"\t\tresult = true");
         return true;
     }
 
@@ -247,7 +255,7 @@ public ref struct DCEL
         var bottom = sweepLine[^1].Id;
         var current = top;
 
-        HashSet<int> leftChain = [ top ];
+        HashSet<int> leftChain = [ top, bottom ];
         HashSet<int> rightChain = [ ];
 
         while (current != bottom)
@@ -256,6 +264,7 @@ public ref struct DCEL
             current = VertexEdges[current][0].To;
         }
         
+        current = VertexEdges[current][0].To;
         while (current != top)
         {
             rightChain.Add(current);
@@ -335,7 +344,6 @@ public ref struct DCEL
             selected = edge.Id;
         }
         
-        Console.WriteLine($"Left({vertexId}) = {selected}");
         return selected;
     }
 
@@ -535,6 +543,9 @@ public ref struct DCEL
         
         var alfa = (beta * ux + q.Xp - p.Xp) / vx;
 
-        return (alfa, beta) is (>0 and <1, >0 and <1);
+        Console.WriteLine(alfa);
+        Console.WriteLine(beta);
+
+        return (alfa, beta) is (>=0f and <=1f, >=0f and <=1f);
     }
 }

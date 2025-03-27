@@ -141,8 +141,6 @@ public static class Triangulations
 
                     break;
             }
-
-            Console.WriteLine($"T = {string.Join(", ", helper.Select(p => $"{p.Key} : {p.Value}"))}");
         }
 
         return true;
@@ -193,9 +191,6 @@ public static class Triangulations
 
         var (leftChain, rightChain) = dcel.GetChains(sweepLine);
 
-        Console.WriteLine(string.Join(",", leftChain));
-        Console.WriteLine(string.Join(",", rightChain));
-
         var stack = new Stack<int>();
         stack.Push(sweepLine[0].Id);
         stack.Push(sweepLine[1].Id);
@@ -209,6 +204,8 @@ public static class Triangulations
             var nextInChainA = leftChain.Contains(vj);
             var sameChain = topInChainA == nextInChainA;
 
+            Console.WriteLine($"\t{vj} {sameChain}");
+            Console.WriteLine($"\tstack = {string.Join(", ", stack)}");
             if (sameChain)
             {
                 var popped = stack.Pop();
