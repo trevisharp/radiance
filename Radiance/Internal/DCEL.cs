@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    26/03/2025
+ * Date:    27/03/2025
  */
 using System;
 using System.Linq;
@@ -292,7 +292,8 @@ public ref struct DCEL
     }
 
     /// <summary>
-    /// Find the left edge from a vertex.
+    /// Find the left edge from a vertex. If are two left
+    /// edges the algorithm choose the least y-axis. 
     /// </summary>
     public readonly int FindLeftEdge(int vertexId)
     {
@@ -319,7 +320,7 @@ public ref struct DCEL
             var x2 = u.Xp;
             var y2 = u.Yp;
 
-            var between = y1 >= y && y >= y2 || y2 >= y && y >= y1;
+            var between = y1 >= y && y > y2 || y2 >= y && y > y1;
             if (!between)
                 continue;
 
@@ -334,6 +335,7 @@ public ref struct DCEL
             selected = edge.Id;
         }
         
+        Console.WriteLine($"Left({vertexId}) = {selected}");
         return selected;
     }
 

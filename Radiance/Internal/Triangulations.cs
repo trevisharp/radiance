@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    26/03/2025
+ * Date:    27/03/2025
  */
 using System;
 using System.Linq;
@@ -141,6 +141,8 @@ public static class Triangulations
 
                     break;
             }
+
+            Console.WriteLine($"T = {string.Join(", ", helper.Select(p => $"{p.Key} : {p.Value}"))}");
         }
 
         return true;
@@ -190,9 +192,9 @@ public static class Triangulations
         Console.WriteLine($"MonotonePlaneTriangulation({string.Join(",", pts)})");
 
         var (leftChain, rightChain) = dcel.GetChains(sweepLine);
-        
-        System.Console.WriteLine(string.Join(",", leftChain));
-        System.Console.WriteLine(string.Join(",", rightChain));
+
+        Console.WriteLine(string.Join(",", leftChain));
+        Console.WriteLine(string.Join(",", rightChain));
 
         var stack = new Stack<int>();
         stack.Push(sweepLine[0].Id);
