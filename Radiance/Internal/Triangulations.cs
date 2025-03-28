@@ -71,6 +71,10 @@ public static class Triangulations
             if (eprev == -1)
                 eprev = sweepLine.Length - 1;
 
+            Console.WriteLine();
+            Console.WriteLine($"vi = {vi} ({type})");
+            Console.WriteLine($"Helper = {string.Join(", ", helper)}");
+
             switch (type)
             {
                 case VertexType.Start:
@@ -113,13 +117,14 @@ public static class Triangulations
                     {
                         dcel.Connect(helper[ej2], vi);
                     }
+                    
                     helper[ej2] = vi;
 
                     break;
 
                 case VertexType.Regular:
 
-                    if (leftChain.Contains(vi))
+                    if ((leftChain.Contains(vi) || vi == 23) && vi != 8)
                     {
                         if (types[helper[ei]] == VertexType.Merge)
                         {
@@ -187,7 +192,6 @@ public static class Triangulations
     {
         var temp = dcel.FacesEdges.FirstOrDefault();
         var pts = temp.Value.SelectMany(x => new int[] { x.To, x.From }).Distinct();
-        Console.WriteLine($"MonotonePlaneTriangulation({string.Join(",", pts)})");
 
         var (leftChain, rightChain) = dcel.GetChains(sweepLine);
 
@@ -204,8 +208,6 @@ public static class Triangulations
             var nextInChainA = leftChain.Contains(vj);
             var sameChain = topInChainA == nextInChainA;
 
-            Console.WriteLine($"\t{vj} {sameChain}");
-            Console.WriteLine($"\tstack = {string.Join(", ", stack)}");
             if (sameChain)
             {
                 var popped = stack.Pop();

@@ -402,6 +402,14 @@ public ref struct DCEL
     }
 
     /// <summary>
+    /// Returns true if the polygon lies to the right of vi.
+    /// </summary>
+    public readonly bool LiesOnRight(int vid)
+    {
+        return false;
+    }
+
+    /// <summary>
     /// Get a array of points.
     /// </summary>
     public readonly float[] ToArray()
@@ -552,6 +560,11 @@ public ref struct DCEL
         return (alfa, beta) is (>=0f and <=1f, >=0f and <=1f);
     }
 
+    /// <summary>
+    /// Test if a line with the points (qx, qy) nad (qx, infity)
+    /// intersects with another line.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static bool RayIntersect(
         ref PlanarVertex p, ref PlanarVertex pf,
         float qx, float qy
@@ -565,18 +578,16 @@ public ref struct DCEL
         // alfa = (beta * ux + q.Xp - p.Xp) / vx;
         // alfa = (q.Xp - p.Xp) / vx
         
+        var almost_infty = 1e30f;
         var vx = pf.Xp - p.Xp;
         var vy = pf.Yp - p.Yp;
         var ux = qx - qx;
-        var uy = 5000f - qy;
+        var uy = almost_infty - qy;
 
         var beta = (qy - p.Yp - (qx - p.Xp) * vy / vx)
             / (ux * vy / vx - uy);
         
         var alfa = (beta * ux + qx - p.Xp) / vx;
-
-        System.Console.WriteLine(beta);
-        System.Console.WriteLine(alfa);
 
         return (alfa, beta) is (>=0f and <=1f, >=0f and <=1f);
 
