@@ -223,27 +223,33 @@ public ref struct DCEL
     /// </summary>
     public readonly bool CanInternalConnect(int vid, int uid)
     {
-        Console.WriteLine($"\t\tCanInternalConnect({vid}, {uid})");
-
         ref var v = ref GetVertex(vid);
         ref var u = ref GetVertex(uid);
 
         foreach (var edge in Edges)
         {
+            if (edge.From == vid || edge.To == vid || edge.From == uid || edge.To == uid)
+                continue;
+
             ref var v2 = ref GetVertex(edge.From);
             ref var u2 = ref GetVertex(edge.To);
 
-            Console.WriteLine($"\t\t\ttest if {edge.From} -> {edge.To} intersects");
-
             if (Intersect(ref v, ref u, ref v2, ref u2))
-            {
-                Console.WriteLine($"\t\tresult = false");
                 return false;
-            }
         }
 
-        Console.WriteLine($"\t\tresult = true");
-        return true;
+        var count = 0;
+        var mid = ((v.Xp + u.Xp) / 2, (v.Yp + u.Yp) / 2);
+        foreach (var edge in Edges)
+        {
+            ref var v2 = ref GetVertex(edge.From);
+            ref var u2 = ref GetVertex(edge.To);
+
+            if (RayIntersect(ref v2, ref u2, mid.Item1, mid.Item2))
+                count++;
+        }
+        
+        return count % 2 == 1;
     }
 
     /// <summary>
@@ -543,9 +549,36 @@ public ref struct DCEL
         
         var alfa = (beta * ux + q.Xp - p.Xp) / vx;
 
-        Console.WriteLine(alfa);
-        Console.WriteLine(beta);
+        return (alfa, beta) is (>=0f and <=1f, >=0f and <=1f);
+    }
+
+    static bool RayIntersect(
+        ref PlanarVertex p, ref PlanarVertex pf,
+        float qx, float qy
+    )
+    {
+        // See Intersect function for more details.
+        // qf = (qx, infinity)
+        // uy = infinity
+        // beta = (q.Yp - p.Yp - (q.Xp - p.Xp) * vy / vx) / (ux * vy / vx - uy)
+        // beta = 0
+        // alfa = (beta * ux + q.Xp - p.Xp) / vx;
+        // alfa = (q.Xp - p.Xp) / vx
+        
+        var vx = pf.Xp - p.Xp;
+        var vy = pf.Yp - p.Yp;
+        var ux = qx - qx;
+        var uy = 5000f - qy;
+
+        var beta = (qy - p.Yp - (qx - p.Xp) * vy / vx)
+            / (ux * vy / vx - uy);
+        
+        var alfa = (beta * ux + qx - p.Xp) / vx;
+
+        System.Console.WriteLine(beta);
+        System.Console.WriteLine(alfa);
 
         return (alfa, beta) is (>=0f and <=1f, >=0f and <=1f);
+
     }
 }
