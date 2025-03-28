@@ -13,6 +13,7 @@ namespace Radiance.Internal;
 /// </summary>
 public ref struct DCEL
 {
+    const float almost_infty = 1e6f;
     int nextEdgeId = 0;
     int nextFaceId = 0;
     readonly Span<PlanarVertex> OriginalSource;
@@ -128,8 +129,6 @@ public ref struct DCEL
         if (IsConnected(v, u))
             return false;
         
-        Console.WriteLine($"Connect({v}, {u})");
-        
         var currFace = faceId.Value;
         var othrFace = CreateFace();
         
@@ -237,19 +236,8 @@ public ref struct DCEL
             if (Intersect(ref v, ref u, ref v2, ref u2))
                 return false;
         }
-
-        var count = 0;
-        var mid = ((v.Xp + u.Xp) / 2, (v.Yp + u.Yp) / 2);
-        foreach (var edge in Edges)
-        {
-            ref var v2 = ref GetVertex(edge.From);
-            ref var u2 = ref GetVertex(edge.To);
-
-            if (RayIntersect(ref v2, ref u2, mid.Item1, mid.Item2))
-                count++;
-        }
         
-        return count % 2 == 1;
+        return IsInside((v.Xp + u.Xp) / 2, (v.Yp + u.Yp) / 2);
     }
 
     /// <summary>
@@ -406,7 +394,8 @@ public ref struct DCEL
     /// </summary>
     public readonly bool LiesOnRight(int vid)
     {
-        return false;
+        var vert = GetVertex(vid);
+        return IsInside(vert.Xp + 1 / almost_infty, vert.Yp);
     }
 
     /// <summary>
@@ -557,7 +546,7 @@ public ref struct DCEL
         
         var alfa = (beta * ux + q.Xp - p.Xp) / vx;
 
-        return (alfa, beta) is (>=0f and <=1f, >=0f and <=1f);
+        return (alfa, beta) is (>0f and <1f, >0f and <1f);
     }
 
     /// <summary>
@@ -578,7 +567,6 @@ public ref struct DCEL
         // alfa = (beta * ux + q.Xp - p.Xp) / vx;
         // alfa = (q.Xp - p.Xp) / vx
         
-        var almost_infty = 1e30f;
         var vx = pf.Xp - p.Xp;
         var vy = pf.Yp - p.Yp;
         var ux = qx - qx;
@@ -589,7 +577,23 @@ public ref struct DCEL
         
         var alfa = (beta * ux + qx - p.Xp) / vx;
 
-        return (alfa, beta) is (>=0f and <=1f, >=0f and <=1f);
+        return (alfa, beta) is (>0f and <1f, >0f and <1f);
 
+    }
+
+    readonly bool IsInside(float px, float py)
+    {
+        int count = 0;
+
+        foreach (var edge in Edges)
+        {
+            ref var v2 = ref GetVertex(edge.From);
+            ref var u2 = ref GetVertex(edge.To);
+
+            if (RayIntersect(ref v2, ref u2, px, py))
+                count++;
+        }
+
+        return count % 2 == 1;
     }
 }
