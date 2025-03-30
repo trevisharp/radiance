@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/01/2025
+ * Date:    26/3/2025
  */
 using System;
 using System.Linq;
@@ -29,7 +29,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
                 modifiedMap[j++] = MapBuffer[i];
         }
 
-        return new SweepLine(this.source, modifiedMap);
+        return new SweepLine(source, modifiedMap);
     }
 
     public static SweepLine Create(Span<PlanarVertex> points, Span<int> map)
@@ -78,7 +78,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
         {
             float iv = data[map[i]].Yp;
             float iv2 = data[map[i]].Xp;
-            while((iv > pivo || (iv == pivo && iv2 > pivo2)) && i < j)
+            while((iv > pivo || (iv == pivo && iv2 < pivo2)) && i < j)
             {
                 iv = data[map[++i]].Yp;
                 iv2 = data[map[i]].Xp;
@@ -86,7 +86,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
             
             float jv = data[map[j]].Yp;
             float jv2 = data[map[j]].Xp;
-            while ((jv < pivo || (jv == pivo && jv2 < pivo2)) && i < j)
+            while ((jv < pivo || (jv == pivo && jv2 > pivo2)) && i < j)
             {
                 jv = data[map[--j]].Yp;
                 jv2 = data[map[j]].Xp;
@@ -100,7 +100,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
 
         float lv = data[map[j]].Yp;
         float lv2 = data[map[j]].Xp;
-        if (lv > pivo || (lv == pivo && lv2 > pivo2))
+        if (lv > pivo || (lv == pivo && lv2 < pivo2))
             j++;
 
         (map[end - 1], map[j]) = (map[j], map[end - 1]);
@@ -124,7 +124,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
             var cmpPos = i - 1;
             var point = data[map[cmpPos]];
 
-            while (point.Yp < value || (point.Yp == value && point.Xp < value2))
+            while (point.Yp < value || (point.Yp == value && point.Xp > value2))
             {
                 map[cmpPos + 1] = map[cmpPos];
                 cmpPos--;

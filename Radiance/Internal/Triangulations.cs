@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    02/01/2025
+ * Date:    27/03/2025
  */
 using System;
 using System.Linq;
@@ -54,28 +54,8 @@ public static class Triangulations
         
         if (!types.Contains(VertexType.Merge) && !types.Contains(VertexType.Split))
             return false;
-        
-        // information if polygon lies right or left te vertex
-        int start = sweepLine[0].Id;
-        int index = start + sweepLine.Length;
-        var polygonRight = new bool[sweepLine.Length];
-        polygonRight[(index - 1) % sweepLine.Length] = true;
-        for (int i = 0; i < sweepLine.Length; i++, index++)
-        {
-            int crr = index % sweepLine.Length;
-            int prev = (index - 1) % sweepLine.Length;
-            polygonRight[crr] = polygonRight[prev];
 
-            if (types[crr] == VertexType.Regular)
-                continue;
-            
-            polygonRight[crr] = !polygonRight[crr];
-        }
-
-        HashSet<int> edgesCollect = [];
         Dictionary<int, int> helper = [];
-        for (int i = 0; i < sweepLine.Length; i++)
-            helper[i] = -1;
         
         for (int i = 0; i < sweepLine.Length; i++)
         {
@@ -83,7 +63,7 @@ public static class Triangulations
             var vi = v.Id;
             
             var type = types[vi];
-            var edges = dcel.Edges[vi];
+            var edges = dcel.VertexEdges[vi];
             var ei = edges[0].Id;
             var eprev = ei - 1;
             if (eprev == -1)
@@ -93,22 +73,18 @@ public static class Triangulations
             {
                 case VertexType.Start:
 
-                    edgesCollect.Add(ei);
-                    helper[ei] = vi;
+                    helper[eprev] = vi;
 
                     break;
                     
                 case VertexType.End:
-
-                    edgesCollect.Remove(eprev);
-
-                    if (helper[eprev] == -1)
-                        break;
                     
-                    if (types[helper[eprev]] != VertexType.Merge)
-                        break;
+                    if (types[helper[ei]] == VertexType.Merge)
+                    {
+                        dcel.Connect(vi, helper[ei]);
+                    }
                     
-                    dcel.Connect(vi, helper[eprev]);
+                    helper.Remove(ei);
 
                     break;
 
@@ -117,49 +93,51 @@ public static class Triangulations
                     var ej1 = dcel.FindLeftEdge(vi);
                     dcel.Connect(helper[ej1], vi);
                     helper[ej1] = vi;
-                    edgesCollect.Add(ej1);
+                    helper[eprev] = vi;
 
                     break;
 
                 case VertexType.Merge:
 
-                    if (helper[eprev] != -1 && types[helper[eprev]] == VertexType.Merge)
+                    if (types[helper[ei]] == VertexType.Merge)
                     {
-                        dcel.Connect(vi, helper[eprev]);
+                        dcel.Connect(vi, helper[ei]);
                     }
 
-                    edgesCollect.Remove(eprev);
+                    helper.Remove(ei);
 
                     var ej2 = dcel.FindLeftEdge(vi);
-                    if (helper[ej2] != -1 && types[helper[ej2]] == VertexType.Merge)
+                    if (types[helper[ej2]] == VertexType.Merge)
                     {
                         dcel.Connect(helper[ej2], vi);
                     }
+                    
                     helper[ej2] = vi;
 
                     break;
 
                 case VertexType.Regular:
 
-                    if (polygonRight[vi])
+                    if (dcel.LiesOnRight(vi))
                     {
-                        if (helper[eprev] != -1 && types[helper[eprev]] == VertexType.Merge)
+                        if (types[helper[ei]] == VertexType.Merge)
                         {
-                            dcel.Connect(vi, helper[eprev]);
+                            dcel.Connect(vi, helper[ei]);
                         }
 
-                        edgesCollect.Remove(eprev);
-                        edgesCollect.Add(ei);
-                        helper[ei] = vi;
-                        break;
+                        helper.Remove(ei);
+                        helper[eprev] = vi;
+                    }
+                    else
+                    {
+                        var ej3 = dcel.FindLeftEdge(vi);
+                        if (types[helper[ej3]] == VertexType.Merge)
+                        {
+                            dcel.Connect(helper[ej3], vi);
+                        }
+                        helper[ej3] = vi;
                     }
 
-                    var ej3 = dcel.FindLeftEdge(vi);
-                    if (helper[ej3] != -1 && types[helper[ej3]] == VertexType.Merge)
-                    {
-                        dcel.Connect(helper[ej3], vi);
-                    }
-                    helper[ej3] = vi;
                     break;
             }
         }
@@ -206,45 +184,61 @@ public static class Triangulations
     /// </summary>
     static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
     {
-        var stack = new Stack<(int id, bool chain)>();
-        stack.Push((sweepLine[0].Id, false));
-        stack.Push((sweepLine[1].Id, true));
+        var temp = dcel.FacesEdges.FirstOrDefault();
+        var pts = temp.Value.SelectMany(x => new int[] { x.To, x.From }).Distinct();
 
-        for (int k = 2; k < dcel.Length; k++)
+        var (leftChain, rightChain) = dcel.GetChains(sweepLine);
+
+        var stack = new Stack<int>();
+        stack.Push(sweepLine[0].Id);
+        stack.Push(sweepLine[1].Id);
+
+        for (int j = 2; j < dcel.Length - 1; j++)
         {
-            var top = stack.Peek();
-            ref var nxt = ref sweepLine[k];
-            var isConn = dcel.IsConnected(top.id, nxt.Id);
-            (int id, bool chain) current = (nxt.Id, !(isConn ^ top.chain));
+            var vtop = stack.Peek();
+            var vj = sweepLine[j].Id;
 
-            if (current.chain == top.chain)
+            var topInChainA = leftChain.Contains(vtop);
+            var nextInChainA = leftChain.Contains(vj);
+            var sameChain = topInChainA == nextInChainA;
+
+            if (sameChain)
             {
-                var nextConn = stack.Pop();
-                while (dcel.Connect(nextConn.id, current.id) && stack.Count > 0)
+                var popped = stack.Pop();
+                while (stack.Count > 0)
                 {
-                    nextConn = stack.Pop();
-                } 
-                stack.Push(nextConn);
-                stack.Push(current);
+                    var next = stack.Peek();
+
+                    if (!dcel.CanInternalConnect(next, vj))
+                        break;
+
+                    popped = stack.Pop();
+                    dcel.Connect(vj, popped);
+                }
+                stack.Push(popped);
+                stack.Push(vj);
             }
             else
             {
-                while (stack.Count > 0)
+                var vj_1 = sweepLine[j - 1].Id;
+                while (stack.Count > 1)
                 {
-                    dcel.Connect(current.id, stack.Pop().id);
+                    var vk = stack.Pop();
+                    dcel.Connect(vj, vk);
                 }
-
-                stack.Push(top);
-                stack.Push(current);
+                stack.Pop();
+                stack.Push(vj_1);
+                stack.Push(vj);
             }
         }
 
-        var bot = sweepLine[^1];
+        var vn = sweepLine[^1].Id;
         stack.Pop();
+
         while (stack.Count > 1)
         {
-            var vert = stack.Pop();
-            dcel.Connect(bot.Id, vert.id);
+            var vk = stack.Pop();
+            dcel.Connect(vk, vn);
         }
 
         return dcel.ToArray();
