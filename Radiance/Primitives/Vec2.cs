@@ -15,6 +15,9 @@ public record Vec2(float X, float Y) : IBufferizable
 {
     public void Deconstruct(out float x, out float y)
         => (x, y) = (X, Y);
+    
+    public static Vec2 operator -(Vec2 v)
+        => new(-v.X, -v.Y);
 
     public static Vec2 operator +(Vec2 u, Vec2 v)
         => new(u.X + v.X, u.Y + v.Y);

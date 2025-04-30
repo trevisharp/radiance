@@ -19,6 +19,9 @@ public record Vec4(float X, float Y, float Z, float W) : IBufferizable
     public static implicit operator Vec4((float x, float y, float z, float w) tuple)
         => new(tuple.x, tuple.y, tuple.z, tuple.w);
     
+    public static Vec4 operator -(Vec4 v)
+        => new(-v.X, -v.Y, -v.Z, v.W);
+    
     public static Vec4 operator +(Vec4 u, Vec4 v)
         => new(u.X + v.X, u.Y + v.Y, u.Z + v.Z, u.W + v.W);
     

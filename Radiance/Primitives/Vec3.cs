@@ -16,6 +16,9 @@ public record Vec3(float X, float Y, float Z) : IBufferizable
     public void Deconstruct(out float x, out float y, out float z)
         => (x, y, z) = (X, Y, Z);
     
+    public static Vec3 operator -(Vec3 v)
+        => new(-v.X, -v.Y, -v.Z);
+    
     public static Vec3 operator +(Vec3 u, Vec3 v)
         => new(u.X + v.X, u.Y + v.Y, u.Z + v.Z);
     
