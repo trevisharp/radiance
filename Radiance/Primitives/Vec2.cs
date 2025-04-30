@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/08/2024
+ * Date:    30/04/2025
  */
 using System.Globalization;
 
@@ -15,6 +15,12 @@ public record Vec2(float X, float Y) : IBufferizable
 {
     public void Deconstruct(out float x, out float y)
         => (x, y) = (X, Y);
+    
+    public static Vec2 operator +(Vec2 v)
+        => v;
+    
+    public static Vec2 operator -(Vec2 v)
+        => new(-v.X, -v.Y);
 
     public static Vec2 operator +(Vec2 u, Vec2 v)
         => new(u.X + v.X, u.Y + v.Y);
@@ -30,6 +36,9 @@ public record Vec2(float X, float Y) : IBufferizable
     
     public static Vec2 operator *(Vec2 v, float a)
         => new(a * v.X, a * v.Y);
+    
+    public static Vec2 operator /(Vec2 v, float a)
+        => new(v.X / a, v.Y / a);
 
     public static implicit operator Vec2((float x, float y) tuple)
         => new(tuple.x, tuple.y);

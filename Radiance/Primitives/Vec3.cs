@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/08/2024
+ * Date:    30/04/2025
  */
 using System.Globalization;
 
@@ -16,6 +16,12 @@ public record Vec3(float X, float Y, float Z) : IBufferizable
     public void Deconstruct(out float x, out float y, out float z)
         => (x, y, z) = (X, Y, Z);
     
+    public static Vec3 operator +(Vec3 v)
+        => v;
+    
+    public static Vec3 operator -(Vec3 v)
+        => new(-v.X, -v.Y, -v.Z);
+    
     public static Vec3 operator +(Vec3 u, Vec3 v)
         => new(u.X + v.X, u.Y + v.Y, u.Z + v.Z);
     
@@ -30,6 +36,9 @@ public record Vec3(float X, float Y, float Z) : IBufferizable
     
     public static Vec3 operator *(Vec3 v, float a)
         => new(a * v.X, a * v.Y, a * v.Z);
+    
+    public static Vec3 operator /(Vec3 v, float a)
+        => new(v.X / a, v.Y / a, v.Z / a);
     
     public static implicit operator Vec3((float x, float y, float z) tuple)
         => new(tuple.x, tuple.y, tuple.z);

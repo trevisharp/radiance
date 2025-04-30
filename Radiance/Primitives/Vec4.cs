@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/08/2024
+ * Date:    30/04/2025
  */
 using System.Globalization;
 
@@ -15,9 +15,12 @@ public record Vec4(float X, float Y, float Z, float W) : IBufferizable
 {
     public void Deconstruct(out float x, out float y, out float z, out float w)
         => (x, y, z, w) = (X, Y, Z, W);
-
-    public static implicit operator Vec4((float x, float y, float z, float w) tuple)
-        => new(tuple.x, tuple.y, tuple.z, tuple.w);
+    
+    public static Vec4 operator +(Vec4 v)
+        => v;
+    
+    public static Vec4 operator -(Vec4 v)
+        => new(-v.X, -v.Y, -v.Z, v.W);
     
     public static Vec4 operator +(Vec4 u, Vec4 v)
         => new(u.X + v.X, u.Y + v.Y, u.Z + v.Z, u.W + v.W);
@@ -33,6 +36,12 @@ public record Vec4(float X, float Y, float Z, float W) : IBufferizable
     
     public static Vec4 operator *(Vec4 v, float a)
         => new(a * v.X, a * v.Y, a * v.Z, a * v.W);
+    
+    public static Vec4 operator /(Vec4 v, float a)
+        => new(v.X / a, v.Y / a, v.Z / a, v.W / a);
+
+    public static implicit operator Vec4((float x, float y, float z, float w) tuple)
+        => new(tuple.x, tuple.y, tuple.z, tuple.w);
     
     public static implicit operator vec4(Vec4 vec)
         => new($"vec4({ToTxt(vec.X)}, {ToTxt(vec.Y)}, {ToTxt(vec.Z)}, {ToTxt(vec.W)})", ShaderOrigin.Global, []);

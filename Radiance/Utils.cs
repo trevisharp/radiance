@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/12/2024
+ * Date:    30/04/2025
  */
 #pragma warning disable IDE1006
 
@@ -62,6 +62,12 @@ public static class Utils
     /// <summary>
     /// Create a vector.
     /// </summary>
+    public static Vec4 vec(float x, float y, float z, float w)
+        => new(x, y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
     public static Vec3 vec(Vec2 v, float z)
         => new(v.X, v.Y, z);
 
@@ -74,26 +80,20 @@ public static class Utils
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4 vec(float x, float y, float z, float w)
-        => new(x, y, z, w);
-
+    public static Vec4 vec(Vec2 v, float z, float w)
+        => new(v.X, v.Y, z, w);
+    
     /// <summary>
     /// Create a vector.
     /// </summary>
-    public static Vec4 vec(Vec2 v, float z, float w)
-        => new(v.X, v.Y, z, w);
+    public static Vec4 vec(float x, Vec2 v, float w)
+        => new(x, v.X, v.Y, w);
 
     /// <summary>
     /// Create a vector.
     /// </summary>
     public static Vec4 vec(float x, float y, Vec2 v)
         => new(x, y, v.X, v.Y);
-
-    /// <summary>
-    /// Create a vector.
-    /// </summary>
-    public static Vec4 vec(float x, Vec2 v, float w)
-        => new(x, v.X, v.Y, w);
 
     /// <summary>
     /// Create a vector.
@@ -128,6 +128,12 @@ public static class Utils
     /// <summary>
     /// Create a vector.
     /// </summary>
+    public static vec4 vec(val x, val y, val z, val w)
+        => (x, y, z, w);
+
+    /// <summary>
+    /// Create a vector.
+    /// </summary>
     public static vec3 vec(vec2 v, val z)
         => (v.x, v.y, z);
 
@@ -136,12 +142,6 @@ public static class Utils
     /// </summary>
     public static vec3 vec(val x, vec2 v)
         => (x, v.x, v.y);
-
-    /// <summary>
-    /// Create a vector.
-    /// </summary>
-    public static vec4 vec(val x, val y, val z, val w)
-        => (x, y, z, w);
 
     /// <summary>
     /// Create a vector.
