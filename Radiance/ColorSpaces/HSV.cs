@@ -6,7 +6,7 @@ namespace Radiance.ColorSpaces;
 using Exceptions;
 
 /// <summary>
-/// Represetns a HSV (hue, saturation, value) color.
+/// Represetns a HSV (hue [0-360], saturation [0-1], value [0-1]) color.
 /// </summary>
 public readonly struct HSV
 {

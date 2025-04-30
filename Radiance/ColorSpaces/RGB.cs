@@ -6,6 +6,9 @@ namespace Radiance.ColorSpaces;
 using Exceptions;
 using Primitives;
 
+/// <summary>
+/// Represetns a RGB (red [0-1], blue [0-1], green [0-1]) color.
+/// </summary>
 public readonly struct RGB
 {
     public RGB(float r, float g, float b)

@@ -30,16 +30,16 @@ public static class Colors
         float X = C * (1 - MathF.Abs(color.H / 60 % 2 - 1));
         float m = color.V - C;
 
-        RGB temp = color.H switch
+        var (tr, tg, tb) = color.H switch
         {
-            >= 0 and < 60 => new (C, X, 0),
-            >= 60 and < 120 => new (X, C, 0),
-            >= 120 and < 180 => new (0, C, X),
-            >= 180 and < 240 => new (0, X, C),
-            >= 240 and < 300 => new (X, 0, C),
-            _ => new (C, 0, X),
+            < 60  => (C, X, 0f),
+            < 120 => (X, C, 0f),
+            < 180 => (0f, C, X),
+            < 240 => (0f, X, C),
+            < 300 => (X, 0f, C),
+            _     => (C, 0, X)
         };
 
-        return new(temp.R + m, temp.G + m, temp.B + m);
+        return new(tr + m, tg + m, tb + m);
     }
 }
