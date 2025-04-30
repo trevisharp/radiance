@@ -498,6 +498,7 @@ Window.Open();
  - ![](https://img.shields.io/badge/new-green) Added text buffers allowing draw texts easily.
  - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
  - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
+ - ![](https://img.shields.io/badge/update-blue) Improve API of types Vec2, Vec3 and Vec4 adding more operations.
 
 ### Radiance v3.0.1
 
