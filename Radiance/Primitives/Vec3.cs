@@ -37,6 +37,9 @@ public record Vec3(float X, float Y, float Z) : IBufferizable
     public static Vec3 operator *(Vec3 v, float a)
         => new(a * v.X, a * v.Y, a * v.Z);
     
+    public static Vec3 operator /(Vec3 v, float a)
+        => new(v.X / a, v.Y / a, v.Z / a);
+    
     public static implicit operator Vec3((float x, float y, float z) tuple)
         => new(tuple.x, tuple.y, tuple.z);
     

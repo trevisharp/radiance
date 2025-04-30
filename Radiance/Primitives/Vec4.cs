@@ -36,6 +36,9 @@ public record Vec4(float X, float Y, float Z, float W) : IBufferizable
     
     public static Vec4 operator *(Vec4 v, float a)
         => new(a * v.X, a * v.Y, a * v.Z, a * v.W);
+    
+    public static Vec4 operator /(Vec4 v, float a)
+        => new(v.X / a, v.Y / a, v.Z / a, v.W / a);
 
     public static implicit operator Vec4((float x, float y, float z, float w) tuple)
         => new(tuple.x, tuple.y, tuple.z, tuple.w);

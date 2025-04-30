@@ -36,6 +36,9 @@ public record Vec2(float X, float Y) : IBufferizable
     
     public static Vec2 operator *(Vec2 v, float a)
         => new(a * v.X, a * v.Y);
+    
+    public static Vec2 operator /(Vec2 v, float a)
+        => new(v.X / a, v.Y / a);
 
     public static implicit operator Vec2((float x, float y) tuple)
         => new(tuple.x, tuple.y);
