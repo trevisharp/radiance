@@ -119,6 +119,8 @@ public ref struct DCEL
     /// </summary>
     public bool Connect(int v, int u)
     {
+        Console.WriteLine($"Connect({v}, {u});");
+
         if (v == u)
             return false;
         
@@ -291,7 +293,7 @@ public ref struct DCEL
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
         static bool over(ref PlanarVertex p, ref PlanarVertex q)
-            => p.Yp > q.Yp || (p.Yp == q.Yp && p.Xp > q.Xp);
+            => p.Yp > q.Yp || (p.Yp == q.Yp && p.Xp < q.Xp);
     }
 
     /// <summary>
