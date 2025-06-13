@@ -9,11 +9,11 @@ namespace Radiance.Internal;
 /// <summary>
 /// Represents a SweepLine algorithm.
 /// </summary>
-public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
+public class SweepLine(PlanarVertex[] points, int[] map)
 {
-    readonly Span<PlanarVertex> source = points;
+    readonly PlanarVertex[] source = points;
 
-    public readonly Span<int> MapBuffer = map;
+    public readonly int[] MapBuffer = map;
 
     public int Length => MapBuffer.Length;
     
@@ -21,7 +21,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
 
     public SweepLine ApplyFilter(int[] points)
     {
-        Span<int> modifiedMap = new int[points.Length];
+        var modifiedMap = new int[points.Length];
         
         for (int i = 0, j = 0; i < MapBuffer.Length; i++)
         {
@@ -32,7 +32,7 @@ public readonly ref struct SweepLine(Span<PlanarVertex> points, Span<int> map)
         return new SweepLine(source, modifiedMap);
     }
 
-    public static SweepLine Create(Span<PlanarVertex> points, Span<int> map)
+    public static SweepLine Create(PlanarVertex[] points, int[] map)
     {
         Sort(points, map);
         return new SweepLine(points, map);

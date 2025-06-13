@@ -22,16 +22,10 @@ public static class Triangulations
         if (N < 4)
             return pts;
 
-        Span<PlanarVertex> points = 
-            N < 2048 ?
-            stackalloc PlanarVertex[N] :
-            new PlanarVertex[N];
+        var points = new PlanarVertex[N];
         PlanarVertex.ToPlanarVertex(pts, points);
         
-        Span<int> map =
-            N < 2048 ?
-            stackalloc int[N] :
-            new int[N];
+        var map = new int[N];
         var sweepLine = SweepLine.Create(points, map);
 
         var dcel = new DCEL(points);

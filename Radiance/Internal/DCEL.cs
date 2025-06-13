@@ -11,19 +11,19 @@ namespace Radiance.Internal;
 /// <summary>
 /// Represents a Double Connected Edge List.
 /// </summary>
-public ref struct DCEL
+public class DCEL
 {
     const float almost_infty = 1e6f;
     int nextEdgeId = 0;
     int nextFaceId = 0;
-    readonly Span<PlanarVertex> OriginalSource;
+    readonly PlanarVertex[] OriginalSource;
     public readonly int Length;
     public readonly List<HalfEdge> Edges = [];
     public readonly Dictionary<int, List<HalfEdge>> VertexEdges = [];
     public readonly Dictionary<int, List<int>> Faces = [];
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
 
-    public DCEL(Span<PlanarVertex> source, int[] points)
+    public DCEL(PlanarVertex[] source, int[] points)
     {
         OriginalSource = source;
         Length = points.Length;
@@ -67,7 +67,7 @@ public ref struct DCEL
         lst.SetNext(fst);
     }
 
-    public DCEL(Span<PlanarVertex> points)
+    public DCEL(PlanarVertex[] points)
     {
         OriginalSource = points;
         Length = points.Length;
@@ -110,7 +110,7 @@ public ref struct DCEL
     /// <summary>
     /// Receiving 2 ids for vertex return if them are connected.
     /// </summary>
-    public readonly bool IsConnected(int v, int u)
+    public bool IsConnected(int v, int u)
         => VertexEdges[v].Any(e => e.To == u) 
         || VertexEdges[u].Any(e => e.To == v);
 
@@ -220,7 +220,7 @@ public ref struct DCEL
     /// Return true if two vertices can connect with a line
     /// inside the polygon.
     /// </summary>
-    public readonly bool CanInternalConnect(int vid, int uid)
+    public bool CanInternalConnect(int vid, int uid)
     {
         ref var v = ref GetVertex(vid);
         ref var u = ref GetVertex(uid);
@@ -243,7 +243,7 @@ public ref struct DCEL
     /// <summary>
     /// Get two hash set of the left and right chain over a sweep line.
     /// </summary>
-    public readonly (HashSet<int> left, HashSet<int> right) GetChains(SweepLine sweepLine)
+    public (HashSet<int> left, HashSet<int> right) GetChains(SweepLine sweepLine)
     {
         var top = sweepLine[0].Id;
         var bottom = sweepLine[^1].Id;
@@ -271,7 +271,7 @@ public ref struct DCEL
     /// <summary>
     /// Discover the type of the vertex with specific id.
     /// </summary>
-    public readonly VertexType DiscoverType(int v)
+    public VertexType DiscoverType(int v)
     {
         var edges = VertexEdges[v];
         var edge = edges[0];
@@ -298,7 +298,7 @@ public ref struct DCEL
     /// Find the left edge from a vertex. If are two left
     /// edges the algorithm choose the least y-axis. 
     /// </summary>
-    public readonly int FindLeftEdge(int vertexId)
+    public int FindLeftEdge(int vertexId)
     {
         var vert = GetVertex(vertexId);
         var y = vert.Yp;
@@ -344,14 +344,14 @@ public ref struct DCEL
     /// <summary>
     /// Filter DCEL considering some points of original source.
     /// </summary>
-    public readonly DCEL ApplyFilter(int[] points)
+    public DCEL ApplyFilter(int[] points)
         => new (OriginalSource, points);
 
     /// <summary>
     /// Get the face shader by two vertex
     /// with id 'v' and 'u'.
     /// </summary>
-    public readonly int? GetSharedFace(int vid, int uid)
+    public int? GetSharedFace(int vid, int uid)
     {
         foreach (var (faceId, _) in Faces)
         {
@@ -378,7 +378,7 @@ public ref struct DCEL
     /// <summary>
     /// Remove a random subpolygon and return a new DCEL.
     /// </summary>
-    public readonly int[] RemoveSubPolygon()
+    public int[] RemoveSubPolygon()
     {
         var face = Faces.Keys.Last();
         var points = Faces[face];
@@ -392,7 +392,7 @@ public ref struct DCEL
     /// <summary>
     /// Returns true if the polygon lies to the right of vi.
     /// </summary>
-    public readonly bool LiesOnRight(int vid)
+    public bool LiesOnRight(int vid)
     {
         var vert = GetVertex(vid);
         return IsInside(vert.Xp + 1 / almost_infty, vert.Yp);
@@ -401,7 +401,7 @@ public ref struct DCEL
     /// <summary>
     /// Get a array of points.
     /// </summary>
-    public readonly float[] ToArray()
+    public float[] ToArray()
     {
         List<float> values = [];
         foreach (var face in Faces)
@@ -422,7 +422,7 @@ public ref struct DCEL
     /// Get a Planar Vertex by id.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public readonly ref PlanarVertex GetVertex(int id)
+    public ref PlanarVertex GetVertex(int id)
         => ref OriginalSource[id];
 
     /// <summary>
@@ -463,7 +463,7 @@ public ref struct DCEL
     /// Get, and init if needed, edges connect
     /// to a vertex with specific id.
     /// </summary>
-    readonly List<HalfEdge> GetEdgeList(int id)
+    List<HalfEdge> GetEdgeList(int id)
     {
         if (VertexEdges.TryGetValue(id, out var edges))
             return edges;
@@ -477,7 +477,7 @@ public ref struct DCEL
     /// Get, and init if needed, edges in
     /// a specific face.
     /// </summary>
-    readonly List<HalfEdge> GetFaceEdgeList(int id)
+    List<HalfEdge> GetFaceEdgeList(int id)
     {
         if (FacesEdges.TryGetValue(id, out var edges))
             return edges;
@@ -490,7 +490,7 @@ public ref struct DCEL
     /// <summary>
     /// Apply left between points based on ther Ids.
     /// </summary>
-    public readonly float Left(int pid, int qId, int rId)
+    public float Left(int pid, int qId, int rId)
     {
         ref var p = ref GetVertex(pid);
         ref var q = ref GetVertex(qId);
@@ -581,7 +581,7 @@ public ref struct DCEL
 
     }
 
-    readonly bool IsInside(float px, float py)
+    bool IsInside(float px, float py)
     {
         int count = 0;
 
