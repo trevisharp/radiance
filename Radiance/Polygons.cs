@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Radiance;
 
+using Internal;
 using Bufferings;
 using Primitives;
 using Exceptions;
@@ -218,4 +219,9 @@ public static class Polygons
             Window.Width, 
             Window.Height
         ) : throw new WindowClosedException();
+    
+    /// <summary>
+    /// Create a generic builder for polygons.
+    /// </summary>
+    public static PolygonBuilder CreateBuilder() => new();
 }
