@@ -105,7 +105,7 @@ public class DCEL
         lst.SetPrevious(prv);
         lst.SetNext(fst);
     }
-
+    
     /// <summary>
     /// Receiving 2 ids for vertex return if them are connected.
     /// </summary>

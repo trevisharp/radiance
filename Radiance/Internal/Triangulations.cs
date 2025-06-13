@@ -40,7 +40,7 @@ public static class Triangulations
     /// Divide a polygon on many monotone polygons.
     /// Return true if some polygon has created.
     /// </summary>
-    static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
+    public static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
     {
         var types = new VertexType[sweepLine.Length];
         for (int i = 0; i < sweepLine.Length; i++)
@@ -143,7 +143,7 @@ public static class Triangulations
     /// Get a nonmonotone DCEL divide inot monotone polygons and returns
     /// the triangularization.
     /// </summary>
-    static float[] NonMonotonePlaneTriangularization(DCEL dcel, SweepLine sweepLine)
+    public static float[] NonMonotonePlaneTriangularization(DCEL dcel, SweepLine sweepLine)
     {
         var index = 0;
         int expectedTriangules = dcel.Length - 2;
@@ -176,7 +176,7 @@ public static class Triangulations
     /// if the points represetns a monotone polygon, return the triangularization
     /// of then.
     /// </summary>
-    static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
+    public static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
     {
         var temp = dcel.FacesEdges.FirstOrDefault();
         var pts = temp.Value.SelectMany(x => new int[] { x.To, x.From }).Distinct();
