@@ -52,9 +52,6 @@ public static class Triangulations
         for (int i = 0; i < sweepLine.Length; i++)
             types[i] = dcel.DiscoverType(i);
         
-        System.Console.WriteLine("MonotoneDivision");
-        System.Console.WriteLine(string.Join(" ", types));
-        
         if (!types.Contains(VertexType.Merge) && !types.Contains(VertexType.Split))
             return false;
 
