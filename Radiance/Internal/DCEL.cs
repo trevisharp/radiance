@@ -18,7 +18,8 @@ public class DCEL
     readonly PlanarVertex[] OriginalSource;
     public readonly int Length;
     public readonly List<HalfEdge> Edges = [];
-    public readonly Dictionary<int, List<HalfEdge>> VertexEdges = [];
+    public readonly Dictionary<int, List<HalfEdge>> FromEdgeMap = [];
+    public readonly Dictionary<int, List<HalfEdge>> ToEdgeMap = [];
     public readonly Dictionary<int, List<int>> Faces = [];
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
 
@@ -68,7 +69,7 @@ public class DCEL
 
     public DCEL(PlanarVertex[] points)
     {
-        OriginalSource = points;
+        OriginalSource = Area(points) < 0 ? points : [ ..points.Reverse() ];
         Length = points.Length;
 
         int face = CreateFace();
@@ -110,14 +111,15 @@ public class DCEL
     /// Receiving 2 ids for vertex return if them are connected.
     /// </summary>
     public bool IsConnected(int v, int u)
-        => VertexEdges[v].Any(e => e.To == u) 
-        || VertexEdges[u].Any(e => e.To == v);
+        => FromEdgeMap[v].Any(e => e.To == u) 
+        || FromEdgeMap[u].Any(e => e.To == v);
 
     /// <summary>
     /// Add a Edge between two vertex.
     /// </summary>
     public bool Connect(int v, int u)
     {
+        System.Console.WriteLine($"Connect({v}, {u})");
         if (v == u)
             return false;
         
@@ -254,14 +256,14 @@ public class DCEL
         while (current != bottom)
         {
             leftChain.Add(current);
-            current = VertexEdges[current][0].To;
+            current = FromEdgeMap[current][0].To;
         }
         
-        current = VertexEdges[current][0].To;
+        current = FromEdgeMap[current][0].To;
         while (current != top)
         {
             rightChain.Add(current);
-            current = VertexEdges[current][0].To;
+            current = FromEdgeMap[current][0].To;
         }
 
         return (rightChain, leftChain);
@@ -272,7 +274,7 @@ public class DCEL
     /// </summary>
     public VertexType DiscoverType(int v)
     {
-        var edges = VertexEdges[v];
+        var edges = FromEdgeMap[v];
         var edge = edges[0];
         ref var self = ref GetVertex(v);
         ref var e1 = ref GetVertex(edge.To);
@@ -448,8 +450,11 @@ public class DCEL
         nextEdgeId++;
 
         var edge = new HalfEdge(id, from, to, face);
-        var edges = GetEdgeList(from);
-        edges.Add(edge);
+        var fromEdges = GetFromEdgeList(from);
+        var toEdges = GetToEdgeList(to);
+        
+        fromEdges.Add(edge);
+        toEdges.Add(edge);
         Edges.Add(edge);
 
         var faceEdges = GetFaceEdgeList(face);
@@ -462,13 +467,27 @@ public class DCEL
     /// Get, and init if needed, edges connect
     /// to a vertex with specific id.
     /// </summary>
-    List<HalfEdge> GetEdgeList(int id)
+    List<HalfEdge> GetFromEdgeList(int id)
     {
-        if (VertexEdges.TryGetValue(id, out var edges))
+        if (FromEdgeMap.TryGetValue(id, out var edges))
             return edges;
         
         edges = [];
-        VertexEdges.Add(id, edges);
+        FromEdgeMap.Add(id, edges);
+        return edges;
+    }
+
+    /// <summary>
+    /// Get, and init if needed, edges connect
+    /// to a vertex with specific id.
+    /// </summary>
+    List<HalfEdge> GetToEdgeList(int id)
+    {
+        if (ToEdgeMap.TryGetValue(id, out var edges))
+            return edges;
+        
+        edges = [];
+        ToEdgeMap.Add(id, edges);
         return edges;
     }
 
@@ -495,6 +514,19 @@ public class DCEL
         ref var q = ref GetVertex(qId);
         ref var r = ref GetVertex(rId);
         return Left(ref p, ref q, ref r);
+    }
+
+    /// <summary>
+    /// Compute area from this a collection of points. Returns
+    /// negative when points are anti-clockwise. 
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static float Area(PlanarVertex[] points)
+    {
+        var area = 0f;
+        foreach (var (pt1, pt2) in points.Zip(points.Skip(1).Append(points[0])))
+            area += pt1.Xp * pt2.Yp - pt2.Xp * pt1.Yp;
+        return area / 2;
     }
 
     /// <summary>

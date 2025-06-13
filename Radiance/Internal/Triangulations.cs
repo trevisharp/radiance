@@ -42,6 +42,7 @@ public static class Triangulations
     /// </summary>
     public static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
     {
+        Console.WriteLine("MonotoneDivision");
         var types = new VertexType[sweepLine.Length];
         for (int i = 0; i < sweepLine.Length; i++)
             types[i] = dcel.DiscoverType(i);
@@ -53,15 +54,19 @@ public static class Triangulations
         
         for (int i = 0; i < sweepLine.Length; i++)
         {
+
             ref var v = ref sweepLine[i];
             var vi = v.Id;
             
             var type = types[vi];
-            var edges = dcel.VertexEdges[vi];
-            var ei = edges[0].Id;
-            var eprev = ei - 1;
-            if (eprev == -1)
-                eprev = sweepLine.Length - 1;
+            var ei = dcel.FromEdgeMap[vi][0].Id;
+            var eprev = dcel.ToEdgeMap[vi][0].Id;
+
+            Console.WriteLine($"vi = {vi}");
+            Console.WriteLine($"type = {type}");
+            Console.WriteLine($"ei = {ei}");
+            Console.WriteLine($"eprev = {eprev}");
+            Console.WriteLine();
 
             switch (type)
             {
@@ -178,6 +183,7 @@ public static class Triangulations
     /// </summary>
     public static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
     {
+        Console.WriteLine("MonotonePlaneTriangulation");
         var temp = dcel.FacesEdges.FirstOrDefault();
         var pts = temp.Value.SelectMany(x => new int[] { x.To, x.From }).Distinct();
 

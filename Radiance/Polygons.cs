@@ -162,7 +162,6 @@ public static class Polygons
 
         return result.ToArray();
     }
-
     
     /// <summary>
     /// Create a polygon using a polar coordinates.
