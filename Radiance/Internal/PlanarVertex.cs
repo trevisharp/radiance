@@ -1,8 +1,6 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    29/12/2024
+ * Date:    12/06/2025
  */
-using System;
-
 namespace Radiance.Internal;
 
 /// <summary>
