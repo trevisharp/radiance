@@ -22,13 +22,8 @@ public static class Triangulations
         if (N < 4)
             return pts;
 
-        var points = new PlanarVertex[N];
-        PlanarVertex.ToPlanarVertex(pts, points);
-        
-        var map = new int[N];
-        var sweepLine = SweepLine.Create(points, map);
-
-        var dcel = new DCEL(points);
+        var dcel = new DCEL(pts);
+        var sweepLine = dcel.CreateSweepLine();
 
         if (MonotoneDivision(dcel, sweepLine))
             return NonMonotonePlaneTriangularization(dcel, sweepLine);
@@ -62,6 +57,8 @@ public static class Triangulations
             var ei = dcel.FromEdgeMap[vi][0].Id;
             var eprev = dcel.ToEdgeMap[vi][0].Id;
 
+            System.Console.WriteLine(dcel.FromEdgeMap[vi][0].From);
+            System.Console.WriteLine(dcel.FromEdgeMap[vi][0].To);
             Console.WriteLine($"vi = {vi}");
             Console.WriteLine($"type = {type}");
             Console.WriteLine($"ei = {ei}");

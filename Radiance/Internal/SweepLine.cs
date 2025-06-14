@@ -9,15 +9,15 @@ namespace Radiance.Internal;
 /// <summary>
 /// Represents a SweepLine algorithm.
 /// </summary>
-public class SweepLine(PlanarVertex[] points, int[] map)
+public class SweepLine(Vertex[] points, int[] map)
 {
-    readonly PlanarVertex[] source = points;
+    readonly Vertex[] source = points;
 
     public readonly int[] MapBuffer = map;
 
     public int Length => MapBuffer.Length;
     
-    public ref PlanarVertex this[int index] => ref source[MapBuffer[index]];
+    public ref Vertex this[int index] => ref source[MapBuffer[index]];
 
     public SweepLine ApplyFilter(int[] points)
     {
@@ -32,7 +32,7 @@ public class SweepLine(PlanarVertex[] points, int[] map)
         return new SweepLine(source, modifiedMap);
     }
 
-    public static SweepLine Create(PlanarVertex[] points, int[] map)
+    public static SweepLine Create(Vertex[] points, int[] map)
     {
         Sort(points, map);
         return new SweepLine(points, map);
@@ -44,7 +44,7 @@ public class SweepLine(PlanarVertex[] points, int[] map)
     /// Sort elements usings values has data[map[i] + offsetA] to order
     /// and data[map[i] + offsetB] on ties. Return a array of positions.
     /// </summary>
-    static void Sort(Span<PlanarVertex> data, Span<int> map)
+    static void Sort(Span<Vertex> data, Span<int> map)
     {
         for (int i = 0; i < data.Length; i++)
             map[i] = i;
@@ -56,7 +56,7 @@ public class SweepLine(PlanarVertex[] points, int[] map)
     /// Considering a map of positions and a data, sort elements between start and end - 1
     /// values using data[map[i] + offsetA] to order and data[map[i] + offsetB] on ties.
     /// </summary>
-    static void QuickSort(Span<PlanarVertex> data, Span<int> map, int start, int end)
+    static void QuickSort(Span<Vertex> data, Span<int> map, int start, int end)
     {
         int len = end - start;
         if (len < sortTreshold)
@@ -67,8 +67,8 @@ public class SweepLine(PlanarVertex[] points, int[] map)
 
         var goodPivoIndex = start + len / 4;
         var pivoIndex = map[goodPivoIndex];
-        var pivo = data[pivoIndex].Yp;
-        var pivo2 = data[pivoIndex].Xp;
+        var pivo = data[pivoIndex].Y;
+        var pivo2 = data[pivoIndex].X;
 
         map[goodPivoIndex] = map[end - 1];
         map[end - 1] = pivoIndex;
@@ -76,20 +76,20 @@ public class SweepLine(PlanarVertex[] points, int[] map)
         int i = start, j = end - 2;
         while (i < j)
         {
-            float iv = data[map[i]].Yp;
-            float iv2 = data[map[i]].Xp;
+            float iv = data[map[i]].Y;
+            float iv2 = data[map[i]].X;
             while((iv > pivo || (iv == pivo && iv2 < pivo2)) && i < j)
             {
-                iv = data[map[++i]].Yp;
-                iv2 = data[map[i]].Xp;
+                iv = data[map[++i]].Y;
+                iv2 = data[map[i]].X;
             }
             
-            float jv = data[map[j]].Yp;
-            float jv2 = data[map[j]].Xp;
+            float jv = data[map[j]].Y;
+            float jv2 = data[map[j]].X;
             while ((jv < pivo || (jv == pivo && jv2 > pivo2)) && i < j)
             {
-                jv = data[map[--j]].Yp;
-                jv2 = data[map[j]].Xp;
+                jv = data[map[--j]].Y;
+                jv2 = data[map[j]].X;
             }
 
             if (i >= j)
@@ -98,8 +98,8 @@ public class SweepLine(PlanarVertex[] points, int[] map)
             (map[j], map[i]) = (map[i], map[j]);
         }
 
-        float lv = data[map[j]].Yp;
-        float lv2 = data[map[j]].Xp;
+        float lv = data[map[j]].Y;
+        float lv2 = data[map[j]].X;
         if (lv > pivo || (lv == pivo && lv2 < pivo2))
             j++;
 
@@ -113,18 +113,18 @@ public class SweepLine(PlanarVertex[] points, int[] map)
     /// values using data[map[i] + offsetA] to order and data[map[i] + offsetB] on ties.
     /// Fast for tiny vectors.
     /// </summary>
-    static void SlowSort(Span<PlanarVertex> data, Span<int> map, int start, int end)
+    static void SlowSort(Span<Vertex> data, Span<int> map, int start, int end)
     {
         for (int i = start + 1; i < end; i++)
         {
             var index = map[i];
-            var value = data[index].Yp;
-            var value2 = data[index].Xp;
+            var value = data[index].Y;
+            var value2 = data[index].X;
 
             var cmpPos = i - 1;
             var point = data[map[cmpPos]];
 
-            while (point.Yp < value || (point.Yp == value && point.Xp > value2))
+            while (point.Y < value || (point.Y == value && point.X > value2))
             {
                 map[cmpPos + 1] = map[cmpPos];
                 cmpPos--;

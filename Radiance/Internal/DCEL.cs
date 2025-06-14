@@ -15,7 +15,7 @@ public class DCEL
     const float almost_infty = 1e6f;
     int nextEdgeId = 0;
     int nextFaceId = 0;
-    readonly PlanarVertex[] OriginalSource;
+    readonly Vertex[] Source;
     public readonly int Length;
     public readonly List<HalfEdge> Edges = [];
     public readonly Dictionary<int, List<HalfEdge>> FromEdgeMap = [];
@@ -23,9 +23,9 @@ public class DCEL
     public readonly Dictionary<int, List<int>> Faces = [];
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
 
-    public DCEL(PlanarVertex[] source, int[] points)
+    public DCEL(Vertex[] source, int[] points)
     {
-        OriginalSource = source;
+        Source = source;
         Length = points.Length;
 
         int face = CreateFace();
@@ -67,23 +67,29 @@ public class DCEL
         lst.SetNext(fst);
     }
 
-    public DCEL(PlanarVertex[] points)
+    public DCEL(float[] points)
     {
-        OriginalSource = Area(points) < 0 ? points : [ ..points.Reverse() ];
-        Length = points.Length;
+        points = FixClockwise(points);
+        var vertexes = new Vertex[points.Length / 3];
+        for (int j = 0, k = 0; j < points.Length; j += 3, k++)
+            vertexes[k] = new Vertex(k, points[j], points[j + 1], points[j + 2]);
+
+        Source = vertexes;
+        Length = Source.Length;
+        System.Console.WriteLine(Source[0]);
 
         int face = CreateFace();
         List<int> faceVertexes = Faces[face];
         List<HalfEdge> faceEdges = FacesEdges[face];
 
-        for (int j = 0; j < points.Length; j++)
+        for (int j = 0; j < Source.Length; j++)
             faceVertexes.Add(j);
 
         HalfEdge fst, prv;
         fst = prv = CreateEdge(0, 1, face);
 
         int i = 1;
-        while (i < points.Length - 1)
+        while (i < Source.Length - 1)
         {
             var crr = CreateEdge(
                 i,
@@ -106,6 +112,12 @@ public class DCEL
         lst.SetPrevious(prv);
         lst.SetNext(fst);
     }
+
+    /// <summary>
+    /// Create a SweepLine from this DCEL.
+    /// </summary>
+    public SweepLine CreateSweepLine()
+        => new (Source, new int[Source.Length]);
     
     /// <summary>
     /// Receiving 2 ids for vertex return if them are connected.
@@ -223,22 +235,22 @@ public class DCEL
     /// </summary>
     public bool CanInternalConnect(int vid, int uid)
     {
-        ref var v = ref GetVertex(vid);
-        ref var u = ref GetVertex(uid);
+        var v = GetVertex(vid);
+        var u = GetVertex(uid);
 
         foreach (var edge in Edges)
         {
             if (edge.From == vid || edge.To == vid || edge.From == uid || edge.To == uid)
                 continue;
 
-            ref var v2 = ref GetVertex(edge.From);
-            ref var u2 = ref GetVertex(edge.To);
+            var v2 = GetVertex(edge.From);
+            var u2 = GetVertex(edge.To);
 
-            if (Intersect(ref v, ref u, ref v2, ref u2))
+            if (Intersect(v, u, v2, u2))
                 return false;
         }
         
-        return IsInside((v.Xp + u.Xp) / 2, (v.Yp + u.Yp) / 2);
+        return IsInside((v.X + u.X) / 2, (v.Y + u.Y) / 2);
     }
 
     /// <summary>
@@ -276,23 +288,23 @@ public class DCEL
     {
         var edges = FromEdgeMap[v];
         var edge = edges[0];
-        ref var self = ref GetVertex(v);
-        ref var e1 = ref GetVertex(edge.To);
-        ref var e2 = ref GetVertex(edge.Previous!.From);
+        var self = GetVertex(v);
+        var e1 = GetVertex(edge.To);
+        var e2 = GetVertex(edge.Previous!.From);
         
-        if (over(ref self, ref e1) && over(ref self, ref e2))
-            return Left(ref e1, ref self, ref e2) > 0 ?
+        if (over(self, e1) && over(self, e2))
+            return Left(e1, self, e2) > 0 ?
                 VertexType.Split : VertexType.Start;
         
-        if (over(ref e1, ref self) && over(ref e2, ref self))
-            return Left(ref e1, ref self, ref e2) > 0 ?
+        if (over(e1, self) && over(e2, self))
+            return Left(e1, self, e2) > 0 ?
                 VertexType.Merge : VertexType.End;
 
         return VertexType.Regular;
 
         [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool over(ref PlanarVertex p, ref PlanarVertex q)
-            => p.Yp > q.Yp || (p.Yp == q.Yp && p.Xp < q.Xp);
+        static bool over(Vertex p, Vertex q)
+            => p.Y > q.Y || (p.Y == q.Y && p.X < q.X);
     }
 
     /// <summary>
@@ -302,8 +314,8 @@ public class DCEL
     public int FindLeftEdge(int vertexId)
     {
         var vert = GetVertex(vertexId);
-        var y = vert.Yp;
-        var x = vert.Xp;
+        var y = vert.Y;
+        var x = vert.X;
 
         int selected = -1;
         float bestX = float.MaxValue;
@@ -317,12 +329,12 @@ public class DCEL
                 continue;
 
             var v = GetVertex(edge.To);
-            var x1 = v.Xp;
-            var y1 = v.Yp;
+            var x1 = v.X;
+            var y1 = v.Y;
 
             var u = GetVertex(edge.From);
-            var x2 = u.Xp;
-            var y2 = u.Yp;
+            var x2 = u.X;
+            var y2 = u.Y;
 
             var between = y1 >= y && y > y2 || y2 >= y && y > y1;
             if (!between)
@@ -346,7 +358,7 @@ public class DCEL
     /// Filter DCEL considering some points of original source.
     /// </summary>
     public DCEL ApplyFilter(int[] points)
-        => new (OriginalSource, points);
+        => new (Source, points);
 
     /// <summary>
     /// Get the face shader by two vertex
@@ -396,7 +408,7 @@ public class DCEL
     public bool LiesOnRight(int vid)
     {
         var vert = GetVertex(vid);
-        return IsInside(vert.Xp + 1 / almost_infty, vert.Yp);
+        return IsInside(vert.X + 1 / almost_infty, vert.Y);
     }
 
     /// <summary>
@@ -409,7 +421,7 @@ public class DCEL
         {
             foreach (var vertexId in face.Value)
             {
-                ref var vertex = ref GetVertex(vertexId);
+                var vertex = GetVertex(vertexId);
                 values.Add(vertex.X);
                 values.Add(vertex.Y);
                 values.Add(vertex.Z);
@@ -423,8 +435,8 @@ public class DCEL
     /// Get a Planar Vertex by id.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public ref PlanarVertex GetVertex(int id)
-        => ref OriginalSource[id];
+    public Vertex GetVertex(int id)
+        => Source[id];
 
     /// <summary>
     /// Create a new empty face.
@@ -510,10 +522,10 @@ public class DCEL
     /// </summary>
     public float Left(int pid, int qId, int rId)
     {
-        ref var p = ref GetVertex(pid);
-        ref var q = ref GetVertex(qId);
-        ref var r = ref GetVertex(rId);
-        return Left(ref p, ref q, ref r);
+        var p = GetVertex(pid);
+        var q = GetVertex(qId);
+        var r = GetVertex(rId);
+        return Left(p, q, r);
     }
 
     /// <summary>
@@ -521,20 +533,55 @@ public class DCEL
     /// negative when points are anti-clockwise. 
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static float Area(PlanarVertex[] points)
+    static float Area(float[] points)
     {
         var area = 0f;
-        foreach (var (pt1, pt2) in points.Zip(points.Skip(1).Append(points[0])))
-            area += pt1.Xp * pt2.Yp - pt2.Xp * pt1.Yp;
+        for (int i = 0; i < points.Length - 3; i += 3)
+        {
+            var x1 = points[i];
+            var x2 = points[i + 3];
+            var y1 = points[i + 1];
+            var y2 = points[i + 1 + 3];
+            area += x1 * y2 - x2 * y1;
+        }
+        area += points[^3] * points[1] - points[0] * points[^2];
         return area / 2;
+    }
+
+    /// <summary>
+    /// Reverse the (x, y, z) pairs.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static float[] Reverse(float[] points)
+    {
+        float[] reversed = new float[points.Length];
+        for (int i = 0; i < points.Length; i += 3)
+        {
+            reversed[i] = points[^(i + 3)];
+            reversed[i + 1] = points[^(i + 2)];
+            reversed[i + 2] = points[^(i + 1)];
+        }
+        return reversed;
+    }
+
+    /// <summary>
+    /// Fix clockwise to pairs (x, y, z).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static float[] FixClockwise(float[] points)
+    {
+        var area = Area(points);
+        if (area > 0)
+            return points;
+        return Reverse(points);
     }
 
     /// <summary>
     /// The left operation. https://en.wikipedia.org/wiki/Left_and_right_(algebra)
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static float Left(ref PlanarVertex p, ref PlanarVertex q, ref PlanarVertex r)
-        => Left(p.Xp, p.Yp, q.Xp, q.Yp, r.Xp, r.Yp);
+    static float Left(Vertex p, Vertex q, Vertex r)
+        => Left(p.X, p.Y, q.X, q.Y, r.X, r.Y);
     
     /// <summary>
     /// The left operation. https://en.wikipedia.org/wiki/Left_and_right_(algebra)
@@ -556,8 +603,8 @@ public class DCEL
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static bool Intersect(
-        ref PlanarVertex p, ref PlanarVertex pf,
-        ref PlanarVertex q, ref PlanarVertex qf
+        Vertex p, Vertex pf,
+        Vertex q, Vertex qf
     )
     {
         // alfa * vx + px = beta * ux + qx
@@ -567,15 +614,15 @@ public class DCEL
         // beta * ux * vy / vx - beta * uy = qy - py - (qx - px) * vy / vx
         // beta * (ux * vy / vx - uy) = qy - py - (qx - px) * vy / vx
         
-        var vx = pf.Xp - p.Xp;
-        var vy = pf.Yp - p.Yp;
-        var ux = qf.Xp - q.Xp;
-        var uy = qf.Yp - q.Yp;
+        var vx = pf.X - p.X;
+        var vy = pf.Y - p.Y;
+        var ux = qf.X - q.X;
+        var uy = qf.Y - q.Y;
 
-        var beta = (q.Yp - p.Yp - (q.Xp - p.Xp) * vy / vx)
+        var beta = (q.Y - p.Y - (q.X - p.X) * vy / vx)
             / (ux * vy / vx - uy);
         
-        var alfa = (beta * ux + q.Xp - p.Xp) / vx;
+        var alfa = (beta * ux + q.X - p.X) / vx;
 
         return (alfa, beta) is (>0f and <1f, >0f and <1f);
     }
@@ -586,7 +633,7 @@ public class DCEL
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     static bool RayIntersect(
-        ref PlanarVertex p, ref PlanarVertex pf,
+        Vertex p, Vertex pf,
         float qx, float qy
     )
     {
@@ -598,15 +645,15 @@ public class DCEL
         // alfa = (beta * ux + q.Xp - p.Xp) / vx;
         // alfa = (q.Xp - p.Xp) / vx
         
-        var vx = pf.Xp - p.Xp;
-        var vy = pf.Yp - p.Yp;
+        var vx = pf.X - p.X;
+        var vy = pf.Y - p.Y;
         var ux = qx - qx;
         var uy = almost_infty - qy;
 
-        var beta = (qy - p.Yp - (qx - p.Xp) * vy / vx)
+        var beta = (qy - p.Y - (qx - p.X) * vy / vx)
             / (ux * vy / vx - uy);
         
-        var alfa = (beta * ux + qx - p.Xp) / vx;
+        var alfa = (beta * ux + qx - p.X) / vx;
 
         return (alfa, beta) is (>0f and <1f, >0f and <1f);
 
@@ -618,10 +665,10 @@ public class DCEL
 
         foreach (var edge in Edges)
         {
-            ref var v2 = ref GetVertex(edge.From);
-            ref var u2 = ref GetVertex(edge.To);
+            var v2 = GetVertex(edge.From);
+            var u2 = GetVertex(edge.To);
 
-            if (RayIntersect(ref v2, ref u2, px, py))
+            if (RayIntersect(v2, u2, px, py))
                 count++;
         }
 
