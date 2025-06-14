@@ -76,7 +76,6 @@ public class DCEL
 
         Source = vertexes;
         Length = Source.Length;
-        System.Console.WriteLine(Source[0]);
 
         int face = CreateFace();
         List<int> faceVertexes = Faces[face];

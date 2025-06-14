@@ -2,6 +2,7 @@
  * Date:    12/06/2025
  */
 using System;
+using System.Collections.Generic;
 using System.Linq;
 
 namespace Radiance.Internal;
@@ -9,131 +10,30 @@ namespace Radiance.Internal;
 /// <summary>
 /// Represents a SweepLine algorithm.
 /// </summary>
-public class SweepLine(Vertex[] points, int[] map)
+public class SweepLine
 {
-    readonly Vertex[] source = points;
+    public SweepLine(Vertex[] vertexes)
+    {
+        var ordered = vertexes.ToList();
+        ordered.Sort((v, u) => (v.Y - u.Y) switch
+        {
+            >0 => 1,
+            <0 => -1,
+            0 when v.X > u.X => 1,
+            0 when v.X < u.X => -1,
+            _ => 0
+        });
+        orderedVertexes = [ ..ordered ];
+    }
 
-    public readonly int[] MapBuffer = map;
+    readonly Vertex[] orderedVertexes;
 
-    public int Length => MapBuffer.Length;
+    public int Length => orderedVertexes.Length;
     
-    public ref Vertex this[int index] => ref source[MapBuffer[index]];
+    public Vertex this[int index] => orderedVertexes[index];
 
     public SweepLine ApplyFilter(int[] points)
     {
-        var modifiedMap = new int[points.Length];
-        
-        for (int i = 0, j = 0; i < MapBuffer.Length; i++)
-        {
-            if (points.Contains(MapBuffer[i]))
-                modifiedMap[j++] = MapBuffer[i];
-        }
-
-        return new SweepLine(source, modifiedMap);
-    }
-
-    public static SweepLine Create(Vertex[] points, int[] map)
-    {
-        Sort(points, map);
-        return new SweepLine(points, map);
-    }
-    
-    const int sortTreshold = 16;
-    
-    /// <summary>
-    /// Sort elements usings values has data[map[i] + offsetA] to order
-    /// and data[map[i] + offsetB] on ties. Return a array of positions.
-    /// </summary>
-    static void Sort(Span<Vertex> data, Span<int> map)
-    {
-        for (int i = 0; i < data.Length; i++)
-            map[i] = i;
-
-        QuickSort(data, map, 0, data.Length);
-    }
-
-    /// <summary>
-    /// Considering a map of positions and a data, sort elements between start and end - 1
-    /// values using data[map[i] + offsetA] to order and data[map[i] + offsetB] on ties.
-    /// </summary>
-    static void QuickSort(Span<Vertex> data, Span<int> map, int start, int end)
-    {
-        int len = end - start;
-        if (len < sortTreshold)
-        {
-            SlowSort(data, map, start, end);
-            return;
-        }
-
-        var goodPivoIndex = start + len / 4;
-        var pivoIndex = map[goodPivoIndex];
-        var pivo = data[pivoIndex].Y;
-        var pivo2 = data[pivoIndex].X;
-
-        map[goodPivoIndex] = map[end - 1];
-        map[end - 1] = pivoIndex;
-
-        int i = start, j = end - 2;
-        while (i < j)
-        {
-            float iv = data[map[i]].Y;
-            float iv2 = data[map[i]].X;
-            while((iv > pivo || (iv == pivo && iv2 < pivo2)) && i < j)
-            {
-                iv = data[map[++i]].Y;
-                iv2 = data[map[i]].X;
-            }
-            
-            float jv = data[map[j]].Y;
-            float jv2 = data[map[j]].X;
-            while ((jv < pivo || (jv == pivo && jv2 > pivo2)) && i < j)
-            {
-                jv = data[map[--j]].Y;
-                jv2 = data[map[j]].X;
-            }
-
-            if (i >= j)
-                break;
-
-            (map[j], map[i]) = (map[i], map[j]);
-        }
-
-        float lv = data[map[j]].Y;
-        float lv2 = data[map[j]].X;
-        if (lv > pivo || (lv == pivo && lv2 < pivo2))
-            j++;
-
-        (map[end - 1], map[j]) = (map[j], map[end - 1]);
-        QuickSort(data, map, start, j);
-        QuickSort(data, map, j, end);
-    }
-
-    /// <summary>
-    /// Considering a map of positions and a data, sort elements between start and end - 1
-    /// values using data[map[i] + offsetA] to order and data[map[i] + offsetB] on ties.
-    /// Fast for tiny vectors.
-    /// </summary>
-    static void SlowSort(Span<Vertex> data, Span<int> map, int start, int end)
-    {
-        for (int i = start + 1; i < end; i++)
-        {
-            var index = map[i];
-            var value = data[index].Y;
-            var value2 = data[index].X;
-
-            var cmpPos = i - 1;
-            var point = data[map[cmpPos]];
-
-            while (point.Y < value || (point.Y == value && point.X > value2))
-            {
-                map[cmpPos + 1] = map[cmpPos];
-                cmpPos--;
-                if (cmpPos < start)
-                    break;
-                point = data[map[cmpPos]];
-            }
-            
-            map[cmpPos + 1] = index;
-        }
+        throw new NotImplementedException();
     }
 }
