@@ -565,10 +565,12 @@ public class DCEL
         if (HoleSet.Contains(vertexId))
         {
             if (self > e1 && self > e2)
-                return VertexType.Split;
+                return Left(e1, self, e2) < 0 ?
+VertexType.Split : VertexType.Regular;
             
             if (e1 > self && e2 > self)
-                return VertexType.Merge;
+                return Left(e1, self, e2) < 0 ?
+VertexType.Merge : VertexType.Regular;
         }
         else
         {
