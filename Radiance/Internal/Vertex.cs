@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    12/06/2025
  */
+using System.Globalization;
+
 namespace Radiance.Internal;
 
 /// <summary>
@@ -9,5 +11,5 @@ namespace Radiance.Internal;
 public record Vertex(int Id, float X, float Y, float Z)
 {
     public override string ToString()
-        => $"({X}, {Y})";
+        => $"({X.ToString("0.000", CultureInfo.InvariantCulture)}, {Y.ToString("0.000", CultureInfo.InvariantCulture)})";
 }

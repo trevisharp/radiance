@@ -38,44 +38,38 @@ public static class Triangulations
     public static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
     {
         Console.WriteLine("MonotoneDivision");
-        var types = new VertexType[sweepLine.Length];
-        for (int i = 0; i < sweepLine.Length; i++)
-            types[i] = dcel.DiscoverType(i);
-        
-        if (!types.Contains(VertexType.Merge) && !types.Contains(VertexType.Split))
+        if (dcel.IsMonotone)
             return false;
 
         Dictionary<int, int> helper = [];
         
         for (int i = 0; i < sweepLine.Length; i++)
         {
-
-            ref var v = ref sweepLine[i];
+            var v = sweepLine[i];
             var vi = v.Id;
             
-            var type = types[vi];
+            var type = dcel.GetVertexType(vi);
             var ei = dcel.FromEdgeMap[vi][0].Id;
             var eprev = dcel.ToEdgeMap[vi][0].Id;
 
-            System.Console.WriteLine(dcel.FromEdgeMap[vi][0].From);
-            System.Console.WriteLine(dcel.FromEdgeMap[vi][0].To);
-            Console.WriteLine($"vi = {vi}");
+            Console.WriteLine($"vi = {vi} [{dcel.GetVertex(vi)}]");
             Console.WriteLine($"type = {type}");
-            Console.WriteLine($"ei = {ei}");
-            Console.WriteLine($"eprev = {eprev}");
-            Console.WriteLine();
+            Console.WriteLine($"ei = {ei} [{dcel.FromEdgeMap[vi][0].From} -> {dcel.FromEdgeMap[vi][0].To}]");
+            Console.WriteLine($"eprev = {eprev} [{dcel.ToEdgeMap[vi][0].From} -> {dcel.ToEdgeMap[vi][0].To}]");
+            Console.WriteLine("--------------------");
 
             switch (type)
             {
                 case VertexType.Start:
 
                     helper[eprev] = vi;
+                    Console.WriteLine($"helper[{eprev}] = {vi};");
 
                     break;
                     
                 case VertexType.End:
                     
-                    if (types[helper[ei]] == VertexType.Merge)
+                    if (dcel.GetVertexType(helper[ei]) == VertexType.Merge)
                     {
                         dcel.Connect(vi, helper[ei]);
                     }
@@ -95,7 +89,7 @@ public static class Triangulations
 
                 case VertexType.Merge:
 
-                    if (types[helper[ei]] == VertexType.Merge)
+                    if (dcel.GetVertexType(helper[ei]) == VertexType.Merge)
                     {
                         dcel.Connect(vi, helper[ei]);
                     }
@@ -103,7 +97,7 @@ public static class Triangulations
                     helper.Remove(ei);
 
                     var ej2 = dcel.FindLeftEdge(vi);
-                    if (types[helper[ej2]] == VertexType.Merge)
+                    if (dcel.GetVertexType(helper[ej2]) == VertexType.Merge)
                     {
                         dcel.Connect(helper[ej2], vi);
                     }
@@ -114,9 +108,10 @@ public static class Triangulations
 
                 case VertexType.Regular:
 
+                    Console.WriteLine($"dcel.LiesOnRight(vi) = {dcel.LiesOnRight(vi)};");
                     if (dcel.LiesOnRight(vi))
                     {
-                        if (types[helper[ei]] == VertexType.Merge)
+                        if (dcel.GetVertexType(helper[ei]) == VertexType.Merge)
                         {
                             dcel.Connect(vi, helper[ei]);
                         }
@@ -127,7 +122,8 @@ public static class Triangulations
                     else
                     {
                         var ej3 = dcel.FindLeftEdge(vi);
-                        if (types[helper[ej3]] == VertexType.Merge)
+                        Console.WriteLine($"dcel.FindLeftEdge(vi) = {dcel.FindLeftEdge(vi)};");
+                        if (dcel.GetVertexType(helper[ej3]) == VertexType.Merge)
                         {
                             dcel.Connect(helper[ej3], vi);
                         }
@@ -136,6 +132,8 @@ public static class Triangulations
 
                     break;
             }
+            Console.WriteLine("--------------------");
+            Console.WriteLine();
         }
 
         return true;
@@ -164,7 +162,7 @@ public static class Triangulations
                 continue;
             }
             
-            var subSweepLine = sweepLine.ApplyFilter(subPointsIds);
+            var subSweepLine = subDcel.CreateSweepLine();
             data = MonotonePlaneTriangulation(subDcel, subSweepLine);
             Array.Copy(data, 0, triangules, index, data.Length);
             index += data.Length;

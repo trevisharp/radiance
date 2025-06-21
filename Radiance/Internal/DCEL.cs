@@ -4,6 +4,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using System.Text;
 
 namespace Radiance.Internal;
 
@@ -16,6 +17,7 @@ public class DCEL
     int nextEdgeId = 0;
     int nextFaceId = 0;
     readonly Vertex[] Source;
+    readonly Dictionary<int, VertexType> VertexesTypes = [];
     public readonly int Length;
     public readonly List<HalfEdge> Edges = [];
     public readonly Dictionary<int, List<HalfEdge>> FromEdgeMap = [];
@@ -116,7 +118,7 @@ public class DCEL
     /// Create a SweepLine from this DCEL.
     /// </summary>
     public SweepLine CreateSweepLine()
-        => new (Source, new int[Source.Length]);
+        => new (Source);
     
     /// <summary>
     /// Receiving 2 ids for vertex return if them are connected.
@@ -281,29 +283,37 @@ public class DCEL
     }
 
     /// <summary>
-    /// Discover the type of the vertex with specific id.
+    /// Get the Vertex type of a vertex with specific id.
     /// </summary>
-    public VertexType DiscoverType(int v)
+    public VertexType GetVertexType(int vertexId)
     {
-        var edges = FromEdgeMap[v];
-        var edge = edges[0];
-        var self = GetVertex(v);
-        var e1 = GetVertex(edge.To);
-        var e2 = GetVertex(edge.Previous!.From);
+        if (VertexesTypes.TryGetValue(vertexId, out var type))
+            return type;
         
-        if (over(self, e1) && over(self, e2))
-            return Left(e1, self, e2) > 0 ?
-                VertexType.Split : VertexType.Start;
-        
-        if (over(e1, self) && over(e2, self))
-            return Left(e1, self, e2) > 0 ?
-                VertexType.Merge : VertexType.End;
+        type = DiscoverType(vertexId);
+        VertexesTypes[vertexId] = type;
+        return type;
+    }
 
-        return VertexType.Regular;
+    /// <summary>
+    /// Get if the polygon is monotone.
+    /// </summary>
+    public bool IsMonotone 
+    {
+        get
+        {
+            foreach (var vertex in Source)
+            {
+                var type = GetVertexType(vertex.Id);
+                if (type == VertexType.Merge)
+                    return false;
+                
+                if (type == VertexType.Split)
+                    return false;
+            }
 
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool over(Vertex p, Vertex q)
-            => p.Y > q.Y || (p.Y == q.Y && p.X < q.X);
+            return true;
+        }
     }
 
     /// <summary>
@@ -343,7 +353,7 @@ public class DCEL
             if (minX > bestX)
                 continue;
             
-            if (Left(v.Id, vertexId, u.Id) < 0)
+            if (Left(v.Id, vertexId, u.Id) > 0)
                 continue;
 
             bestX = minX;
@@ -429,13 +439,49 @@ public class DCEL
         
         return [.. values];
     }
-
+    
     /// <summary>
     /// Get a Planar Vertex by id.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vertex GetVertex(int id)
         => Source[id];
+
+    public override string ToString()
+    {
+        var sb = new StringBuilder();
+        foreach (var pt in Source)
+            sb.AppendLine($$"""P_{{{pt.Id}}} = {{pt}}""");
+        
+        return sb.ToString();
+    }
+
+    /// <summary>
+    /// Discover the type of the vertex with specific id.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    VertexType DiscoverType(int vertexId)
+    {
+        var edges = FromEdgeMap[vertexId];
+        var edge = edges[0];
+        var self = GetVertex(vertexId);
+        var e1 = GetVertex(edge.To);
+        var e2 = GetVertex(edge.Previous!.From);
+        
+        if (over(self, e1) && over(self, e2))
+            return Left(e1, self, e2) < 0 ?
+                VertexType.Split : VertexType.Start;
+        
+        if (over(e1, self) && over(e2, self))
+            return Left(e1, self, e2) < 0 ?
+                VertexType.Merge : VertexType.End;
+
+        return VertexType.Regular;
+
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        static bool over(Vertex p, Vertex q)
+            => p.Y > q.Y || (p.Y == q.Y && p.X < q.X);
+    }
 
     /// <summary>
     /// Create a new empty face.
