@@ -5,6 +5,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
 using System.Text;
+using OpenTK.Compute.OpenCL;
 
 namespace Radiance.Internal;
 
@@ -18,38 +19,41 @@ public class DCEL
     int nextFaceId = 0;
     readonly Vertex[] Source;
     readonly Dictionary<int, VertexType> VertexesTypes = [];
-    public readonly int Length;
+    public int Length => Source.Length;
     public readonly List<HalfEdge> Edges = [];
+    public readonly Dictionary<int, Vertex> Vertexes = [];
     public readonly Dictionary<int, List<HalfEdge>> FromEdgeMap = [];
     public readonly Dictionary<int, List<HalfEdge>> ToEdgeMap = [];
     public readonly Dictionary<int, List<int>> Faces = [];
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
+    public IEnumerable<int> FaceIds => Faces.Keys;
 
-    public DCEL(Vertex[] source, int[] points)
+    public DCEL(Vertex[] source)
     {
         Source = source;
-        Length = points.Length;
+        foreach (var vertex in source)
+            Vertexes.Add(vertex.Id, vertex);
 
         int face = CreateFace();
         List<int> faceVertexes = Faces[face];
         List<HalfEdge> faceEdges = FacesEdges[face];
 
-        for (int j = 0; j < points.Length; j++)
-            faceVertexes.Add(points[j]);
+        for (int j = 0; j < source.Length; j++)
+            faceVertexes.Add(source[j].Id);
 
         HalfEdge fst, prv;
         fst = prv = CreateEdge(
-            points[0],
-            points[1],
+            source[0].Id,
+            source[1].Id,
             face
         );
 
         int i = 1;
-        while (i < points.Length - 1)
+        while (i < source.Length - 1)
         {
             var crr = CreateEdge(
-                points[i],
-                points[i + 1],
+                source[i].Id,
+                source[i + 1].Id,
                 face
             );
             faceEdges.Add(crr);
@@ -60,8 +64,8 @@ public class DCEL
         }
 
         var lst = CreateEdge(
-            points[i], 
-            points[0],
+            source[i].Id, 
+            source[0].Id,
             face
         );
         faceEdges.Add(lst);
@@ -74,10 +78,13 @@ public class DCEL
         points = FixClockwise(points);
         var vertexes = new Vertex[points.Length / 3];
         for (int j = 0, k = 0; j < points.Length; j += 3, k++)
-            vertexes[k] = new Vertex(k, points[j], points[j + 1], points[j + 2]);
+        {
+            var vert = new Vertex(k, points[j], points[j + 1], points[j + 2]);
+            vertexes[k] = vert;
+            Vertexes.Add(k, vert);
+        }
 
         Source = vertexes;
-        Length = Source.Length;
 
         int face = CreateFace();
         List<int> faceVertexes = Faces[face];
@@ -132,7 +139,6 @@ public class DCEL
     /// </summary>
     public bool Connect(int v, int u)
     {
-        System.Console.WriteLine($"Connect({v}, {u})");
         if (v == u)
             return false;
         
@@ -327,7 +333,7 @@ public class DCEL
         var x = vert.X;
 
         int selected = -1;
-        float bestX = float.MaxValue;
+        float bestX = float.MinValue;
 
         foreach (var edge in Edges)
         {
@@ -345,29 +351,27 @@ public class DCEL
             var x2 = u.X;
             var y2 = u.Y;
 
-            var between = y1 >= y && y > y2 || y2 >= y && y > y1;
+            var between = v > vert && vert > u || u > vert && vert > v;
             if (!between)
                 continue;
 
             var minX = float.Min(x1, x2);
-            if (minX > bestX)
+            if (minX > x)
+                continue;
+
+            var maxX = float.Max(x1, x2);
+            if (maxX < bestX)
                 continue;
             
             if (Left(v.Id, vertexId, u.Id) > 0)
                 continue;
 
-            bestX = minX;
+            bestX = maxX;
             selected = edge.Id;
         }
         
         return selected;
     }
-
-    /// <summary>
-    /// Filter DCEL considering some points of original source.
-    /// </summary>
-    public DCEL ApplyFilter(int[] points)
-        => new (Source, points);
 
     /// <summary>
     /// Get the face shader by two vertex
@@ -398,17 +402,17 @@ public class DCEL
     }
 
     /// <summary>
-    /// Remove a random subpolygon and return a new DCEL.
+    /// Get a subdcel from a face.
     /// </summary>
-    public int[] RemoveSubPolygon()
+    public DCEL GetFace(int faceId)
     {
-        var face = Faces.Keys.Last();
-        var points = Faces[face];
+        var face = Faces[faceId];
+        var vertexes = new Vertex[face.Count];
 
-        Faces.Remove(face);
-        FacesEdges.Remove(face);
+        for (int i = 0; i < vertexes.Length; i++)
+            vertexes[i] = GetVertex(face[i]);
 
-        return [ ..points ];
+        return new DCEL(vertexes);
     }
 
     /// <summary>
@@ -416,8 +420,10 @@ public class DCEL
     /// </summary>
     public bool LiesOnRight(int vid)
     {
-        var vert = GetVertex(vid);
-        return IsInside(vert.X + 1 / almost_infty, vert.Y);
+        var prev = GetVertex(ToEdgeMap[vid][0].From);
+        var curr = GetVertex(vid);
+        var next = GetVertex(FromEdgeMap[vid][0].To);
+        return prev.Y >= curr.Y && curr.Y > next.Y;
     }
 
     /// <summary>
@@ -445,7 +451,7 @@ public class DCEL
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     public Vertex GetVertex(int id)
-        => Source[id];
+        => Vertexes[id];
 
     public override string ToString()
     {
@@ -468,19 +474,15 @@ public class DCEL
         var e1 = GetVertex(edge.To);
         var e2 = GetVertex(edge.Previous!.From);
         
-        if (over(self, e1) && over(self, e2))
+        if (self > e1 && self > e2)
             return Left(e1, self, e2) < 0 ?
                 VertexType.Split : VertexType.Start;
         
-        if (over(e1, self) && over(e2, self))
+        if (e1 > self && e2 > self)
             return Left(e1, self, e2) < 0 ?
                 VertexType.Merge : VertexType.End;
 
         return VertexType.Regular;
-
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        static bool over(Vertex p, Vertex q)
-            => p.Y > q.Y || (p.Y == q.Y && p.X < q.X);
     }
 
     /// <summary>
@@ -701,7 +703,6 @@ public class DCEL
         var alfa = (beta * ux + qx - p.X) / vx;
 
         return (alfa, beta) is (>0f and <1f, >0f and <1f);
-
     }
 
     bool IsInside(float px, float py)
