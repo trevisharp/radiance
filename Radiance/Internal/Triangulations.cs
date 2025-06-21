@@ -62,19 +62,19 @@ public static class Triangulations
             {
                 case VertexType.Start:
 
-                    helper[eprev] = vi;
-                    Console.WriteLine($"helper[{eprev}] = {vi};");
+                    helper[ei] = vi;
+                    Console.WriteLine($"helper[{ei}] = {vi};");
 
                     break;
                     
                 case VertexType.End:
                     
-                    if (dcel.GetVertexType(helper[ei]) == VertexType.Merge)
+                    if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
                     {
-                        dcel.Connect(vi, helper[ei]);
+                        dcel.Connect(vi, helper[eprev]);
                     }
                     
-                    helper.Remove(ei);
+                    helper.Remove(eprev);
 
                     break;
 
@@ -83,18 +83,18 @@ public static class Triangulations
                     var ej1 = dcel.FindLeftEdge(vi);
                     dcel.Connect(helper[ej1], vi);
                     helper[ej1] = vi;
-                    helper[eprev] = vi;
+                    helper[ei] = vi;
 
                     break;
 
                 case VertexType.Merge:
 
-                    if (dcel.GetVertexType(helper[ei]) == VertexType.Merge)
+                    if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
                     {
-                        dcel.Connect(vi, helper[ei]);
+                        dcel.Connect(vi, helper[eprev]);
                     }
 
-                    helper.Remove(ei);
+                    helper.Remove(eprev);
 
                     var ej2 = dcel.FindLeftEdge(vi);
                     if (dcel.GetVertexType(helper[ej2]) == VertexType.Merge)
@@ -111,13 +111,13 @@ public static class Triangulations
                     Console.WriteLine($"dcel.LiesOnRight(vi) = {dcel.LiesOnRight(vi)};");
                     if (dcel.LiesOnRight(vi))
                     {
-                        if (dcel.GetVertexType(helper[ei]) == VertexType.Merge)
+                        if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
                         {
-                            dcel.Connect(vi, helper[ei]);
+                            dcel.Connect(vi, helper[eprev]);
                         }
 
-                        helper.Remove(ei);
-                        helper[eprev] = vi;
+                        helper.Remove(eprev);
+                        helper[ei] = vi;
                     }
                     else
                     {
