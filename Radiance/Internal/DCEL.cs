@@ -18,6 +18,7 @@ public class DCEL
     int nextFaceId = 0;
     readonly List<Vertex> Source;
     readonly Dictionary<int, VertexType> VertexesTypes = [];
+    readonly HashSet<int> HoleSet = [];
     public int Length => Source.Count;
     public readonly List<HalfEdge> Edges = [];
     public readonly Dictionary<int, Vertex> Vertexes = [];
@@ -35,7 +36,12 @@ public class DCEL
         
         Source = [ ..contour ];
         foreach (var hole in holes)
+        {
             Source.AddRange(hole);
+            foreach (var point in hole)
+                HoleSet.Add(point.Id);
+        }
+            
         foreach (var vertex in Source)
             Vertexes.Add(vertex.Id, vertex);
         
@@ -78,6 +84,39 @@ public class DCEL
         faceEdges.Add(lst);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
+
+        foreach (var hole in holes)
+        {
+            fst = prv = CreateEdge(
+                hole[0].Id,
+                hole[1].Id,
+                face
+            );
+
+            i = 1;
+            while (i < hole.Count - 1)
+            {
+                var crr = CreateEdge(
+                    hole[i].Id,
+                    hole[i + 1].Id,
+                    face
+                );
+                faceEdges.Add(crr);
+                crr.SetPrevious(prv);
+
+                prv = crr;
+                i++;
+            }
+
+            lst = CreateEdge(
+                hole[i].Id, 
+                hole[0].Id,
+                face
+            );
+            faceEdges.Add(lst);
+            lst.SetPrevious(prv);
+            lst.SetNext(fst);
+        }
     }
 
     public DCEL(Vertex[] source)
@@ -522,14 +561,25 @@ public class DCEL
         var self = GetVertex(vertexId);
         var e1 = GetVertex(edge.To);
         var e2 = GetVertex(edge.Previous!.From);
-        
-        if (self > e1 && self > e2)
-            return Left(e1, self, e2) < 0 ?
-                VertexType.Split : VertexType.Start;
-        
-        if (e1 > self && e2 > self)
-            return Left(e1, self, e2) < 0 ?
-                VertexType.Merge : VertexType.End;
+
+        if (HoleSet.Contains(vertexId))
+        {
+            if (self > e1 && self > e2)
+                return VertexType.Split;
+            
+            if (e1 > self && e2 > self)
+                return VertexType.Merge;
+        }
+        else
+        {
+            if (self > e1 && self > e2)
+                return Left(e1, self, e2) < 0 ?
+                    VertexType.Split : VertexType.Start;
+            
+            if (e1 > self && e2 > self)
+                return Left(e1, self, e2) < 0 ?
+                    VertexType.Merge : VertexType.End;
+        }
 
         return VertexType.Regular;
     }
