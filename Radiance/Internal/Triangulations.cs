@@ -23,6 +23,16 @@ public static class Triangulations
             return pts;
 
         var dcel = new DCEL(pts);
+        return PlanarPolygonTriangulation(dcel);
+    }
+    
+    /// <summary>
+    /// Get a triangulation of a polygon with points in a
+    /// clockwise order.
+    /// </summary>
+    public static float[] PlanarPolygonTriangulation(DCEL dcel)
+    {
+        System.Console.WriteLine(dcel);
         var sweepLine = dcel.CreateSweepLine();
 
         if (MonotoneDivision(dcel, sweepLine))
@@ -30,7 +40,7 @@ public static class Triangulations
         
         return MonotonePlaneTriangulation(dcel, sweepLine);
     }
-    
+
     /// <summary>
     /// Divide a polygon on many monotone polygons.
     /// Return true if some polygon has created.

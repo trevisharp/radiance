@@ -1,11 +1,10 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/06/2025
+ * Date:    21/06/2025
  */
 using System.Linq;
+using System.Text;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using System.Text;
-using OpenTK.Compute.OpenCL;
 
 namespace Radiance.Internal;
 
@@ -17,9 +16,9 @@ public class DCEL
     const float almost_infty = 1e6f;
     int nextEdgeId = 0;
     int nextFaceId = 0;
-    readonly Vertex[] Source;
+    readonly List<Vertex> Source;
     readonly Dictionary<int, VertexType> VertexesTypes = [];
-    public int Length => Source.Length;
+    public int Length => Source.Count;
     public readonly List<HalfEdge> Edges = [];
     public readonly Dictionary<int, Vertex> Vertexes = [];
     public readonly Dictionary<int, List<HalfEdge>> FromEdgeMap = [];
@@ -28,9 +27,62 @@ public class DCEL
     public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
     public IEnumerable<int> FaceIds => Faces.Keys;
 
+    public DCEL(List<Vertex> contour, List<List<Vertex>> holes)
+    {
+        FixClockwise(contour);
+        foreach (var hole in holes)
+            FixHoleClockwise(hole);
+        
+        Source = [ ..contour ];
+        foreach (var hole in holes)
+            Source.AddRange(hole);
+        foreach (var vertex in Source)
+            Vertexes.Add(vertex.Id, vertex);
+        
+        var face = CreateFace();
+        List<int> faceVertexes = Faces[face];
+        List<HalfEdge> faceEdges = FacesEdges[face];
+
+        for (int j = 0; j < contour.Count; j++)
+            faceVertexes.Add(contour[j].Id);
+        for (int j = 0; j < contour.Count; j++)
+            faceVertexes.Add(contour[j].Id);
+
+        HalfEdge fst, prv;
+        fst = prv = CreateEdge(
+            contour[0].Id,
+            contour[1].Id,
+            face
+        );
+
+        int i = 1;
+        while (i < contour.Count - 1)
+        {
+            var crr = CreateEdge(
+                contour[i].Id,
+                contour[i + 1].Id,
+                face
+            );
+            faceEdges.Add(crr);
+            crr.SetPrevious(prv);
+
+            prv = crr;
+            i++;
+        }
+
+        var lst = CreateEdge(
+            contour[i].Id, 
+            contour[0].Id,
+            face
+        );
+        faceEdges.Add(lst);
+        lst.SetPrevious(prv);
+        lst.SetNext(fst);
+    }
+
     public DCEL(Vertex[] source)
     {
-        Source = source;
+        Source = [ ..source ];
         foreach (var vertex in source)
             Vertexes.Add(vertex.Id, vertex);
 
@@ -76,28 +128,26 @@ public class DCEL
     public DCEL(float[] points)
     {
         points = FixClockwise(points);
-        var vertexes = new Vertex[points.Length / 3];
+        Source = [];
         for (int j = 0, k = 0; j < points.Length; j += 3, k++)
         {
             var vert = new Vertex(k, points[j], points[j + 1], points[j + 2]);
-            vertexes[k] = vert;
+            Source.Add(vert);
             Vertexes.Add(k, vert);
         }
-
-        Source = vertexes;
 
         int face = CreateFace();
         List<int> faceVertexes = Faces[face];
         List<HalfEdge> faceEdges = FacesEdges[face];
 
-        for (int j = 0; j < Source.Length; j++)
+        for (int j = 0; j < Source.Count; j++)
             faceVertexes.Add(j);
 
         HalfEdge fst, prv;
         fst = prv = CreateEdge(0, 1, face);
 
         int i = 1;
-        while (i < Source.Length - 1)
+        while (i < Source.Count - 1)
         {
             var crr = CreateEdge(
                 i,
@@ -329,7 +379,6 @@ public class DCEL
     public int FindLeftEdge(int vertexId)
     {
         var vert = GetVertex(vertexId);
-        var y = vert.Y;
         var x = vert.X;
 
         int selected = -1;
@@ -596,6 +645,26 @@ public class DCEL
     }
 
     /// <summary>
+    /// Compute area from this a collection of points. Returns
+    /// negative when points are anti-clockwise. 
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static float Area(List<Vertex> points)
+    {
+        var area = 0f;
+        for (int i = 0; i < points.Count - 1; i++)
+        {
+            var x1 = points[i].X;
+            var x2 = points[i + 1].X;
+            var y1 = points[i + 1].Y;
+            var y2 = points[i + 1].Y;
+            area += x1 * y2 - x2 * y1;
+        }
+        area += points[^1].X * points[0].Y - points[0].X * points[^1].Y;
+        return area / 2;
+    }
+
+    /// <summary>
     /// Reverse the (x, y, z) pairs.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
@@ -621,6 +690,32 @@ public class DCEL
         if (area > 0)
             return points;
         return Reverse(points);
+    }
+
+    /// <summary>
+    /// Fix clockwise to pairs (x, y, z).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static bool FixClockwise(List<Vertex> points)
+    {
+        var area = Area(points);
+        if (area > 0)
+            return false;
+        points.Reverse();
+        return true;
+    }
+
+    /// <summary>
+    /// Fix clockwise to pairs (x, y, z).
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static bool FixHoleClockwise(List<Vertex> points)
+    {
+        var area = Area(points);
+        if (area < 0)
+            return false;
+        points.Reverse();
+        return true;
     }
 
     /// <summary>

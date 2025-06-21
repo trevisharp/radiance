@@ -1,6 +1,8 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    29/11/2024
  */
+using System.Collections.Generic;
+
 namespace Radiance.Internal;
 
 /// <summary>
@@ -31,5 +33,27 @@ public static class Bounds
         }
 
         return lines;
+    }
+
+    /// <summary>
+    /// Find lines of bounds of a dcel.
+    /// </summary>
+    public static float[] GetBounds(DCEL dcel)
+    {
+        var lines = new List<float>();
+
+        foreach (var edge in dcel.Edges)
+        {
+            var v = dcel.GetVertex(edge.From);
+            var u = dcel.GetVertex(edge.To);
+            lines.Add(v.X);
+            lines.Add(v.Y);
+            lines.Add(v.Z);
+            lines.Add(u.X);
+            lines.Add(u.Y);
+            lines.Add(u.Z);
+        }
+
+        return [ ..lines ];
     }
 }

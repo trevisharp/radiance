@@ -9,14 +9,15 @@ using Exceptions;
 /// <summary>
 /// A buffer with a Polygon points.
 /// </summary>
-public class Polygon(float[] data) : IPolygon
+public class DCELPolygon(DCEL dcel) : IPolygon
 {
+    readonly float[] data = dcel.ToArray();
     Buffer? buffer = null;
     BufferData? pointsPair = null;
     BufferData? boundPair = null;
     BufferData? triangulationPair = null;
 
-    public int Rows => data.Length / 3;
+    public int Rows => dcel.Length;
 
     public int Columns => 3;
     
@@ -57,7 +58,7 @@ public class Polygon(float[] data) : IPolygon
     BufferData FindBounds()
     {
         var lines = Bounds
-            .GetBounds(data[..]);
+            .GetBounds(dcel);
         
         return CreateBuffer(lines);
     }
@@ -65,7 +66,7 @@ public class Polygon(float[] data) : IPolygon
     BufferData FindTriangules()
     {
         var triangules = Triangulations
-            .PlanarPolygonTriangulation(data[..]);
+            .PlanarPolygonTriangulation(dcel);
         
         return CreateBuffer(triangules);
     }
@@ -77,18 +78,10 @@ public class Polygon(float[] data) : IPolygon
         
         return bufferData;
     }
-
-    public static implicit operator Polygon(float[] data) => new(data);
-    
-    public static VirtualPolygons operator *(Polygon polygon, int times)
-        => new (polygon, times);
-
-    public static VirtualPolygons operator *(int times, Polygon polygon)
-        => new (polygon, times);
         
     public override string ToString()
         => $$"""
-        Polygon {
+        DCELPolygon {
             Rows: {{Rows}},
             Columns: {{Columns}},
             Instances: {{Instances}},

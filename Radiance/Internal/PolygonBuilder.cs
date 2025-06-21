@@ -1,10 +1,12 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    12/06/2025
  */
-using System;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace Radiance.Internal;
+
+using Bufferings;
 
 /// <summary>
 /// A generic builder for polygons based DCEL.
@@ -32,9 +34,16 @@ public class PolygonBuilder
     /// <summary>
     /// Build a polygon from this builder.
     /// </summary>
-    public DCEL Build()
+    public IPolygon Build()
     {
-        throw new NotImplementedException();
+        int id = 0;
+        Vertex func((float x, float y) p) => new(id++, p.x, p.y, 0);
+        var dcel = new DCEL(
+            [ ..planarPoints.Select(func) ],
+            [ ..holes.Select(hole => new List<Vertex>(hole.Select(func))) ]
+        );
+
+        return new DCELPolygon(dcel);
     }
 
     /// <summary>

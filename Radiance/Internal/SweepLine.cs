@@ -10,7 +10,7 @@ namespace Radiance.Internal;
 /// </summary>
 public class SweepLine
 {
-    public SweepLine(Vertex[] vertexes)
+    public SweepLine(IEnumerable<Vertex> vertexes)
     {
         orderedVertexes = [ ..vertexes ];
         orderedVertexes.Sort((v, u) => (v.Y - u.Y) switch
