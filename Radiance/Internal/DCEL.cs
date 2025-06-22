@@ -566,11 +566,11 @@ public class DCEL
         {
             if (self > e1 && self > e2)
                 return Left(e1, self, e2) < 0 ?
-VertexType.Split : VertexType.Regular;
+                    VertexType.Split : VertexType.Regular;
             
             if (e1 > self && e2 > self)
                 return Left(e1, self, e2) < 0 ?
-VertexType.Merge : VertexType.Regular;
+                    VertexType.Merge : VertexType.Regular;
         }
         else
         {
