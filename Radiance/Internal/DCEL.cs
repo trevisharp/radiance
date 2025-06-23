@@ -1,12 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    21/06/2025
+ * Date:    23/06/2025
  */
+using System;
 using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
-using OpenTK.Graphics.OpenGL;
-using System;
 
 namespace Radiance.Internal;
 
@@ -506,18 +505,40 @@ public class DCEL
     public float[] ToArray()
     {
         List<float> values = [];
-        foreach (var face in Faces)
+        var queue = new Queue<int>(Source.Select(v => v.Id));
+        var set = new HashSet<int>();
+
+        while (queue.Count > 0)
         {
-            foreach (var vertexId in face.Value)
+            var vert = queue.Dequeue();
+            var edges = FromEdgeMap[vert];
+
+            foreach (var edge in edges)
             {
-                var vertex = GetVertex(vertexId);
-                values.Add(vertex.X);
-                values.Add(vertex.Y);
-                values.Add(vertex.Z);
+                if (set.Contains(edge.Id))
+                    continue;
+
+                var fst = edge;
+                var crr = fst;
+                var end = edge.Previous;
+                List<Vertex> subverts = [ GetVertex(fst.From) ];
+                while (crr != end)
+                {
+                    set.Add(crr.Id);
+                    subverts.Add(GetVertex(crr.To));
+                    crr = crr.Next!;
+                }
+                set.Add(end.Id);
+                
+                foreach (var point in subverts)
+                {
+                    values.Add(point.X);
+                    values.Add(point.Y);
+                    values.Add(point.Z);
+                }
             }
         }
-        
-        return [.. values];
+        return [ ..values ];
     }
     
     /// <summary>

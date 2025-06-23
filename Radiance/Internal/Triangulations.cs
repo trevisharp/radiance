@@ -138,8 +138,7 @@ public static class Triangulations
     public static float[] NonMonotonePlaneTriangularization(DCEL dcel, SweepLine sweepLine)
     {
         var index = 0;
-        int expectedTriangules = dcel.Length - 2;
-        var triangules = new float[9 * expectedTriangules];
+        var triangules = new List<float>();
 
         float[] data;
         var subdcels = dcel.GetSubDCELs().ToArray();
@@ -148,18 +147,18 @@ public static class Triangulations
             if (subDcel.Length < 4)
             {
                 data = subDcel.ToArray();
-                Array.Copy(data, 0, triangules, index, data.Length);
+                triangules.AddRange(data);
                 index += data.Length;
                 continue;
             }
             
             var subSweepLine = subDcel.CreateSweepLine();
             data = MonotonePlaneTriangulation(subDcel, subSweepLine);
-            Array.Copy(data, 0, triangules, index, data.Length);
+            triangules.AddRange(data);
             index += data.Length;
         }
 
-        return triangules;
+        return [ ..triangules ];
     }
 
     /// <summary>
