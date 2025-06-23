@@ -16,7 +16,6 @@ public class DCEL
 {
     const float almost_infty = 1e6f;
     int nextEdgeId = 0;
-    int nextFaceId = 0;
     readonly List<Vertex> Source;
     readonly Dictionary<int, VertexType> VertexesTypes = [];
     readonly HashSet<int> HoleSet = [];

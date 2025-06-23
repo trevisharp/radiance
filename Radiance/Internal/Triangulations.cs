@@ -35,7 +35,7 @@ public static class Triangulations
         var sweepLine = dcel.CreateSweepLine();
 
         if (MonotoneDivision(dcel, sweepLine))
-            return NonMonotonePlaneTriangularization(dcel, sweepLine);
+            return NonMonotonePlaneTriangularization(dcel);
         
         return MonotonePlaneTriangulation(dcel, sweepLine);
     }
@@ -135,7 +135,7 @@ public static class Triangulations
     /// Get a nonmonotone DCEL divide inot monotone polygons and returns
     /// the triangularization.
     /// </summary>
-    public static float[] NonMonotonePlaneTriangularization(DCEL dcel, SweepLine sweepLine)
+    public static float[] NonMonotonePlaneTriangularization(DCEL dcel)
     {
         var index = 0;
         var triangules = new List<float>();

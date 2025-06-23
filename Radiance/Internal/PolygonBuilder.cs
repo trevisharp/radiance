@@ -13,15 +13,15 @@ using Bufferings;
 /// </summary>
 public class PolygonBuilder
 {
-    readonly List<(float x, float y)> planarPoints = [];
-    readonly List<List<(float x, float y)>> holes = [];
+    readonly List<(float x, float y, float z)> planarPoints = [];
+    readonly List<List<(float x, float y, float z)>> holes = [];
 
     /// <summary>
     /// Add a external sequential point for this polygon.
     /// </summary>
-    public PolygonBuilder AddPoint(float x, float y)
+    public PolygonBuilder AddPoint(float x, float y, float z = 0)
     {
-        planarPoints.Add((x, y));
+        planarPoints.Add((x, y, z));
         return this;
     }
     
@@ -37,13 +37,13 @@ public class PolygonBuilder
     public IPolygon Build()
     {
         int id = 0;
-        Vertex func((float x, float y) p) => new(id++, p.x, p.y, 0);
+        Vertex func((float x, float y, float z) p) => new(id++, p.x, p.y, p.z);
         var dcel = new DCEL(
             [ ..planarPoints.Select(func) ],
             [ ..holes.Select(hole => new List<Vertex>(hole.Select(func))) ]
         );
 
-        return new DCELPolygon(dcel);
+        return new Polygon(dcel);
     }
 
     /// <summary>
@@ -51,14 +51,14 @@ public class PolygonBuilder
     /// </summary>
     public class HoleBuilder(PolygonBuilder parent)
     {
-        readonly List<(float x, float y)> planarPoints = [];
+        readonly List<(float x, float y, float z)> planarPoints = [];
 
         /// <summary>
         /// Add a external sequential point for this polygon.
         /// </summary>
-        public HoleBuilder AddPoint(float x, float y)
+        public HoleBuilder AddPoint(float x, float y, float z = 0)
         {
-            planarPoints.Add((x, y));
+            planarPoints.Add((x, y, z));
             return this;
         }
         

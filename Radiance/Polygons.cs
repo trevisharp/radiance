@@ -12,7 +12,7 @@ using Primitives;
 using Exceptions;
 
 /// <summary>
-/// A class with utils to generate polygons and other buffered data.
+/// A class with utils to generate DCELPolygons and other buffered data.
 /// </summary>
 public static class Polygons
 {
@@ -57,7 +57,7 @@ public static class Polygons
     {
         var halfWid = width / 2;
         var halfHei = height / 2;
-        return new Polygon([
+        return FromData([
             -halfWid, -halfHei, 0f,
             -halfHei, halfWid, 0f,
             halfHei, halfWid, 0f,
@@ -75,7 +75,7 @@ public static class Polygons
     {
         var halfWid = width / 2;
         var halfHei = height / 2;
-        return new Polygon([
+        return FromData([
             x - halfWid, y - halfHei, z,
             x - halfWid, y + halfHei, z,
             x + halfWid, y + halfHei, z,
@@ -137,7 +137,7 @@ public static class Polygons
     }
 
     /// <summary>
-    /// Create a polygon using a polar coordinates.
+    /// Create a DCELPolygon using a polar coordinates.
     /// The polarFunc is a function that recieves a angle (0 to 2pi)
     /// and returns the distânce of the center (x, y, z).
     /// </summary>
@@ -164,7 +164,7 @@ public static class Polygons
     }
     
     /// <summary>
-    /// Create a polygon using a polar coordinates.
+    /// Create a DCELPolygon using a polar coordinates.
     /// The polarFunc is a function that recieves a angle (0 to 2pi)
     /// and returns the distânce of the center (x, y, z).
     /// </summary>
@@ -175,7 +175,7 @@ public static class Polygons
     ) => Polar((a, i) => polarFunc(a), x, y, z, points);
 
     /// <summary>
-    /// Create a polygon based in recived data.
+    /// Create a DCELPolygon based in recived data.
     /// </summary>
     public static Polygon FromData(params Vec3[] vectors)
     {
@@ -192,7 +192,7 @@ public static class Polygons
     }
     
     /// <summary>
-    /// Create a polygon based in recived data.
+    /// Create a DCELPolygon based in recived data.
     /// </summary>
     public static Polygon FromData(params Vec2[] vectors)
     {
@@ -209,6 +209,15 @@ public static class Polygons
     }
 
     /// <summary>
+    /// Create a DCELPolygon based in recived data.
+    /// </summary>
+    public static Polygon FromData(params float[] points)
+    {
+        var dcel = new DCEL(points);
+        return new Polygon(dcel);
+    }
+
+    /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.
     /// </summary>
     public static Polygon Screen => 
@@ -218,9 +227,10 @@ public static class Polygons
             Window.Width, 
             Window.Height
         ) : throw new WindowClosedException();
-    
+
+
     /// <summary>
-    /// Create a generic builder for polygons.
+    /// Create a generic builder for DCELPolygons.
     /// </summary>
     public static PolygonBuilder CreateBuilder() => new();
 }
