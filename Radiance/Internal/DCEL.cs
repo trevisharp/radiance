@@ -47,12 +47,13 @@ public class DCEL
         
         var face = CreateFace();
         List<int> faceVertexes = Faces[face];
-        List<HalfEdge> faceEdges = FacesEdges[face];
 
-        for (int j = 0; j < contour.Count; j++)
-            faceVertexes.Add(contour[j].Id);
-        for (int j = 0; j < contour.Count; j++)
-            faceVertexes.Add(contour[j].Id);
+        foreach (var point in contour)
+            faceVertexes.Add(point.Id);
+        
+        foreach (var hole in holes)
+            foreach (var point in hole)
+                faceVertexes.Add(point.Id);
 
         HalfEdge fst, prv;
         fst = prv = CreateEdge(
@@ -69,7 +70,6 @@ public class DCEL
                 contour[i + 1].Id,
                 face
             );
-            faceEdges.Add(crr);
             crr.SetPrevious(prv);
 
             prv = crr;
@@ -81,7 +81,6 @@ public class DCEL
             contour[0].Id,
             face
         );
-        faceEdges.Add(lst);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
 
@@ -101,7 +100,6 @@ public class DCEL
                     hole[i + 1].Id,
                     face
                 );
-                faceEdges.Add(crr);
                 crr.SetPrevious(prv);
 
                 prv = crr;
@@ -113,7 +111,6 @@ public class DCEL
                 hole[0].Id,
                 face
             );
-            faceEdges.Add(lst);
             lst.SetPrevious(prv);
             lst.SetNext(fst);
         }
@@ -127,7 +124,6 @@ public class DCEL
 
         int face = CreateFace();
         List<int> faceVertexes = Faces[face];
-        List<HalfEdge> faceEdges = FacesEdges[face];
 
         for (int j = 0; j < source.Length; j++)
             faceVertexes.Add(source[j].Id);
@@ -147,7 +143,6 @@ public class DCEL
                 source[i + 1].Id,
                 face
             );
-            faceEdges.Add(crr);
             crr.SetPrevious(prv);
 
             prv = crr;
@@ -159,7 +154,6 @@ public class DCEL
             source[0].Id,
             face
         );
-        faceEdges.Add(lst);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
     }
@@ -177,7 +171,6 @@ public class DCEL
 
         int face = CreateFace();
         List<int> faceVertexes = Faces[face];
-        List<HalfEdge> faceEdges = FacesEdges[face];
 
         for (int j = 0; j < Source.Count; j++)
             faceVertexes.Add(j);
@@ -193,7 +186,6 @@ public class DCEL
                 i + 1,
                 face
             );
-            faceEdges.Add(crr);
             crr.SetPrevious(prv);
 
             prv = crr;
@@ -205,7 +197,6 @@ public class DCEL
             0,
             face
         );
-        faceEdges.Add(lst);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
     }
@@ -228,6 +219,7 @@ public class DCEL
     /// </summary>
     public bool Connect(int v, int u)
     {
+        System.Console.WriteLine($"Connect({v}, {u});");
         if (v == u)
             return false;
         

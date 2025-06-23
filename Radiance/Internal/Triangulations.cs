@@ -32,7 +32,6 @@ public static class Triangulations
     /// </summary>
     public static float[] PlanarPolygonTriangulation(DCEL dcel)
     {
-        System.Console.WriteLine(dcel);
         var sweepLine = dcel.CreateSweepLine();
 
         if (MonotoneDivision(dcel, sweepLine))
@@ -60,6 +59,14 @@ public static class Triangulations
             var type = dcel.GetVertexType(vi);
             var ei = dcel.FromEdgeMap[vi][0].Id;
             var eprev = dcel.ToEdgeMap[vi][0].Id;
+
+            System.Console.WriteLine(vi);
+            System.Console.WriteLine(type);
+            System.Console.WriteLine(ei);
+            System.Console.WriteLine(eprev);
+            System.Console.WriteLine(string.Join(", ", helper));
+            System.Console.WriteLine();
+
             switch (type)
             {
                 case VertexType.Start:
