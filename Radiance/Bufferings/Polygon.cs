@@ -65,9 +65,7 @@ public class Polygon(DCEL dcel) : IPolygon
 
     BufferData FindTriangules()
     {
-        var triangules = Triangulations
-            .PlanarPolygonTriangulation(dcel);
-        
+        var triangules = dcel.GetTriangules();
         return CreateBuffer(triangules);
     }
 

@@ -229,7 +229,7 @@ public class DCEL
     /// Return true if two vertices can connect with a line
     /// inside the polygon.
     /// </summary>
-    public bool CanInternalConnect(int vid, int uid)
+    bool CanInternalConnect(int vid, int uid)
     {
         var v = GetVertex(vid);
         var u = GetVertex(uid);
@@ -252,7 +252,7 @@ public class DCEL
     /// <summary>
     /// Get two hash set of the left and right chain over a sweep line.
     /// </summary>
-    public (HashSet<int> left, HashSet<int> right) GetChains(SweepLine sweepLine)
+    (HashSet<int> left, HashSet<int> right) GetChains(SweepLine sweepLine)
     {
         var top = sweepLine[0].Id;
         var bottom = sweepLine[^1].Id;
@@ -280,7 +280,7 @@ public class DCEL
     /// <summary>
     /// Get the Vertex type of a vertex with specific id.
     /// </summary>
-    public VertexType GetVertexType(int vertexId)
+    VertexType GetVertexType(int vertexId)
     {
         if (VertexesTypes.TryGetValue(vertexId, out var type))
             return type;
@@ -315,7 +315,7 @@ public class DCEL
     /// Find the left edge from a vertex. If are two left
     /// edges the algorithm choose the least y-axis. 
     /// </summary>
-    public int FindLeftEdge(int vertexId)
+    int FindLeftEdge(int vertexId)
     {
         var vert = GetVertex(vertexId);
         var x = vert.X;
@@ -399,7 +399,7 @@ public class DCEL
     /// <summary>
     /// Returns true if the polygon lies to the right of vi.
     /// </summary>
-    public bool LiesOnRight(int vid)
+    bool LiesOnRight(int vid)
     {
         var prev = GetVertex(ToEdgeMap[vid][0].From);
         var curr = GetVertex(vid);
@@ -464,6 +464,205 @@ public class DCEL
             sb.AppendLine($$"""P_{{{pt.Id}}} = {{pt}}""");
         
         return sb.ToString();
+    }
+
+    /// <summary>
+    /// Get a triangulation of a polygon with points in a
+    /// clockwise order.
+    /// </summary>
+    public float[] GetTriangules()
+    {
+        var sweepLine = CreateSweepLine();
+
+        if (MonotoneDivision(this, sweepLine))
+            return NonMonotonePlaneTriangularization(this);
+        
+        return MonotonePlaneTriangulation(this, sweepLine);
+    }
+
+    /// <summary>
+    /// Divide a polygon on many monotone polygons.
+    /// Return true if some polygon has created.
+    /// </summary>
+    static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
+    {
+        if (dcel.IsMonotone)
+            return false;
+
+        Dictionary<int, int> helper = [];
+        
+        for (int i = 0; i < sweepLine.Length; i++)
+        {
+            var v = sweepLine[i];
+            var vi = v.Id;
+            
+            var type = dcel.GetVertexType(vi);
+            var ei = dcel.FromEdgeMap[vi][0].Id;
+            var eprev = dcel.ToEdgeMap[vi][0].Id;
+            
+            switch (type)
+            {
+                case VertexType.Start:
+
+                    helper[ei] = vi;
+
+                    break;
+                    
+                case VertexType.End:
+                    
+                    if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
+                    {
+                        dcel.Connect(vi, helper[eprev]);
+                    }
+
+                    break;
+
+                case VertexType.Split:
+
+                    var ej1 = dcel.FindLeftEdge(vi);
+                    dcel.Connect(helper[ej1], vi);
+                    helper[ej1] = vi;
+                    helper[ei] = vi;
+
+                    break;
+
+                case VertexType.Merge:
+
+                    if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
+                    {
+                        dcel.Connect(vi, helper[eprev]);
+                    }
+                    
+                    var ej2 = dcel.FindLeftEdge(vi);
+                    if (dcel.GetVertexType(helper[ej2]) == VertexType.Merge)
+                    {
+                        dcel.Connect(helper[ej2], vi);
+                    }
+                    
+                    helper[ej2] = vi;
+
+                    break;
+
+                case VertexType.Regular:
+
+                    if (dcel.LiesOnRight(vi))
+                    {
+                        if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
+                        {
+                            dcel.Connect(vi, helper[eprev]);
+                        }
+
+                        helper[ei] = vi;
+                    }
+                    else
+                    {
+                        var ej3 = dcel.FindLeftEdge(vi);
+                        if (dcel.GetVertexType(helper[ej3]) == VertexType.Merge)
+                        {
+                            dcel.Connect(helper[ej3], vi);
+                        }
+                        helper[ej3] = vi;
+                    }
+
+                    break;
+            }
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Get a nonmonotone DCEL divide inot monotone polygons and returns
+    /// the triangularization.
+    /// </summary>
+    static float[] NonMonotonePlaneTriangularization(DCEL dcel)
+    {
+        var index = 0;
+        var triangules = new List<float>();
+
+        float[] data;
+        var subdcels = dcel.GetSubDCELs().ToArray();
+        foreach (var subDcel in subdcels)
+        {
+            if (subDcel.Length < 4)
+            {
+                data = subDcel.ToArray();
+                triangules.AddRange(data);
+                index += data.Length;
+                continue;
+            }
+            
+            var subSweepLine = subDcel.CreateSweepLine();
+            data = MonotonePlaneTriangulation(subDcel, subSweepLine);
+            triangules.AddRange(data);
+            index += data.Length;
+        }
+
+        return [ ..triangules ];
+    }
+
+    /// <summary>
+    /// Receveing a map of ordenation and data with format (x, y, z, ...),
+    /// if the points represetns a monotone polygon, return the triangularization
+    /// of then.
+    /// </summary>
+    static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
+    {
+        var (leftChain, rightChain) = dcel.GetChains(sweepLine);
+
+        var stack = new Stack<int>();
+        stack.Push(sweepLine[0].Id);
+        stack.Push(sweepLine[1].Id);
+
+        for (int j = 2; j < dcel.Length - 1; j++)
+        {
+            var vtop = stack.Peek();
+            var vj = sweepLine[j].Id;
+
+            var topInChainA = leftChain.Contains(vtop);
+            var nextInChainA = leftChain.Contains(vj);
+            var sameChain = topInChainA == nextInChainA;
+
+            if (sameChain)
+            {
+                var popped = stack.Pop();
+                while (stack.Count > 0)
+                {
+                    var next = stack.Peek();
+
+                    if (!dcel.CanInternalConnect(next, vj))
+                        break;
+
+                    popped = stack.Pop();
+                    dcel.Connect(vj, popped);
+                }
+                stack.Push(popped);
+                stack.Push(vj);
+            }
+            else
+            {
+                var vj_1 = sweepLine[j - 1].Id;
+                while (stack.Count > 1)
+                {
+                    var vk = stack.Pop();
+                    dcel.Connect(vj, vk);
+                }
+                stack.Pop();
+                stack.Push(vj_1);
+                stack.Push(vj);
+            }
+        }
+
+        var vn = sweepLine[^1].Id;
+        stack.Pop();
+
+        while (stack.Count > 1)
+        {
+            var vk = stack.Pop();
+            dcel.Connect(vk, vn);
+        }
+
+        return dcel.ToArray();
     }
 
     /// <summary>
@@ -554,14 +753,14 @@ public class DCEL
     /// <summary>
     /// Apply left between points based on ther Ids.
     /// </summary>
-    public float Left(int pid, int qId, int rId)
+    float Left(int pid, int qId, int rId)
     {
         var p = GetVertex(pid);
         var q = GetVertex(qId);
         var r = GetVertex(rId);
         return Left(p, q, r);
     }
-    
+
     /// <summary>
     /// Compute area from this a collection of points. Returns
     /// negative when points are anti-clockwise. 
