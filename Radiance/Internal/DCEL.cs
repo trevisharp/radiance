@@ -472,23 +472,22 @@ public class DCEL
     /// </summary>
     public float[] GetTriangules()
     {
-        var sweepLine = CreateSweepLine();
-
-        if (MonotoneDivision(this, sweepLine))
+        if (MonotoneDivision(this))
             return NonMonotonePlaneTriangularization(this);
         
-        return MonotonePlaneTriangulation(this, sweepLine);
+        return MonotonePlaneTriangulation(this);
     }
 
     /// <summary>
     /// Divide a polygon on many monotone polygons.
     /// Return true if some polygon has created.
     /// </summary>
-    static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
+    static bool MonotoneDivision(DCEL dcel)
     {
         if (dcel.IsMonotone)
             return false;
 
+        var sweepLine = dcel.CreateSweepLine();
         Dictionary<int, int> helper = [];
         
         for (int i = 0; i < sweepLine.Length; i++)
@@ -592,8 +591,7 @@ public class DCEL
                 continue;
             }
             
-            var subSweepLine = subDcel.CreateSweepLine();
-            data = MonotonePlaneTriangulation(subDcel, subSweepLine);
+            data = MonotonePlaneTriangulation(subDcel);
             triangules.AddRange(data);
             index += data.Length;
         }
@@ -606,8 +604,9 @@ public class DCEL
     /// if the points represetns a monotone polygon, return the triangularization
     /// of then.
     /// </summary>
-    static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
+    static float[] MonotonePlaneTriangulation(DCEL dcel)
     {
+        var sweepLine = dcel.CreateSweepLine();
         var (leftChain, rightChain) = dcel.GetChains(sweepLine);
 
         var stack = new Stack<int>();
