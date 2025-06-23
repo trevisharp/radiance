@@ -5,6 +5,8 @@ using System.Linq;
 using System.Text;
 using System.Collections.Generic;
 using System.Runtime.CompilerServices;
+using OpenTK.Graphics.OpenGL;
+using System;
 
 namespace Radiance.Internal;
 
@@ -219,102 +221,72 @@ public class DCEL
     /// </summary>
     public bool Connect(int v, int u)
     {
-        System.Console.WriteLine($"Connect({v}, {u});");
         if (v == u)
-            return false;
-        
-        var faceId = GetSharedFace(v, u);
-        if (faceId is null)
             return false;
         
         if (IsConnected(v, u))
             return false;
         
-        var currFace = faceId.Value;
-        var othrFace = CreateFace();
-        
-        List<int> currPoints = [];
-        List<int> othrPoits = [];
+        // Maybe has some bugs when a point conects with
+        // many lines.
 
-        List<HalfEdge> currEdges = [];
-        List<HalfEdge> othrEdges = [];
+        var e1 = CreateEdge(v, u, 0);
+        var e2 = CreateEdge(u, v, 0);
 
-        var sharedEdges = GetFaceEdgeList(currFace);
-        var fstEdge = sharedEdges[0];
-        var edge = fstEdge;
-        
-        do
-        {
-            var vertex = edge.To;
-            edge.FaceId = currFace;
-            currPoints.Add(vertex);
-            currEdges.Add(edge);
-            edge = edge.Next!;
-
-            if (vertex == v)
-            {
-                currPoints.Add(u);
-                (currFace, othrFace) = (othrFace, currFace);
-                (currPoints, othrPoits) = (othrPoits, currPoints);
-                (currEdges, othrEdges) = (othrEdges, currEdges);
-            }
-
-            if (vertex == u)
-            {
-                currPoints.Add(v);
-                (currFace, othrFace) = (othrFace, currFace);
-                (currPoints, othrPoits) = (othrPoits, currPoints);
-                (currEdges, othrEdges) = (othrEdges, currEdges);
-            }
-
-        } while (edge != fstEdge);
-
-        Faces[currFace] = currPoints;
-        Faces[othrFace] = othrPoits;
-        FacesEdges[currFace] = currEdges;
-        FacesEdges[othrFace] = othrEdges;
-
-        if (!currEdges.Any(x => x.To == v))
-            (v, u) = (u, v);
-        var e1 = CreateEdge(v, u, currFace);
-        foreach (var e in currEdges)
+        var nextv = e1;
+        var anglev = AngleTo(GetVertex(u), GetVertex(v));
+        var bestDiff = float.PositiveInfinity;
+        foreach (var e in GetFromEdgeList(v))
         {
             if (e == e1)
                 continue;
-
-            if (e.To == v)
-            {
-                e.SetNext(e1);
-                continue;
-            }
             
-            if (e.From == u)
+            var angle = AngleTo(GetVertex(e.To), GetVertex(e.From));
+            if (angle < anglev)
+                angle += MathF.Tau;
+            var diff = anglev - angle;
+            if (anglev - angle < bestDiff)
             {
-                e.SetPrevious(e1);
-                continue;
+                bestDiff = diff;
+                nextv = e;
             }
         }
+        var prevv = nextv.Previous!;
 
-        var e2 = CreateEdge(u, v, othrFace);
-        foreach (var e in othrEdges)
+        var nextu = e2;
+        var angleu = AngleTo(GetVertex(v), GetVertex(u));
+        bestDiff = float.PositiveInfinity;
+        foreach (var e in GetFromEdgeList(u))
         {
             if (e == e2)
                 continue;
             
-            if (e.To == u)
+            var angle = AngleTo(GetVertex(e.To), GetVertex(e.From));
+            if (angle < angleu)
+                angle += MathF.Tau;
+            var diff = angleu - angle;
+            if (angleu - angle < bestDiff)
             {
-                e.SetNext(e2);
-                continue;
-            }
-            
-            if (e.From == v)
-            {
-                e.SetPrevious(e2);
-                continue;
+                bestDiff = diff;
+                nextu = e;
             }
         }
+        var prevu = nextu.Previous!;
+
+        e2.SetNext(nextv);
+        e2.SetPrevious(prevu);
+
+        e1.SetNext(nextu);
+        e1.SetPrevious(prevv);
 
         return true;
+
+        float AngleTo(Vertex toVert, Vertex fromVert)
+        {
+            var dx = toVert.X - fromVert.X;
+            var dy = toVert.Y - fromVert.Y;
+            return MathF.Atan2(dy, dx);
+        }
     }
 
     /// <summary>
@@ -484,15 +456,36 @@ public class DCEL
     /// <summary>
     /// Get a subdcel from a face.
     /// </summary>
-    public DCEL GetFace(int faceId)
+    public IEnumerable<DCEL> GetSubDCELs()
     {
-        var face = Faces[faceId];
-        var vertexes = new Vertex[face.Count];
+        var queue = new Queue<int>(Source.Select(v => v.Id));
+        var set = new HashSet<int>();
 
-        for (int i = 0; i < vertexes.Length; i++)
-            vertexes[i] = GetVertex(face[i]);
+        while (queue.Count > 0)
+        {
+            var vert = queue.Dequeue();
+            var edges = FromEdgeMap[vert];
 
-        return new DCEL(vertexes);
+            foreach (var edge in edges)
+            {
+                if (set.Contains(edge.Id))
+                    continue;
+
+                var fst = edge;
+                var crr = fst;
+                var end = edge.Previous;
+                List<Vertex> subverts = [ GetVertex(fst.From) ];
+                while (crr != end)
+                {
+                    set.Add(crr.Id);
+                    subverts.Add(GetVertex(crr.To));
+                    crr = crr.Next!;
+                }
+                set.Add(end.Id);
+                var subDcel = new DCEL([ ..subverts ]);
+                yield return subDcel;
+            }
+        }
     }
 
     /// <summary>
@@ -503,7 +496,8 @@ public class DCEL
         var prev = GetVertex(ToEdgeMap[vid][0].From);
         var curr = GetVertex(vid);
         var next = GetVertex(FromEdgeMap[vid][0].To);
-        return prev.Y >= curr.Y && curr.Y > next.Y;
+
+        return prev > curr && curr > next;
     }
 
     /// <summary>

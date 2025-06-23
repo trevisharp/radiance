@@ -59,14 +59,7 @@ public static class Triangulations
             var type = dcel.GetVertexType(vi);
             var ei = dcel.FromEdgeMap[vi][0].Id;
             var eprev = dcel.ToEdgeMap[vi][0].Id;
-
-            System.Console.WriteLine(vi);
-            System.Console.WriteLine(type);
-            System.Console.WriteLine(ei);
-            System.Console.WriteLine(eprev);
-            System.Console.WriteLine(string.Join(", ", helper));
-            System.Console.WriteLine();
-
+            
             switch (type)
             {
                 case VertexType.Start:
@@ -149,9 +142,9 @@ public static class Triangulations
         var triangules = new float[9 * expectedTriangules];
 
         float[] data;
-        foreach (var faceId in dcel.FaceIds)
+        var subdcels = dcel.GetSubDCELs().ToArray();
+        foreach (var subDcel in subdcels)
         {
-            var subDcel = dcel.GetFace(faceId);
             if (subDcel.Length < 4)
             {
                 data = subDcel.ToArray();
@@ -176,9 +169,6 @@ public static class Triangulations
     /// </summary>
     public static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
     {
-        var temp = dcel.FacesEdges.FirstOrDefault();
-        var pts = temp.Value.SelectMany(x => new int[] { x.To, x.From }).Distinct();
-
         var (leftChain, rightChain) = dcel.GetChains(sweepLine);
 
         var stack = new Stack<int>();
