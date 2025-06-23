@@ -97,9 +97,11 @@ public class DCEL
         }
     }
 
-    public DCEL(Vertex[] source)
+    public DCEL(List<Vertex> source)
     {
-        Source = [ ..source ];
+        Source = source;
+        FixClockwise(Source);
+
         foreach (var vertex in source)
             Vertexes.Add(vertex.Id, vertex);
 
@@ -110,7 +112,7 @@ public class DCEL
         );
 
         int i = 1;
-        while (i < source.Length - 1)
+        while (i < source.Count - 1)
         {
             var crr = CreateEdge(
                 source[i].Id,
@@ -130,40 +132,12 @@ public class DCEL
         lst.SetNext(fst);
     }
 
-    public DCEL(float[] points)
-    {
-        points = FixClockwise(points);
-        Source = [];
-        for (int j = 0, k = 0; j < points.Length; j += 3, k++)
-        {
-            var vert = new Vertex(k, points[j], points[j + 1], points[j + 2]);
-            Source.Add(vert);
-            Vertexes.Add(k, vert);
-        }
-
-        HalfEdge fst, prv;
-        fst = prv = CreateEdge(0, 1);
-
-        int i = 1;
-        while (i < Source.Count - 1)
-        {
-            var crr = CreateEdge(
-                i,
-                i + 1
-            );
-            crr.SetPrevious(prv);
-
-            prv = crr;
-            i++;
-        }
-
-        var lst = CreateEdge(
-            i, 
-            0
-        );
-        lst.SetPrevious(prv);
-        lst.SetNext(fst);
-    }
+    public DCEL(float[] points) : this(
+        points
+            .Chunk(3)
+            .Select((arr, i) => new Vertex(i, arr[0], arr[1], arr[2]))
+            .ToList()
+    ) { }
 
     /// <summary>
     /// Create a SweepLine from this DCEL.
@@ -416,7 +390,7 @@ public class DCEL
                     crr = crr.Next!;
                 }
                 set.Add(end.Id);
-                var subDcel = new DCEL([ ..subverts ]);
+                var subDcel = new DCEL(subverts);
                 yield return subDcel;
             }
         }
@@ -587,27 +561,7 @@ public class DCEL
         var r = GetVertex(rId);
         return Left(p, q, r);
     }
-
-    /// <summary>
-    /// Compute area from this a collection of points. Returns
-    /// negative when points are anti-clockwise. 
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static float Area(float[] points)
-    {
-        var area = 0f;
-        for (int i = 0; i < points.Length - 3; i += 3)
-        {
-            var x1 = points[i];
-            var x2 = points[i + 3];
-            var y1 = points[i + 1];
-            var y2 = points[i + 1 + 3];
-            area += x1 * y2 - x2 * y1;
-        }
-        area += points[^3] * points[1] - points[0] * points[^2];
-        return area / 2;
-    }
-
+    
     /// <summary>
     /// Compute area from this a collection of points. Returns
     /// negative when points are anti-clockwise. 
@@ -626,34 +580,6 @@ public class DCEL
         }
         area += points[^1].X * points[0].Y - points[0].X * points[^1].Y;
         return area / 2;
-    }
-
-    /// <summary>
-    /// Reverse the (x, y, z) pairs.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static float[] Reverse(float[] points)
-    {
-        float[] reversed = new float[points.Length];
-        for (int i = 0; i < points.Length; i += 3)
-        {
-            reversed[i] = points[^(i + 3)];
-            reversed[i + 1] = points[^(i + 2)];
-            reversed[i + 2] = points[^(i + 1)];
-        }
-        return reversed;
-    }
-
-    /// <summary>
-    /// Fix clockwise to pairs (x, y, z).
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    static float[] FixClockwise(float[] points)
-    {
-        var area = Area(points);
-        if (area > 0)
-            return points;
-        return Reverse(points);
     }
 
     /// <summary>

@@ -227,8 +227,7 @@ public static class Polygons
             Window.Width, 
             Window.Height
         ) : throw new WindowClosedException();
-
-
+    
     /// <summary>
     /// Create a generic builder for DCELPolygons.
     /// </summary>
