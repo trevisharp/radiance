@@ -25,9 +25,6 @@ public class DCEL
     public readonly Dictionary<int, Vertex> Vertexes = [];
     public readonly Dictionary<int, List<HalfEdge>> FromEdgeMap = [];
     public readonly Dictionary<int, List<HalfEdge>> ToEdgeMap = [];
-    public readonly Dictionary<int, List<int>> Faces = [];
-    public readonly Dictionary<int, List<HalfEdge>> FacesEdges = [];
-    public IEnumerable<int> FaceIds => Faces.Keys;
 
     public DCEL(List<Vertex> contour, List<List<Vertex>> holes)
     {
@@ -45,22 +42,11 @@ public class DCEL
             
         foreach (var vertex in Source)
             Vertexes.Add(vertex.Id, vertex);
-        
-        var face = CreateFace();
-        List<int> faceVertexes = Faces[face];
-
-        foreach (var point in contour)
-            faceVertexes.Add(point.Id);
-        
-        foreach (var hole in holes)
-            foreach (var point in hole)
-                faceVertexes.Add(point.Id);
 
         HalfEdge fst, prv;
         fst = prv = CreateEdge(
             contour[0].Id,
-            contour[1].Id,
-            face
+            contour[1].Id
         );
 
         int i = 1;
@@ -68,8 +54,7 @@ public class DCEL
         {
             var crr = CreateEdge(
                 contour[i].Id,
-                contour[i + 1].Id,
-                face
+                contour[i + 1].Id
             );
             crr.SetPrevious(prv);
 
@@ -79,8 +64,7 @@ public class DCEL
 
         var lst = CreateEdge(
             contour[i].Id, 
-            contour[0].Id,
-            face
+            contour[0].Id
         );
         lst.SetPrevious(prv);
         lst.SetNext(fst);
@@ -89,8 +73,7 @@ public class DCEL
         {
             fst = prv = CreateEdge(
                 hole[0].Id,
-                hole[1].Id,
-                face
+                hole[1].Id
             );
 
             i = 1;
@@ -98,8 +81,7 @@ public class DCEL
             {
                 var crr = CreateEdge(
                     hole[i].Id,
-                    hole[i + 1].Id,
-                    face
+                    hole[i + 1].Id
                 );
                 crr.SetPrevious(prv);
 
@@ -109,8 +91,7 @@ public class DCEL
 
             lst = CreateEdge(
                 hole[i].Id, 
-                hole[0].Id,
-                face
+                hole[0].Id
             );
             lst.SetPrevious(prv);
             lst.SetNext(fst);
@@ -123,17 +104,10 @@ public class DCEL
         foreach (var vertex in source)
             Vertexes.Add(vertex.Id, vertex);
 
-        int face = CreateFace();
-        List<int> faceVertexes = Faces[face];
-
-        for (int j = 0; j < source.Length; j++)
-            faceVertexes.Add(source[j].Id);
-
         HalfEdge fst, prv;
         fst = prv = CreateEdge(
             source[0].Id,
-            source[1].Id,
-            face
+            source[1].Id
         );
 
         int i = 1;
@@ -141,8 +115,7 @@ public class DCEL
         {
             var crr = CreateEdge(
                 source[i].Id,
-                source[i + 1].Id,
-                face
+                source[i + 1].Id
             );
             crr.SetPrevious(prv);
 
@@ -152,8 +125,7 @@ public class DCEL
 
         var lst = CreateEdge(
             source[i].Id, 
-            source[0].Id,
-            face
+            source[0].Id
         );
         lst.SetPrevious(prv);
         lst.SetNext(fst);
@@ -170,22 +142,15 @@ public class DCEL
             Vertexes.Add(k, vert);
         }
 
-        int face = CreateFace();
-        List<int> faceVertexes = Faces[face];
-
-        for (int j = 0; j < Source.Count; j++)
-            faceVertexes.Add(j);
-
         HalfEdge fst, prv;
-        fst = prv = CreateEdge(0, 1, face);
+        fst = prv = CreateEdge(0, 1);
 
         int i = 1;
         while (i < Source.Count - 1)
         {
             var crr = CreateEdge(
                 i,
-                i + 1,
-                face
+                i + 1
             );
             crr.SetPrevious(prv);
 
@@ -195,8 +160,7 @@ public class DCEL
 
         var lst = CreateEdge(
             i, 
-            0,
-            face
+            0
         );
         lst.SetPrevious(prv);
         lst.SetNext(fst);
@@ -229,8 +193,8 @@ public class DCEL
         // Maybe has some bugs when a point conects with
         // many lines.
 
-        var e1 = CreateEdge(v, u, 0);
-        var e2 = CreateEdge(u, v, 0);
+        var e1 = CreateEdge(v, u);
+        var e2 = CreateEdge(u, v);
 
         var nextv = e1;
         var anglev = AngleTo(GetVertex(u), GetVertex(v));
@@ -425,34 +389,6 @@ public class DCEL
     }
 
     /// <summary>
-    /// Get the face shader by two vertex
-    /// with id 'v' and 'u'.
-    /// </summary>
-    public int? GetSharedFace(int vid, int uid)
-    {
-        foreach (var (faceId, _) in Faces)
-        {
-            var edges = FacesEdges[faceId];
-            bool hasV = false,
-                 hasU = false;
-            
-            foreach (var edge in edges)
-            {
-                if (edge.From == vid)
-                    hasV = true;
-                
-                if (edge.From == uid)
-                    hasU = true;
-            }
-
-            if (hasV && hasU)
-                return faceId;
-        }
-
-        return null;
-    }
-
-    /// <summary>
     /// Get a subdcel from a face.
     /// </summary>
     public IEnumerable<DCEL> GetSubDCELs()
@@ -594,38 +530,22 @@ public class DCEL
     }
 
     /// <summary>
-    /// Create a new empty face.
-    /// </summary>
-    int CreateFace()
-    {
-        var id = nextFaceId;
-        nextFaceId++;
-
-        Faces.Add(id, []);
-        FacesEdges.Add(id, []);
-        return id;
-    }
-
-    /// <summary>
     /// Create a new Edge between 'from' and 'to'
     /// on specific face. Do not create new face
     /// and do not keep face consistency.
     /// </summary>
-    HalfEdge CreateEdge(int from, int to, int face)
+    HalfEdge CreateEdge(int from, int to)
     {
         var id = nextEdgeId;
         nextEdgeId++;
 
-        var edge = new HalfEdge(id, from, to, face);
+        var edge = new HalfEdge(id, from, to);
         var fromEdges = GetFromEdgeList(from);
         var toEdges = GetToEdgeList(to);
         
         fromEdges.Add(edge);
         toEdges.Add(edge);
         Edges.Add(edge);
-
-        var faceEdges = GetFaceEdgeList(face);
-        faceEdges.Add(edge);
 
         return edge;
     }
@@ -658,20 +578,6 @@ public class DCEL
         return edges;
     }
 
-    /// <summary>
-    /// Get, and init if needed, edges in
-    /// a specific face.
-    /// </summary>
-    List<HalfEdge> GetFaceEdgeList(int id)
-    {
-        if (FacesEdges.TryGetValue(id, out var edges))
-            return edges;
-        
-        edges = [];
-        FacesEdges.Add(id, edges);
-        return edges;
-    }
-    
     /// <summary>
     /// Apply left between points based on ther Ids.
     /// </summary>
