@@ -127,9 +127,6 @@ public class DCEL
         
         if (IsConnected(v, u))
             return false;
-        
-        // Maybe has some bugs when a point conects with
-        // many lines.
 
         var e1 = CreateEdge(v, u);
         var e2 = CreateEdge(u, v);
@@ -181,13 +178,6 @@ public class DCEL
         e1.SetPrevious(prevv);
 
         return true;
-
-        float AngleTo(Vertex toVert, Vertex fromVert)
-        {
-            var dx = toVert.X - fromVert.X;
-            var dy = toVert.Y - fromVert.Y;
-            return MathF.Atan2(dy, dx);
-        }
     }
 
     /// <summary>
@@ -766,6 +756,16 @@ public class DCEL
 
         return vx * uy - ux * vy;
     }
+
+    /// <summary>
+    /// Angle between two vertexes.
+    /// </summary>
+    [MethodImpl(MethodImplOptions.AggressiveInlining)]
+    static float AngleTo(Vertex toVert, Vertex fromVert)
+        => MathF.Atan2(
+            toVert.Y - fromVert.Y,
+            toVert.X - fromVert.X
+        );
 
     /// <summary>
     /// Returns true if two lines (p, pf) and (q, qf) intersects.
