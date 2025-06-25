@@ -36,8 +36,7 @@ public class PolygonBuilder
     /// </summary>
     public IPolygon Build()
     {
-        int id = 0;
-        Vertex func((float x, float y, float z) p) => new(id++, p.x, p.y, p.z);
+        Vertex func((float x, float y, float z) p) => new(p.x, p.y, p.z);
         var dcel = new DCEL(
             [ ..planarPoints.Select(func) ],
             [ ..holes.Select(hole => new List<Vertex>(hole.Select(func))) ]

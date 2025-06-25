@@ -17,13 +17,12 @@ public class DCEL
     const float almost_infty = 1e6f;
     int nextEdgeId = 0;
     readonly List<Vertex> Source;
-    readonly Dictionary<int, VertexType> VertexesTypes = [];
-    readonly HashSet<int> HoleSet = [];
+    readonly Dictionary<Vertex, VertexType> VertexesTypes = [];
+    readonly HashSet<Vertex> HoleSet = [];
     public int Length => Source.Count;
     public readonly List<HalfEdge> Edges = [];
-    public readonly Dictionary<int, Vertex> Vertexes = [];
-    public readonly Dictionary<int, List<HalfEdge>> FromEdgeMap = [];
-    public readonly Dictionary<int, List<HalfEdge>> ToEdgeMap = [];
+    public readonly Dictionary<Vertex, List<HalfEdge>> FromEdgeMap = [];
+    public readonly Dictionary<Vertex, List<HalfEdge>> ToEdgeMap = [];
 
     public DCEL(List<Vertex> contour, List<List<Vertex>> holes)
     {
@@ -36,62 +35,41 @@ public class DCEL
         {
             Source.AddRange(hole);
             foreach (var point in hole)
-                HoleSet.Add(point.Id);
+                HoleSet.Add(point);
         }
-            
-        foreach (var vertex in Source)
-            Vertexes.Add(vertex.Id, vertex);
 
         HalfEdge fst, prv;
-        fst = prv = CreateEdge(
-            contour[0].Id,
-            contour[1].Id
-        );
+        fst = prv = CreateEdge(contour[0], contour[1]);
 
         int i = 1;
         while (i < contour.Count - 1)
         {
-            var crr = CreateEdge(
-                contour[i].Id,
-                contour[i + 1].Id
-            );
+            var crr = CreateEdge(contour[i], contour[i + 1]);
             crr.SetPrevious(prv);
 
             prv = crr;
             i++;
         }
 
-        var lst = CreateEdge(
-            contour[i].Id, 
-            contour[0].Id
-        );
+        var lst = CreateEdge(contour[i], contour[0]);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
 
         foreach (var hole in holes)
         {
-            fst = prv = CreateEdge(
-                hole[0].Id,
-                hole[1].Id
-            );
+            fst = prv = CreateEdge(hole[0], hole[1]);
 
             i = 1;
             while (i < hole.Count - 1)
             {
-                var crr = CreateEdge(
-                    hole[i].Id,
-                    hole[i + 1].Id
-                );
+                var crr = CreateEdge(hole[i], hole[i + 1]);
                 crr.SetPrevious(prv);
 
                 prv = crr;
                 i++;
             }
 
-            lst = CreateEdge(
-                hole[i].Id, 
-                hole[0].Id
-            );
+            lst = CreateEdge(hole[i], hole[0]);
             lst.SetPrevious(prv);
             lst.SetNext(fst);
         }
@@ -102,32 +80,20 @@ public class DCEL
         Source = source;
         FixClockwise(Source);
 
-        foreach (var vertex in source)
-            Vertexes.Add(vertex.Id, vertex);
-
         HalfEdge fst, prv;
-        fst = prv = CreateEdge(
-            source[0].Id,
-            source[1].Id
-        );
+        fst = prv = CreateEdge(source[0], source[1]);
 
         int i = 1;
         while (i < source.Count - 1)
         {
-            var crr = CreateEdge(
-                source[i].Id,
-                source[i + 1].Id
-            );
+            var crr = CreateEdge(source[i], source[i + 1]);
             crr.SetPrevious(prv);
 
             prv = crr;
             i++;
         }
 
-        var lst = CreateEdge(
-            source[i].Id, 
-            source[0].Id
-        );
+        var lst = CreateEdge(source[i], source[0]);
         lst.SetPrevious(prv);
         lst.SetNext(fst);
     }
@@ -135,7 +101,7 @@ public class DCEL
     public DCEL(float[] points) : this(
         points
             .Chunk(3)
-            .Select((arr, i) => new Vertex(i, arr[0], arr[1], arr[2]))
+            .Select((arr) => new Vertex(arr[0], arr[1], arr[2]))
             .ToList()
     ) { }
 
@@ -148,14 +114,14 @@ public class DCEL
     /// <summary>
     /// Receiving 2 ids for vertex return if them are connected.
     /// </summary>
-    public bool IsConnected(int v, int u)
+    public bool IsConnected(Vertex v, Vertex u)
         => FromEdgeMap[v].Any(e => e.To == u) 
         || FromEdgeMap[u].Any(e => e.To == v);
 
     /// <summary>
     /// Add a Edge between two vertex.
     /// </summary>
-    public bool Connect(int v, int u)
+    public bool Connect(Vertex v, Vertex u)
     {
         if (v == u)
             return false;
@@ -170,14 +136,14 @@ public class DCEL
         var e2 = CreateEdge(u, v);
 
         var nextv = e1;
-        var anglev = AngleTo(GetVertex(u), GetVertex(v));
+        var anglev = AngleTo(u, v);
         var bestDiff = float.PositiveInfinity;
         foreach (var e in GetFromEdgeList(v))
         {
             if (e == e1)
                 continue;
             
-            var angle = AngleTo(GetVertex(e.To), GetVertex(e.From));
+            var angle = AngleTo(e.To, e.From);
             if (angle < anglev)
                 angle += MathF.Tau;
             var diff = anglev - angle;
@@ -190,14 +156,14 @@ public class DCEL
         var prevv = nextv.Previous!;
 
         var nextu = e2;
-        var angleu = AngleTo(GetVertex(v), GetVertex(u));
+        var angleu = AngleTo(v, u);
         bestDiff = float.PositiveInfinity;
         foreach (var e in GetFromEdgeList(u))
         {
             if (e == e2)
                 continue;
             
-            var angle = AngleTo(GetVertex(e.To), GetVertex(e.From));
+            var angle = AngleTo(e.To, e.From);
             if (angle < angleu)
                 angle += MathF.Tau;
             var diff = angleu - angle;
@@ -229,20 +195,14 @@ public class DCEL
     /// Return true if two vertices can connect with a line
     /// inside the polygon.
     /// </summary>
-    bool CanInternalConnect(int vid, int uid)
+    bool CanInternalConnect(Vertex v, Vertex u)
     {
-        var v = GetVertex(vid);
-        var u = GetVertex(uid);
-
         foreach (var edge in Edges)
         {
-            if (edge.From == vid || edge.To == vid || edge.From == uid || edge.To == uid)
+            if (edge.From == v || edge.To == v || edge.From == u || edge.To == u)
                 continue;
 
-            var v2 = GetVertex(edge.From);
-            var u2 = GetVertex(edge.To);
-
-            if (Intersect(v, u, v2, u2))
+            if (Intersect(v, u, edge.From, edge.To))
                 return false;
         }
         
@@ -252,14 +212,14 @@ public class DCEL
     /// <summary>
     /// Get two hash set of the left and right chain over a sweep line.
     /// </summary>
-    (HashSet<int> left, HashSet<int> right) GetChains(SweepLine sweepLine)
+    (HashSet<Vertex> left, HashSet<Vertex> right) GetChains(SweepLine sweepLine)
     {
-        var top = sweepLine[0].Id;
-        var bottom = sweepLine[^1].Id;
+        var top = sweepLine[0];
+        var bottom = sweepLine[^1];
         var current = top;
 
-        HashSet<int> leftChain = [ top, bottom ];
-        HashSet<int> rightChain = [ ];
+        HashSet<Vertex> leftChain = [ top, bottom ];
+        HashSet<Vertex> rightChain = [ ];
 
         while (current != bottom)
         {
@@ -280,13 +240,13 @@ public class DCEL
     /// <summary>
     /// Get the Vertex type of a vertex with specific id.
     /// </summary>
-    VertexType GetVertexType(int vertexId)
+    VertexType GetVertexType(Vertex vertex)
     {
-        if (VertexesTypes.TryGetValue(vertexId, out var type))
+        if (VertexesTypes.TryGetValue(vertex, out var type))
             return type;
         
-        type = DiscoverType(vertexId);
-        VertexesTypes[vertexId] = type;
+        type = DiscoverType(vertex);
+        VertexesTypes[vertex] = type;
         return type;
     }
 
@@ -299,7 +259,7 @@ public class DCEL
         {
             foreach (var vertex in Source)
             {
-                var type = GetVertexType(vertex.Id);
+                var type = GetVertexType(vertex);
                 if (type == VertexType.Merge)
                     return false;
                 
@@ -315,31 +275,30 @@ public class DCEL
     /// Find the left edge from a vertex. If are two left
     /// edges the algorithm choose the least y-axis. 
     /// </summary>
-    int FindLeftEdge(int vertexId)
+    HalfEdge FindLeftEdge(Vertex vertex)
     {
-        var vert = GetVertex(vertexId);
-        var x = vert.X;
+        var x = vertex.X;
 
-        int selected = -1;
+        HalfEdge? selected = null;
         float bestX = float.MinValue;
 
         foreach (var edge in Edges)
         {
-            if (edge.From == vertexId)
+            if (edge.From == vertex)
                 continue;
             
-            if (edge.To == vertexId)
+            if (edge.To == vertex)
                 continue;
 
-            var v = GetVertex(edge.To);
+            var v = edge.To;
             var x1 = v.X;
             var y1 = v.Y;
 
-            var u = GetVertex(edge.From);
+            var u = edge.From;
             var x2 = u.X;
             var y2 = u.Y;
 
-            var between = v > vert && vert > u || u > vert && vert > v;
+            var between = v > vertex && vertex > u || u > vertex && vertex > v;
             if (!between)
                 continue;
 
@@ -351,12 +310,15 @@ public class DCEL
             if (maxX < bestX)
                 continue;
             
-            if (Left(v.Id, vertexId, u.Id) > 0)
+            if (Left(v, vertex, u) > 0)
                 continue;
 
             bestX = maxX;
-            selected = edge.Id;
+            selected = edge;
         }
+
+        if (selected is null)
+            throw new NullReferenceException($"Vertex has no Left Edge.");
         
         return selected;
     }
@@ -366,8 +328,8 @@ public class DCEL
     /// </summary>
     public IEnumerable<DCEL> GetSubDCELs()
     {
-        var queue = new Queue<int>(Source.Select(v => v.Id));
-        var set = new HashSet<int>();
+        var queue = new Queue<Vertex>(Source);
+        var set = new HashSet<HalfEdge>();
 
         while (queue.Count > 0)
         {
@@ -376,20 +338,20 @@ public class DCEL
 
             foreach (var edge in edges)
             {
-                if (set.Contains(edge.Id))
+                if (set.Contains(edge))
                     continue;
 
                 var fst = edge;
                 var crr = fst;
                 var end = edge.Previous;
-                List<Vertex> subverts = [ GetVertex(fst.From) ];
+                List<Vertex> subverts = [ fst.From ];
                 while (crr != end)
                 {
-                    set.Add(crr.Id);
-                    subverts.Add(GetVertex(crr.To));
+                    set.Add(crr);
+                    subverts.Add(crr.To);
                     crr = crr.Next!;
                 }
-                set.Add(end.Id);
+                set.Add(end);
                 var subDcel = new DCEL(subverts);
                 yield return subDcel;
             }
@@ -399,13 +361,12 @@ public class DCEL
     /// <summary>
     /// Returns true if the polygon lies to the right of vi.
     /// </summary>
-    bool LiesOnRight(int vid)
+    bool LiesOnRight(Vertex vertex)
     {
-        var prev = GetVertex(ToEdgeMap[vid][0].From);
-        var curr = GetVertex(vid);
-        var next = GetVertex(FromEdgeMap[vid][0].To);
+        var prev = ToEdgeMap[vertex][0].From;
+        var next = FromEdgeMap[vertex][0].To;
 
-        return prev > curr && curr > next;
+        return prev > vertex && vertex > next;
     }
 
     /// <summary>
@@ -414,7 +375,7 @@ public class DCEL
     public float[] ToArray()
     {
         List<float> values = [];
-        var queue = new Queue<int>(Source.Select(v => v.Id));
+        var queue = new Queue<Vertex>(Source);
         var set = new HashSet<int>();
 
         while (queue.Count > 0)
@@ -430,11 +391,11 @@ public class DCEL
                 var fst = edge;
                 var crr = fst;
                 var end = edge.Previous;
-                List<Vertex> subverts = [ GetVertex(fst.From) ];
+                List<Vertex> subverts = [ fst.From ];
                 while (crr != end)
                 {
                     set.Add(crr.Id);
-                    subverts.Add(GetVertex(crr.To));
+                    subverts.Add(crr.To);
                     crr = crr.Next!;
                 }
                 set.Add(end.Id);
@@ -450,18 +411,12 @@ public class DCEL
         return [ ..values ];
     }
     
-    /// <summary>
-    /// Get a Planar Vertex by id.
-    /// </summary>
-    [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    public Vertex GetVertex(int id)
-        => Vertexes[id];
-
     public override string ToString()
     {
         var sb = new StringBuilder();
+        int i = 0;
         foreach (var pt in Source)
-            sb.AppendLine($$"""P_{{{pt.Id}}} = {{pt}}""");
+            sb.AppendLine($$"""P_{{{i++}}} = {{pt}}""");
         
         return sb.ToString();
     }
@@ -488,22 +443,21 @@ public class DCEL
             return false;
 
         var sweepLine = dcel.CreateSweepLine();
-        Dictionary<int, int> helper = [];
+        Dictionary<HalfEdge, Vertex> helper = [];
         
         for (int i = 0; i < sweepLine.Length; i++)
         {
             var v = sweepLine[i];
-            var vi = v.Id;
             
-            var type = dcel.GetVertexType(vi);
-            var ei = dcel.FromEdgeMap[vi][0].Id;
-            var eprev = dcel.ToEdgeMap[vi][0].Id;
+            var type = dcel.GetVertexType(v);
+            var ei = dcel.FromEdgeMap[v][0];
+            var eprev = dcel.ToEdgeMap[v][0];
             
             switch (type)
             {
                 case VertexType.Start:
 
-                    helper[ei] = vi;
+                    helper[ei] = v;
 
                     break;
                     
@@ -511,17 +465,17 @@ public class DCEL
                     
                     if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
                     {
-                        dcel.Connect(vi, helper[eprev]);
+                        dcel.Connect(v, helper[eprev]);
                     }
 
                     break;
 
                 case VertexType.Split:
 
-                    var ej1 = dcel.FindLeftEdge(vi);
-                    dcel.Connect(helper[ej1], vi);
-                    helper[ej1] = vi;
-                    helper[ei] = vi;
+                    var ej1 = dcel.FindLeftEdge(v);
+                    dcel.Connect(helper[ej1], v);
+                    helper[ej1] = v;
+                    helper[ei] = v;
 
                     break;
 
@@ -529,38 +483,38 @@ public class DCEL
 
                     if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
                     {
-                        dcel.Connect(vi, helper[eprev]);
+                        dcel.Connect(v, helper[eprev]);
                     }
                     
-                    var ej2 = dcel.FindLeftEdge(vi);
+                    var ej2 = dcel.FindLeftEdge(v);
                     if (dcel.GetVertexType(helper[ej2]) == VertexType.Merge)
                     {
-                        dcel.Connect(helper[ej2], vi);
+                        dcel.Connect(helper[ej2], v);
                     }
                     
-                    helper[ej2] = vi;
+                    helper[ej2] = v;
 
                     break;
 
                 case VertexType.Regular:
 
-                    if (dcel.LiesOnRight(vi))
+                    if (dcel.LiesOnRight(v))
                     {
                         if (dcel.GetVertexType(helper[eprev]) == VertexType.Merge)
                         {
-                            dcel.Connect(vi, helper[eprev]);
+                            dcel.Connect(v, helper[eprev]);
                         }
 
-                        helper[ei] = vi;
+                        helper[ei] = v;
                     }
                     else
                     {
-                        var ej3 = dcel.FindLeftEdge(vi);
+                        var ej3 = dcel.FindLeftEdge(v);
                         if (dcel.GetVertexType(helper[ej3]) == VertexType.Merge)
                         {
-                            dcel.Connect(helper[ej3], vi);
+                            dcel.Connect(helper[ej3], v);
                         }
-                        helper[ej3] = vi;
+                        helper[ej3] = v;
                     }
 
                     break;
@@ -609,14 +563,14 @@ public class DCEL
         var sweepLine = dcel.CreateSweepLine();
         var (leftChain, rightChain) = dcel.GetChains(sweepLine);
 
-        var stack = new Stack<int>();
-        stack.Push(sweepLine[0].Id);
-        stack.Push(sweepLine[1].Id);
+        var stack = new Stack<Vertex>();
+        stack.Push(sweepLine[0]);
+        stack.Push(sweepLine[1]);
 
         for (int j = 2; j < dcel.Length - 1; j++)
         {
             var vtop = stack.Peek();
-            var vj = sweepLine[j].Id;
+            var vj = sweepLine[j];
 
             var topInChainA = leftChain.Contains(vtop);
             var nextInChainA = leftChain.Contains(vj);
@@ -640,7 +594,7 @@ public class DCEL
             }
             else
             {
-                var vj_1 = sweepLine[j - 1].Id;
+                var vj_1 = sweepLine[j - 1];
                 while (stack.Count > 1)
                 {
                     var vk = stack.Pop();
@@ -652,7 +606,7 @@ public class DCEL
             }
         }
 
-        var vn = sweepLine[^1].Id;
+        var vn = sweepLine[^1];
         stack.Pop();
 
         while (stack.Count > 1)
@@ -668,15 +622,15 @@ public class DCEL
     /// Discover the type of the vertex with specific id.
     /// </summary>
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
-    VertexType DiscoverType(int vertexId)
+    VertexType DiscoverType(Vertex vertex)
     {
-        var edges = FromEdgeMap[vertexId];
+        var edges = FromEdgeMap[vertex];
         var edge = edges[0];
-        var self = GetVertex(vertexId);
-        var e1 = GetVertex(edge.To);
-        var e2 = GetVertex(edge.Previous!.From);
+        var self = vertex;
+        var e1 = edge.To;
+        var e2 = edge.Previous!.From;
 
-        if (HoleSet.Contains(vertexId))
+        if (HoleSet.Contains(vertex))
         {
             if (self > e1 && self > e2)
                 return Left(e1, self, e2) < 0 ?
@@ -705,7 +659,7 @@ public class DCEL
     /// on specific face. Do not create new face
     /// and do not keep face consistency.
     /// </summary>
-    HalfEdge CreateEdge(int from, int to)
+    HalfEdge CreateEdge(Vertex from, Vertex to)
     {
         var id = nextEdgeId;
         nextEdgeId++;
@@ -725,13 +679,13 @@ public class DCEL
     /// Get, and init if needed, edges connect
     /// to a vertex with specific id.
     /// </summary>
-    List<HalfEdge> GetFromEdgeList(int id)
+    List<HalfEdge> GetFromEdgeList(Vertex vertex)
     {
-        if (FromEdgeMap.TryGetValue(id, out var edges))
+        if (FromEdgeMap.TryGetValue(vertex, out var edges))
             return edges;
         
         edges = [];
-        FromEdgeMap.Add(id, edges);
+        FromEdgeMap.Add(vertex, edges);
         return edges;
     }
 
@@ -739,25 +693,14 @@ public class DCEL
     /// Get, and init if needed, edges connect
     /// to a vertex with specific id.
     /// </summary>
-    List<HalfEdge> GetToEdgeList(int id)
+    List<HalfEdge> GetToEdgeList(Vertex vertex)
     {
-        if (ToEdgeMap.TryGetValue(id, out var edges))
+        if (ToEdgeMap.TryGetValue(vertex, out var edges))
             return edges;
         
         edges = [];
-        ToEdgeMap.Add(id, edges);
+        ToEdgeMap.Add(vertex, edges);
         return edges;
-    }
-
-    /// <summary>
-    /// Apply left between points based on ther Ids.
-    /// </summary>
-    float Left(int pid, int qId, int rId)
-    {
-        var p = GetVertex(pid);
-        var q = GetVertex(qId);
-        var r = GetVertex(rId);
-        return Left(p, q, r);
     }
 
     /// <summary>
@@ -894,10 +837,7 @@ public class DCEL
 
         foreach (var edge in Edges)
         {
-            var v2 = GetVertex(edge.From);
-            var u2 = GetVertex(edge.To);
-
-            if (RayIntersect(v2, u2, px, py))
+            if (RayIntersect(edge.From, edge.To, px, py))
                 count++;
         }
 

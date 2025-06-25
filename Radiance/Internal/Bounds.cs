@@ -44,8 +44,8 @@ public static class Bounds
 
         foreach (var edge in dcel.Edges)
         {
-            var v = dcel.GetVertex(edge.From);
-            var u = dcel.GetVertex(edge.To);
+            var v = edge.From;
+            var u = edge.To;
             lines.Add(v.X);
             lines.Add(v.Y);
             lines.Add(v.Z);
