@@ -94,7 +94,7 @@ public static class Polygons
         int points = 63
     )
     {
-        var result = new List<float>();
+        var builder = CreateBuilder();
 
         float phi = MathF.Tau / points;
         if (float.IsNaN(b))
@@ -102,12 +102,14 @@ public static class Polygons
 
         for (int k = 0; k < points; k++)
         {
-            result.Add(a * MathF.Cos(phi * k) + x);
-            result.Add(b * MathF.Sin(-phi * k) + y);
-            result.Add(z);
+            builder.AddPoint(
+                x + a * MathF.Cos(phi * k),
+                y + b * MathF.Sin(-phi * k),
+                z
+            );
         }
 
-        return result.ToArray();
+        return builder.Build();
     }
 
     /// <summary>
@@ -118,23 +120,7 @@ public static class Polygons
     public static Polygon Ellipse(
         float a, float b = float.NaN,
         int points = 63
-    )
-    {
-        var result = new List<float>();
-
-        float phi = MathF.Tau / points;
-        if (float.IsNaN(b))
-            b = a;
-
-        for (int k = 0; k < points; k++)
-        {
-            result.Add(a * MathF.Cos(phi * k));
-            result.Add(b * MathF.Sin(-phi * k));
-            result.Add(0);
-        }
-
-        return result.ToArray();
-    }
+    ) => Ellipse(0, 0, 0, a, b, points);
 
     /// <summary>
     /// Create a DCELPolygon using a polar coordinates.
