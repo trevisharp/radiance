@@ -6,9 +6,8 @@ namespace Radiance.Internal;
 /// <summary>
 /// Represents a Edge between two vertex.
 /// </summary>
-public class HalfEdge(int id, Vertex from, Vertex to)
+public class HalfEdge(Vertex from, Vertex to)
 {
-    public readonly int Id = id;
     public readonly Vertex From = from;
     public readonly Vertex To = to;
     public HalfEdge? Next { get; private set; }

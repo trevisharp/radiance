@@ -15,7 +15,6 @@ namespace Radiance.Internal;
 public class DCEL
 {
     const float almost_infty = 1e6f;
-    int nextEdgeId = 0;
     readonly List<Vertex> Source;
     readonly Dictionary<Vertex, VertexType> VertexesTypes = [];
     readonly HashSet<Vertex> HoleSet = [];
@@ -376,7 +375,7 @@ public class DCEL
     {
         List<float> values = [];
         var queue = new Queue<Vertex>(Source);
-        var set = new HashSet<int>();
+        var set = new HashSet<HalfEdge>();
 
         while (queue.Count > 0)
         {
@@ -385,7 +384,7 @@ public class DCEL
 
             foreach (var edge in edges)
             {
-                if (set.Contains(edge.Id))
+                if (set.Contains(edge))
                     continue;
 
                 var fst = edge;
@@ -394,11 +393,11 @@ public class DCEL
                 List<Vertex> subverts = [ fst.From ];
                 while (crr != end)
                 {
-                    set.Add(crr.Id);
+                    set.Add(crr);
                     subverts.Add(crr.To);
                     crr = crr.Next!;
                 }
-                set.Add(end.Id);
+                set.Add(end);
                 
                 foreach (var point in subverts)
                 {
@@ -661,10 +660,7 @@ public class DCEL
     /// </summary>
     HalfEdge CreateEdge(Vertex from, Vertex to)
     {
-        var id = nextEdgeId;
-        nextEdgeId++;
-
-        var edge = new HalfEdge(id, from, to);
+        var edge = new HalfEdge(from, to);
         var fromEdges = GetFromEdgeList(from);
         var toEdges = GetToEdgeList(to);
         
