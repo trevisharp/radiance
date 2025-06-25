@@ -147,7 +147,7 @@ public static class Polygons
         int points = 63
     )
     {
-        var result = new List<float>();
+        var builder = CreateBuilder();
 
         float phi = MathF.Tau / points;
 
@@ -155,12 +155,14 @@ public static class Polygons
         {
             float angle = phi * k;
             float dist = polarFunc(angle, k);
-            result.Add(x + dist * MathF.Cos(angle));
-            result.Add(y + dist * MathF.Sin(-angle));
-            result.Add(z);
+            builder.AddPoint(
+                x + dist * MathF.Cos(angle),
+                y + dist * MathF.Sin(-angle),
+                z
+            );
         }
 
-        return result.ToArray();
+        return builder.Build();
     }
     
     /// <summary>

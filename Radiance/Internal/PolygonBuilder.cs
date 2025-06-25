@@ -1,8 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    12/06/2025
+ * Date:    25/06/2025
  */
 using System.Collections.Generic;
-using System.Linq;
 
 namespace Radiance.Internal;
 
@@ -13,15 +12,15 @@ using Bufferings;
 /// </summary>
 public class PolygonBuilder
 {
-    readonly List<(float x, float y, float z)> planarPoints = [];
-    readonly List<List<(float x, float y, float z)>> holes = [];
+    readonly List<Vertex> planarPoints = [];
+    readonly List<List<Vertex>> holes = [];
 
     /// <summary>
     /// Add a external sequential point for this polygon.
     /// </summary>
     public PolygonBuilder AddPoint(float x, float y, float z = 0)
     {
-        planarPoints.Add((x, y, z));
+        planarPoints.Add(new Vertex(x, y, z));
         return this;
     }
     
@@ -34,14 +33,9 @@ public class PolygonBuilder
     /// <summary>
     /// Build a polygon from this builder.
     /// </summary>
-    public IPolygon Build()
+    public Polygon Build()
     {
-        Vertex func((float x, float y, float z) p) => new(p.x, p.y, p.z);
-        var dcel = new DCEL(
-            [ ..planarPoints.Select(func) ],
-            [ ..holes.Select(hole => new List<Vertex>(hole.Select(func))) ]
-        );
-
+        var dcel = new DCEL(planarPoints, holes);
         return new Polygon(dcel);
     }
 
@@ -50,14 +44,14 @@ public class PolygonBuilder
     /// </summary>
     public class HoleBuilder(PolygonBuilder parent)
     {
-        readonly List<(float x, float y, float z)> planarPoints = [];
+        readonly List<Vertex> planarPoints = [];
 
         /// <summary>
         /// Add a external sequential point for this polygon.
         /// </summary>
         public HoleBuilder AddPoint(float x, float y, float z = 0)
         {
-            planarPoints.Add((x, y, z));
+            planarPoints.Add(new Vertex(x, y, z));
             return this;
         }
         
