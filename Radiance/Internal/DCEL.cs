@@ -20,8 +20,8 @@ public class DCEL
     readonly HashSet<Vertex> HoleSet = [];
     public int Length => Source.Count;
     public readonly List<HalfEdge> Edges = [];
-    public readonly Dictionary<Vertex, List<HalfEdge>> FromEdgeMap = [];
-    public readonly Dictionary<Vertex, List<HalfEdge>> ToEdgeMap = [];
+    public readonly Dictionary<Vertex, List<HalfEdge>> OutEdges = [];
+    public readonly Dictionary<Vertex, List<HalfEdge>> InEdges = [];
 
     public DCEL(List<Vertex> contour, List<List<Vertex>> holes)
     {
@@ -114,8 +114,8 @@ public class DCEL
     /// Receiving 2 ids for vertex return if them are connected.
     /// </summary>
     public bool IsConnected(Vertex v, Vertex u)
-        => FromEdgeMap[v].Any(e => e.To == u) 
-        || FromEdgeMap[u].Any(e => e.To == v);
+        => OutEdges[v].Any(e => e.To == u) 
+        || OutEdges[u].Any(e => e.To == v);
 
     /// <summary>
     /// Add a Edge between two vertex.
@@ -137,7 +137,7 @@ public class DCEL
         var nextv = e1;
         var anglev = AngleTo(u, v);
         var bestDiff = float.PositiveInfinity;
-        foreach (var e in GetFromEdgeList(v))
+        foreach (var e in GetOutEdges(v))
         {
             if (e == e1)
                 continue;
@@ -157,7 +157,7 @@ public class DCEL
         var nextu = e2;
         var angleu = AngleTo(v, u);
         bestDiff = float.PositiveInfinity;
-        foreach (var e in GetFromEdgeList(u))
+        foreach (var e in GetOutEdges(u))
         {
             if (e == e2)
                 continue;
@@ -223,14 +223,14 @@ public class DCEL
         while (current != bottom)
         {
             leftChain.Add(current);
-            current = FromEdgeMap[current][0].To;
+            current = OutEdges[current][0].To;
         }
         
-        current = FromEdgeMap[current][0].To;
+        current = OutEdges[current][0].To;
         while (current != top)
         {
             rightChain.Add(current);
-            current = FromEdgeMap[current][0].To;
+            current = OutEdges[current][0].To;
         }
 
         return (rightChain, leftChain);
@@ -333,7 +333,7 @@ public class DCEL
         while (queue.Count > 0)
         {
             var vert = queue.Dequeue();
-            var edges = FromEdgeMap[vert];
+            var edges = OutEdges[vert];
 
             foreach (var edge in edges)
             {
@@ -362,8 +362,8 @@ public class DCEL
     /// </summary>
     bool LiesOnRight(Vertex vertex)
     {
-        var prev = ToEdgeMap[vertex][0].From;
-        var next = FromEdgeMap[vertex][0].To;
+        var prev = InEdges[vertex][0].From;
+        var next = OutEdges[vertex][0].To;
 
         return prev > vertex && vertex > next;
     }
@@ -380,7 +380,7 @@ public class DCEL
         while (queue.Count > 0)
         {
             var vert = queue.Dequeue();
-            var edges = FromEdgeMap[vert];
+            var edges = OutEdges[vert];
 
             foreach (var edge in edges)
             {
@@ -449,8 +449,8 @@ public class DCEL
             var v = sweepLine[i];
             
             var type = dcel.GetVertexType(v);
-            var ei = dcel.FromEdgeMap[v][0];
-            var eprev = dcel.ToEdgeMap[v][0];
+            var ei = dcel.OutEdges[v][0];
+            var eprev = dcel.InEdges[v][0];
             
             switch (type)
             {
@@ -623,7 +623,7 @@ public class DCEL
     [MethodImpl(MethodImplOptions.AggressiveInlining)]
     VertexType DiscoverType(Vertex vertex)
     {
-        var edges = FromEdgeMap[vertex];
+        var edges = OutEdges[vertex];
         var edge = edges[0];
         var self = vertex;
         var e1 = edge.To;
@@ -661,8 +661,8 @@ public class DCEL
     HalfEdge CreateEdge(Vertex from, Vertex to)
     {
         var edge = new HalfEdge(from, to);
-        var fromEdges = GetFromEdgeList(from);
-        var toEdges = GetToEdgeList(to);
+        var fromEdges = GetOutEdges(from);
+        var toEdges = GetInEdges(to);
         
         fromEdges.Add(edge);
         toEdges.Add(edge);
@@ -675,13 +675,13 @@ public class DCEL
     /// Get, and init if needed, edges connect
     /// to a vertex with specific id.
     /// </summary>
-    List<HalfEdge> GetFromEdgeList(Vertex vertex)
+    List<HalfEdge> GetOutEdges(Vertex vertex)
     {
-        if (FromEdgeMap.TryGetValue(vertex, out var edges))
+        if (OutEdges.TryGetValue(vertex, out var edges))
             return edges;
         
         edges = [];
-        FromEdgeMap.Add(vertex, edges);
+        OutEdges.Add(vertex, edges);
         return edges;
     }
 
@@ -689,13 +689,13 @@ public class DCEL
     /// Get, and init if needed, edges connect
     /// to a vertex with specific id.
     /// </summary>
-    List<HalfEdge> GetToEdgeList(Vertex vertex)
+    List<HalfEdge> GetInEdges(Vertex vertex)
     {
-        if (ToEdgeMap.TryGetValue(vertex, out var edges))
+        if (InEdges.TryGetValue(vertex, out var edges))
             return edges;
         
         edges = [];
-        ToEdgeMap.Add(vertex, edges);
+        InEdges.Add(vertex, edges);
         return edges;
     }
 
