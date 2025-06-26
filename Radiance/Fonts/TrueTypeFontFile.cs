@@ -50,7 +50,7 @@ public class TrueTypeFontFile
     static int ReadBytes(FileStream stream, int bytes)
     {
         var value = 0;
-        var shift = 8 * bytes;
+        var shift = 8 * (bytes - 1);
         for (int i = 0; i < bytes; i++, shift -= 8)
             value |= stream.ReadByte() << shift;
         return value;
@@ -68,4 +68,15 @@ public class TrueTypeFontFile
         string Tag, int Checksum,
         int Offset, int Length
     );
+
+    public override string ToString() => 
+        $$"""
+        TrueTypeFontFile {
+            Version = {{Version}},
+            NumberOfTables = {{NumberOfTables}},
+            SearchRange = {{SearchRange}},
+            EntrySelector = {{EntrySelector}},
+            RangeShift = {{RangeShift}}
+        }
+        """;
 }
