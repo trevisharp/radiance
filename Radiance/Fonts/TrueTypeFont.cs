@@ -2,49 +2,56 @@
  * Date:    25/06/2025
  */
 using System.IO;
+using System.Collections.Generic;
 
 namespace Radiance.Fonts;
+
+using Bufferings;
 
 /// <summary>
 /// A reader for True Type Font (.fft) files.
 /// </summary>
-public class TrueTypeFontFile
+public class TrueTypeFont : IFont
 {
-    public required int Version { get; init; }
-    public required int NumberOfTables { get; init; }
-    public required int SearchRange { get; init; }
-    public required int EntrySelector { get; init; }
-    public required int RangeShift { get; init; }
-    public required TTFTable[] Tables { get; init; }
+    public int Version { get; private set; }
+    public int NumberOfTables { get; private set; }
+    public int SearchRange { get; private set; }
+    public int EntrySelector { get; private set; }
+    public int RangeShift { get; private set; }
+    public Dictionary<string, TTFTable> Tables { get; private set; } = [];
 
-    public static TrueTypeFontFile Open(string file)
+    bool isLoaded = false;
+    public bool IsLoaded => isLoaded; 
+
+    public IPolygon GetPolygon(string text)
     {
-        using var stream = File.OpenRead(file);
+        throw new System.NotImplementedException();
+    }
 
-        var version = ReadBytes(stream, 4);
-        var numberOfTables = ReadBytes(stream, 2);
-        var searchRange = ReadBytes(stream, 2);
-        var entrySelector = ReadBytes(stream, 2);
-        var rangeShift = ReadBytes(stream, 2);
+    public bool LoadFromFile(string filePath)
+    {
+        if (Path.GetExtension(filePath) != ".ttf")
+            return false;
 
-        var tables = new TTFTable[numberOfTables];
+        using var stream = File.OpenRead(filePath);
 
-        for (int i = 0; i < numberOfTables; i++)
+        Version = ReadBytes(stream, 4);
+        NumberOfTables = ReadBytes(stream, 2);
+        SearchRange = ReadBytes(stream, 2);
+        EntrySelector = ReadBytes(stream, 2);
+        RangeShift = ReadBytes(stream, 2);
+
+        for (int i = 0; i < NumberOfTables; i++)
         {
-            tables[i] = new TTFTable(
+            var table = new TTFTable(
                 ReadString(stream, 4), ReadBytes(stream, 4),
                 ReadBytes(stream, 4), ReadBytes(stream, 4)
             );
+            Tables[table.Tag] = table;
         }
 
-        return new TrueTypeFontFile {
-            Version = version,
-            NumberOfTables = numberOfTables,
-            SearchRange = searchRange,
-            EntrySelector = entrySelector,
-            RangeShift = rangeShift,
-            Tables = tables 
-        };
+        isLoaded = true;
+        return true;
     }
 
     static int ReadBytes(FileStream stream, int bytes)
