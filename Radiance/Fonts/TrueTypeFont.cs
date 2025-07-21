@@ -114,6 +114,59 @@ public class TrueTypeFont : IFont
                 break;
             }
         }
+
+        var subformat = Extract16(cmap, bestOffset);
+        var length = Extract16(cmap, bestOffset + 2);
+        var segCountX2 = Extract16(cmap, bestOffset + 6);
+        var segCount = segCountX2 / 2;
+
+        var endCountPos = bestOffset + 14;
+        var startCountPos = endCountPos + segCount * 2 + 2;
+        var idDeltaPos = startCountPos + segCount * 2;
+        var idRangeOffsetPos = idDeltaPos + segCount * 2;
+
+        var endCode = new int[segCount];
+        var startCode = new int[segCount];
+        var idDelta = new int[segCount];
+        var idRangeOffset = new int[segCount];
+
+        for (int i = 0; i < segCount; i++)
+        {
+            endCode[i] = Extract16(cmap, endCountPos + i * 2);
+            startCode[i] = Extract16(cmap, startCountPos + i * 2);
+            idDelta[i] = (short)Extract16(cmap, idDeltaPos + i * 2);
+            idRangeOffset[i] = Extract16(cmap, idRangeOffsetPos + i * 2);
+        }
+
+        int GetGlyphIndex(char ch)
+        {
+            ushort code = ch;
+
+            for (int i = 0; i < segCount; i++)
+            {
+                if (code >= startCode[i] && code <= endCode[i])
+                {
+                    if (idRangeOffset[i] == 0)
+                    {
+                        return (code + idDelta[i]) & 0xFFFF;
+                    }
+                    else
+                    {
+                        int offset = idRangeOffsetPos + i * 2 + idRangeOffset[i];
+                        int glyphOffset = offset + 2 * (code - startCode[i]);
+                        if (glyphOffset < cmap.Length)
+                        {
+                            var glyphIndex = Extract16(cmap, glyphOffset);
+                            if (glyphIndex != 0)
+                                return (glyphIndex + idDelta[i]) & 0xFFFF;
+                        }
+                    }
+                    break;
+                }
+            }
+
+            return 0;
+        }
         
         return true;
     }
