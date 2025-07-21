@@ -6,7 +6,9 @@ using System.Collections.Generic;
 
 namespace Radiance.Fonts;
 
+using Exceptions;
 using Bufferings;
+using System;
 
 /// <summary>
 /// A reader for True Type Font (.fft) files.
@@ -31,15 +33,32 @@ public class TrueTypeFont : IFont
     public bool LoadFromFile(string filePath)
     {
         if (Path.GetExtension(filePath) != ".ttf")
-            return false;
+            throw new InvalidFontException(
+                filePath, "missing file."
+            );
 
         using var stream = File.OpenRead(filePath);
 
         Version = ReadBytes(stream, 4);
+        if (Version != 65536)
+            throw new InvalidFontException(
+                filePath, "The file is not a .ttf file."
+            );
+
         NumberOfTables = ReadBytes(stream, 2);
         SearchRange = ReadBytes(stream, 2);
         EntrySelector = ReadBytes(stream, 2);
         RangeShift = ReadBytes(stream, 2);
+
+        if (SearchRange != 16 * Math.Pow(2, EntrySelector))
+            throw new InvalidFontException(filePath, 
+                $"Invalid SearchRange({SearchRange}) should be 16 * 2^EntrySelector({EntrySelector}) header."
+            );
+
+        if (RangeShift != NumberOfTables * 16 - SearchRange)
+            throw new InvalidFontException(
+                filePath, $"Invalid RangeShift({RangeShift}) should be NumberOfTables({NumberOfTables}) * 16 - SearchRange({SearchRange}) header."
+            );
 
         for (int i = 0; i < NumberOfTables; i++)
         {
