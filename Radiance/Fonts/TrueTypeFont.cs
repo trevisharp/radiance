@@ -22,10 +22,14 @@ public class TrueTypeFont : IFont
     public int SearchRange { get; private set; }
     public int EntrySelector { get; private set; }
     public int RangeShift { get; private set; }
-    public Dictionary<string, TTFTable> Tables { get; private set; } = [];
+    public bool IsLoaded => 
+        GlyphOffsets is not null &&
+        Glyphes is not null &&
+        CharMap is not null;
 
-    bool isLoaded = false;
-    public bool IsLoaded => isLoaded; 
+    int[]? GlyphOffsets = null;
+    byte[]? Glyphes = null;
+    Dictionary<char, EncodingRecord> CharMap = [];
 
     public IPolygon GetPolygon(string text)
     {
@@ -61,36 +65,75 @@ public class TrueTypeFont : IFont
             throw new InvalidFontException(
                 filePath, $"Invalid RangeShift({RangeShift}) should be NumberOfTables({NumberOfTables}) * 16 - SearchRange({SearchRange}) header."
             );
-
+        
+        Dictionary<string, TTFTable> tables = [];
         for (int i = 0; i < NumberOfTables; i++)
         {
             var table = new TTFTable(
                 ReadString(stream, 4), ReadBytes(stream, 4),
                 ReadBytes(stream, 4), ReadBytes(stream, 4)
             );
-            Tables[table.Tag] = table;
+            tables[table.Tag] = table;
         }
 
-        var maxpTable = Tables["maxp"];
+        var maxpTable = tables["maxp"];
         var maxp = ReadTable(stream, maxpTable);
         var numGlyphs = (maxp[4] << 8) | maxp[5];
 
-        var headTable = Tables["head"];
+        var headTable = tables["head"];
         var head = ReadTable(stream, headTable);
         var indexToLocFormatIsLong = ((head[50] << 8) | head[51]) == 1;
 
-        var locaTable = Tables["loca"];
+        var locaTable = tables["loca"];
         var loca = ReadTable(stream, locaTable);
-        var glyphOffsets = indexToLocFormatIsLong ?
+        GlyphOffsets = indexToLocFormatIsLong ?
             ExtractAll32(loca, numGlyphs + 1) :
             ExtractAll16(loca, numGlyphs + 1);
+        
+        var glyfTable = tables["glyf"];
+        Glyphes = ReadTable(stream, glyfTable);
 
+        CharMap.Clear();
+        var cmapTable = tables["cmap"];
+        var cmap = ReadTable(stream, cmapTable);
+        var cmapVer = Extract16(cmap, 0);
+        var cmapTables = Extract16(cmap, 2);
 
-        var glyfTable = Tables["glyf"];
-        var cmapTable = Tables["cmap"];
+        int bestOffset = -1;
+        for (int i = 0; i < cmapTables; i++)
+        {
+            var recordOffset = 4 + i * 8;
+            var platformID = Extract16(cmap, recordOffset);
+            var encodingID = Extract16(cmap, recordOffset + 2);
+            var offset = Extract32(cmap, recordOffset + 4);
+            var format = Extract16(cmap, offset);
 
-        isLoaded = true;
+            if (platformID == 3 && (encodingID == 1 || encodingID == 10) && format == 4)
+            {
+                bestOffset = offset;
+                break;
+            }
+        }
+        
         return true;
+    }
+
+    void GetGlyph(char character)
+    {
+        if (GlyphOffsets is null || Glyphes is null)
+            throw new InvalidOperationException("The font is not loaded.");
+
+        var index = CharMap[character].Offset;
+        var offset = GlyphOffsets[index];
+        var length = GlyphOffsets[index + 1] - offset;
+        if (length <= 0)
+            return;
+        
+        var numberOfContours = Extract16(Glyphes, offset);
+        var xMin = Extract16(Glyphes, offset + 2);
+        var yMin = Extract16(Glyphes, offset + 4);
+        var xMax = Extract16(Glyphes, offset + 6);
+        var yMax = Extract16(Glyphes, offset + 8);
     }
 
     static int Extract16(byte[] bytes, int offset)
@@ -143,6 +186,12 @@ public class TrueTypeFont : IFont
     public record TTFTable(
         string Tag, int Checksum,
         int Offset, int Length
+    );
+
+    public record EncodingRecord(
+        int PlatformID,
+        int EncodingID,
+        int Offset
     );
 
     public override string ToString() => 
