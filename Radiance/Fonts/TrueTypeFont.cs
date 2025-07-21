@@ -9,6 +9,8 @@ namespace Radiance.Fonts;
 using Exceptions;
 using Bufferings;
 using System;
+using System.Buffers.Binary;
+using System.Linq;
 
 /// <summary>
 /// A reader for True Type Font (.fft) files.
@@ -69,8 +71,48 @@ public class TrueTypeFont : IFont
             Tables[table.Tag] = table;
         }
 
+        var maxpTable = Tables["maxp"];
+        var maxp = ReadTable(stream, maxpTable);
+        var numGlyphs = (maxp[4] << 8) | maxp[5];
+
+        var headTable = Tables["head"];
+        var head = ReadTable(stream, headTable);
+        var indexToLocFormatIsLong = ((head[50] << 8) | head[51]) == 1;
+
+        var locaTable = Tables["loca"];
+        var loca = ReadTable(stream, locaTable);
+        var glyphOffsets = indexToLocFormatIsLong ?
+            ExtractAll32(loca, numGlyphs + 1) :
+            ExtractAll16(loca, numGlyphs + 1);
+
+
+        var glyfTable = Tables["glyf"];
+        var cmapTable = Tables["cmap"];
+
         isLoaded = true;
         return true;
+    }
+
+    static int Extract16(byte[] bytes, int offset)
+        => BinaryPrimitives.ReadInt16BigEndian(bytes.AsSpan(offset));
+    
+    static int Extract32(byte[] bytes, int offset)
+        => BinaryPrimitives.ReadInt32BigEndian(bytes.AsSpan(offset));
+    
+    static int[] ExtractAll16(byte[] bytes, int size)
+    {
+        var result = new int[size];
+        for (int i = 0; i < result.Length; i++)
+            result[i] = Extract16(bytes, 2 * i);
+        return result;
+    }
+
+    static int[] ExtractAll32(byte[] bytes, int size)
+    {
+        var result = new int[size];
+        for (int i = 0; i < result.Length; i++)
+            result[i] = Extract32(bytes, 4 * i);
+        return result;
     }
 
     static int ReadBytes(FileStream stream, int bytes)
@@ -88,6 +130,14 @@ public class TrueTypeFont : IFont
         for (int i = 0; i < chars; i++)
             characters[i] = (char)stream.ReadByte();
         return new string(characters);
+    }
+
+    static byte[] ReadTable(FileStream stream, TTFTable table)
+    {
+        stream.Seek(table.Offset, SeekOrigin.Begin);
+        var data = new byte[table.Length];
+        stream.ReadExactly(data);
+        return data;
     }
 
     public record TTFTable(
