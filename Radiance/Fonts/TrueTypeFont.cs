@@ -1,16 +1,15 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    25/06/2025
+ * Date:    22/07/2025
  */
+using System;
 using System.IO;
+using System.Buffers.Binary;
 using System.Collections.Generic;
 
 namespace Radiance.Fonts;
 
 using Exceptions;
 using Bufferings;
-using System;
-using System.Buffers.Binary;
-using System.Linq;
 
 /// <summary>
 /// A reader for True Type Font (.fft) files.
@@ -98,7 +97,10 @@ public class TrueTypeFont : IFont
         if (GlyphOffsets is null || Glyphes is null)
             throw new InvalidOperationException("The font is not loaded.");
 
-        var index = CharMap[character].Offset;
+        var index = GetGlyphIndex(character);
+        if (index == -1)
+            return;
+        
         var offset = GlyphOffsets[index];
         var length = GlyphOffsets[index + 1] - offset;
         if (length <= 0)
@@ -113,8 +115,6 @@ public class TrueTypeFont : IFont
 
     void LoadCmapData(byte[] cmap)
     {
-        CharMap.Clear();
-
         var cmapOffset = FindOffSet(cmap, 3, 1, 4);
         var subformat = Extract16(cmap, cmapOffset);
         var length = Extract16(cmap, cmapOffset + 2);
@@ -138,14 +138,12 @@ public class TrueTypeFont : IFont
             idRangeOffset[i] = Extract16(cmap, idRangeOffsetPos + i * 2);
         }
 
-        var info = new CMAPInfo(
+        cmapInfo = new CMAPInfo(
             cmap,
             endCode, startCode, 
             idDelta, idRangeOffset,
             segCount, idRangeOffsetPos
         );
-        
-        cmapInfo = info;
     }
 
     Dictionary<string, TTFTable> ReadTables(FileStream stream)
@@ -178,16 +176,16 @@ public class TrueTypeFont : IFont
             int offset = cmapInfo.IdRangeOffsetPosition + i * 2 + cmapInfo.IdRangeOffset[i];
             int glyphOffset = offset + 2 * (character - cmapInfo.StartCode[i]);
             if (glyphOffset >= cmapInfo.CmapBuffer.Length)
-                return 0;
+                return -1;
                 
             var glyphIndex = Extract16(cmapInfo.CmapBuffer, glyphOffset);
             if (glyphIndex != 0)
                 return (glyphIndex + cmapInfo.IdDelta[i]) & 0xFFFF;
             
-            return 0;
+            return -1;
         }
 
-        return 0;
+        return -1;
     }
 
     static int FindOffSet(byte[] cmap, int platformID, int encodingID, int format)
