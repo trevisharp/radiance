@@ -27,6 +27,7 @@ public class TrueTypeFont : IFont
         Glyphes is not null &&
         CharMap is not null;
 
+    CMAPInfo? cmapInfo = null;
     int[]? GlyphOffsets = null;
     byte[]? Glyphes = null;
     Dictionary<char, EncodingRecord> CharMap = [];
@@ -66,15 +67,7 @@ public class TrueTypeFont : IFont
                 filePath, $"Invalid RangeShift({RangeShift}) should be NumberOfTables({NumberOfTables}) * 16 - SearchRange({SearchRange}) header."
             );
         
-        Dictionary<string, TTFTable> tables = [];
-        for (int i = 0; i < NumberOfTables; i++)
-        {
-            var table = new TTFTable(
-                ReadString(stream, 4), ReadBytes(stream, 4),
-                ReadBytes(stream, 4), ReadBytes(stream, 4)
-            );
-            tables[table.Tag] = table;
-        }
+        var tables = ReadTables(stream);
 
         var maxpTable = tables["maxp"];
         var maxp = ReadTable(stream, maxpTable);
@@ -93,80 +86,9 @@ public class TrueTypeFont : IFont
         var glyfTable = tables["glyf"];
         Glyphes = ReadTable(stream, glyfTable);
 
-        CharMap.Clear();
         var cmapTable = tables["cmap"];
         var cmap = ReadTable(stream, cmapTable);
-        var cmapVer = Extract16(cmap, 0);
-        var cmapTables = Extract16(cmap, 2);
-
-        int bestOffset = -1;
-        for (int i = 0; i < cmapTables; i++)
-        {
-            var recordOffset = 4 + i * 8;
-            var platformID = Extract16(cmap, recordOffset);
-            var encodingID = Extract16(cmap, recordOffset + 2);
-            var offset = Extract32(cmap, recordOffset + 4);
-            var format = Extract16(cmap, offset);
-
-            if (platformID == 3 && (encodingID == 1 || encodingID == 10) && format == 4)
-            {
-                bestOffset = offset;
-                break;
-            }
-        }
-
-        var subformat = Extract16(cmap, bestOffset);
-        var length = Extract16(cmap, bestOffset + 2);
-        var segCountX2 = Extract16(cmap, bestOffset + 6);
-        var segCount = segCountX2 / 2;
-
-        var endCountPos = bestOffset + 14;
-        var startCountPos = endCountPos + segCount * 2 + 2;
-        var idDeltaPos = startCountPos + segCount * 2;
-        var idRangeOffsetPos = idDeltaPos + segCount * 2;
-
-        var endCode = new int[segCount];
-        var startCode = new int[segCount];
-        var idDelta = new int[segCount];
-        var idRangeOffset = new int[segCount];
-
-        for (int i = 0; i < segCount; i++)
-        {
-            endCode[i] = Extract16(cmap, endCountPos + i * 2);
-            startCode[i] = Extract16(cmap, startCountPos + i * 2);
-            idDelta[i] = (short)Extract16(cmap, idDeltaPos + i * 2);
-            idRangeOffset[i] = Extract16(cmap, idRangeOffsetPos + i * 2);
-        }
-
-        int GetGlyphIndex(char ch)
-        {
-            ushort code = ch;
-
-            for (int i = 0; i < segCount; i++)
-            {
-                if (code >= startCode[i] && code <= endCode[i])
-                {
-                    if (idRangeOffset[i] == 0)
-                    {
-                        return (code + idDelta[i]) & 0xFFFF;
-                    }
-                    else
-                    {
-                        int offset = idRangeOffsetPos + i * 2 + idRangeOffset[i];
-                        int glyphOffset = offset + 2 * (code - startCode[i]);
-                        if (glyphOffset < cmap.Length)
-                        {
-                            var glyphIndex = Extract16(cmap, glyphOffset);
-                            if (glyphIndex != 0)
-                                return (glyphIndex + idDelta[i]) & 0xFFFF;
-                        }
-                    }
-                    break;
-                }
-            }
-
-            return 0;
-        }
+        LoadCmapData(cmap);
         
         return true;
     }
@@ -187,6 +109,113 @@ public class TrueTypeFont : IFont
         var yMin = Extract16(Glyphes, offset + 4);
         var xMax = Extract16(Glyphes, offset + 6);
         var yMax = Extract16(Glyphes, offset + 8);
+    }
+
+    void LoadCmapData(byte[] cmap)
+    {
+        CharMap.Clear();
+
+        var cmapOffset = FindOffSet(cmap, 3, 1, 4);
+        var subformat = Extract16(cmap, cmapOffset);
+        var length = Extract16(cmap, cmapOffset + 2);
+        var segCount = Extract16(cmap, cmapOffset + 6) / 2;
+
+        var endCountPos = cmapOffset + 14;
+        var startCountPos = endCountPos + 2 * segCount + 2;
+        var idDeltaPos = startCountPos + 2 * segCount;
+        var idRangeOffsetPos = idDeltaPos + 2 * segCount;
+
+        var endCode = new int[segCount];
+        var startCode = new int[segCount];
+        var idDelta = new int[segCount];
+        var idRangeOffset = new int[segCount];
+
+        for (int i = 0; i < segCount; i++)
+        {
+            endCode[i] = Extract16(cmap, endCountPos + i * 2);
+            startCode[i] = Extract16(cmap, startCountPos + i * 2);
+            idDelta[i] = Extract16(cmap, idDeltaPos + i * 2);
+            idRangeOffset[i] = Extract16(cmap, idRangeOffsetPos + i * 2);
+        }
+
+        var info = new CMAPInfo(
+            cmap,
+            endCode, startCode, 
+            idDelta, idRangeOffset,
+            segCount, idRangeOffsetPos
+        );
+        
+        cmapInfo = info;
+    }
+
+    Dictionary<string, TTFTable> ReadTables(FileStream stream)
+    {
+        Dictionary<string, TTFTable> tables = [];
+        for (int i = 0; i < NumberOfTables; i++)
+        {
+            var table = new TTFTable(
+                ReadString(stream, 4), ReadBytes(stream, 4),
+                ReadBytes(stream, 4), ReadBytes(stream, 4)
+            );
+            tables[table.Tag] = table;
+        }
+        return tables;
+    }
+
+    int GetGlyphIndex(char character)
+    {
+        if (cmapInfo is null)
+            throw new InvalidOperationException("The font is not loaded.");
+
+        for (int i = 0; i < cmapInfo.SegmentCount; i++)
+        {
+            if (character < cmapInfo.StartCode[i] && cmapInfo.EndCode[i] < character)
+                continue;
+                
+            if (cmapInfo.IdRangeOffset[i] == 0)
+                return (character + cmapInfo.IdDelta[i]) & 0xFFFF;
+            
+            int offset = cmapInfo.IdRangeOffsetPosition + i * 2 + cmapInfo.IdRangeOffset[i];
+            int glyphOffset = offset + 2 * (character - cmapInfo.StartCode[i]);
+            if (glyphOffset >= cmapInfo.CmapBuffer.Length)
+                return 0;
+                
+            var glyphIndex = Extract16(cmapInfo.CmapBuffer, glyphOffset);
+            if (glyphIndex != 0)
+                return (glyphIndex + cmapInfo.IdDelta[i]) & 0xFFFF;
+            
+            return 0;
+        }
+
+        return 0;
+    }
+
+    static int FindOffSet(byte[] cmap, int platformID, int encodingID, int format)
+    {
+        var cmapVer = Extract16(cmap, 0);
+        var cmapTables = Extract16(cmap, 2);
+
+        for (int i = 0; i < cmapTables; i++)
+        {
+            var recordOffset = 4 + i * 8;
+            var tablePlatformID = Extract16(cmap, recordOffset);
+            var tableEncodingID = Extract16(cmap, recordOffset + 2);
+            var offset = Extract32(cmap, recordOffset + 4);
+            var tableFormat = Extract16(cmap, offset);
+
+            if (tableEncodingID != platformID)
+                continue;
+            
+            if (tableEncodingID != encodingID)
+                continue;
+            
+            if (tableFormat != format)
+                continue;
+
+            return offset;
+        }
+
+        throw new Exception($"Invalid plataform/encoding({platformID}/{encodingID})");
     }
 
     static int Extract16(byte[] bytes, int offset)
@@ -247,6 +276,16 @@ public class TrueTypeFont : IFont
         int Offset
     );
 
+    record CMAPInfo(
+        byte[] CmapBuffer,
+        int[] EndCode,
+        int[] StartCode,
+        int[] IdDelta,
+        int[] IdRangeOffset,
+        int SegmentCount,
+        int IdRangeOffsetPosition
+    );
+    
     public override string ToString() => 
         $$"""
         TrueTypeFontFile {
