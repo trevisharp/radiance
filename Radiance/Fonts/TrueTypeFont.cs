@@ -1,5 +1,5 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    22/07/2025
+ * Date:    23/07/2025
  */
 using System;
 using System.IO;
@@ -92,6 +92,17 @@ public class TrueTypeFont : IFont
         return true;
     }
 
+    public override string ToString() => 
+        $$"""
+        TrueTypeFontFile {
+            Version = {{Version}},
+            NumberOfTables = {{NumberOfTables}},
+            SearchRange = {{SearchRange}},
+            EntrySelector = {{EntrySelector}},
+            RangeShift = {{RangeShift}}
+        }
+        """;
+
     void GetGlyph(char character)
     {
         if (GlyphOffsets is null || Glyphes is null)
@@ -111,6 +122,108 @@ public class TrueTypeFont : IFont
         var yMin = Extract16(Glyphes, offset + 4);
         var xMax = Extract16(Glyphes, offset + 6);
         var yMax = Extract16(Glyphes, offset + 8);
+
+        int pos = offset + 10;
+        var endPtsOfContours = new int[numberOfContours];
+        for (int i = 0; i < numberOfContours; i++, pos += 2)
+            endPtsOfContours[i] = Extract16(Glyphes, pos);
+
+        // Ignore True Type Instructions
+        var instructionLength = Extract16(Glyphes, pos);
+        pos += 2 + instructionLength;
+
+        var flags = ExtractFlags(
+            endPtsOfContours[^1], 
+            ref pos
+        );
+
+        const int X_SHORT_VECTOR = 0x02;
+        const int X_IS_SAME_OR_POSITIVE = 0x10;
+        const int Y_SHORT_VECTOR = 0x04;
+        const int Y_IS_SAME_OR_POSITIVE = 0x20;
+
+        var x = ExtractPoints(
+            flags, 
+            X_SHORT_VECTOR,
+            X_IS_SAME_OR_POSITIVE,
+            ref pos
+        );
+
+        var y = ExtractPoints(
+            flags, 
+            Y_SHORT_VECTOR,
+            Y_IS_SAME_OR_POSITIVE,
+            ref pos
+        );
+
+        int start = 0;
+        for (int c = 0; c < numberOfContours; c++)
+        {
+            int end = endPtsOfContours[c];
+            var contour = new List<(int x, int y, bool onCurve)>();
+
+            for (int i = start; i <= end; i++)
+            {
+                contour.Add((x[i], y[i], (flags[i] & 0x01) != 0)); // bit 0 = onCurve
+            }
+
+            // TODO: User contour
+
+            start = end + 1;
+        }
+
+    }
+
+    int[] ExtractPoints(
+        List<byte> flags, int shortVector,
+        int isSameOrPositive, ref int pos)
+    {
+        var points = new int[flags.Count];
+        if (Glyphes is null)
+            return points;
+
+        var position = 0;
+        for (int i = 0; i < points.Length; i++)
+        {
+            var flag = flags[i];
+
+            var isShort = (flag & shortVector) != 0;
+            var isPositive = (flag & isSameOrPositive) != 0;
+            var delta = (isShort, isPositive) switch
+            {
+                (true, true) => Glyphes[pos++],
+                (true, false) => -Glyphes[pos++],
+                (false, false) => Extract16(Glyphes, pos),
+                _ => 0
+            };
+            if (!isShort && !isPositive)
+                pos += 2;
+            
+            position += delta;
+            points[i] = position;
+        }
+        return points;
+    }
+
+    List<byte> ExtractFlags(int count, ref int pos)
+    {
+        List<byte> flags = [];
+        if (Glyphes is null)
+            return flags;
+        
+        const int repeatFlag = 0x08;
+        while (flags.Count <= count)
+        {
+            var flag = Glyphes[pos++];
+            flags.Add(flag);
+            if ((flag & repeatFlag) != 0)
+            {
+                byte repeatCount = Glyphes[pos++];
+                for (int i = 0; i < repeatCount; i++)
+                    flags.Add(flag);
+            }
+        }
+        return flags;
     }
 
     void LoadCmapData(byte[] cmap)
@@ -284,14 +397,5 @@ public class TrueTypeFont : IFont
         int IdRangeOffsetPosition
     );
     
-    public override string ToString() => 
-        $$"""
-        TrueTypeFontFile {
-            Version = {{Version}},
-            NumberOfTables = {{NumberOfTables}},
-            SearchRange = {{SearchRange}},
-            EntrySelector = {{EntrySelector}},
-            RangeShift = {{RangeShift}}
-        }
-        """;
+    record ContourPoint(int X, int Y, bool OnCurve);
 }
