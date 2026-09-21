@@ -6,6 +6,7 @@ using System.Collections.Generic;
 
 namespace Radiance;
 
+using Internal;
 using Bufferings;
 using Primitives;
 using Exceptions;
@@ -198,6 +199,17 @@ public static class Polygons
         
         return result.ToArray();
     }
+
+    /// <summary>
+    /// Create a polygon based in recived data.
+    /// </summary>
+    public static Polygon FromData(params float[] points)
+        => new(points);
+
+    /// <summary>
+    /// Create a generic builder for polygons, supporting holes.
+    /// </summary>
+    public static PolygonBuilder CreateBuilder() => new();
 
     /// <summary>
     /// Get a rectangle with size of opened screen centralizated in center of screen.

@@ -18,43 +18,582 @@ public static class Triangulations
     /// counterclockwise on the xy plane, keeping the z of each original vertex.
     /// </summary>
     public static float[] PlanarPolygonTriangulation(float[] pts)
+        => Triangulate([ pts ]);
+
+    /// <summary>
+    /// Get a triangulation of a polygon with holes. The contour and every hole
+    /// are (x, y, z) sequences and may be given in any orientation.
+    /// </summary>
+    public static float[] PlanarPolygonTriangulation(float[] contour, float[][] holes)
+        => Triangulate([ contour, ..holes ]);
+
+    /// <summary>
+    /// Get a triangulation of a shape described by closed rings of (x, y, z)
+    /// points, in any orientation and in any order. A ring nested inside an odd
+    /// number of other rings is a hole, which is how a glyph arrives here: one
+    /// call, many contours, some of them counters. Each filled ring is sewn to
+    /// its holes by a bridge and then ear clipped, and all the triangules are
+    /// returned together, counterclockwise on the xy plane.
+    /// </summary>
+    public static float[] Triangulate(float[][] rings)
+        => Triangulate(rings, FillRule.Nesting);
+
+    /// <summary>
+    /// Get a triangulation of a shape described by closed rings of (x, y, z)
+    /// points, in any order. Each filled ring is sewn to its holes by a bridge
+    /// and then ear clipped, and all the triangules are returned together,
+    /// counterclockwise on the xy plane.
+    /// </summary>
+    public static float[] Triangulate(float[][] rings, FillRule rule)
     {
-        var vertexCount = pts.Length / 3;
-        if (vertexCount < 3)
-            return pts;
+        if (rings.Length == 0)
+            return [];
 
-        var indices = DropRepeatedVertices(pts, vertexCount);
-        if (indices.Count < 3)
-            return pts;
+        var pts = MergePoints(rings);
+        var epsilon = AreaEpsilon(pts);
 
-        var epsilon = AreaEpsilon(pts, indices);
-        DropCollinearVertices(pts, indices, epsilon);
+        var indexRings = BuildRings(pts, rings, epsilon);
+        var holeFlags = rule == FillRule.Winding
+            ? ClassifyByWinding(pts, indexRings)
+            : ClassifyByNesting(pts, indexRings);
 
-        if (SignedArea(pts, indices) < 0)
-            indices.Reverse();
+        var triangules = new List<float>();
 
-        var triangules = new List<float>(9 * (indices.Count - 2));
-        EarClipping(pts, indices, triangules, epsilon);
+        for (int i = 0; i < indexRings.Count; i++)
+        {
+            if (indexRings[i].Count < 3 || holeFlags[i])
+                continue;
 
-        return triangules.Count > 0 ? [ ..triangules ] : pts;
+            var outer = new List<int>(indexRings[i]);
+            Orient(pts, outer, counterclockwise: true);
+
+            var holes = CollectHoles(pts, indexRings, holeFlags, i);
+            while (holes.Count > 0)
+                BridgeHole(pts, outer, TakeRightmostRing(pts, holes), holes, epsilon);
+
+            EarClipping(pts, outer, triangules, epsilon);
+        }
+
+        return triangules.Count > 0 ? [ ..triangules ] : rings[0];
     }
 
     /// <summary>
-    /// Clip one ear at a time until only a triangule remains.
-    /// Every iteration drops exactly one vertex, so the loop always ends.
+    /// Decide what is a hole by nesting: a ring inside an odd number of other
+    /// rings is a hole. Friendly for hand written shapes, where nobody wants
+    /// to think about which way around a contour goes.
     /// </summary>
-    static void EarClipping(float[] pts, List<int> indices, List<float> triangules, double epsilon)
+    static bool[] ClassifyByNesting(float[] pts, List<List<int>> rings)
+    {
+        var holes = new bool[rings.Count];
+
+        for (int i = 0; i < rings.Count; i++)
+        {
+            if (rings[i].Count < 3)
+                continue;
+
+            var depth = 0;
+            for (int j = 0; j < rings.Count; j++)
+            {
+                if (i == j || rings[j].Count < 3)
+                    continue;
+
+                if (IsRingInside(pts, rings[i], rings[j]))
+                    depth++;
+            }
+
+            holes[i] = depth % 2 == 1;
+        }
+
+        return holes;
+    }
+
+    /// <summary>
+    /// Decide what is a hole by the direction the ring runs. This is the rule
+    /// font files are built on, and it is the only one that survives contours
+    /// that overlap instead of nesting: the cedilla of a c is a filled shape
+    /// crossing the letter, not a hole, and only its direction says so.
+    /// </summary>
+    static bool[] ClassifyByWinding(float[] pts, List<List<int>> rings)
+    {
+        var holes = new bool[rings.Count];
+
+        for (int i = 0; i < rings.Count; i++)
+            holes[i] = rings[i].Count >= 3 && SignedArea(pts, rings[i]) > 0;
+
+        return holes;
+    }
+
+    /// <summary>
+    /// Get the holes that belong to the filled ring on a position: the ones it
+    /// contains more tightly than any other filled ring does.
+    /// </summary>
+    static List<List<int>> CollectHoles(float[] pts, List<List<int>> rings, bool[] holeFlags, int outer)
+    {
+        var holes = new List<List<int>>();
+
+        for (int i = 0; i < rings.Count; i++)
+        {
+            if (!holeFlags[i] || rings[i].Count < 3)
+                continue;
+
+            if (FindOwner(pts, rings, holeFlags, i) != outer)
+                continue;
+
+            var hole = new List<int>(rings[i]);
+            Orient(pts, hole, counterclockwise: false);
+            holes.Add(hole);
+        }
+
+        return holes;
+    }
+
+    /// <summary>
+    /// Get the smallest filled ring that contains a hole, or -1 when the hole
+    /// sits outside everything and has nothing to be carved out of.
+    /// </summary>
+    static int FindOwner(float[] pts, List<List<int>> rings, bool[] holeFlags, int hole)
+    {
+        var owner = -1;
+        var ownerArea = double.MaxValue;
+
+        for (int i = 0; i < rings.Count; i++)
+        {
+            if (i == hole || holeFlags[i] || rings[i].Count < 3)
+                continue;
+
+            if (!IsRingInside(pts, rings[hole], rings[i]))
+                continue;
+
+            var area = Math.Abs(SignedArea(pts, rings[i]));
+            if (area >= ownerArea)
+                continue;
+
+            ownerArea = area;
+            owner = i;
+        }
+
+        return owner;
+    }
+
+    /// <summary>
+    /// Get if a ring lies inside another one. Rings never cross each other on
+    /// well formed input, so a single point decides it. The middle of an edge
+    /// is used because it is less likely than a vertex to fall exactly over
+    /// the other ring.
+    /// </summary>
+    static bool IsRingInside(float[] pts, List<int> ring, List<int> other)
+    {
+        var (ax, ay) = Point(pts, ring[0]);
+        var (bx, by) = Point(pts, ring[1]);
+
+        return Contains(pts, other, (ax + bx) / 2, (ay + by) / 2);
+    }
+
+    /// <summary>
+    /// Turn a ring to the wanted orientation.
+    /// </summary>
+    static void Orient(float[] pts, List<int> ring, bool counterclockwise)
+    {
+        if (SignedArea(pts, ring) < 0 == counterclockwise)
+            ring.Reverse();
+    }
+
+    /// <summary>
+    /// Build the clean index ring of every input ring.
+    /// </summary>
+    static List<List<int>> BuildRings(float[] pts, float[][] rings, double epsilon)
+    {
+        var result = new List<List<int>>(rings.Length);
+        var offset = 0;
+
+        foreach (var ring in rings)
+        {
+            result.Add(BuildRing(pts, offset, ring.Length / 3, epsilon));
+            offset += ring.Length / 3;
+        }
+
+        return result;
+    }
+
+    /// <summary>
+    /// Join the contour and every hole on a single point array, so that all the
+    /// rings can be described by indexes over the same data.
+    /// </summary>
+    static float[] MergePoints(float[][] rings)
+    {
+        if (rings.Length == 1)
+            return rings[0];
+
+        var size = 0;
+        foreach (var ring in rings)
+            size += ring.Length;
+
+        var pts = new float[size];
+        var offset = 0;
+
+        foreach (var ring in rings)
+        {
+            Array.Copy(ring, 0, pts, offset, ring.Length);
+            offset += ring.Length;
+        }
+
+        return pts;
+    }
+
+    /// <summary>
+    /// Build a clean index ring over a slice of the point array: drops repeated
+    /// and aligned vertices.
+    /// </summary>
+    static List<int> BuildRing(float[] pts, int offset, int count, double epsilon)
+    {
+        var ring = DropRepeatedVertices(pts, offset, count);
+        if (ring.Count < 3)
+            return ring;
+
+        DropCollinearVertices(pts, ring, epsilon);
+        return ring;
+    }
+
+    /// <summary>
+    /// Remove and return the ring whose rightmost vertex is the rightmost of all.
+    /// </summary>
+    static List<int> TakeRightmostRing(float[] pts, List<List<int>> rings)
+    {
+        var best = 0;
+        var bestX = double.MinValue;
+
+        for (int i = 0; i < rings.Count; i++)
+        {
+            var (x, _) = Point(pts, rings[i][RightmostPosition(pts, rings[i])]);
+            if (x <= bestX)
+                continue;
+
+            bestX = x;
+            best = i;
+        }
+
+        var ring = rings[best];
+        rings.RemoveAt(best);
+        return ring;
+    }
+
+    static int RightmostPosition(float[] pts, List<int> ring)
+    {
+        var best = 0;
+        var bestX = double.MinValue;
+
+        for (int i = 0; i < ring.Count; i++)
+        {
+            var (x, _) = Point(pts, ring[i]);
+            if (x <= bestX)
+                continue;
+
+            bestX = x;
+            best = i;
+        }
+
+        return best;
+    }
+
+    /// <summary>
+    /// Sew a hole into the contour through a bridge: a segment between a hole
+    /// vertex and a contour vertex that crosses no edge and stays on the filled
+    /// side. The hole is walked in its own direction and the bridge is travelled
+    /// twice, which turns contour and hole into a single ring.
+    /// </summary>
+    static void BridgeHole(
+        float[] pts, List<int> outer, List<int> hole,
+        List<List<int>> pendingHoles, double epsilon)
+    {
+        var candidates = CandidateBridges(pts, outer, hole);
+
+        // Two traps are avoided on the first pass. A bridge whose middle lands
+        // on a border leaves the inside test undecidable. And a bridge anchored
+        // on a vertex another bridge already used pinches the ring at a single
+        // point, where no triangule can be cut: the letter B hits this, both
+        // counters want the same corner of the contour.
+        if (TryBridge(pts, outer, hole, pendingHoles, candidates, epsilon, careful: true))
+            return;
+
+        // Nothing clean exists: take a bridge that at least crosses no edge,
+        // which still beats dropping the hole and filling it solid.
+        TryBridge(pts, outer, hole, pendingHoles, candidates, epsilon, careful: false);
+    }
+
+    static bool TryBridge(
+        float[] pts, List<int> outer, List<int> hole, List<List<int>> pendingHoles,
+        (int hole, int outer)[] candidates, double epsilon, bool careful)
+    {
+        var used = careful ? RepeatedIndices(outer) : null;
+
+        foreach (var (holePosition, outerPosition) in candidates)
+        {
+            var from = outer[outerPosition];
+            var to = hole[holePosition];
+
+            if (used is not null && used.Contains(from))
+                continue;
+
+            if (!IsBridgeClear(pts, outer, hole, pendingHoles, from, to))
+                continue;
+
+            if (!IsBridgeInside(pts, outer, hole, pendingHoles, from, to, epsilon, careful))
+                continue;
+
+            var sewed = new List<int>(hole.Count + 2);
+            for (int i = 0; i <= hole.Count; i++)
+                sewed.Add(hole[(holePosition + i) % hole.Count]);
+            sewed.Add(from);
+
+            outer.InsertRange(outerPosition + 1, sewed);
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Get the vertices that already appear more than once on the ring, which
+    /// are exactly the anchors of the bridges sewn so far.
+    /// </summary>
+    static HashSet<int> RepeatedIndices(List<int> ring)
+    {
+        var seen = new HashSet<int>(ring.Count);
+        var repeated = new HashSet<int>();
+
+        foreach (var index in ring)
+        {
+            if (!seen.Add(index))
+                repeated.Add(index);
+        }
+
+        return repeated;
+    }
+
+    /// <summary>
+    /// Get the candidate vertex pairs ordered by distance, so the shortest
+    /// bridge that works is the one used.
+    /// </summary>
+    static (int hole, int outer)[] CandidateBridges(float[] pts, List<int> outer, List<int> hole)
+    {
+        var candidates = new (int hole, int outer)[hole.Count * outer.Count];
+        var distances = new double[candidates.Length];
+
+        for (int i = 0, k = 0; i < hole.Count; i++)
+        {
+            var (hx, hy) = Point(pts, hole[i]);
+
+            for (int j = 0; j < outer.Count; j++, k++)
+            {
+                var (ox, oy) = Point(pts, outer[j]);
+                candidates[k] = (i, j);
+                distances[k] = (hx - ox) * (hx - ox) + (hy - oy) * (hy - oy);
+            }
+        }
+
+        Array.Sort(distances, candidates);
+        return candidates;
+    }
+
+    /// <summary>
+    /// Get if the bridge crosses no edge of the contour nor of any hole.
+    /// </summary>
+    static bool IsBridgeClear(
+        float[] pts, List<int> outer, List<int> hole,
+        List<List<int>> pendingHoles, int from, int to)
+    {
+        if (CrossesRing(pts, outer, from, to))
+            return false;
+
+        if (CrossesRing(pts, hole, from, to))
+            return false;
+
+        foreach (var other in pendingHoles)
+        {
+            if (CrossesRing(pts, other, from, to))
+                return false;
+        }
+
+        return true;
+    }
+
+    static bool CrossesRing(float[] pts, List<int> ring, int from, int to)
+    {
+        var (ax, ay) = Point(pts, from);
+        var (bx, by) = Point(pts, to);
+
+        for (int i = 0; i < ring.Count; i++)
+        {
+            var u = ring[i];
+            var v = ring[(i + 1) % ring.Count];
+
+            if (u == from || u == to || v == from || v == to)
+                continue;
+
+            var (cx, cy) = Point(pts, u);
+            var (dx, dy) = Point(pts, v);
+
+            if (SegmentsCross(ax, ay, bx, by, cx, cy, dx, dy))
+                return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Get if two segments cross each other on a single interior point.
+    /// </summary>
+    static bool SegmentsCross(
+        double ax, double ay, double bx, double by,
+        double cx, double cy, double dx, double dy)
+    {
+        var d1 = Cross(ax, ay, bx, by, cx, cy);
+        var d2 = Cross(ax, ay, bx, by, dx, dy);
+        var d3 = Cross(cx, cy, dx, dy, ax, ay);
+        var d4 = Cross(cx, cy, dx, dy, bx, by);
+
+        return ((d1 > 0 && d2 < 0) || (d1 < 0 && d2 > 0))
+            && ((d3 > 0 && d4 < 0) || (d3 < 0 && d4 > 0));
+    }
+
+    /// <summary>
+    /// Get if the middle of the bridge falls on the filled part of the polygon:
+    /// inside the contour and outside every hole not sewn yet.
+    /// </summary>
+    static bool IsBridgeInside(
+        float[] pts, List<int> outer, List<int> hole,
+        List<List<int>> pendingHoles, int from, int to,
+        double epsilon, bool avoidBorder)
+    {
+        var (ax, ay) = Point(pts, from);
+        var (bx, by) = Point(pts, to);
+        var mx = (ax + bx) / 2;
+        var my = (ay + by) / 2;
+
+        if (avoidBorder && TouchesBorder(pts, outer, hole, pendingHoles, mx, my, epsilon))
+            return false;
+
+        if (!Contains(pts, outer, mx, my))
+            return false;
+
+        if (Contains(pts, hole, mx, my))
+            return false;
+
+        foreach (var other in pendingHoles)
+        {
+            if (Contains(pts, other, mx, my))
+                return false;
+        }
+
+        return true;
+    }
+
+    /// <summary>
+    /// Get if a point lies over an edge of any ring, where a point in or out
+    /// test cannot answer.
+    /// </summary>
+    static bool TouchesBorder(
+        float[] pts, List<int> outer, List<int> hole,
+        List<List<int>> pendingHoles, double px, double py, double epsilon)
+    {
+        if (OnRing(pts, outer, px, py, epsilon) || OnRing(pts, hole, px, py, epsilon))
+            return true;
+
+        foreach (var other in pendingHoles)
+        {
+            if (OnRing(pts, other, px, py, epsilon))
+                return true;
+        }
+
+        return false;
+    }
+
+    static bool OnRing(float[] pts, List<int> ring, double px, double py, double epsilon)
+    {
+        for (int i = 0; i < ring.Count; i++)
+        {
+            var (ax, ay) = Point(pts, ring[i]);
+            var (bx, by) = Point(pts, ring[(i + 1) % ring.Count]);
+
+            if (Math.Abs(Cross(ax, ay, bx, by, px, py)) > epsilon)
+                continue;
+
+            if (px < Math.Min(ax, bx) || px > Math.Max(ax, bx))
+                continue;
+
+            if (py < Math.Min(ay, by) || py > Math.Max(ay, by))
+                continue;
+
+            return true;
+        }
+
+        return false;
+    }
+
+    /// <summary>
+    /// Even odd test of a point against a ring.
+    /// </summary>
+    static bool Contains(float[] pts, List<int> ring, double px, double py)
+    {
+        var inside = false;
+
+        for (int i = 0, j = ring.Count - 1; i < ring.Count; j = i++)
+        {
+            var (xi, yi) = Point(pts, ring[i]);
+            var (xj, yj) = Point(pts, ring[j]);
+
+            if (yi > py == yj > py)
+                continue;
+
+            if (px < (xj - xi) * (py - yi) / (yj - yi) + xi)
+                inside = !inside;
+        }
+
+        return inside;
+    }
+
+    /// <summary>
+    /// Clip the ring one ear at a time until only a triangule remains.
+    /// A ring that gets stuck is split and both halves go back on the queue,
+    /// so the work always shrinks and the loop always ends.
+    /// </summary>
+    static void EarClipping(float[] pts, List<int> ring, List<float> triangules, double epsilon)
+    {
+        var pending = new Stack<List<int>>();
+        pending.Push(ring);
+
+        while (pending.Count > 0)
+            ClipRing(pts, pending.Pop(), triangules, epsilon, pending);
+    }
+
+    static void ClipRing(float[] pts, List<int> indices, List<float> triangules, double epsilon, Stack<List<int>> pending)
     {
         while (indices.Count > 3)
         {
-            // A vertex is an ear when it is convex and no other vertex of the
-            // polygon falls inside the triangule it forms with its neighbours.
-            var ear = FindEar(pts, indices, epsilon, allowBoundaryContact: false);
+            // A vertex is an ear when it is convex and no reflex vertex of the
+            // ring falls inside or on the triangule it forms with its
+            // neighbours. Only reflex vertices can block an ear, and the border
+            // counts: a bridge puts two copies of a vertex on the ring and
+            // cutting through one of them would cross the slit.
+            var ear = FindEar(pts, indices, epsilon, reflexOnly: true);
 
-            // Vertices touching the border of the candidate triangule are
-            // tolerated on a second pass: they do not overlap any area.
+            // Degenerated input can leave no ear under that rule. Accepting any
+            // vertex as long as nothing is strictly inside still gives a usable
+            // cut instead of giving up.
             if (ear < 0)
-                ear = FindEar(pts, indices, epsilon, allowBoundaryContact: true);
+                ear = FindEar(pts, indices, epsilon, reflexOnly: false);
+
+            // A bridge can leave a run of aligned vertices on the ring, and an
+            // aligned vertex is never an ear and blocks every candidate that
+            // touches it. Dropping one is always safe, it carries no area.
+            if (ear < 0)
+                ear = FindAligned(pts, indices, epsilon);
+
+            // Still stuck: the ring probably touches itself, which happens when
+            // two bridges reach the same vertex. Cutting the ring in two at
+            // that point separates the pinch into two ordinary rings.
+            if (ear < 0 && TrySplit(pts, indices, pending))
+                return;
 
             // Only reached by self intersecting or fully degenerated input,
             // where no real ear exists. Clipping the sharpest vertex keeps
@@ -66,32 +605,58 @@ public static class Triangulations
             indices.RemoveAt(ear);
         }
 
-        AddTriangule(pts, triangules, indices, 1, epsilon);
+        if (indices.Count == 3)
+            AddTriangule(pts, triangules, indices, 1, epsilon);
+    }
+
+    /// <summary>
+    /// Split a ring that visits the same point twice into the two rings that
+    /// meet there. Returns false when the ring never touches itself.
+    /// </summary>
+    static bool TrySplit(float[] pts, List<int> ring, Stack<List<int>> pending)
+    {
+        for (int i = 0; i < ring.Count; i++)
+        {
+            for (int j = i + 2; j < ring.Count; j++)
+            {
+                if (i == 0 && j == ring.Count - 1)
+                    continue;
+
+                if (!SamePoint(pts, ring[i], ring[j]))
+                    continue;
+
+                var first = ring.GetRange(i, j - i);
+
+                var second = ring.GetRange(j, ring.Count - j);
+                second.AddRange(ring.GetRange(0, i));
+
+                if (first.Count >= 3)
+                    pending.Push(first);
+
+                if (second.Count >= 3)
+                    pending.Push(second);
+
+                return true;
+            }
+        }
+
+        return false;
     }
 
     /// <summary>
     /// Find the position, on the index list, of a vertex that can be clipped.
     /// Returns -1 when no vertex qualifies.
     /// </summary>
-    static int FindEar(float[] pts, List<int> indices, double epsilon, bool allowBoundaryContact)
+    static int FindEar(float[] pts, List<int> indices, double epsilon, bool reflexOnly)
     {
         var count = indices.Count;
 
         for (int i = 0; i < count; i++)
         {
-            var prev = indices[(i + count - 1) % count];
-            var curr = indices[i];
-            var next = indices[(i + 1) % count];
-
-            var (ax, ay) = Point(pts, prev);
-            var (bx, by) = Point(pts, curr);
-            var (cx, cy) = Point(pts, next);
-
-            // Reflex or collinear on a counterclockwise polygon.
-            if (Cross(ax, ay, bx, by, cx, cy) <= epsilon)
+            if (IsReflex(pts, indices, i, epsilon))
                 continue;
 
-            if (IsEmpty(pts, indices, prev, curr, next, epsilon, allowBoundaryContact))
+            if (IsEmpty(pts, indices, i, epsilon, reflexOnly))
                 return i;
         }
 
@@ -99,25 +664,43 @@ public static class Triangulations
     }
 
     /// <summary>
-    /// Get if no vertex of the polygon lies inside the triangule (prev, curr, next).
-    /// When allowBoundaryContact is true only strictly interior vertices block it.
+    /// Get if the vertex on a position turns to the right, or does not turn at
+    /// all, on a counterclockwise ring.
     /// </summary>
-    static bool IsEmpty(
-        float[] pts, List<int> indices,
-        int prev, int curr, int next,
-        double epsilon, bool allowBoundaryContact)
+    static bool IsReflex(float[] pts, List<int> indices, int position, double epsilon)
     {
-        var (ax, ay) = Point(pts, prev);
-        var (bx, by) = Point(pts, curr);
-        var (cx, cy) = Point(pts, next);
-        var limit = allowBoundaryContact ? epsilon : -epsilon;
+        var count = indices.Count;
+        var (ax, ay) = Point(pts, indices[(position + count - 1) % count]);
+        var (bx, by) = Point(pts, indices[position]);
+        var (cx, cy) = Point(pts, indices[(position + 1) % count]);
 
-        foreach (var index in indices)
+        return Cross(ax, ay, bx, by, cx, cy) <= epsilon;
+    }
+
+    /// <summary>
+    /// Get if the triangule clipped at a position is free of blocking vertices.
+    /// With reflexOnly, a vertex blocks when it is reflex and lies inside or on
+    /// the triangule; otherwise only strictly interior vertices block.
+    /// </summary>
+    static bool IsEmpty(float[] pts, List<int> indices, int position, double epsilon, bool reflexOnly)
+    {
+        var count = indices.Count;
+        var previous = (position + count - 1) % count;
+        var next = (position + 1) % count;
+
+        var (ax, ay) = Point(pts, indices[previous]);
+        var (bx, by) = Point(pts, indices[position]);
+        var (cx, cy) = Point(pts, indices[next]);
+        var limit = reflexOnly ? -epsilon : epsilon;
+
+        // Positions are compared instead of indexes because a bridge makes the
+        // same vertex appear twice on the ring.
+        for (int i = 0; i < count; i++)
         {
-            if (index == prev || index == curr || index == next)
+            if (i == previous || i == position || i == next)
                 continue;
 
-            var (px, py) = Point(pts, index);
+            var (px, py) = Point(pts, indices[i]);
 
             if (Cross(ax, ay, bx, by, px, py) <= limit)
                 continue;
@@ -128,10 +711,34 @@ public static class Triangulations
             if (Cross(cx, cy, ax, ay, px, py) <= limit)
                 continue;
 
+            if (reflexOnly && !IsReflex(pts, indices, i, epsilon))
+                continue;
+
             return false;
         }
 
         return true;
+    }
+
+    /// <summary>
+    /// Find a vertex aligned with both neighbours, which can be dropped
+    /// without changing the shape.
+    /// </summary>
+    static int FindAligned(float[] pts, List<int> indices, double epsilon)
+    {
+        var count = indices.Count;
+
+        for (int i = 0; i < count; i++)
+        {
+            var (ax, ay) = Point(pts, indices[(i + count - 1) % count]);
+            var (bx, by) = Point(pts, indices[i]);
+            var (cx, cy) = Point(pts, indices[(i + 1) % count]);
+
+            if (Math.Abs(Cross(ax, ay, bx, by, cx, cy)) <= epsilon)
+                return i;
+        }
+
+        return -1;
     }
 
     /// <summary>
@@ -162,19 +769,19 @@ public static class Triangulations
     }
 
     /// <summary>
-    /// Drop vertices repeated in sequence, including the wrap around pair,
+    /// Remove vertices repeated in sequence, including the wrap around pair,
     /// because they cannot define an orientation.
     /// </summary>
-    static List<int> DropRepeatedVertices(float[] pts, int vertexCount)
+    static List<int> DropRepeatedVertices(float[] pts, int offset, int count)
     {
-        var indices = new List<int>(vertexCount);
+        var indices = new List<int>(count);
 
-        for (int i = 0; i < vertexCount; i++)
+        for (int i = 0; i < count; i++)
         {
-            if (indices.Count > 0 && SamePoint(pts, indices[^1], i))
+            if (indices.Count > 0 && SamePoint(pts, indices[^1], offset + i))
                 continue;
 
-            indices.Add(i);
+            indices.Add(offset + i);
         }
 
         while (indices.Count > 1 && SamePoint(pts, indices[0], indices[^1]))
@@ -184,7 +791,7 @@ public static class Triangulations
     }
 
     /// <summary>
-    /// Drop vertices aligned with both neighbours. They add no area and could
+    /// Remove vertices aligned with both neighbours. They add no area and could
     /// only become triangules with no area, so removing them also spares the
     /// GPU from vertices that rasterize to nothing.
     /// </summary>
@@ -216,7 +823,7 @@ public static class Triangulations
     }
 
     /// <summary>
-    /// Get the signed area of the polygon. Positive on counterclockwise input.
+    /// Get the signed area of a ring. Positive when counterclockwise.
     /// </summary>
     static double SignedArea(float[] pts, List<int> indices)
     {
@@ -236,14 +843,14 @@ public static class Triangulations
     /// Get a tolerance for area comparisons scaled by the size of the polygon,
     /// so unit sized and pixel sized data behave the same way.
     /// </summary>
-    static double AreaEpsilon(float[] pts, List<int> indices)
+    static double AreaEpsilon(float[] pts)
     {
         double minX = double.MaxValue, maxX = double.MinValue;
         double minY = double.MaxValue, maxY = double.MinValue;
 
-        foreach (var index in indices)
+        for (int i = 0; i < pts.Length / 3; i++)
         {
-            var (x, y) = Point(pts, index);
+            var (x, y) = Point(pts, i);
             minX = Math.Min(minX, x);
             maxX = Math.Max(maxX, x);
             minY = Math.Min(minY, y);
@@ -262,19 +869,19 @@ public static class Triangulations
     static void AddTriangule(float[] pts, List<float> triangules, List<int> indices, int position, double epsilon)
     {
         var count = indices.Count;
-        var prev = indices[(position + count - 1) % count];
-        var curr = indices[position];
+        var previous = indices[(position + count - 1) % count];
+        var current = indices[position];
         var next = indices[(position + 1) % count];
 
-        var (ax, ay) = Point(pts, prev);
-        var (bx, by) = Point(pts, curr);
+        var (ax, ay) = Point(pts, previous);
+        var (bx, by) = Point(pts, current);
         var (cx, cy) = Point(pts, next);
 
         if (Math.Abs(Cross(ax, ay, bx, by, cx, cy)) <= epsilon)
             return;
 
-        AddVertex(pts, triangules, prev);
-        AddVertex(pts, triangules, curr);
+        AddVertex(pts, triangules, previous);
+        AddVertex(pts, triangules, current);
         AddVertex(pts, triangules, next);
     }
 

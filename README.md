@@ -489,13 +489,88 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Draw text
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var font = Font.Open("arial.ttf");
+
+// The baseline of the text sits on y = 0 and it grows to the right,
+// so move it into view before drawing.
+var text = font.GetPolygon("Hello, Radiance!", 64);
+
+var myRender = render(() => {
+    move(40, 200);
+    color = white;
+    fill();
+});
+
+Window.OnRender += () => myRender(text);
+
+Window.ClearColor = black;
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+A text polygon is an ordinary polygon: it fills, draws and plots like any other,
+and the counters of letters like 'o' and 'B' are real holes.
+
+```cs
+var myRender = render(() => {
+    move(40, 200);
+    color = white;
+    fill();      // the letters
+    color = red;
+    draw(2);     // the outline of every contour
+});
+```
+
+### Break text into lines and measure it
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var font = Font.Open("arial.ttf");
+
+// Breaks on spaces so that no line is wider than 600, and on every 
+.
+var paragraph = font.GetPolygon(
+    "The quick brown fox jumps over the lazy dog", 40, maxWidth: 600
+);
+
+// Useful to place or align the text yourself.
+float width = font.MeasureWidth("Hello", 40);
+float lineHeight = font.LineHeight * 40;
+
+var myRender = render(() => {
+    centralize();
+    move(-width / 2, 0);
+    color = white;
+    fill();
+});
+
+Window.OnRender += () => myRender(paragraph);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+Kerning comes from the font when it carries a `kern` table, so pairs like
+`AV` and `To` close up on their own. Fonts that keep kerning on `GPOS` only
+are spaced by their plain advance widths.
+
 # Versions
 
 ### Radiance v3.1.0 (Coming soon)
 
  - ![](https://img.shields.io/badge/new-green) Added a system of color to make conversion and handle color spaces easily.
- - ![](https://img.shields.io/badge/new-green) Added triangulation of non-monotone polygons.
- - ![](https://img.shields.io/badge/new-green) Added text buffers allowing draw texts easily.
+ - ![](https://img.shields.io/badge/new-green) Replaced the triangulation by ear clipping: any simple polygon, convex or concave, in any orientation.
+ - ![](https://img.shields.io/badge/new-green) Added polygons with holes, and polygons made of many contours.
+ - ![](https://img.shields.io/badge/new-green) Added text drawing from .ttf files, with quadratic curves, composite glyphs, kerning and line breaking.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix Polygons.Rect(width, height) that built a wrong quadrilateral for non square sizes.
  - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
  - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
  - ![](https://img.shields.io/badge/update-blue) Improve API of types Vec2, Vec3 and Vec4 adding more operations.
