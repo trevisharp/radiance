@@ -1,8 +1,7 @@
 /* Author:  Leonardo Trevisan Silio
- * Date:    27/03/2025
+ * Date:    20/09/2026
  */
 using System;
-using System.Linq;
 using System.Collections.Generic;
 
 namespace Radiance.Internal;
@@ -13,234 +12,292 @@ namespace Radiance.Internal;
 public static class Triangulations
 {
     /// <summary>
-    /// Get a triangulation of a polygon with points in a
-    /// clockwise order.
+    /// Get a triangulation of a simple polygon received as a (x, y, z) sequence.
+    /// The vertices may be given clockwise or counterclockwise and the polygon
+    /// may be convex or concave. The triangules are always emitted
+    /// counterclockwise on the xy plane, keeping the z of each original vertex.
     /// </summary>
     public static float[] PlanarPolygonTriangulation(float[] pts)
     {
-        var N = pts.Length / 3;
-        if (N < 4)
+        var vertexCount = pts.Length / 3;
+        if (vertexCount < 3)
             return pts;
 
-        Span<PlanarVertex> points = 
-            N < 2048 ?
-            stackalloc PlanarVertex[N] :
-            new PlanarVertex[N];
-        PlanarVertex.ToPlanarVertex(pts, points);
-        
-        Span<int> map =
-            N < 2048 ?
-            stackalloc int[N] :
-            new int[N];
-        var sweepLine = SweepLine.Create(points, map);
+        var indices = DropRepeatedVertices(pts, vertexCount);
+        if (indices.Count < 3)
+            return pts;
 
-        var dcel = new DCEL(points);
+        var epsilon = AreaEpsilon(pts, indices);
+        DropCollinearVertices(pts, indices, epsilon);
 
-        if (MonotoneDivision(dcel, sweepLine))
-            return NonMonotonePlaneTriangularization(dcel, sweepLine);
-        
-        return MonotonePlaneTriangulation(dcel, sweepLine);
+        if (SignedArea(pts, indices) < 0)
+            indices.Reverse();
+
+        var triangules = new List<float>(9 * (indices.Count - 2));
+        EarClipping(pts, indices, triangules, epsilon);
+
+        return triangules.Count > 0 ? [ ..triangules ] : pts;
     }
-    
+
     /// <summary>
-    /// Divide a polygon on many monotone polygons.
-    /// Return true if some polygon has created.
+    /// Clip one ear at a time until only a triangule remains.
+    /// Every iteration drops exactly one vertex, so the loop always ends.
     /// </summary>
-    static bool MonotoneDivision(DCEL dcel, SweepLine sweepLine)
+    static void EarClipping(float[] pts, List<int> indices, List<float> triangules, double epsilon)
     {
-        var types = new VertexType[sweepLine.Length];
-        for (int i = 0; i < sweepLine.Length; i++)
-            types[i] = dcel.DiscoverType(i);
-        
-        if (!types.Contains(VertexType.Merge) && !types.Contains(VertexType.Split))
-            return false;
-
-        Dictionary<int, int> helper = [];
-        
-        for (int i = 0; i < sweepLine.Length; i++)
+        while (indices.Count > 3)
         {
-            ref var v = ref sweepLine[i];
-            var vi = v.Id;
-            
-            var type = types[vi];
-            var edges = dcel.VertexEdges[vi];
-            var ei = edges[0].Id;
-            var eprev = ei - 1;
-            if (eprev == -1)
-                eprev = sweepLine.Length - 1;
+            // A vertex is an ear when it is convex and no other vertex of the
+            // polygon falls inside the triangule it forms with its neighbours.
+            var ear = FindEar(pts, indices, epsilon, allowBoundaryContact: false);
 
-            switch (type)
-            {
-                case VertexType.Start:
+            // Vertices touching the border of the candidate triangule are
+            // tolerated on a second pass: they do not overlap any area.
+            if (ear < 0)
+                ear = FindEar(pts, indices, epsilon, allowBoundaryContact: true);
 
-                    helper[eprev] = vi;
+            // Only reached by self intersecting or fully degenerated input,
+            // where no real ear exists. Clipping the sharpest vertex keeps
+            // the output finite instead of looping forever.
+            if (ear < 0)
+                ear = SharpestVertex(pts, indices);
 
-                    break;
-                    
-                case VertexType.End:
-                    
-                    if (types[helper[ei]] == VertexType.Merge)
-                    {
-                        dcel.Connect(vi, helper[ei]);
-                    }
-                    
-                    helper.Remove(ei);
+            AddTriangule(pts, triangules, indices, ear, epsilon);
+            indices.RemoveAt(ear);
+        }
 
-                    break;
+        AddTriangule(pts, triangules, indices, 1, epsilon);
+    }
 
-                case VertexType.Split:
+    /// <summary>
+    /// Find the position, on the index list, of a vertex that can be clipped.
+    /// Returns -1 when no vertex qualifies.
+    /// </summary>
+    static int FindEar(float[] pts, List<int> indices, double epsilon, bool allowBoundaryContact)
+    {
+        var count = indices.Count;
 
-                    var ej1 = dcel.FindLeftEdge(vi);
-                    dcel.Connect(helper[ej1], vi);
-                    helper[ej1] = vi;
-                    helper[eprev] = vi;
+        for (int i = 0; i < count; i++)
+        {
+            var prev = indices[(i + count - 1) % count];
+            var curr = indices[i];
+            var next = indices[(i + 1) % count];
 
-                    break;
+            var (ax, ay) = Point(pts, prev);
+            var (bx, by) = Point(pts, curr);
+            var (cx, cy) = Point(pts, next);
 
-                case VertexType.Merge:
+            // Reflex or collinear on a counterclockwise polygon.
+            if (Cross(ax, ay, bx, by, cx, cy) <= epsilon)
+                continue;
 
-                    if (types[helper[ei]] == VertexType.Merge)
-                    {
-                        dcel.Connect(vi, helper[ei]);
-                    }
+            if (IsEmpty(pts, indices, prev, curr, next, epsilon, allowBoundaryContact))
+                return i;
+        }
 
-                    helper.Remove(ei);
+        return -1;
+    }
 
-                    var ej2 = dcel.FindLeftEdge(vi);
-                    if (types[helper[ej2]] == VertexType.Merge)
-                    {
-                        dcel.Connect(helper[ej2], vi);
-                    }
-                    
-                    helper[ej2] = vi;
+    /// <summary>
+    /// Get if no vertex of the polygon lies inside the triangule (prev, curr, next).
+    /// When allowBoundaryContact is true only strictly interior vertices block it.
+    /// </summary>
+    static bool IsEmpty(
+        float[] pts, List<int> indices,
+        int prev, int curr, int next,
+        double epsilon, bool allowBoundaryContact)
+    {
+        var (ax, ay) = Point(pts, prev);
+        var (bx, by) = Point(pts, curr);
+        var (cx, cy) = Point(pts, next);
+        var limit = allowBoundaryContact ? epsilon : -epsilon;
 
-                    break;
+        foreach (var index in indices)
+        {
+            if (index == prev || index == curr || index == next)
+                continue;
 
-                case VertexType.Regular:
+            var (px, py) = Point(pts, index);
 
-                    if (dcel.LiesOnRight(vi))
-                    {
-                        if (types[helper[ei]] == VertexType.Merge)
-                        {
-                            dcel.Connect(vi, helper[ei]);
-                        }
+            if (Cross(ax, ay, bx, by, px, py) <= limit)
+                continue;
 
-                        helper.Remove(ei);
-                        helper[eprev] = vi;
-                    }
-                    else
-                    {
-                        var ej3 = dcel.FindLeftEdge(vi);
-                        if (types[helper[ej3]] == VertexType.Merge)
-                        {
-                            dcel.Connect(helper[ej3], vi);
-                        }
-                        helper[ej3] = vi;
-                    }
+            if (Cross(bx, by, cx, cy, px, py) <= limit)
+                continue;
 
-                    break;
-            }
+            if (Cross(cx, cy, ax, ay, px, py) <= limit)
+                continue;
+
+            return false;
         }
 
         return true;
     }
 
     /// <summary>
-    /// Get a nonmonotone DCEL divide inot monotone polygons and returns
-    /// the triangularization.
+    /// Get the position of the vertex with the largest turn to the left.
+    /// Used as a last resort so the clipping always progresses.
     /// </summary>
-    static float[] NonMonotonePlaneTriangularization(DCEL dcel, SweepLine sweepLine)
+    static int SharpestVertex(float[] pts, List<int> indices)
     {
-        var index = 0;
-        int expectedTriangules = dcel.Length - 2;
-        var triangules = new float[9 * expectedTriangules];
+        var count = indices.Count;
+        var best = 0;
+        var bestCross = double.MinValue;
 
-        float[] data;
-        while (dcel.Faces.Count > 0)
+        for (int i = 0; i < count; i++)
         {
-            var subPointsIds = dcel.RemoveSubPolygon();   
-            var subDcel = dcel.ApplyFilter(subPointsIds);
-            if (subDcel.Length < 4)
-            {
-                data = subDcel.ToArray();
-                Array.Copy(data, 0, triangules, index, data.Length);
-                index += data.Length;
+            var (ax, ay) = Point(pts, indices[(i + count - 1) % count]);
+            var (bx, by) = Point(pts, indices[i]);
+            var (cx, cy) = Point(pts, indices[(i + 1) % count]);
+
+            var cross = Cross(ax, ay, bx, by, cx, cy);
+            if (cross <= bestCross)
                 continue;
-            }
-            
-            var subSweepLine = sweepLine.ApplyFilter(subPointsIds);
-            data = MonotonePlaneTriangulation(subDcel, subSweepLine);
-            Array.Copy(data, 0, triangules, index, data.Length);
-            index += data.Length;
+
+            bestCross = cross;
+            best = i;
         }
 
-        return triangules;
+        return best;
     }
 
     /// <summary>
-    /// Receveing a map of ordenation and data with format (x, y, z, ...),
-    /// if the points represetns a monotone polygon, return the triangularization
-    /// of then.
+    /// Drop vertices repeated in sequence, including the wrap around pair,
+    /// because they cannot define an orientation.
     /// </summary>
-    static float[] MonotonePlaneTriangulation(DCEL dcel, SweepLine sweepLine)
+    static List<int> DropRepeatedVertices(float[] pts, int vertexCount)
     {
-        var temp = dcel.FacesEdges.FirstOrDefault();
-        var pts = temp.Value.SelectMany(x => new int[] { x.To, x.From }).Distinct();
+        var indices = new List<int>(vertexCount);
 
-        var (leftChain, rightChain) = dcel.GetChains(sweepLine);
-
-        var stack = new Stack<int>();
-        stack.Push(sweepLine[0].Id);
-        stack.Push(sweepLine[1].Id);
-
-        for (int j = 2; j < dcel.Length - 1; j++)
+        for (int i = 0; i < vertexCount; i++)
         {
-            var vtop = stack.Peek();
-            var vj = sweepLine[j].Id;
+            if (indices.Count > 0 && SamePoint(pts, indices[^1], i))
+                continue;
 
-            var topInChainA = leftChain.Contains(vtop);
-            var nextInChainA = leftChain.Contains(vj);
-            var sameChain = topInChainA == nextInChainA;
-
-            if (sameChain)
-            {
-                var popped = stack.Pop();
-                while (stack.Count > 0)
-                {
-                    var next = stack.Peek();
-
-                    if (!dcel.CanInternalConnect(next, vj))
-                        break;
-
-                    popped = stack.Pop();
-                    dcel.Connect(vj, popped);
-                }
-                stack.Push(popped);
-                stack.Push(vj);
-            }
-            else
-            {
-                var vj_1 = sweepLine[j - 1].Id;
-                while (stack.Count > 1)
-                {
-                    var vk = stack.Pop();
-                    dcel.Connect(vj, vk);
-                }
-                stack.Pop();
-                stack.Push(vj_1);
-                stack.Push(vj);
-            }
+            indices.Add(i);
         }
 
-        var vn = sweepLine[^1].Id;
-        stack.Pop();
+        while (indices.Count > 1 && SamePoint(pts, indices[0], indices[^1]))
+            indices.RemoveAt(indices.Count - 1);
 
-        while (stack.Count > 1)
-        {
-            var vk = stack.Pop();
-            dcel.Connect(vk, vn);
-        }
-
-        return dcel.ToArray();
+        return indices;
     }
+
+    /// <summary>
+    /// Drop vertices aligned with both neighbours. They add no area and could
+    /// only become triangules with no area, so removing them also spares the
+    /// GPU from vertices that rasterize to nothing.
+    /// </summary>
+    static void DropCollinearVertices(float[] pts, List<int> indices, double epsilon)
+    {
+        var removedAny = true;
+
+        while (removedAny && indices.Count > 3)
+        {
+            removedAny = false;
+
+            for (int i = 0; i < indices.Count && indices.Count > 3; )
+            {
+                var count = indices.Count;
+                var (ax, ay) = Point(pts, indices[(i + count - 1) % count]);
+                var (bx, by) = Point(pts, indices[i]);
+                var (cx, cy) = Point(pts, indices[(i + 1) % count]);
+
+                if (Math.Abs(Cross(ax, ay, bx, by, cx, cy)) > epsilon)
+                {
+                    i++;
+                    continue;
+                }
+
+                indices.RemoveAt(i);
+                removedAny = true;
+            }
+        }
+    }
+
+    /// <summary>
+    /// Get the signed area of the polygon. Positive on counterclockwise input.
+    /// </summary>
+    static double SignedArea(float[] pts, List<int> indices)
+    {
+        double sum = 0;
+
+        for (int i = 0; i < indices.Count; i++)
+        {
+            var (x0, y0) = Point(pts, indices[i]);
+            var (x1, y1) = Point(pts, indices[(i + 1) % indices.Count]);
+            sum += x0 * y1 - x1 * y0;
+        }
+
+        return sum / 2;
+    }
+
+    /// <summary>
+    /// Get a tolerance for area comparisons scaled by the size of the polygon,
+    /// so unit sized and pixel sized data behave the same way.
+    /// </summary>
+    static double AreaEpsilon(float[] pts, List<int> indices)
+    {
+        double minX = double.MaxValue, maxX = double.MinValue;
+        double minY = double.MaxValue, maxY = double.MinValue;
+
+        foreach (var index in indices)
+        {
+            var (x, y) = Point(pts, index);
+            minX = Math.Min(minX, x);
+            maxX = Math.Max(maxX, x);
+            minY = Math.Min(minY, y);
+            maxY = Math.Max(maxY, y);
+        }
+
+        var scale = Math.Max(maxX - minX, maxY - minY);
+        return scale * scale * 1e-12;
+    }
+
+    /// <summary>
+    /// Add the triangule formed by the vertex on a position and its neighbours.
+    /// Triangules with no area are skipped: alignments can appear while the
+    /// clipping runs and they would only cost vertices that draw nothing.
+    /// </summary>
+    static void AddTriangule(float[] pts, List<float> triangules, List<int> indices, int position, double epsilon)
+    {
+        var count = indices.Count;
+        var prev = indices[(position + count - 1) % count];
+        var curr = indices[position];
+        var next = indices[(position + 1) % count];
+
+        var (ax, ay) = Point(pts, prev);
+        var (bx, by) = Point(pts, curr);
+        var (cx, cy) = Point(pts, next);
+
+        if (Math.Abs(Cross(ax, ay, bx, by, cx, cy)) <= epsilon)
+            return;
+
+        AddVertex(pts, triangules, prev);
+        AddVertex(pts, triangules, curr);
+        AddVertex(pts, triangules, next);
+    }
+
+    static void AddVertex(float[] pts, List<float> triangules, int index)
+    {
+        triangules.Add(pts[3 * index + 0]);
+        triangules.Add(pts[3 * index + 1]);
+        triangules.Add(pts[3 * index + 2]);
+    }
+
+    static (double x, double y) Point(float[] pts, int index)
+        => (pts[3 * index + 0], pts[3 * index + 1]);
+
+    static bool SamePoint(float[] pts, int i, int j)
+        => pts[3 * i + 0] == pts[3 * j + 0]
+        && pts[3 * i + 1] == pts[3 * j + 1];
+
+    /// <summary>
+    /// Get a positive value when the points a, b and c turn to the left.
+    /// </summary>
+    static double Cross(
+        double ax, double ay,
+        double bx, double by,
+        double cx, double cy)
+        => (bx - ax) * (cy - ay) - (by - ay) * (cx - ax);
 }

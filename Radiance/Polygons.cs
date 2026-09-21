@@ -53,16 +53,7 @@ public static class Polygons
     /// centralized on (0, 0, 0) cordinate.
     /// </summary>
     public static Polygon Rect(float width, float height)
-    {
-        var halfWid = width / 2;
-        var halfHei = height / 2;
-        return new Polygon([
-            -halfWid, -halfHei, 0f,
-            -halfHei, halfWid, 0f,
-            halfHei, halfWid, 0f,
-            halfHei, -halfWid, 0f
-        ]);
-    }
+        => Rect(0f, 0f, 0f, width, height);
 
     /// <summary>
     /// Create a rectangle with specific width and height
