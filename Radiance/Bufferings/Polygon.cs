@@ -5,6 +5,7 @@ using System;
 
 namespace Radiance.Bufferings;
 
+using Fonts;
 using Internal;
 using Exceptions;
 
@@ -120,7 +121,40 @@ public class Polygon : IPolygon
         return data;
     }
 
+    /// <summary>
+    /// The size used when a text becomes a polygon without one being given.
+    /// </summary>
+    public const float DefaultTextSize = 16f;
+
+    /// <summary>
+    /// Build a polygon with the shape of a text, using Font.Default.
+    /// The baseline of the first line sits on y = 0 and the text grows to the
+    /// right and downwards.
+    /// </summary>
+    public static Polygon FromText(
+        string text,
+        float size = DefaultTextSize,
+        float maxWidth = float.PositiveInfinity)
+        => FromText(Font.Default, text, size, maxWidth);
+
+    /// <summary>
+    /// Build a polygon with the shape of a text using a specific font.
+    /// </summary>
+    public static Polygon FromText(
+        IFont font,
+        string text,
+        float size = DefaultTextSize,
+        float maxWidth = float.PositiveInfinity)
+    {
+        ArgumentNullException.ThrowIfNull(font, nameof(font));
+        ArgumentNullException.ThrowIfNull(text, nameof(text));
+
+        return font.GetPolygon(text, size, maxWidth);
+    }
+
     public static implicit operator Polygon(float[] data) => new(data);
+
+    public static implicit operator Polygon(string text) => FromText(text);
 
     public static VirtualPolygons operator *(Polygon polygon, int times)
         => new (polygon, times);

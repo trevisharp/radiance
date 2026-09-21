@@ -491,15 +491,12 @@ Window.Open();
 
 ### Draw text
 
+Radiance carries a font inside it, so text works with nothing to install.
+A string converts to a polygon on its own, at size 16.
+
 ```cs
 using Radiance;
 using static Radiance.Utils;
-
-var font = Font.Open("arial.ttf");
-
-// The baseline of the text sits on y = 0 and it grows to the right,
-// so move it into view before drawing.
-var text = font.GetPolygon("Hello, Radiance!", 64);
 
 var myRender = render(() => {
     move(40, 200);
@@ -507,15 +504,39 @@ var myRender = render(() => {
     fill();
 });
 
-Window.OnRender += () => myRender(text);
+// The string becomes a polygon here, and its triangules are built right
+// away, out of the render loop.
+var helloRender = myRender("Hello, Radiance!");
+Window.OnRender += () => helloRender();
 
 Window.ClearColor = black;
 Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
-A text polygon is an ordinary polygon: it fills, draws and plots like any other,
-and the counters of letters like 'o' and 'B' are real holes.
+Pick the size, and a maximum width to break lines on, with `Polygon.FromText`:
+
+```cs
+Polygon title = Polygon.FromText("Hello, Radiance!", 64);
+Polygon body = Polygon.FromText("a long paragraph...", 20, maxWidth: 600);
+
+// The conversion also happens by itself wherever a Polygon is expected.
+Polygon small = "written at size 16";
+```
+
+Open your own font with `Font.Open`, and change the one used by default:
+
+```cs
+var mono = Font.Open("cour.ttf");
+Polygon code = Polygon.FromText(mono, "int x = 10;", 24);
+
+Font.Default = mono;   // now every string uses it
+```
+
+The baseline of the first line sits on `y = 0` and the text grows to the right
+and downwards, so move it into view before drawing. Text is an ordinary
+polygon: it fills, draws and plots like any other, and the counters of letters
+like 'o' and 'B' are real holes.
 
 ```cs
 var myRender = render(() => {
@@ -527,21 +548,17 @@ var myRender = render(() => {
 });
 ```
 
-### Break text into lines and measure it
+Build the text once and keep it. Calling a render with a string inside
+`Window.OnRender` rebuilds the polygon on every frame.
+
+### Measure and align text
 
 ```cs
 using Radiance;
 using static Radiance.Utils;
 
-var font = Font.Open("arial.ttf");
+var font = Font.Default;
 
-// Breaks on spaces so that no line is wider than 600, and on every 
-.
-var paragraph = font.GetPolygon(
-    "The quick brown fox jumps over the lazy dog", 40, maxWidth: 600
-);
-
-// Useful to place or align the text yourself.
 float width = font.MeasureWidth("Hello", 40);
 float lineHeight = font.LineHeight * 40;
 
@@ -552,15 +569,16 @@ var myRender = render(() => {
     fill();
 });
 
-Window.OnRender += () => myRender(paragraph);
+var centered = myRender(Polygon.FromText("Hello", 40));
+Window.OnRender += () => centered();
 
 Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
 Kerning comes from the font when it carries a `kern` table, so pairs like
-`AV` and `To` close up on their own. Fonts that keep kerning on `GPOS` only
-are spaced by their plain advance widths.
+`AV` and `To` close up on their own. Fonts that keep kerning on `GPOS` only,
+which includes the built-in one, are spaced by their plain advance widths.
 
 # Versions
 
@@ -570,6 +588,8 @@ are spaced by their plain advance widths.
  - ![](https://img.shields.io/badge/new-green) Replaced the triangulation by ear clipping: any simple polygon, convex or concave, in any orientation.
  - ![](https://img.shields.io/badge/new-green) Added polygons with holes, and polygons made of many contours.
  - ![](https://img.shields.io/badge/new-green) Added text drawing from .ttf files, with quadratic curves, composite glyphs, kerning and line breaking.
+ - ![](https://img.shields.io/badge/new-green) Added a built-in font, so text works with no file to ship. Font.Default serves a subset of Roboto.
+ - ![](https://img.shields.io/badge/new-green) Added Polygon.FromText and a conversion from string to Polygon, so a render accepts a string where it accepts a polygon.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix Polygons.Rect(width, height) that built a wrong quadrilateral for non square sizes.
  - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
  - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.

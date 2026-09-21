@@ -63,7 +63,13 @@ public partial class TrueTypeFont : IFont
         if (extension is not ".ttf" and not ".otf")
             return false;
 
-        var data = File.ReadAllBytes(filePath);
+        return LoadFromMemory(File.ReadAllBytes(filePath), filePath);
+    }
+
+    public bool LoadFromMemory(byte[] data, string name)
+    {
+        ArgumentNullException.ThrowIfNull(data, nameof(data));
+
         if (data.Length < 12)
             return false;
 
@@ -78,19 +84,19 @@ public partial class TrueTypeFont : IFont
         if (!tables.ContainsKey("glyf") || !tables.ContainsKey("loca"))
             return false;
 
-        ReadHead(data, filePath);
+        ReadHead(data, name);
         ReadHorizontalHeader(data);
-        ReadGlyphOffsets(data, filePath);
+        ReadGlyphOffsets(data, name);
 
         glyf = ReadTable(data, tables["glyf"]);
         hmtx = tables.TryGetValue("hmtx", out var hmtxTable) ? ReadTable(data, hmtxTable) : null;
 
         characterMap = CharacterMap.Read(ReadTableOrNull(data, "cmap"));
         if (characterMap is null)
-            throw new InvalidFontException(filePath, "no usable character map was found.");
+            throw new InvalidFontException(name, "no usable character map was found.");
 
         ReadKerning(ReadTableOrNull(data, "kern"));
-        Name = ReadName(ReadTableOrNull(data, "name")) ?? Path.GetFileNameWithoutExtension(filePath);
+        Name = ReadName(ReadTableOrNull(data, "name")) ?? Path.GetFileNameWithoutExtension(name);
 
         return true;
     }
@@ -116,10 +122,10 @@ public partial class TrueTypeFont : IFont
         return width * scale;
     }
 
-    public IPolygon GetPolygon(string text)
+    public Polygon GetPolygon(string text)
         => GetPolygon(text, 1f);
 
-    public IPolygon GetPolygon(string text, float size, float maxWidth = float.PositiveInfinity)
+    public Polygon GetPolygon(string text, float size, float maxWidth = float.PositiveInfinity)
     {
         ArgumentNullException.ThrowIfNull(text, nameof(text));
 

@@ -43,6 +43,13 @@ public interface IFont
     bool LoadFromFile(string filePath);
 
     /// <summary>
+    /// Load internal data from bytes already in memory, naming the font when
+    /// the data itself carries no name. Returns false if the type cannot
+    /// handle the data.
+    /// </summary>
+    bool LoadFromMemory(byte[] data, string name);
+
+    /// <summary>
     /// Get if the font has a drawing for a character.
     /// </summary>
     bool HasCharacter(char character);
@@ -56,11 +63,11 @@ public interface IFont
     /// Get a polygon generated from a string. The baseline of the first line
     /// sits on y = 0 and the text grows to the right and downwards.
     /// </summary>
-    IPolygon GetPolygon(string text);
+    Polygon GetPolygon(string text);
 
     /// <summary>
     /// Get a polygon generated from a string with a specific size, breaking
     /// lines so that none is wider than maxWidth.
     /// </summary>
-    IPolygon GetPolygon(string text, float size, float maxWidth = float.PositiveInfinity);
+    Polygon GetPolygon(string text, float size, float maxWidth = float.PositiveInfinity);
 }

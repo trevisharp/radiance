@@ -53,9 +53,15 @@ public static class Triangulations
         var epsilon = AreaEpsilon(pts);
 
         var indexRings = BuildRings(pts, rings, epsilon);
+        var boxes = MeasureBoxes(pts, indexRings);
         var holeFlags = rule == FillRule.Winding
             ? ClassifyByWinding(pts, indexRings)
-            : ClassifyByNesting(pts, indexRings);
+            : ClassifyByNesting(pts, indexRings, boxes);
+
+        // Each hole is matched to the ring it belongs to once, up front.
+        // Searching for it inside the loop below made the whole thing cubic on
+        // the number of rings, which a page of text reaches easily.
+        var owners = FindOwners(pts, indexRings, holeFlags, boxes);
 
         var triangules = new List<float>();
 
@@ -67,7 +73,7 @@ public static class Triangulations
             var outer = new List<int>(indexRings[i]);
             Orient(pts, outer, counterclockwise: true);
 
-            var holes = CollectHoles(pts, indexRings, holeFlags, i);
+            var holes = CollectHoles(indexRings, owners, i, pts);
             while (holes.Count > 0)
                 BridgeHole(pts, outer, TakeRightmostRing(pts, holes), holes, epsilon);
 
@@ -82,7 +88,7 @@ public static class Triangulations
     /// rings is a hole. Friendly for hand written shapes, where nobody wants
     /// to think about which way around a contour goes.
     /// </summary>
-    static bool[] ClassifyByNesting(float[] pts, List<List<int>> rings)
+    static bool[] ClassifyByNesting(float[] pts, List<List<int>> rings, Box[] boxes)
     {
         var holes = new bool[rings.Count];
 
@@ -97,6 +103,9 @@ public static class Triangulations
                 if (i == j || rings[j].Count < 3)
                     continue;
 
+                if (!boxes[j].Contains(boxes[i]))
+                    continue;
+
                 if (IsRingInside(pts, rings[i], rings[j]))
                     depth++;
             }
@@ -105,6 +114,82 @@ public static class Triangulations
         }
 
         return holes;
+    }
+
+    /// <summary>
+    /// Get the bounding box of every ring, used to skip the point in polygon
+    /// test between rings that cannot possibly contain one another.
+    /// </summary>
+    static Box[] MeasureBoxes(float[] pts, List<List<int>> rings)
+    {
+        var boxes = new Box[rings.Count];
+
+        for (int i = 0; i < rings.Count; i++)
+        {
+            double minX = double.MaxValue, maxX = double.MinValue;
+            double minY = double.MaxValue, maxY = double.MinValue;
+
+            foreach (var index in rings[i])
+            {
+                var (x, y) = Point(pts, index);
+                minX = Math.Min(minX, x);
+                maxX = Math.Max(maxX, x);
+                minY = Math.Min(minY, y);
+                maxY = Math.Max(maxY, y);
+            }
+
+            boxes[i] = new Box(minX, minY, maxX, maxY);
+        }
+
+        return boxes;
+    }
+
+    readonly record struct Box(double MinX, double MinY, double MaxX, double MaxY)
+    {
+        public readonly double Area => (MaxX - MinX) * (MaxY - MinY);
+
+        public readonly bool Contains(Box other)
+            => other.MinX >= MinX && other.MaxX <= MaxX
+            && other.MinY >= MinY && other.MaxY <= MaxY;
+    }
+
+    /// <summary>
+    /// For every hole, get the smallest filled ring that contains it, or -1
+    /// when it sits outside everything.
+    /// </summary>
+    static int[] FindOwners(float[] pts, List<List<int>> rings, bool[] holeFlags, Box[] boxes)
+    {
+        var owners = new int[rings.Count];
+
+        for (int i = 0; i < rings.Count; i++)
+        {
+            owners[i] = -1;
+
+            if (!holeFlags[i] || rings[i].Count < 3)
+                continue;
+
+            var ownerArea = double.MaxValue;
+
+            for (int j = 0; j < rings.Count; j++)
+            {
+                if (i == j || holeFlags[j] || rings[j].Count < 3)
+                    continue;
+
+                // Both tests are there to keep the expensive one rare: a
+                // candidate bigger than the best so far cannot win anyway, and
+                // a box that does not cover the hole cannot contain it.
+                if (boxes[j].Area >= ownerArea || !boxes[j].Contains(boxes[i]))
+                    continue;
+
+                if (!IsRingInside(pts, rings[i], rings[j]))
+                    continue;
+
+                ownerArea = boxes[j].Area;
+                owners[i] = j;
+            }
+        }
+
+        return owners;
     }
 
     /// <summary>
@@ -124,19 +209,15 @@ public static class Triangulations
     }
 
     /// <summary>
-    /// Get the holes that belong to the filled ring on a position: the ones it
-    /// contains more tightly than any other filled ring does.
+    /// Get the holes that belong to the filled ring on a position.
     /// </summary>
-    static List<List<int>> CollectHoles(float[] pts, List<List<int>> rings, bool[] holeFlags, int outer)
+    static List<List<int>> CollectHoles(List<List<int>> rings, int[] owners, int outer, float[] pts)
     {
         var holes = new List<List<int>>();
 
         for (int i = 0; i < rings.Count; i++)
         {
-            if (!holeFlags[i] || rings[i].Count < 3)
-                continue;
-
-            if (FindOwner(pts, rings, holeFlags, i) != outer)
+            if (owners[i] != outer)
                 continue;
 
             var hole = new List<int>(rings[i]);
@@ -145,34 +226,6 @@ public static class Triangulations
         }
 
         return holes;
-    }
-
-    /// <summary>
-    /// Get the smallest filled ring that contains a hole, or -1 when the hole
-    /// sits outside everything and has nothing to be carved out of.
-    /// </summary>
-    static int FindOwner(float[] pts, List<List<int>> rings, bool[] holeFlags, int hole)
-    {
-        var owner = -1;
-        var ownerArea = double.MaxValue;
-
-        for (int i = 0; i < rings.Count; i++)
-        {
-            if (i == hole || holeFlags[i] || rings[i].Count < 3)
-                continue;
-
-            if (!IsRingInside(pts, rings[hole], rings[i]))
-                continue;
-
-            var area = Math.Abs(SignedArea(pts, rings[i]));
-            if (area >= ownerArea)
-                continue;
-
-            ownerArea = area;
-            owner = i;
-        }
-
-        return owner;
     }
 
     /// <summary>

@@ -1,0 +1,3 @@
+# Font files are binary and must never be touched by line ending conversion.
+*.ttf binary
+*.otf binary

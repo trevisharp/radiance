@@ -87,7 +87,7 @@ public class Render : DynamicObject
         {
             (true, false) => throw new InvalidCurryPhaseException(),
             (true, true) => execute(),
-            (false, _) => Curry(this, args)
+            (false, _) => Curry(this, arguments)
         };
 
         object? execute()
@@ -128,14 +128,16 @@ public class Render : DynamicObject
     /// You can send vec2 or vec3 types to send more than one value at a time, so f(myVec2) is a valid invoke for f.
     /// You can also use skip to currying other paremters, so g = f(Utils.skip, 20) we will have g(10) = f(10, 20).
     /// Do not call this funtion inside Window.OnRender event.
+    /// Receives the arguments already laid out, so that a value that costs
+    /// something to build, like the polygon of a text, is built only once.
     /// </summary>
-    static Render Curry(Render render, params object?[] args)
+    static Render Curry(Render render, object[] arguments)
     {
         if (Window.Phase == WindowPhase.OnRender)
             throw new InvalidCurryPhaseException();
 
         return new(render.function) {
-            arguments = DisplayArguments(render.arguments, args)
+            arguments = arguments
         };
     }
 
@@ -181,6 +183,7 @@ public class Render : DynamicObject
                 Vec3 vec => add(vec.X, vec.Y, vec.Z),
                 Vec4 vec => add(vec.X, vec.Y, vec.Z, vec.W),
                 Texture img => add(img),
+                string text => add(CreateText(text)),
                 float num => add(num),
                 int num => add((float)num),
                 double num => add((float)num),
@@ -199,6 +202,18 @@ public class Render : DynamicObject
         }
     }
     
+    /// <summary>
+    /// Turn a text into a polygon and build its triangules right away.
+    /// Doing it here keeps the triangulation out of the render phase, where it
+    /// would show up as a stutter on the frame the text first appears.
+    /// </summary>
+    static Polygon CreateText(string text)
+    {
+        var polygon = Polygon.FromText(text);
+        _ = polygon.Triangules;
+        return polygon;
+    }
+
     /// <summary>
     /// Fill parameters data on a vector skipping values
     /// when using a Utils.Skip or any SkipCurryingParameter object.
