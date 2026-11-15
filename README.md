@@ -58,6 +58,33 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Receive text, use the clipboard and change the cursor
+
+```cs
+using System;
+using Radiance;
+
+var text = "";
+
+// The text arrives already composed by the keyboard layout: accents, symbols and IME.
+Window.OnTextInput += typed => text += typed;
+
+Window.OnKeyDown += (key, mod) =>
+{
+    if (key == Input.C && (mod & Modifier.Control) != 0)
+        Window.Clipboard = text;
+
+    if (key == Input.V && (mod & Modifier.Control) != 0)
+        text += Window.Clipboard;
+};
+
+Window.OnFocusChange += focused => Window.Cursor = focused ? Cursor.IBeam : Cursor.Arrow;
+Window.OnFileDrop += paths => Console.WriteLine(string.Join(", ", paths));
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
 ### Create your polygons
 
 ```cs
