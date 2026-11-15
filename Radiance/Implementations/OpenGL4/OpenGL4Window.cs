@@ -424,7 +424,11 @@ public class OpenGL4Window : BaseWindow
             OpenGL4ShaderContext.FreeAllResources();
         };
 
-        win.RenderFrame += e => RenderFrame();
+        win.RenderFrame += e =>
+        {
+            OpenGL4ShaderContext.DeleteReleasedBuffers();
+            RenderFrame();
+        };
 
         win.UpdateFrame += e => Frame();
 

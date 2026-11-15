@@ -1,6 +1,9 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/11/2024
  */
+using System;
+using System.Collections.Concurrent;
+
 namespace Radiance.Bufferings;
 
 /// <summary>
@@ -8,6 +11,44 @@ namespace Radiance.Bufferings;
 /// </summary>
 public class Buffer
 {
+    static readonly ConcurrentQueue<(int Id, int Generation)> releasedIds = new();
+
+    /// <summary>
+    /// Take a released buffer id waiting to be deleted on the GPU.
+    /// </summary>
+    public static bool TryTakeReleased(out int id, out int generation)
+    {
+        var taken = releasedIds.TryDequeue(out var released);
+        (id, generation) = released;
+        return taken;
+    }
+
+    /// <summary>
+    /// Get or Set the graphics context generation where the buffer was created.
+    /// </summary>
+    public int Generation { get; set; } = 0;
+
+    /// <summary>
+    /// Release the GPU buffer. The deletion happens on the window thread, on the next frame.
+    /// Drawing the data again uploads it to a new buffer.
+    /// </summary>
+    public void Release()
+    {
+        var id = BufferId;
+        if (id is null)
+            return;
+
+        BufferId = null;
+        releasedIds.Enqueue((id.Value, Generation));
+        GC.SuppressFinalize(this);
+    }
+
+    ~Buffer()
+    {
+        if (BufferId is int id)
+            releasedIds.Enqueue((id, Generation));
+    }
+
     /// <summary>
     /// Get the Id of the Buffer.
     /// </summary>

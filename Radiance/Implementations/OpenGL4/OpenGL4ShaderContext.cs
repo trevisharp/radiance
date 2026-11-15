@@ -30,6 +30,8 @@ public class OpenGL4ShaderContext : ShaderContext
     static readonly Dictionary<ImageResult, int> textureMap = [];
     static readonly HashSet<int> bufferIds = [];
     static readonly HashSet<int> vertexArrayIds = [];
+    static readonly List<WeakReference<OpenGL4ShaderContext>> contexts = [];
+    static int generation = 1;
 
     /// <summary>
     /// Unload all OpenGL Resources.
@@ -58,10 +60,52 @@ public class OpenGL4ShaderContext : ShaderContext
         foreach (var buffer in bufferIds)
             GL.DeleteBuffer(buffer);
         bufferIds.Clear();
+        contexts.Clear();
+        generation++;
 
         textureUnits.Clear();
     }
     
+    /// <summary>
+    /// Delete on the GPU the buffers released since the last call, and the vertex
+    /// arrays that use them. Must run on the window thread.
+    /// </summary>
+    public static void DeleteReleasedBuffers()
+    {
+        HashSet<int> deleted = [];
+        while (Buffer.TryTakeReleased(out var id, out var bufferGeneration))
+        {
+            if (bufferGeneration != generation || !bufferIds.Remove(id))
+                continue;
+
+            GL.DeleteBuffer(id);
+            deleted.Add(id);
+        }
+
+        if (deleted.Count == 0)
+            return;
+
+        contexts.RemoveAll(reference => !reference.TryGetTarget(out _));
+        foreach (var reference in contexts)
+        {
+            if (!reference.TryGetTarget(out var context))
+                continue;
+
+            foreach (var vao in context.vertexArrayMap)
+            {
+                if (!vao.Buffers.Any(deleted.Contains))
+                    continue;
+
+                GL.DeleteVertexArray(vao.Id);
+                vertexArrayIds.Remove(vao.Id);
+            }
+            context.vertexArrayMap.RemoveWhere(ids => ids.Any(deleted.Contains));
+        }
+    }
+
+    public OpenGL4ShaderContext()
+        => contexts.Add(new(this));
+
     /// <summary>
     /// Get or set the OpenGL Program Id associated to this context.
     /// </summary>
@@ -604,6 +648,7 @@ public class OpenGL4ShaderContext : ShaderContext
         var id = CreateBuffer();
         bufferIds.Add(id);
         data.Buffer.BufferId = id;
+        data.Buffer.Generation = generation;
         return true;
     }
 

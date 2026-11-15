@@ -44,6 +44,15 @@ public class FeatureMap<T> : IEnumerable<T>
     /// Generate a hash from a int array.
     /// more info on https://en.wikipedia.org/wiki/Fowler-Noll-Vo_hash_function
     /// </summary>
+    /// <summary>
+    /// Remove every entry whose key matches a predicate.
+    /// </summary>
+    public void RemoveWhere(Func<int[], bool> predicate)
+    {
+        foreach (var entries in map.Values)
+            entries.RemoveAll(entry => predicate(entry.Key));
+    }
+
     static ulong CreateFNVHash(ReadOnlySpan<int> values)
     {
         const ulong fnvPrime = 1099511628211;
