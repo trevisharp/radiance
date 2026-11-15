@@ -404,7 +404,7 @@ public class OpenGL4Window : BaseWindow
         if (win is null)
             return;
 
-        var clientSize = win.Size;
+        var clientSize = win.ClientSize;
         CanRender = clientSize.X > 0 && clientSize.Y > 0;
 
         var changed = clientSize.X != Width || clientSize.Y != Height;
