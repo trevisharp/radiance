@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Globalization;
 using System.Collections.Generic;
+using System.Text.RegularExpressions;
 
 namespace Radiance.Shaders;
 
@@ -41,8 +42,7 @@ public abstract class ShaderObject(
             foreach (var vertObj in objs.Where(x => x.Origin == VertexShader))
             {
                 var output = new OutputDependence(vertObj);
-                newExpression = newExpression
-                    .Replace(vertObj.Expression, output.Name);
+                newExpression = ReplaceExpression(newExpression, vertObj.Expression, output.Name);
                 deps = deps.Append(output);
             }
         }
@@ -69,6 +69,16 @@ public abstract class ShaderObject(
         ) as R;
 
         return newObj!;
+    }
+
+    /// <summary>
+    /// Replace an expression inside other without matching part of a larger identifier.
+    /// </summary>
+    static string ReplaceExpression(string text, string expression, string replacement)
+    {
+        var start = char.IsLetterOrDigit(expression[0]) || expression[0] == '_' ? @"(?<![\w.])" : "";
+        var end = char.IsLetterOrDigit(expression[^1]) || expression[^1] == '_' ? @"(?!\w)" : "";
+        return Regex.Replace(text, start + Regex.Escape(expression) + end, _ => replacement);
     }
 
     static (ShaderOrigin origin, bool hasConflitct) UnionOrigin(IEnumerable<ShaderOrigin> origins)
