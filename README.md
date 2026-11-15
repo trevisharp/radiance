@@ -492,6 +492,67 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Use conditions inside renders
+
+A C# `if` does not work inside a render: the function runs once to build the shader, and `x > 10`
+is a shader condition, not a `bool`. Use `select` to choose a value, `rif` to run a block only
+where a condition is true (with an optional else block) and `discard` to not draw a pixel.
+
+```cs
+using Radiance;
+using Radiance.Primitives;
+using static Radiance.Utils;
+
+var button = render((vec2 center, vec2 halfSize, val radius, val hovered) => {
+    var q = abs(vec(x, y) - center) - halfSize + vec(radius, radius);
+    var d = length(max(q, 0)) + min(max(q.x, q.y), 0) - radius;
+
+    color = select(hovered > 0, cyan, blue);
+    rif(d > -4, () => color = white);
+    rif(d > 0, discard);
+    fill();
+});
+
+var area = Polygons.Rect(200, 200, 0, 200, 80);
+var hovered = 0f;
+Window.OnMouseMove += p => hovered = p.x > 100 && p.x < 300 && p.y > 160 && p.y < 240 ? 1 : 0;
+Window.OnRender += () => button(area, new Vec2(200, 200), new Vec2(100, 40), 16, hovered);
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+Both sides of a condition are computed by the GPU and merged, so `rif` blocks can be nested and
+can call other renders. A condition that depends on the pixel (`x`, `y`, textures) can change
+`color` and discard pixels, but not `pos`. To decide if a render draws at all, use a C# `if`
+around the call.
+
+### Clip the drawing area
+
+The scissor discards everything drawn outside a rectangle, in window pixels with the origin on
+the bottom left corner.
+
+```cs
+using Radiance;
+using static Radiance.Utils;
+
+var myRender = render(() => {
+    color = red;
+    fill();
+});
+
+Window.OnRender += () => {
+    Window.ScissorPoint = (100, 100);
+    Window.ScissorSize = (200, 100);
+    Window.ScissorTest = true;
+    myRender(Polygons.Rect(200, 150, 0, 400, 400));
+    Window.ScissorTest = false;
+};
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
 ### Get FPS
 
 ```cs
@@ -667,6 +728,15 @@ Kerning comes from the font when it carries a `kern` table, so pairs like
 which includes the built-in one, are spaced by their plain advance widths.
 
 # Versions
+
+### Radiance v4.0.0
+
+ - ![](https://img.shields.io/badge/new-green) Added conditions to the shader DSL: select chooses a value, rif runs a block where a condition is true with an optional else block, and discard does not draw a pixel.
+ - ![](https://img.shields.io/badge/new-green) Window exposes ScissorTest, ScissorPoint and ScissorSize in window pixels, converted to the framebuffer on HiDPI screens and kept on resize.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Booleans computed on the vertex shader reach the fragment shader as float, since GLSL does not allow bool outputs.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Expressions mixing vertex and fragment data no longer declare vertex variables on the fragment shader, and promoted expressions are replaced only as whole identifiers.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) An exception inside a render function no longer breaks the next renders, and it is thrown as the original exception.
+ - ![](https://img.shields.io/badge/update-blue) ICodeGenerator.GenerateShaders receives the visibility of the pixels as an optional parameter.
 
 ### Radiance v3.4.0
 
