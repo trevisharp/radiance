@@ -10,14 +10,13 @@ using Exceptions;
 /// </summary>
 public class VirtualPolygons(Polygon polygon, int repeat) : IPolygon
 {
-    Buffer? buffer = null;
     VirtualBufferData? triangulationPair = null;
     VirtualBufferData? boundPair = null;
     VirtualBufferData? pointsPair = null;
     
     public float this[int index]
     {
-        get => polygon[index / repeat];
+        get => polygon[index];
         set => throw new ImutablePolygonException();
     }
 
@@ -29,7 +28,7 @@ public class VirtualPolygons(Polygon polygon, int repeat) : IPolygon
 
     public bool IsGeometry => true;
 
-    public Buffer Buffer => buffer ??= Buffer.From(this);
+    public Buffer Buffer => polygon.Buffer;
     
     public Changes Changes { get; set; } = [];
 

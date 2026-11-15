@@ -42,11 +42,14 @@ public abstract class MutableBufferedData(float[] initial) : IBufferedData
         set
         {
             data[index] = value;
-            if (!currentChangeStart.HasValue)
+            if (!currentChangeStart.HasValue || !currentChangeEnd.HasValue)
             {
                 currentChangeStart = currentChangeEnd = index;
                 return;
             }
+
+            if (currentChangeStart <= index && index <= currentChangeEnd)
+                return;
 
             if (currentChangeEnd < index && index < currentChangeEnd + 5)
             {
@@ -55,6 +58,7 @@ public abstract class MutableBufferedData(float[] initial) : IBufferedData
             }
 
             TryAddChange();
+            currentChangeStart = currentChangeEnd = index;
         }
     }
 
@@ -68,7 +72,7 @@ public abstract class MutableBufferedData(float[] initial) : IBufferedData
 
     public abstract bool IsGeometry { get; }
 
-    public Buffer Buffer => buffer ??= Buffer.From(this);
+    public Buffer Buffer => buffer ??= Buffer.From(this, dynamicDraw: true);
 
     public abstract float[] GetBufferData();
 }

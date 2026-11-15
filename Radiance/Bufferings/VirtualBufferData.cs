@@ -10,7 +10,6 @@ public class VirtualBufferData(IBufferedData data, int repeat) : IBufferedData
 {
     readonly IBufferedData baseData = data;
     readonly int baseRepeat = repeat;
-    Buffer? buffer = null;
 
     public int Rows => baseData.Rows;
 
@@ -20,7 +19,7 @@ public class VirtualBufferData(IBufferedData data, int repeat) : IBufferedData
 
     public bool IsGeometry => baseData.IsGeometry;
 
-    public Buffer Buffer => buffer ??= Buffer.From(this);
+    public Buffer Buffer => baseData.Buffer;
     
     public Changes Changes => baseData.Changes;
 
@@ -28,8 +27,8 @@ public class VirtualBufferData(IBufferedData data, int repeat) : IBufferedData
 
     public float this[int index]
     {
-        get => baseData[index / baseRepeat];
-        set => baseData[index / baseRepeat] = value;
+        get => baseData[index];
+        set => baseData[index] = value;
     }
 
     public float[] GetBufferData()

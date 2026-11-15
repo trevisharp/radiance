@@ -27,11 +27,17 @@ public class Buffer
     /// Create a buffer from a buffered data
     /// </summary>
     public static Buffer From(IBufferedData data)
+        => From(data, false);
+
+    /// <summary>
+    /// Create a buffer for a data.
+    /// </summary>
+    public static Buffer From(IBufferedData data, bool dynamicDraw)
     {
         return new Buffer {
             BufferId = null,
             CurrentData = data,
-            DynamicDraw = false
+            DynamicDraw = dynamicDraw
         };
     }
 }
