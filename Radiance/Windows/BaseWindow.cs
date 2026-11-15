@@ -106,17 +106,17 @@ public abstract class BaseWindow
     public abstract Vec4 ClearColor { get; set; }
 
     /// <summary>
-    /// Active the Scissor test on some area.
+    /// Get or set if pixels outside of the scissor area are discarded.
     /// </summary>
     public abstract bool ScissorTest { get; set; }
 
     /// <summary>
-    /// The position were Scissor test is applied
+    /// Get or set the bottom left corner of the scissor area, in window pixels.
     /// </summary>
     public abstract (int x, int y) ScissorPoint { get; set; }
 
     /// <summary>
-    /// The position were Scissor test is applied
+    /// Get or set the size of the scissor area, in window pixels.
     /// </summary>
     public abstract (int width, int height) ScissorSize { get; set; }
 

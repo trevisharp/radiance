@@ -337,33 +337,41 @@ public class OpenGL4Window : BaseWindow
         get => (scissorX, scissorY);
         set
         {
-            RunOrSchedule(() =>
-            {
-                (scissorX, scissorY) = value;
-                GL.Scissor(scissorX, scissorY, scissorWidth, scissorHeight);
-
-                #if DEBUG_OPENGL4
-                Console.WriteLine($"GL.Scissor({scissorX}, {scissorY}, {scissorWidth}, {scissorHeight});");
-                #endif
-            });
+            (scissorX, scissorY) = value;
+            RunOrSchedule(ApplyScissor);
         }
     }
-    
+
     public override (int width, int height) ScissorSize
     {
         get => (scissorWidth, scissorHeight);
         set
         {
-            RunOrSchedule(() =>
-            {
-                (scissorWidth, scissorHeight) = value;
-                GL.Scissor(scissorX, scissorY, scissorWidth, scissorHeight);
-
-                #if DEBUG_OPENGL4
-                Console.WriteLine($"GL.Scissor({scissorX}, {scissorY}, {scissorWidth}, {scissorHeight});");
-                #endif
-            });
+            (scissorWidth, scissorHeight) = value;
+            RunOrSchedule(ApplyScissor);
         }
+    }
+
+    /// <summary>
+    /// Apply the scissor area converting window pixels to framebuffer pixels.
+    /// </summary>
+    void ApplyScissor()
+    {
+        if (win is null || Width <= 0 || Height <= 0)
+            return;
+
+        var framebuffer = win.FramebufferSize;
+        var scaleX = (float)framebuffer.X / Width;
+        var scaleY = (float)framebuffer.Y / Height;
+        var left = (int)MathF.Round(scissorX * scaleX);
+        var bottom = (int)MathF.Round(scissorY * scaleY);
+        var right = (int)MathF.Round((scissorX + scissorWidth) * scaleX);
+        var top = (int)MathF.Round((scissorY + scissorHeight) * scaleY);
+        GL.Scissor(left, bottom, right - left, top - bottom);
+
+        #if DEBUG_OPENGL4
+        Console.WriteLine($"GL.Scissor({left}, {bottom}, {right - left}, {top - bottom});");
+        #endif
     }
 
     public override void Clear()
@@ -477,6 +485,7 @@ public class OpenGL4Window : BaseWindow
 
         var framebuffer = win.FramebufferSize;
         GL.Viewport(0, 0, framebuffer.X, framebuffer.Y);
+        ApplyScissor();
 
         if (changed && CanRender && IsOpen)
             Resize(Width, Height);

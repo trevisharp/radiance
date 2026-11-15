@@ -179,6 +179,33 @@ public static class Window
     }
 
     /// <summary>
+    /// Get or set if pixels outside of the scissor area are discarded.
+    /// </summary>
+    public static bool ScissorTest
+    {
+        get => Current.ScissorTest;
+        set => Current.ScissorTest = value;
+    }
+
+    /// <summary>
+    /// Get or set the bottom left corner of the scissor area, in window pixels.
+    /// </summary>
+    public static (int x, int y) ScissorPoint
+    {
+        get => Current.ScissorPoint;
+        set => Current.ScissorPoint = value;
+    }
+
+    /// <summary>
+    /// Get or set the size of the scissor area, in window pixels.
+    /// </summary>
+    public static (int width, int height) ScissorSize
+    {
+        get => Current.ScissorSize;
+        set => Current.ScissorSize = value;
+    }
+
+    /// <summary>
     /// Open main application window.
     /// </summary>
     public static void Open()
