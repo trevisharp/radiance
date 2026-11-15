@@ -71,6 +71,7 @@ public class OpenGL4Window : BaseWindow
                 if (zBuffer)
                 {
                     GL.Enable(EnableCap.DepthTest);
+                    GL.DepthFunc(DepthFunction.Lequal);
                     clearMask = ClearBufferMask.ColorBufferBit 
                         | ClearBufferMask.DepthBufferBit;
 
@@ -288,7 +289,11 @@ public class OpenGL4Window : BaseWindow
             Load();
         };
 
-        win.Unload += Unload;
+        win.Unload += () =>
+        {
+            Unload();
+            OpenGL4ShaderContext.FreeAllResources();
+        };
 
         win.RenderFrame += e => RenderFrame();
 
@@ -329,6 +334,8 @@ public class OpenGL4Window : BaseWindow
 
         Width = size.Width;
         Height = size.Height;
-        GL.Viewport(0, 0, Width, Height);
+
+        var framebuffer = win.FramebufferSize;
+        GL.Viewport(0, 0, framebuffer.X, framebuffer.Y);
     }
 }

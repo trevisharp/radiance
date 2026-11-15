@@ -34,8 +34,9 @@ public class Texture(string imgPath)
             throw new FileNotFoundException();
 
         Init();
+        using var stream = File.OpenRead(imgPath);
         return ImageResult.FromStream(
-            File.OpenRead(imgPath),
+            stream,
             ColorComponents.RedGreenBlueAlpha
         );
     }
