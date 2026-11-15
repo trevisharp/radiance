@@ -668,6 +668,13 @@ which includes the built-in one, are spaced by their plain advance widths.
 
 # Versions
 
+### Radiance v3.3.0
+
+ - ![](https://img.shields.io/badge/update-blue) Render calls run through compiled call plans cached by the signature of the arguments: about 3.5x less CPU and 8x less memory per call.
+ - ![](https://img.shields.io/badge/update-blue) vec2, vec3 and vec4 parameters received as values are sent as a single vecN uniform.
+ - ![](https://img.shields.io/badge/update-blue) Less allocations on the draw pipeline and on internal caches.
+ - ![](https://img.shields.io/badge/update-blue) BufferedDataArray exposes Count and an indexer of buffers.
+
 ### Radiance v3.2.0
 
  - ![](https://img.shields.io/badge/new-green) Window can be configured: Title, Size, MinimumSize, Mode (Windowed, Fullscreen, Maximized, Borderless), Resizable and VSync, before or after opening, with the OnResize event.
