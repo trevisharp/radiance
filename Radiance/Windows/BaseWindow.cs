@@ -146,6 +146,16 @@ public abstract class BaseWindow
     public abstract bool Resizable { get; set; }
 
     /// <summary>
+    /// Get or set the text of the system clipboard.
+    /// </summary>
+    public abstract string Clipboard { get; set; }
+
+    /// <summary>
+    /// Get or set the shape of the mouse cursor over the window.
+    /// </summary>
+    public abstract Cursor Cursor { get; set; }
+
+    /// <summary>
     /// Open main application window.
     /// </summary>
     public abstract void Open();
@@ -218,6 +228,42 @@ public abstract class BaseWindow
     public event Action? OnMouseEnter;
     public event Action? OnMouseLeave;
     public event Action<int, int>? OnResize;
+    public event Action<string>? OnTextInput;
+    public event Action<bool>? OnFocusChange;
+    public event Action<string[]>? OnFileDrop;
+
+    protected void TextInput(string text)
+    {
+        if (OnTextInput is null)
+            return;
+
+        if (!Active)
+            return;
+
+        OnTextInput(text);
+    }
+
+    protected void FocusChange(bool focused)
+    {
+        if (OnFocusChange is null)
+            return;
+
+        if (!Active)
+            return;
+
+        OnFocusChange(focused);
+    }
+
+    protected void FileDrop(string[] paths)
+    {
+        if (OnFileDrop is null)
+            return;
+
+        if (!Active)
+            return;
+
+        OnFileDrop(paths);
+    }
 
     protected void Resize(int width, int height)
     {

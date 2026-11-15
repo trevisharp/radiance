@@ -98,6 +98,24 @@ public static class Window
     }
 
     /// <summary>
+    /// Get or set the text of the system clipboard.
+    /// </summary>
+    public static string Clipboard
+    {
+        get => Current.Clipboard;
+        set => Current.Clipboard = value;
+    }
+
+    /// <summary>
+    /// Get or set the shape of the mouse cursor over the window.
+    /// </summary>
+    public static Cursor Cursor
+    {
+        get => Current.Cursor;
+        set => Current.Cursor = value;
+    }
+
+    /// <summary>
     /// Get and set if the cursor is visible.
     /// </summary>
     public static bool CursorVisible
@@ -307,5 +325,32 @@ public static class Window
     {
         add => Current.OnResize += value;
         remove => Current.OnResize -= value;
+    }
+
+    /// <summary>
+    /// Occurs when the user types a text, already composed by the system keyboard layout.
+    /// </summary>
+    public static event Action<string> OnTextInput
+    {
+        add => Current.OnTextInput += value;
+        remove => Current.OnTextInput -= value;
+    }
+
+    /// <summary>
+    /// Occurs when the window gains or loses the focus.
+    /// </summary>
+    public static event Action<bool> OnFocusChange
+    {
+        add => Current.OnFocusChange += value;
+        remove => Current.OnFocusChange -= value;
+    }
+
+    /// <summary>
+    /// Occurs when files are dropped on the window.
+    /// </summary>
+    public static event Action<string[]> OnFileDrop
+    {
+        add => Current.OnFileDrop += value;
+        remove => Current.OnFileDrop -= value;
     }
 }

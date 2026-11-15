@@ -2,17 +2,21 @@
  * Date:    06/11/2024
  */
 using System;
+using System.Threading;
 using System.Reflection;
 
 using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
+using OpenTK.Windowing.Common.Input;
+using OpenTK.Windowing.GraphicsLibraryFramework;
 using OpenTK.Windowing.Desktop;
 
 namespace Radiance.Implementations.OpenGL4;
 
 using Windows;
 using Primitives;
+using Exceptions;
 
 /// <summary>
 /// A Implemetation of OpenGL4 window.
@@ -100,6 +104,30 @@ public class OpenGL4Window : BaseWindow
                 return;
 
             win.WindowBorder = GetBorder();
+        }
+    }
+
+    public override string Clipboard
+    {
+        get => win is null ? string.Empty : WithClipboard(() => win.ClipboardString ?? string.Empty);
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value, nameof(value));
+            RunOrSchedule(() => WithClipboard(() => win!.ClipboardString = value));
+        }
+    }
+
+    Cursor cursor = Cursor.Arrow;
+    public override Cursor Cursor
+    {
+        get => cursor;
+        set
+        {
+            cursor = value;
+            if (win is null)
+                return;
+
+            win.Cursor = GetMouseCursor();
         }
     }
 
@@ -349,7 +377,8 @@ public class OpenGL4Window : BaseWindow
             }
         )
         {
-            CursorState = cursorVisisble
+            CursorState = cursorVisisble,
+            Cursor = GetMouseCursor()
         };
 
         win.FramebufferResize += e =>
@@ -389,6 +418,12 @@ public class OpenGL4Window : BaseWindow
         win.MouseEnter += MouseEnter;
 
         win.MouseLeave += MouseLeave;
+
+        win.TextInput += e => TextInput(e.AsString);
+
+        win.FocusedChanged += e => FocusChange(e.IsFocused);
+
+        win.FileDrop += e => FileDrop(e.FileNames);
         
         win.Run();
     }
@@ -426,6 +461,41 @@ public class OpenGL4Window : BaseWindow
         (WindowMode.Borderless, _) => WindowBorder.Hidden,
         (_, true) => WindowBorder.Resizable,
         _ => WindowBorder.Fixed
+    };
+
+    /// <summary>
+    /// Access the clipboard retrying while another application holds it.
+    /// </summary>
+    static T WithClipboard<T>(Func<T> access)
+    {
+        for (int attempt = 1; ; attempt++)
+        {
+            try
+            {
+                return access();
+            }
+            catch (GLFWException ex)
+            {
+                if (attempt == 10)
+                    throw new ClipboardUnavailableException(ex.Message);
+
+                Thread.Sleep(10);
+            }
+        }
+    }
+
+    MouseCursor GetMouseCursor() => cursor switch
+    {
+        Cursor.IBeam => MouseCursor.IBeam,
+        Cursor.Crosshair => MouseCursor.Crosshair,
+        Cursor.Hand => MouseCursor.PointingHand,
+        Cursor.ResizeHorizontal => MouseCursor.ResizeEW,
+        Cursor.ResizeVertical => MouseCursor.ResizeNS,
+        Cursor.ResizeNWSE => MouseCursor.ResizeNWSE,
+        Cursor.ResizeNESW => MouseCursor.ResizeNESW,
+        Cursor.ResizeAll => MouseCursor.ResizeAll,
+        Cursor.NotAllowed => MouseCursor.NotAllowed,
+        _ => MouseCursor.Default
     };
 
     WindowState GetState() => mode switch
