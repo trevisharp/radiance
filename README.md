@@ -668,7 +668,15 @@ which includes the built-in one, are spaced by their plain advance widths.
 
 # Versions
 
-### Radiance v3.1.0 (Coming soon)
+### Radiance v3.2.0
+
+ - ![](https://img.shields.io/badge/new-green) Window can be configured: Title, Size, MinimumSize, Mode (Windowed, Fullscreen, Maximized, Borderless), Resizable and VSync, before or after opening, with the OnResize event.
+ - ![](https://img.shields.io/badge/new-green) Added OnTextInput with the text already composed by the keyboard layout, Clipboard, Cursor shape, OnFocusChange and OnFileDrop.
+ - ![](https://img.shields.io/badge/new-green) Added the OnDemand render mode: the window sleeps and draws only on input or when Window.Invalidate() is called, from any thread.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix Width and Height including the window borders and title bar instead of the drawing area, which stretched the drawing and moved the mouse Y in windowed mode.
+ - ![](https://img.shields.io/badge/removed-red) BaseWindow has new abstract members: custom window implementations must implement them.
+
+### Radiance v3.1.0
 
  - ![](https://img.shields.io/badge/new-green) Added a system of color to make conversion and handle color spaces easily.
  - ![](https://img.shields.io/badge/new-green) Replaced the triangulation by ear clipping: any simple polygon, convex or concave, in any orientation.
