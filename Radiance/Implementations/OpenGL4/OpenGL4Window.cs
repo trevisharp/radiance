@@ -1,15 +1,13 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    06/11/2024
  */
-using System.Drawing;
+using System;
+using System.Reflection;
 
+using OpenTK.Mathematics;
 using OpenTK.Graphics.OpenGL4;
 using OpenTK.Windowing.Common;
 using OpenTK.Windowing.Desktop;
-
-#if DEBUG_OPENGL4
-using System;
-#endif
 
 namespace Radiance.Implementations.OpenGL4;
 
@@ -22,11 +20,88 @@ using Primitives;
 public class OpenGL4Window : BaseWindow
 {
     private GameWindow? win;
-    private bool fullscreen = true;
     private ClearBufferMask clearMask = ClearBufferMask.ColorBufferBit;
     
     public override int Width { get; protected set; }
     public override int Height { get; protected set; }
+
+    string title = Assembly.GetEntryAssembly()?.GetName().Name ?? "Radiance";
+    public override string Title
+    {
+        get => title;
+        set
+        {
+            ArgumentNullException.ThrowIfNull(value, nameof(value));
+            title = value;
+            if (win is null)
+                return;
+
+            win.Title = value;
+        }
+    }
+
+    (int width, int height) size = (800, 600);
+    public override (int width, int height) Size
+    {
+        get => win is null ? size : (Width, Height);
+        set
+        {
+            if (value.width <= 0 || value.height <= 0)
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The size must be positive.");
+
+            size = value;
+            if (win is null)
+                return;
+
+            win.ClientSize = new Vector2i(value.width, value.height);
+        }
+    }
+
+    (int width, int height) minimumSize = (0, 0);
+    public override (int width, int height) MinimumSize
+    {
+        get => minimumSize;
+        set
+        {
+            if (value.width < 0 || value.height < 0)
+                throw new ArgumentOutOfRangeException(nameof(value), value, "The minimum size cannot be negative.");
+
+            minimumSize = value;
+            if (win is null)
+                return;
+
+            win.MinimumSize = GetMinimumClientSize();
+        }
+    }
+
+    WindowMode mode = WindowMode.Fullscreen;
+    public override WindowMode Mode
+    {
+        get => mode;
+        set
+        {
+            mode = value;
+            if (win is null)
+                return;
+
+            win.WindowBorder = GetBorder();
+            win.WindowState = GetState();
+        }
+    }
+
+    bool resizable = true;
+    public override bool Resizable
+    {
+        get => resizable;
+        set
+        {
+            resizable = value;
+            if (win is null)
+                return;
+
+            win.WindowBorder = GetBorder();
+        }
+    }
 
     CursorState cursorVisisble = CursorState.Normal;
     public override bool CursorVisible
@@ -263,11 +338,11 @@ public class OpenGL4Window : BaseWindow
             GameWindowSettings.Default,
             new NativeWindowSettings()
             {
-                ClientSize = (800, 600),
-                WindowState =
-                    fullscreen ?
-                    WindowState.Fullscreen :
-                    WindowState.Normal,
+                Title = title,
+                ClientSize = new Vector2i(size.width, size.height),
+                MinimumClientSize = GetMinimumClientSize(),
+                WindowBorder = GetBorder(),
+                WindowState = GetState(),
                 TransparentFramebuffer = true,
                 Flags = ContextFlags.Default,
                 Vsync = (VSyncMode)vSyncMode
@@ -328,14 +403,35 @@ public class OpenGL4Window : BaseWindow
     {
         if (win is null)
             return;
-        
-        var size = (Size)win.Size;
-        CanRender = size != Size.Empty;
 
-        Width = size.Width;
-        Height = size.Height;
+        var clientSize = win.Size;
+        CanRender = clientSize.X > 0 && clientSize.Y > 0;
+
+        var changed = clientSize.X != Width || clientSize.Y != Height;
+        Width = clientSize.X;
+        Height = clientSize.Y;
 
         var framebuffer = win.FramebufferSize;
         GL.Viewport(0, 0, framebuffer.X, framebuffer.Y);
+
+        if (changed && CanRender && IsOpen)
+            Resize(Width, Height);
     }
+
+    Vector2i? GetMinimumClientSize()
+        => minimumSize == (0, 0) ? null : new Vector2i(minimumSize.width, minimumSize.height);
+
+    WindowBorder GetBorder() => (mode, resizable) switch
+    {
+        (WindowMode.Borderless, _) => WindowBorder.Hidden,
+        (_, true) => WindowBorder.Resizable,
+        _ => WindowBorder.Fixed
+    };
+
+    WindowState GetState() => mode switch
+    {
+        WindowMode.Fullscreen => WindowState.Fullscreen,
+        WindowMode.Maximized => WindowState.Maximized,
+        _ => WindowState.Normal
+    };
 }

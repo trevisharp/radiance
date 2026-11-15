@@ -44,6 +44,60 @@ public static class Window
     public static int Height => Current.Height;
 
     /// <summary>
+    /// Get or set the title of the window.
+    /// </summary>
+    public static string Title
+    {
+        get => Current.Title;
+        set => Current.Title = value;
+    }
+
+    /// <summary>
+    /// Get or set the size of the window drawing area.
+    /// </summary>
+    public static (int width, int height) Size
+    {
+        get => Current.Size;
+        set => Current.Size = value;
+    }
+
+    /// <summary>
+    /// Get or set the minimum size of the window drawing area. (0, 0) means no minimum.
+    /// </summary>
+    public static (int width, int height) MinimumSize
+    {
+        get => Current.MinimumSize;
+        set => Current.MinimumSize = value;
+    }
+
+    /// <summary>
+    /// Get or set the display mode of the window.
+    /// </summary>
+    public static WindowMode Mode
+    {
+        get => Current.Mode;
+        set => Current.Mode = value;
+    }
+
+    /// <summary>
+    /// Get or set if the user can resize the window.
+    /// </summary>
+    public static bool Resizable
+    {
+        get => Current.Resizable;
+        set => Current.Resizable = value;
+    }
+
+    /// <summary>
+    /// Get or set the vertical synchronization mode.
+    /// </summary>
+    public static VSync VSync
+    {
+        get => Current.VSync;
+        set => Current.VSync = value;
+    }
+
+    /// <summary>
     /// Get and set if the cursor is visible.
     /// </summary>
     public static bool CursorVisible
@@ -244,5 +298,14 @@ public static class Window
     {
         add => Current.OnMouseLeave += value;
         remove => Current.OnMouseLeave -= value;
+    }
+
+    /// <summary>
+    /// Occurs when the window drawing area changes its size.
+    /// </summary>
+    public static event Action<int, int> OnResize
+    {
+        add => Current.OnResize += value;
+        remove => Current.OnResize -= value;
     }
 }

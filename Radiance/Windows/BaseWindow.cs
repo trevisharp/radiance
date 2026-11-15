@@ -121,6 +121,31 @@ public abstract class BaseWindow
     public abstract (int width, int height) ScissorSize { get; set; }
 
     /// <summary>
+    /// Get or set the title of the window.
+    /// </summary>
+    public abstract string Title { get; set; }
+
+    /// <summary>
+    /// Get or set the size of the window drawing area.
+    /// </summary>
+    public abstract (int width, int height) Size { get; set; }
+
+    /// <summary>
+    /// Get or set the minimum size of the window drawing area. (0, 0) means no minimum.
+    /// </summary>
+    public abstract (int width, int height) MinimumSize { get; set; }
+
+    /// <summary>
+    /// Get or set the display mode of the window.
+    /// </summary>
+    public abstract WindowMode Mode { get; set; }
+
+    /// <summary>
+    /// Get or set if the user can resize the window.
+    /// </summary>
+    public abstract bool Resizable { get; set; }
+
+    /// <summary>
     /// Open main application window.
     /// </summary>
     public abstract void Open();
@@ -192,6 +217,18 @@ public abstract class BaseWindow
     public event Action<float>? OnMouseWhell;
     public event Action? OnMouseEnter;
     public event Action? OnMouseLeave;
+    public event Action<int, int>? OnResize;
+
+    protected void Resize(int width, int height)
+    {
+        if (OnResize is null)
+            return;
+
+        if (!Active)
+            return;
+
+        OnResize(width, height);
+    }
 
     protected void MouseLeave()
     {
