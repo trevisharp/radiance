@@ -12,7 +12,7 @@ using Exceptions;
 /// <summary>
 /// Represent a parameter in a function used to create a render.
 /// </summary>
-public class UniformFloatDependence(string name) : ShaderDependence
+public class UniformFloatDependence(string name) : ShaderDependence, IFloatArgumentDependence
 {
     private float value = 0f;
     public override void AddHeader(StringBuilder sb)
@@ -27,4 +27,7 @@ public class UniformFloatDependence(string name) : ShaderDependence
             throw new InvalidUniformTypeException(value, "float");
         this.value = num;
     }
+
+    public void SetArgument(int component, float value)
+        => this.value = value;
 }
