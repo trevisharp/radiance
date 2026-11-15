@@ -1,9 +1,11 @@
 /* Author:  Leonardo Trevisan Silio
  * Date:    27/12/2024
  */
+using System;
+
 namespace Radiance.Bufferings;
 
-public abstract class MutableBufferedData(float[] initial) : IBufferedData
+public abstract class MutableBufferedData(float[] initial) : IBufferedData, IDisposable
 {
     protected float[] data = initial;
     protected Buffer? buffer = null;
@@ -73,6 +75,16 @@ public abstract class MutableBufferedData(float[] initial) : IBufferedData
     public abstract bool IsGeometry { get; }
 
     public Buffer Buffer => buffer ??= Buffer.From(this, dynamicDraw: true);
+
+    /// <summary>
+    /// Release the GPU buffer of this data.
+    /// </summary>
+    public void Dispose()
+    {
+        buffer?.Release();
+        buffer = null;
+        GC.SuppressFinalize(this);
+    }
 
     public abstract float[] GetBufferData();
 }

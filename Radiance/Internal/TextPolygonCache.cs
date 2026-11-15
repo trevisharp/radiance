@@ -37,6 +37,7 @@ internal static class TextPolygonCache
             var oldest = recent.Last!;
             recent.RemoveLast();
             map.Remove(oldest.Value.Text);
+            oldest.Value.Polygon.Dispose();
         }
 
         return polygon;

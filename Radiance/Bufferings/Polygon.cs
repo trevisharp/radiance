@@ -13,7 +13,7 @@ using Exceptions;
 /// A buffer with a Polygon points. A polygon has a contour and, optionally,
 /// holes inside it. The buffered data holds the contour followed by every hole.
 /// </summary>
-public class Polygon : IPolygon
+public class Polygon : IPolygon, IDisposable
 {
     readonly float[][] rings;
     readonly float[] data;
@@ -53,6 +53,20 @@ public class Polygon : IPolygon
     public bool IsGeometry => true;
 
     public Buffer Buffer => buffer ??= Buffer.From(this);
+
+    /// <summary>
+    /// Release the GPU buffers of this polygon and of its triangules, lines and points.
+    /// </summary>
+    public void Dispose()
+    {
+        buffer?.Release();
+        triangulationPair?.Dispose();
+        boundPair?.Dispose();
+        pointsPair?.Dispose();
+        buffer = null;
+        triangulationPair = boundPair = pointsPair = null;
+        GC.SuppressFinalize(this);
+    }
 
     public Changes Changes { get; set; } = [];
 
