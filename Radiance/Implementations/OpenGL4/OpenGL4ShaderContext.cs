@@ -84,6 +84,8 @@ public class OpenGL4ShaderContext : ShaderContext
 
     readonly FeatureMap<VertexArrayObject> vertexArrayMap = new();
     readonly Dictionary<string, int> uniformLocations = [];
+    IBufferedData[] argumentBuffers = [];
+    int[] argumentBufferIds = [];
 
     /// <summary>
     /// Get the cached location of a uniform.
@@ -223,27 +225,44 @@ public class OpenGL4ShaderContext : ShaderContext
 
     public override void InitArgs(object[] args)
     {
-        var bufferedData = args
-            .Where(arg => arg is IBufferedData)
-            .Select(arg => (IBufferedData)arg)
-            .ToArray();
-        
-        foreach (var data in bufferedData)
+        foreach (var data in GetBufferedArguments(args))
             CreateIfNotExists(data);
     }
 
     public override void UseArgs(object[] args)
     {
-        var bufferedData = args
-            .Where(arg => arg is IBufferedData)
-            .Select(arg => (IBufferedData)arg)
-            .ToArray();
-        
+        var bufferedData = GetBufferedArguments(args);
+
         foreach (var data in bufferedData)
             UpdateIfNeeded(data);
-        
+
         int id = GetVertexArrayObject(bufferedData);
         BindVerteArrayObject(id);
+    }
+
+    /// <summary>
+    /// Get the buffered data arguments reusing the same array between calls.
+    /// </summary>
+    ReadOnlySpan<IBufferedData> GetBufferedArguments(object[] args)
+    {
+        int count = 0;
+        foreach (var arg in args)
+        {
+            if (arg is IBufferedData)
+                count++;
+        }
+
+        if (argumentBuffers.Length != count)
+            argumentBuffers = new IBufferedData[count];
+
+        int index = 0;
+        foreach (var arg in args)
+        {
+            if (arg is IBufferedData data)
+                argumentBuffers[index++] = data;
+        }
+
+        return argumentBuffers;
     }
 
     static unsafe void UpdateIfNeeded(IBufferedData data)
@@ -278,21 +297,20 @@ public class OpenGL4ShaderContext : ShaderContext
         #endif
     }
 
-    int GetVertexArrayObject(IBufferedData[] bufferedData)
+    int GetVertexArrayObject(ReadOnlySpan<IBufferedData> bufferedData)
     {
-        var buffers = 
-            from data in bufferedData
-            select data.Buffer?.BufferId ?? -1;
-        
-        if (buffers.Any(id => id == -1))
-            throw new UnbufferedDataExcetion();
-        int[] ids = [ ..buffers ];
+        if (argumentBufferIds.Length != bufferedData.Length)
+            argumentBufferIds = new int[bufferedData.Length];
 
-        var vao = vertexArrayMap.Get(ids);
+        for (int i = 0; i < bufferedData.Length; i++)
+            argumentBufferIds[i] = bufferedData[i].Buffer?.BufferId ?? throw new UnbufferedDataExcetion();
+
+        var vao = vertexArrayMap.Get(argumentBufferIds);
         if (vao is not null)
             return vao.Id;
-        
+
         var id = GenerateVertexArrayObject();
+        int[] ids = [ ..argumentBufferIds ];
         vertexArrayIds.Add(id);
         vertexArrayMap.Add(ids, new(ids, id));
 
@@ -312,7 +330,7 @@ public class OpenGL4ShaderContext : ShaderContext
         return id;
     }
 
-    static void ConfigureVertexArrayObject(int id, IBufferedData[] buffers)
+    static void ConfigureVertexArrayObject(int id, ReadOnlySpan<IBufferedData> buffers)
     {
         BindVerteArrayObject(id);
 
