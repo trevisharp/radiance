@@ -25,9 +25,11 @@ public class OpenGL4ShaderContext : ShaderContext
 {
     // Global OpenGL resources indexes map
     static readonly List<int> textureUnits = [];
-    static readonly Dictionary<int, int> shaderMap = [];
+    static readonly Dictionary<string, int> shaderMap = [];
     static readonly Dictionary<(int, int), int> programMap = [];
     static readonly Dictionary<ImageResult, int> textureMap = [];
+    static readonly HashSet<int> bufferIds = [];
+    static readonly HashSet<int> vertexArrayIds = [];
 
     /// <summary>
     /// Unload all OpenGL Resources.
@@ -46,6 +48,18 @@ public class OpenGL4ShaderContext : ShaderContext
         foreach (var shaderKey in shaderMap)
             GL.DeleteShader(shaderKey.Value);
         shaderMap.Clear();
+
+        GL.BindVertexArray(0);
+        foreach (var vertexArray in vertexArrayIds)
+            GL.DeleteVertexArray(vertexArray);
+        vertexArrayIds.Clear();
+
+        GL.BindBuffer(BufferTarget.ArrayBuffer, 0);
+        foreach (var buffer in bufferIds)
+            GL.DeleteBuffer(buffer);
+        bufferIds.Clear();
+
+        textureUnits.Clear();
     }
     
     /// <summary>
@@ -69,12 +83,27 @@ public class OpenGL4ShaderContext : ShaderContext
     public int TotalOffset { get; private set; } = 0;
 
     readonly FeatureMap<VertexArrayObject> vertexArrayMap = new();
+    readonly Dictionary<string, int> uniformLocations = [];
+
+    /// <summary>
+    /// Get the cached location of a uniform.
+    /// </summary>
+    int GetUniformLocation(string name)
+    {
+        var program = ProgramId ?? throw new UncreatedProgramException();
+        if (uniformLocations.TryGetValue(name, out var location))
+            return location;
+
+        location = GL.GetUniformLocation(program, name);
+        uniformLocations[name] = location;
+        return location;
+    }
     record VertexArrayObject(int[] Buffers, int Id);
 
     public override void SetFloat(string name, float value)
     {
         var program = ProgramId ?? throw new UncreatedProgramException();
-        var code = GL.GetUniformLocation(program, name);
+        var code = GetUniformLocation(name);
         GL.Uniform1(code, value);
 
         #if DEBUG_OPENGL4
@@ -87,7 +116,7 @@ public class OpenGL4ShaderContext : ShaderContext
     {
         var program = ProgramId ?? throw new UncreatedProgramException();
         var id = ActivateImage(texture.ImageData);
-        var code = GL.GetUniformLocation(program, name);
+        var code = GetUniformLocation(name);
         GL.Uniform1(code, id);
 
         #if DEBUG_OPENGL4
@@ -99,7 +128,7 @@ public class OpenGL4ShaderContext : ShaderContext
     public override void SetVec(string name, float x, float y)
     {
         var program = ProgramId ?? throw new UncreatedProgramException();
-        var code = GL.GetUniformLocation(program, name);
+        var code = GetUniformLocation(name);
         GL.Uniform2(code, x, y);
 
         #if DEBUG_OPENGL4
@@ -111,7 +140,7 @@ public class OpenGL4ShaderContext : ShaderContext
     public override void SetVec(string name, float x, float y, float z)
     {
         var program = ProgramId ?? throw new UncreatedProgramException();
-        var code = GL.GetUniformLocation(program, name);
+        var code = GetUniformLocation(name);
         GL.Uniform3(code, x, y, z);
 
         #if DEBUG_OPENGL4
@@ -123,7 +152,7 @@ public class OpenGL4ShaderContext : ShaderContext
     public override void SetVec(string name, float x, float y, float z, float w)
     {
         var program = ProgramId ?? throw new UncreatedProgramException();
-        var code = GL.GetUniformLocation(program, name);
+        var code = GetUniformLocation(name);
         GL.Uniform4(code, x, y, z, w);
 
         #if DEBUG_OPENGL4
@@ -137,7 +166,8 @@ public class OpenGL4ShaderContext : ShaderContext
         int tabIndex = 0;
         var vertexShader = CreateVertexShader(pair.VertexShader, verbose, ref tabIndex);
         var fragmentShader = CreateFragmentShader(pair.FragmentShader, verbose, ref tabIndex);
-        ProgramId = CreateProgram(vertexShader, fragmentShader, verbose, ref tabIndex);
+        ProgramId = CreateProgram(vertexShader, fragmentShader, pair, verbose, ref tabIndex);
+        uniformLocations.Clear();
     }
 
     public override void SetLineWidth(float width)
@@ -183,7 +213,10 @@ public class OpenGL4ShaderContext : ShaderContext
     public override void Dispose()
     {
         foreach (var vertexArray in vertexArrayMap)
+        {
             DeleteVerteArrayObject(vertexArray.Id);
+            vertexArrayIds.Remove(vertexArray.Id);
+        }
         DeleteProgram(ProgramId);
         GC.SuppressFinalize(this);
     }
@@ -218,7 +251,7 @@ public class OpenGL4ShaderContext : ShaderContext
         if (!data.Changes.HasChanges)
             return;
 
-        BindVerteArrayObject(data.Buffer.BufferId ?? -1);
+        BindBuffer(data.Buffer.BufferId ?? throw new UnbufferedDataExcetion());
         var newData = data.GetBufferData();
         fixed (float* ptr = newData)
         {
@@ -260,6 +293,7 @@ public class OpenGL4ShaderContext : ShaderContext
             return vao.Id;
         
         var id = GenerateVertexArrayObject();
+        vertexArrayIds.Add(id);
         vertexArrayMap.Add(ids, new(ids, id));
 
         ConfigureVertexArrayObject(id, bufferedData);
@@ -445,7 +479,7 @@ public class OpenGL4ShaderContext : ShaderContext
         bool verbose,
         ref int tabIndex)
     {
-        if (shaderMap.TryGetValue(shader.Hash, out int value))
+        if (shaderMap.TryGetValue(shader.Code, out int value))
             return value;
         
         Information("Cache miss. Create new shader!", verbose, ref tabIndex);
@@ -460,15 +494,17 @@ public class OpenGL4ShaderContext : ShaderContext
         GL.ShaderSource(shaderId, shader.Code);
         GL.CompileShader(shaderId);
 
-        shaderMap.Add(shader.Hash, shaderId);
-
         GL.GetShader(shaderId, ShaderParameter.CompileStatus, out var code);
         if (code != (int)All.True)
         {
             var infoLog = GL.GetShaderInfoLog(shaderId);
             Error($"Error occurred in Shader({shaderId}) compilation: {infoLog}", verbose, ref tabIndex);
-            return -1;
+            GL.DeleteShader(shaderId);
+            var stage = type == OpenTKShaderType.VertexShader ? "vertex" : "fragment";
+            throw new ShaderCompilationException(stage, infoLog, shader.Code);
         }
+
+        shaderMap.Add(shader.Code, shaderId);
 
         #if DEBUG_OPENGL4
         Console.WriteLine($"GL.CreateShader(...) = {shaderId}");
@@ -480,8 +516,9 @@ public class OpenGL4ShaderContext : ShaderContext
     }
     
     static int CreateProgram(
-        int vertexShader, 
+        int vertexShader,
         int fragmentShader,
+        ShaderPair pair,
         bool verbose,
         ref int tabIndex)
     {
@@ -505,7 +542,12 @@ public class OpenGL4ShaderContext : ShaderContext
 
         GL.GetProgram(program, GetProgramParameterName.LinkStatus, out var code);
         if (code != (int)All.True)
-            Error($"Error occurred Program({program}) linking.", verbose, ref tabIndex);
+        {
+            var infoLog = GL.GetProgramInfoLog(program);
+            Error($"Error occurred Program({program}) linking: {infoLog}", verbose, ref tabIndex);
+            GL.DeleteProgram(program);
+            throw new ProgramLinkException(infoLog, pair.VertexShader.Code, pair.FragmentShader.Code);
+        }
         
         programMap.Add(programKey, program);
         Success("Program Created!!", verbose, ref tabIndex);
@@ -532,6 +574,8 @@ public class OpenGL4ShaderContext : ShaderContext
             ?? throw new UnbufferedDataExcetion();
         BindBuffer(buffer.BufferId ?? -1);
         Store(data.GetBufferData(), buffer.DynamicDraw);
+
+        data.Changes.Clear();
     }
 
     static bool TryCreateBuffer(IBufferedData data)
@@ -540,6 +584,7 @@ public class OpenGL4ShaderContext : ShaderContext
             return false;
         
         var id = CreateBuffer();
+        bufferIds.Add(id);
         data.Buffer.BufferId = id;
         return true;
     }
