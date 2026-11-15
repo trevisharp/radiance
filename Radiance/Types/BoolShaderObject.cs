@@ -22,13 +22,43 @@ public class boolean : ShaderObject
         ) : base(ShaderType.Bool, value, origin, deps) { }
 
     public static boolean operator &(boolean a, boolean b)
-        => Union<boolean>($"({a} && {b})", a, b);
+    {
+        if (a.IsConstant(true) || b.IsConstant(false))
+            return b;
+
+        if (b.IsConstant(true) || a.IsConstant(false))
+            return a;
+
+        return Union<boolean>($"({a} && {b})", a, b);
+    }
 
     public static boolean operator |(boolean a, boolean b)
-        => Union<boolean>($"({a} || {b})", a, b);
-    
+    {
+        if (a.IsConstant(false) || b.IsConstant(true))
+            return b;
+
+        if (b.IsConstant(false) || a.IsConstant(true))
+            return a;
+
+        return Union<boolean>($"({a} || {b})", a, b);
+    }
+
     public static boolean operator !(boolean a)
-        => Transform<boolean, boolean>($"(!{a})", a);
+    {
+        if (a.IsConstant(true))
+            return false;
+
+        if (a.IsConstant(false))
+            return true;
+
+        return Transform<boolean, boolean>($"(!{a})", a);
+    }
+
+    /// <summary>
+    /// Get if this boolean is the constant true or false.
+    /// </summary>
+    public bool IsConstant(bool value)
+        => Expression == (value ? "true" : "false");
 
     public static implicit operator boolean(bool value)
         => new (value ? "true" : "false", ShaderOrigin.Global, []);

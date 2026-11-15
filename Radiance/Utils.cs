@@ -1021,6 +1021,58 @@ public static class Utils
     /// </summary>
     public static vec4 step(val edge, vec4 x)
         => func<vec4>("step", edge, x);
+
+    /// <summary>
+    /// Return a where the condition is true, otherwise b.
+    /// Shader Only.
+    /// </summary>
+    public static val select(boolean condition, val a, val b)
+        => ReferenceEquals(a, b) ? a : ShaderObject.Union<val>($"({condition} ? {a} : {b})", condition, a, b);
+
+    /// <summary>
+    /// Return a where the condition is true, otherwise b.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 select(boolean condition, vec2 a, vec2 b)
+        => ReferenceEquals(a, b) ? a : ShaderObject.Union<vec2>($"({condition} ? {a} : {b})", condition, a, b);
+
+    /// <summary>
+    /// Return a where the condition is true, otherwise b.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 select(boolean condition, vec3 a, vec3 b)
+        => ReferenceEquals(a, b) ? a : ShaderObject.Union<vec3>($"({condition} ? {a} : {b})", condition, a, b);
+
+    /// <summary>
+    /// Return a where the condition is true, otherwise b.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 select(boolean condition, vec4 a, vec4 b)
+        => ReferenceEquals(a, b) ? a : ShaderObject.Union<vec4>($"({condition} ? {a} : {b})", condition, a, b);
+
+    /// <summary>
+    /// Return a where the condition is true, otherwise b.
+    /// Shader Only.
+    /// </summary>
+    public static boolean select(boolean condition, boolean a, boolean b)
+    {
+        if (ReferenceEquals(a, b) || a.Expression == b.Expression)
+            return a;
+
+        if (a.IsConstant(true))
+            return condition | b;
+
+        if (a.IsConstant(false))
+            return !condition & b;
+
+        if (b.IsConstant(true))
+            return !condition | a;
+
+        if (b.IsConstant(false))
+            return condition & a;
+
+        return ShaderObject.Union<boolean>($"({condition} ? {a} : {b})", condition, a, b);
+    }
     
     /// <summary>
     /// Return a random value based ona point.
@@ -1120,6 +1172,16 @@ public static class Utils
     /// Shader Only.
     /// </summary>
     public static vec4 autoVar(vec4 obj, params ShaderDependence[] otherDeps)
+    {
+        var variable = new VariableDependence(obj);
+        return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
+    }
+
+    /// <summary>
+    /// For radiance to create a intermediate variable to compute this value.
+    /// Shader Only.
+    /// </summary>
+    public static boolean autoVar(boolean obj, params ShaderDependence[] otherDeps)
     {
         var variable = new VariableDependence(obj);
         return new (variable.Name, obj.Origin, [ ..obj.Dependencies, variable, ..otherDeps ]);
