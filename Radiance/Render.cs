@@ -208,11 +208,7 @@ public class Render : DynamicObject
     /// would show up as a stutter on the frame the text first appears.
     /// </summary>
     static Polygon CreateText(string text)
-    {
-        var polygon = Polygon.FromText(text);
-        _ = polygon.Triangules;
-        return polygon;
-    }
+        => TextPolygonCache.Get(text);
 
     /// <summary>
     /// Fill parameters data on a vector skipping values
