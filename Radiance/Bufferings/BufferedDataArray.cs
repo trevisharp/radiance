@@ -14,6 +14,16 @@ public class BufferedDataArray(IEnumerable<IBufferedData> buffers) : IEnumerable
 {
     readonly IBufferedData[] array = buffers.ToArray();
 
+    /// <summary>
+    /// Get the number of buffers on this array.
+    /// </summary>
+    public int Count => array.Length;
+
+    /// <summary>
+    /// Get a buffer of this array.
+    /// </summary>
+    public IBufferedData this[int index] => array[index];
+
     public float this[int i, int j]
     {
         get => array[i][j];

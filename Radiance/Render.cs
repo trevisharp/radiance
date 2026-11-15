@@ -21,12 +21,12 @@ using Exceptions;
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
 /// </summary>
-public class Render : DynamicObject
+public partial class Render : DynamicObject
 {
     object[] arguments;
     readonly Delegate function;
     readonly int expectedArguments;
-    readonly FeatureMap<CallMatch> map = [];
+    readonly FeatureMap<CallInfo> infos = [];
     record CallInfo(
         ArgumentTarget[] Targets,
         RenderContext Context
@@ -35,10 +35,6 @@ public class Render : DynamicObject
         IFloatArgumentDependence? Float,
         int Component,
         TextureDependence? Texture
-    );
-    record CallMatch(
-        int[] Depth,
-        CallInfo Info
     );
     record BufferUse(IBufferedData Buffer, int Column);
 
@@ -81,45 +77,17 @@ public class Render : DynamicObject
             return null;
         }
 
-        var arguments = DisplayArguments(this.arguments, args);
-        var canExecute = !HasSkipValues(arguments);
-        var inRenderization = Window.Phase is WindowPhase.OnRender;
-        
-        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
-            throw new MissingPolygonException();
-        
-        return (inRenderization, canExecute) switch
+        if (Window.Phase is WindowPhase.OnRender)
         {
-            (true, false) => throw new InvalidCurryPhaseException(),
-            (true, true) => execute(),
-            (false, _) => Curry(this, arguments)
-        };
-
-        object? execute()
-        {
-            var (targets, ctx) = Load(arguments);
-            Invoke(arguments, ctx, targets);
+            GetCall(args).Execute(args);
             return null;
         }
-    }
 
-    /// <summary>
-    /// Load the shader code based on received function.
-    /// </summary>
-    CallInfo Load(object[] args)
-    {
-        ValidateDepths(args);
-        var depths = DiscoverDepths(args);
-        
-        var match = map.Get(depths);
-        if (match is not null)
-            return match.Info;
-        
-        var nonPolyArgs = RemovePolygonParameter(args);
-        var info = AnalisysInvoke(function, nonPolyArgs);
-        
-        map.Add(depths, new(depths, info));
-        return info;
+        var arguments = DisplayArguments(this.arguments, args);
+        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
+            throw new MissingPolygonException();
+
+        return Curry(this, arguments);
     }
 
     /// <summary>
@@ -302,38 +270,6 @@ public class Render : DynamicObject
     }
 
     /// <summary>
-    /// Call the function passing real data and running the draw pipeline.
-    /// Match the argument with the lasts dependencies.
-    /// </summary>
-    static void Invoke(object[] arguments, RenderContext ctx, ArgumentTarget[] targets)
-    {
-        if (arguments[0] is not IPolygon)
-            throw new MissingPolygonException();
-
-        for (int i = 1; i < arguments.Length; i++)
-            UpdateTarget(targets[i - 1], arguments[i]);
-
-        ctx?.Render(arguments);
-    }
-
-    /// <summary>
-    /// Send a argument value to the shader dependence that receives it.
-    /// </summary>
-    static void UpdateTarget(ArgumentTarget target, object argument)
-    {
-        if (target.Float is not null)
-        {
-            if (argument is not float value)
-                throw new InvalidUniformTypeException(argument, "float");
-
-            target.Float.SetArgument(target.Component, value);
-            return;
-        }
-
-        target.Texture?.UpdateData(argument);
-    }
-    
-    /// <summary>
     /// Call the function using shader objects to analyze your behaviour.
     /// </summary>
     static CallInfo AnalisysInvoke(Delegate function, object[] args)
@@ -513,35 +449,4 @@ public class Render : DynamicObject
     /// </summary>
     static object[] RemoveSkip(object?[] values)
         => values.Where(val => val is not SkipCurryingParameter and not null).ToArray()!;
-    
-    /// <summary>
-    /// Discover the depth of a array of inputs.
-    /// </summary>
-    static int[] DiscoverDepths(object[] inputs) => [
-        ..from input in inputs
-        select input switch
-        {
-            IBufferedData buffer => buffer.Instances,
-            _ => 1
-        }
-    ];
-
-    /// <summary>
-    /// Validate recived object depths.
-    /// </summary>
-    static void ValidateDepths(object[] inputs)
-    {
-        int? dataSize = null;
-        foreach (var input in inputs)
-        {
-            if (input is not IBufferedData buffered)
-                continue;
-            var instances = buffered.Instances;
-            
-            if (dataSize.HasValue && instances != dataSize)
-                throw new InvalidDataDepthsException(buffered, instances, dataSize.Value);
-            
-            dataSize = instances;
-        }
-    }
 }
