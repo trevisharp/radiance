@@ -38,7 +38,7 @@ public static class Polygons
             if (triangule is not null)
                 return triangule;
             
-            float height = MathF.Sqrt(5) / 2;
+            float height = MathF.Sqrt(3) / 2;
             triangule = FromData([
                 (0.5f, -height / 2),
                 (0f, height / 2),

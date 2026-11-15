@@ -14,20 +14,19 @@ namespace Radiance.Windows;
 /// </summary>
 public class FrameMeasurer(int windowSize)
 {
-    DateTime newerFrame = DateTime.MinValue;
-    DateTime olderFrame = DateTime.MinValue;
     readonly Queue<DateTime> frames = [];
+    DateTime newest = DateTime.MinValue;
 
     public void Reset()
         => frames.Clear();
-    
+
     public void RegisterFrame()
     {
-        newerFrame = DateTime.UtcNow;
-        frames.Enqueue(newerFrame);
+        newest = DateTime.UtcNow;
+        frames.Enqueue(newest);
 
-        if (frames.Count > windowSize)
-            olderFrame = frames.Dequeue();
+        while (frames.Count > windowSize + 1)
+            frames.Dequeue();
     }
 
     /// <summary>
@@ -37,12 +36,12 @@ public class FrameMeasurer(int windowSize)
     {
         get
         {
-            int winCount = frames.Count;
-            if (winCount == 0)
+            int intervals = frames.Count - 1;
+            if (intervals < 1)
                 return 0f;
 
-            var delta = newerFrame - olderFrame;
-            var time = delta.TotalSeconds / winCount;
+            var delta = newest - frames.Peek();
+            var time = delta.TotalSeconds / intervals;
             return (float)time;
         }
     }
