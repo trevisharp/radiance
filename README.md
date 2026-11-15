@@ -668,6 +668,12 @@ which includes the built-in one, are spaced by their plain advance widths.
 
 # Versions
 
+### Radiance v3.4.0
+
+ - ![](https://img.shields.io/badge/new-green) Polygon and mutable buffers are disposable: the GPU buffers and the vertex arrays that use them are deleted on the next frame. Collected polygons and texts evicted from the text cache are released too.
+ - ![](https://img.shields.io/badge/new-green) Added abs, sign, clamp and step for val, and abs, sign, floor, ceil, fract, min, max, clamp and step for vec2, vec3 and vec4 on the shader DSL.
+ - ![](https://img.shields.io/badge/update-blue) Fixed typos on the public API: transparent, OnMouseWheel, Polygons.Triangle, ImmutablePolygonException, UnbufferedDataException and the parameters of Colors.CreateRGB. The old names are kept as obsolete.
+
 ### Radiance v3.3.0
 
  - ![](https://img.shields.io/badge/update-blue) Render calls run through compiled call plans cached by the signature of the arguments: about 3.5x less CPU and 8x less memory per call.
