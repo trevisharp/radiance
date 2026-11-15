@@ -5,6 +5,7 @@ using System;
 using System.Linq;
 using System.Dynamic;
 using System.Reflection;
+using System.Runtime.ExceptionServices;
 using System.Collections.Generic;
 
 namespace Radiance;
@@ -280,8 +281,19 @@ public partial class Render : DynamicObject
         var targets = objectData.SelectMany(data => data.targets);
 
         var ctx = RenderContext.OpenContext();
-        function.DynamicInvoke([ ..objs ]);
-        RenderContext.CloseContext();
+        try
+        {
+            function.DynamicInvoke([ ..objs ]);
+        }
+        catch (TargetInvocationException ex) when (ex.InnerException is not null)
+        {
+            ExceptionDispatchInfo.Capture(ex.InnerException).Throw();
+            throw;
+        }
+        finally
+        {
+            RenderContext.CloseContext();
+        }
 
         return new CallInfo([ ..targets ], ctx);
     }
