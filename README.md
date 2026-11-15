@@ -38,6 +38,26 @@ Window.OnKeyDown += (key, mod) => {
 Window.Open();
 ```
 
+### Configure the window
+
+```cs
+using System;
+using Radiance;
+
+Window.Title = "My app";
+Window.Mode = WindowMode.Windowed; // Windowed, Fullscreen (default), Maximized or Borderless
+Window.Size = (1280, 720);
+Window.MinimumSize = (400, 300);
+Window.Resizable = true;
+Window.VSync = VSync.On;
+
+Window.OnResize += (width, height) =>
+    Console.WriteLine($"New size: {width}x{height}");
+
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
 ### Create your polygons
 
 ```cs
