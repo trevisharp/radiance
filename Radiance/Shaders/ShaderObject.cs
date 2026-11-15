@@ -39,6 +39,10 @@ public abstract class ShaderObject(
 
         if (originInfo.hasConflitct)
         {
+            deps = objs
+                .Where(x => x.Origin != VertexShader)
+                .SelectMany(x => x.Dependencies);
+
             foreach (var vertObj in objs.Where(x => x.Origin == VertexShader))
             {
                 var output = new OutputDependence(vertObj);
