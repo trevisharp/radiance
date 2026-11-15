@@ -902,21 +902,17 @@ public static class Utils
         sb.Append(funcName);
         sb.Append('(');
 
-        for (int i = 0; i < inputs.Length - 1; i++)
+        for (int i = 0; i < inputs.Length; i++)
         {
-            if (inputs[i] is ShaderObject input)
-                sb.Append(input.Expression);
-            sb.Append(',');
-            sb.Append(' ');
-        }
+            if (i > 0)
+                sb.Append(", ");
 
-        if (inputs.Length > 0)
-        {
-            if (inputs[^1] is ShaderObject input)
-                sb.Append(input.Expression);
-            sb.Append(')');
+            sb.Append(inputs[i] is ShaderObject input
+                ? input.Expression
+                : ShaderObject.ToShaderExpression(inputs[i]));
         }
-            
+        sb.Append(')');
+
         return sb.ToString();
     }
 

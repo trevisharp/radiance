@@ -108,7 +108,7 @@ public abstract class ShaderObject(
             float value => value.ToString(CultureInfo.InvariantCulture),
             double value => value.ToString(CultureInfo.InvariantCulture),
             int value => value.ToString(CultureInfo.InvariantCulture),
-            bool value => value.ToString(),
+            bool value => value ? "true" : "false",
             _ => throw new InvalidShaderExpressionException(obj)
         };
     }

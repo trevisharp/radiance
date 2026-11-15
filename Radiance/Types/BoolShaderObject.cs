@@ -22,7 +22,7 @@ public class boolean : ShaderObject
         ) : base(ShaderType.Bool, value, origin, deps) { }
 
     public static boolean operator &(boolean a, boolean b)
-        => Union<boolean>($"({a} & {b})", a, b);
+        => Union<boolean>($"({a} && {b})", a, b);
 
     public static boolean operator |(boolean a, boolean b)
         => Union<boolean>($"({a} || {b})", a, b);
@@ -31,5 +31,5 @@ public class boolean : ShaderObject
         => Transform<boolean, boolean>($"(!{a})", a);
 
     public static implicit operator boolean(bool value)
-        => new (value.ToString(), ShaderOrigin.Global, []);
+        => new (value ? "true" : "false", ShaderOrigin.Global, []);
 }
