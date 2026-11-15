@@ -27,27 +27,33 @@ public static class Polygons
     /// </summary>
     public static readonly Polygon Square = Rect(1, 1);
     
-    static Polygon? triangule = null;
+    static Polygon? triangle = null;
     /// <summary>
-    /// Get a triangule with side 1 centralizated in (0, 0, 0).
+    /// Get a equilateral triangle with side 1 centralizated in (0, 0, 0).
     /// </summary>
-    public static Polygon Triangule
+    public static Polygon Triangle
     {
         get
         {
-            if (triangule is not null)
-                return triangule;
+            if (triangle is not null)
+                return triangle;
             
             float height = MathF.Sqrt(3) / 2;
-            triangule = FromData([
+            triangle = FromData([
                 (0.5f, -height / 2),
                 (0f, height / 2),
                 (-0.5f, -height / 2),
             ]);
 
-            return triangule;
+            return triangle;
         }
     }
+
+    /// <summary>
+    /// Get a equilateral triangle with side 1 centralizated in (0, 0, 0).
+    /// </summary>
+    [Obsolete("Use Triangle.")]
+    public static Polygon Triangule => Triangle;
 
     /// <summary>
     /// Create a rectangle with specific width and height

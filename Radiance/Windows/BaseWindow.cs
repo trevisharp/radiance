@@ -234,7 +234,14 @@ public abstract class BaseWindow
     public event Action<(float x, float y)>? OnMouseMove;
     public event Action<MouseButton>? OnMouseDown;
     public event Action<MouseButton>? OnMouseUp;
-    public event Action<float>? OnMouseWhell;
+    public event Action<float>? OnMouseWheel;
+
+    [Obsolete("Use OnMouseWheel.")]
+    public event Action<float>? OnMouseWhell
+    {
+        add => OnMouseWheel += value;
+        remove => OnMouseWheel -= value;
+    }
     public event Action? OnMouseEnter;
     public event Action? OnMouseLeave;
     public event Action<int, int>? OnResize;
@@ -310,13 +317,13 @@ public abstract class BaseWindow
 
     protected void MouseWheel(float offset)
     {
-        if (OnMouseWhell is null)
+        if (OnMouseWheel is null)
             return;
         
         if (!Active)
             return;
         
-        OnMouseWhell(offset);
+        OnMouseWheel(offset);
     }
 
     protected void MouseMove(float x, float y)

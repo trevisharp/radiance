@@ -12,8 +12,8 @@ public static class Colors
     /// <summary>
     /// Create a RGB color using r (0 - 1), g (0 - 1) and b (0 - 1).
     /// </summary>
-    public static RGB CreateRGB(float h, float s, float v)
-        => new(h, s, v);
+    public static RGB CreateRGB(float r, float g, float b)
+        => new(r, g, b);
 
     /// <summary>
     /// Create a HSV color using h (0 - 360), s (0 - 1) and v (0 - 1).

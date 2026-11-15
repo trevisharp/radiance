@@ -216,7 +216,7 @@ public class OpenGL4ShaderContext : ShaderContext
     {
         foreach (var vertexArray in vertexArrayMap)
         {
-            DeleteVerteArrayObject(vertexArray.Id);
+            DeleteVertexArrayObject(vertexArray.Id);
             vertexArrayIds.Remove(vertexArray.Id);
         }
         DeleteProgram(ProgramId);
@@ -237,7 +237,7 @@ public class OpenGL4ShaderContext : ShaderContext
             UpdateIfNeeded(data);
 
         int id = GetVertexArrayObject(bufferedData);
-        BindVerteArrayObject(id);
+        BindVertexArrayObject(id);
     }
 
     /// <summary>
@@ -270,7 +270,7 @@ public class OpenGL4ShaderContext : ShaderContext
         if (!data.Changes.HasChanges)
             return;
 
-        BindBuffer(data.Buffer.BufferId ?? throw new UnbufferedDataExcetion());
+        BindBuffer(data.Buffer.BufferId ?? throw new UnbufferedDataException());
         var newData = data.GetBufferData();
         fixed (float* ptr = newData)
         {
@@ -288,7 +288,7 @@ public class OpenGL4ShaderContext : ShaderContext
         data.Changes.Clear();
     }
 
-    static void BindVerteArrayObject(int id)
+    static void BindVertexArrayObject(int id)
     {
         GL.BindVertexArray(id);
         
@@ -303,7 +303,7 @@ public class OpenGL4ShaderContext : ShaderContext
             argumentBufferIds = new int[bufferedData.Length];
 
         for (int i = 0; i < bufferedData.Length; i++)
-            argumentBufferIds[i] = bufferedData[i].Buffer?.BufferId ?? throw new UnbufferedDataExcetion();
+            argumentBufferIds[i] = bufferedData[i].Buffer?.BufferId ?? throw new UnbufferedDataException();
 
         var vao = vertexArrayMap.Get(argumentBufferIds);
         if (vao is not null)
@@ -332,7 +332,7 @@ public class OpenGL4ShaderContext : ShaderContext
 
     static void ConfigureVertexArrayObject(int id, ReadOnlySpan<IBufferedData> buffers)
     {
-        BindVerteArrayObject(id);
+        BindVertexArrayObject(id);
 
         int index = 0;
         foreach (var buffer in buffers)
@@ -379,7 +379,7 @@ public class OpenGL4ShaderContext : ShaderContext
         #endif
     }
 
-    static void DeleteVerteArrayObject(int? objectId)
+    static void DeleteVertexArrayObject(int? objectId)
     {
         if (!objectId.HasValue)
             return;
@@ -589,7 +589,7 @@ public class OpenGL4ShaderContext : ShaderContext
             return;
 
         var buffer = data.Buffer
-            ?? throw new UnbufferedDataExcetion();
+            ?? throw new UnbufferedDataException();
         BindBuffer(buffer.BufferId ?? -1);
         Store(data.GetBufferData(), buffer.DynamicDraw);
 

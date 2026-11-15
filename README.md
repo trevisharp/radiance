@@ -179,7 +179,7 @@ var myRender = render(() =>
     fill();
 });
 
-Polygon[] polys = [ Polygons.Square, Polygons.Circle, Polygons.Triangule ];
+Polygon[] polys = [ Polygons.Square, Polygons.Circle, Polygons.Triangle ];
 int i = 0;
 Window.OnRender += () => myRender(polys[i]);
 

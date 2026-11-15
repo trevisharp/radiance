@@ -309,10 +309,20 @@ public static class Window
     /// <summary>
     /// Occurs when the user move the mouse wheel.
     /// </summary>
+    public static event Action<float> OnMouseWheel
+    {
+        add => Current.OnMouseWheel += value;
+        remove => Current.OnMouseWheel -= value;
+    }
+
+    /// <summary>
+    /// Occurs when the user move the mouse wheel.
+    /// </summary>
+    [Obsolete("Use OnMouseWheel.")]
     public static event Action<float> OnMouseWhell
     {
-        add => Current.OnMouseWhell += value;
-        remove => Current.OnMouseWhell -= value;
+        add => Current.OnMouseWheel += value;
+        remove => Current.OnMouseWheel -= value;
     }
     
     /// <summary>

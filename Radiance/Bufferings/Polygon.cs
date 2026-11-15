@@ -68,7 +68,7 @@ public class Polygon : IPolygon
     public float this[int index]
     {
         get => data[index];
-        set => throw new ImutablePolygonException();
+        set => throw new ImmutablePolygonException();
     }
 
     public float[] GetBufferData()

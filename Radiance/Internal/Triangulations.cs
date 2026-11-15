@@ -654,12 +654,12 @@ public static class Triangulations
             if (ear < 0)
                 ear = SharpestVertex(pts, indices);
 
-            AddTriangule(pts, triangules, indices, ear, epsilon);
+            AddTriangle(pts, triangules, indices, ear, epsilon);
             indices.RemoveAt(ear);
         }
 
         if (indices.Count == 3)
-            AddTriangule(pts, triangules, indices, 1, epsilon);
+            AddTriangle(pts, triangules, indices, 1, epsilon);
     }
 
     /// <summary>
@@ -919,7 +919,7 @@ public static class Triangulations
     /// Triangules with no area are skipped: alignments can appear while the
     /// clipping runs and they would only cost vertices that draw nothing.
     /// </summary>
-    static void AddTriangule(float[] pts, List<float> triangules, List<int> indices, int position, double epsilon)
+    static void AddTriangle(float[] pts, List<float> triangules, List<int> indices, int position, double epsilon)
     {
         var count = indices.Count;
         var previous = indices[(position + count - 1) % count];

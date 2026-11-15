@@ -17,7 +17,7 @@ public class VirtualPolygons(Polygon polygon, int repeat) : IPolygon
     public float this[int index]
     {
         get => polygon[index];
-        set => throw new ImutablePolygonException();
+        set => throw new ImmutablePolygonException();
     }
 
     public int Rows => polygon.Rows;
