@@ -62,6 +62,11 @@ public class RenderContext
     /// Get or set the shader object representing the color transformation.
     /// </summary>
     public vec4 Color { get; set; } = new("vec4(0.0, 0.0, 0.0, 1.0)", ShaderOrigin.FragmentShader, []);
+
+    /// <summary>
+    /// Get or set the shader object representing if the current pixel is drawn.
+    /// </summary>
+    public boolean Visible { get; set; } = true;
     
 
     /// <summary>
@@ -147,7 +152,7 @@ public class RenderContext
 
         var generator = ImplementationConfig.Implementation.NewCodeGenerator();
         
-        var pair = generator.GenerateShaders(Position, Color, context);
+        var pair = generator.GenerateShaders(Position, Color, context, visible: Visible);
 
         context.CreateProgram(pair, Verbose);
         context.UseProgram();

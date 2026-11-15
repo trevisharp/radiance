@@ -16,6 +16,7 @@ public interface ICodeGenerator
         vec3 vertObj,
         vec4 fragObj,
         IShaderConfiguration ctx,
-        GeneratorOptions? options = null
+        GeneratorOptions? options = null,
+        boolean? visible = null
     );
 }

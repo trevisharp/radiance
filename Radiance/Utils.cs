@@ -543,6 +543,64 @@ public static class Utils
             ?? throw new ShaderOnlyResourceException(nameof(fill));
         ctx.AddFill();
     }
+
+    /// <summary>
+    /// Discard the current pixel: nothing is written on color or depth.
+    /// Shader Only.
+    /// </summary>
+    public static void discard()
+    {
+        var ctx = RenderContext.GetContext()
+            ?? throw new ShaderOnlyResourceException(nameof(discard));
+        ctx.Visible = false;
+    }
+
+    /// <summary>
+    /// Run a block where the condition is true and other, optional, where it is false.
+    /// Changes on pos, color and discarded pixels are merged by the condition.
+    /// Shader Only.
+    /// </summary>
+    public static void rif(boolean condition, Action then, Action? otherwise = null)
+    {
+        var ctx = RenderContext.GetContext()
+            ?? throw new ShaderOnlyResourceException(nameof(rif));
+
+        var cond = condition.IsConstant(true) || condition.IsConstant(false)
+            ? condition : autoVar(condition);
+        var (startPosition, startColor, startVisible) = (ctx.Position, ctx.Color, ctx.Visible);
+
+        var thenVisible = startVisible & cond;
+        ctx.Visible = thenVisible;
+        then();
+        var (thenPosition, thenColor, thenResult) = (ctx.Position, ctx.Color, ctx.Visible);
+
+        var otherwiseVisible = startVisible & !cond;
+        (ctx.Position, ctx.Color, ctx.Visible) = (startPosition, startColor, otherwiseVisible);
+        otherwise?.Invoke();
+        var (otherwisePosition, otherwiseColor, otherwiseResult) = (ctx.Position, ctx.Color, ctx.Visible);
+
+        if (ReferenceEquals(thenResult, thenVisible))
+            thenResult = startVisible;
+
+        if (ReferenceEquals(otherwiseResult, otherwiseVisible))
+            otherwiseResult = startVisible;
+
+        var positionChanged = !ReferenceEquals(thenPosition, otherwisePosition);
+        if (positionChanged && cond.Origin == ShaderOrigin.FragmentShader)
+            throw new FragmentConditionOnPositionException();
+
+        ctx.Position = positionChanged
+            ? autoVar(select(cond, thenPosition, otherwisePosition))
+            : thenPosition;
+
+        ctx.Color = thenColor;
+        if (!ReferenceEquals(thenColor, otherwiseColor))
+            color = select(cond, thenColor, otherwiseColor);
+
+        var visible = select(cond, thenResult, otherwiseResult);
+        ctx.Visible = ReferenceEquals(visible, startVisible) || visible.IsConstant(true) || visible.IsConstant(false)
+            ? visible : autoVar(visible);
+    }
     
     /// <summary>
     /// Returns the cosine of the specified angle.

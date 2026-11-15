@@ -29,7 +29,8 @@ public class GLSLGenerator : ICodeGenerator
         vec3 vertObj,
         vec4 fragObj,
         IShaderConfiguration ctx,
-        GeneratorOptions? options = null)
+        GeneratorOptions? options = null,
+        boolean? visible = null)
     {
         options ??= GeneratorOptions.Default;
 
@@ -50,7 +51,10 @@ public class GLSLGenerator : ICodeGenerator
             .Append(ShaderDependence.WidthDep)
             .Append(ShaderDependence.HeightDep)
             .ToList();
+        var visibleObj = visible is null || visible.IsConstant(true)
+            ? null : ShaderObject.MergeOrigin(visible, ShaderOrigin.FragmentShader);
         var fragDeps = fragObj.Dependencies
+            .Concat(visibleObj?.Dependencies ?? [])
             .ToList();
         var allDeps = vertDeps.Concat(fragDeps);
 
@@ -141,6 +145,8 @@ public class GLSLGenerator : ICodeGenerator
             vertSb.AppendLine($"\ttransformPosition = vec3(transformPosition.x, transformPosition.y, 0.99999f - 2 * transformPosition.z / 1001);");
 
         vertSb.AppendLine($"\tgl_Position = vec4(transformPosition, 1.0);");
+        if (visibleObj is not null)
+            fragSb.AppendLine($"\tif (!{visibleObj}) discard;");
         fragSb.AppendLine($"\toutColor = {fragObj};");
 
         foreach (var dep in allDeps)
