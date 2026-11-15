@@ -98,6 +98,21 @@ public static class Window
     }
 
     /// <summary>
+    /// Get or set if frames are drawn continuously or only on input and Invalidate calls.
+    /// </summary>
+    public static RenderMode RenderMode
+    {
+        get => Current.RenderMode;
+        set => Current.RenderMode = value;
+    }
+
+    /// <summary>
+    /// Request a new frame on OnDemand render mode. Can be called from any thread.
+    /// </summary>
+    public static void Invalidate()
+        => Current.Invalidate();
+
+    /// <summary>
     /// Get or set the text of the system clipboard.
     /// </summary>
     public static string Clipboard

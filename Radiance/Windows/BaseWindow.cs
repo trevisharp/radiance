@@ -156,6 +156,16 @@ public abstract class BaseWindow
     public abstract Cursor Cursor { get; set; }
 
     /// <summary>
+    /// Get or set if frames are drawn continuously or only on input and Invalidate calls.
+    /// </summary>
+    public abstract RenderMode RenderMode { get; set; }
+
+    /// <summary>
+    /// Request a new frame on OnDemand render mode. Can be called from any thread.
+    /// </summary>
+    public abstract void Invalidate();
+
+    /// <summary>
     /// Open main application window.
     /// </summary>
     public abstract void Open();

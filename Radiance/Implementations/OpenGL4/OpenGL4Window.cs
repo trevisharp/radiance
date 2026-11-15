@@ -117,6 +117,29 @@ public class OpenGL4Window : BaseWindow
         }
     }
 
+    RenderMode renderMode = RenderMode.Continuous;
+    public override RenderMode RenderMode
+    {
+        get => renderMode;
+        set
+        {
+            renderMode = value;
+            if (win is null)
+                return;
+
+            win.IsEventDriven = value == RenderMode.OnDemand;
+            Invalidate();
+        }
+    }
+
+    public override void Invalidate()
+    {
+        if (win is null)
+            return;
+
+        GLFW.PostEmptyEvent();
+    }
+
     Cursor cursor = Cursor.Arrow;
     public override Cursor Cursor
     {
@@ -378,7 +401,8 @@ public class OpenGL4Window : BaseWindow
         )
         {
             CursorState = cursorVisisble,
-            Cursor = GetMouseCursor()
+            Cursor = GetMouseCursor(),
+            IsEventDriven = renderMode == RenderMode.OnDemand
         };
 
         win.FramebufferResize += e =>
@@ -389,8 +413,9 @@ public class OpenGL4Window : BaseWindow
         win.Load += () =>
         {
             UpdateSize(win);
-            
+
             Load();
+            Invalidate();
         };
 
         win.Unload += () =>
