@@ -591,8 +591,22 @@ which includes the built-in one, are spaced by their plain advance widths.
  - ![](https://img.shields.io/badge/new-green) Added a built-in font, so text works with no file to ship. Font.Default serves a subset of Roboto.
  - ![](https://img.shields.io/badge/new-green) Added Polygon.FromText and a conversion from string to Polygon, so a render accepts a string where it accepts a polygon.
  - ![](https://img.shields.io/badge/bug%20solved-orange) Fix Polygons.Rect(width, height) that built a wrong quadrilateral for non square sizes.
- - ![](https://img.shields.io/badge/update-blue) Improve variable generation name to improve shader reutilization.
- - ![](https://img.shields.io/badge/update-blue) Avaliate dependency cycles on GLSLGenerator.
+ - ![](https://img.shields.io/badge/update-blue) Variable names are generated per render, so equal renders generate equal shaders and reuse the same program.
+ - ![](https://img.shields.io/badge/update-blue) GLSLGenerator orders dependencies topologically and stops on dependency cycles.
+ - ![](https://img.shields.io/badge/update-blue) A text drawn as a string reuses its triangulation and its GPU buffer between frames.
+ - ![](https://img.shields.io/badge/update-blue) Uniform locations are queried once per program.
+ - ![](https://img.shields.io/badge/update-blue) Mutable buffers are allocated with a dynamic usage hint.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Shader compilation and link errors now throw an exception with the driver log and the generated source, even without verbose mode. Broken shaders are no longer cached.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix buffer updates written on the wrong GPU buffer when a render uses more than one mutable buffer.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix writes out of order on a buffer (like buf[100], then buf[5]) that never reached the GPU.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix shapes drawn over others at the same depth that were hidden by the depth test.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix the index of replicated buffers (3 * buffer) and replicated buffers that never received updates.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix boolean shader values: && operator and lowercase literals.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix Polygons.Triangule, that was not equilateral.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix FrameMeasurer reporting huge DeltaTime and zero Fps on the first frames.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix shader functions called without arguments.
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix the viewport on screens where the framebuffer is bigger than the window (HiDPI).
+ - ![](https://img.shields.io/badge/bug%20solved-orange) Fix the texture file handle left open and GL caches kept after the window closes.
  - ![](https://img.shields.io/badge/update-blue) Improve API of types Vec2, Vec3 and Vec4 adding more operations.
 
 ### Radiance v3.0.1
