@@ -738,6 +738,286 @@ public static class Utils
     /// </summary>
     public static val min(val x, val y)
         => func<val>("min", x, y);
+
+    /// <summary>
+    /// Return the absolute value.
+    /// Shader Only.
+    /// </summary>
+    public static val abs(val x)
+        => func<val>("abs", x);
+
+    /// <summary>
+    /// Return -1, 0 or 1 according to the sign of the value.
+    /// Shader Only.
+    /// </summary>
+    public static val sign(val x)
+        => func<val>("sign", x);
+
+    /// <summary>
+    /// Constrain a value between a minimum and a maximum.
+    /// Shader Only.
+    /// </summary>
+    public static val clamp(val x, val min, val max)
+        => func<val>("clamp", x, min, max);
+
+    /// <summary>
+    /// Return the absolute value of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 abs(vec2 x)
+        => func<vec2>("abs", x);
+
+    /// <summary>
+    /// Return -1, 0 or 1 according to the sign of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 sign(vec2 x)
+        => func<vec2>("sign", x);
+
+    /// <summary>
+    /// Return the nearest integer less than or equal to each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 floor(vec2 x)
+        => func<vec2>("floor", x);
+
+    /// <summary>
+    /// Return the nearest integer greater than or equal to each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 ceil(vec2 x)
+        => func<vec2>("ceil", x);
+
+    /// <summary>
+    /// Return the fractional part of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 fract(vec2 x)
+        => func<vec2>("fract", x);
+
+    /// <summary>
+    /// Return the lesser of each pair of components.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 min(vec2 x, vec2 y)
+        => func<vec2>("min", x, y);
+
+    /// <summary>
+    /// Return the lesser between each component and a value.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 min(vec2 x, val y)
+        => func<vec2>("min", x, y);
+
+    /// <summary>
+    /// Return the greater of each pair of components.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 max(vec2 x, vec2 y)
+        => func<vec2>("max", x, y);
+
+    /// <summary>
+    /// Return the greater between each component and a value.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 max(vec2 x, val y)
+        => func<vec2>("max", x, y);
+
+    /// <summary>
+    /// Constrain each component between a minimum and a maximum.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 clamp(vec2 x, vec2 min, vec2 max)
+        => func<vec2>("clamp", x, min, max);
+
+    /// <summary>
+    /// Constrain each component between a minimum and a maximum value.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 clamp(vec2 x, val min, val max)
+        => func<vec2>("clamp", x, min, max);
+
+    /// <summary>
+    /// Return 0 for each component less than the edge, otherwise 1.
+    /// Shader Only.
+    /// </summary>
+    public static vec2 step(val edge, vec2 x)
+        => func<vec2>("step", edge, x);
+
+    /// <summary>
+    /// Return the absolute value of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 abs(vec3 x)
+        => func<vec3>("abs", x);
+
+    /// <summary>
+    /// Return -1, 0 or 1 according to the sign of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 sign(vec3 x)
+        => func<vec3>("sign", x);
+
+    /// <summary>
+    /// Return the nearest integer less than or equal to each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 floor(vec3 x)
+        => func<vec3>("floor", x);
+
+    /// <summary>
+    /// Return the nearest integer greater than or equal to each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 ceil(vec3 x)
+        => func<vec3>("ceil", x);
+
+    /// <summary>
+    /// Return the fractional part of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 fract(vec3 x)
+        => func<vec3>("fract", x);
+
+    /// <summary>
+    /// Return the lesser of each pair of components.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 min(vec3 x, vec3 y)
+        => func<vec3>("min", x, y);
+
+    /// <summary>
+    /// Return the lesser between each component and a value.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 min(vec3 x, val y)
+        => func<vec3>("min", x, y);
+
+    /// <summary>
+    /// Return the greater of each pair of components.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 max(vec3 x, vec3 y)
+        => func<vec3>("max", x, y);
+
+    /// <summary>
+    /// Return the greater between each component and a value.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 max(vec3 x, val y)
+        => func<vec3>("max", x, y);
+
+    /// <summary>
+    /// Constrain each component between a minimum and a maximum.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 clamp(vec3 x, vec3 min, vec3 max)
+        => func<vec3>("clamp", x, min, max);
+
+    /// <summary>
+    /// Constrain each component between a minimum and a maximum value.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 clamp(vec3 x, val min, val max)
+        => func<vec3>("clamp", x, min, max);
+
+    /// <summary>
+    /// Return 0 for each component less than the edge, otherwise 1.
+    /// Shader Only.
+    /// </summary>
+    public static vec3 step(val edge, vec3 x)
+        => func<vec3>("step", edge, x);
+
+    /// <summary>
+    /// Return the absolute value of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 abs(vec4 x)
+        => func<vec4>("abs", x);
+
+    /// <summary>
+    /// Return -1, 0 or 1 according to the sign of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 sign(vec4 x)
+        => func<vec4>("sign", x);
+
+    /// <summary>
+    /// Return the nearest integer less than or equal to each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 floor(vec4 x)
+        => func<vec4>("floor", x);
+
+    /// <summary>
+    /// Return the nearest integer greater than or equal to each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 ceil(vec4 x)
+        => func<vec4>("ceil", x);
+
+    /// <summary>
+    /// Return the fractional part of each component.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 fract(vec4 x)
+        => func<vec4>("fract", x);
+
+    /// <summary>
+    /// Return the lesser of each pair of components.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 min(vec4 x, vec4 y)
+        => func<vec4>("min", x, y);
+
+    /// <summary>
+    /// Return the lesser between each component and a value.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 min(vec4 x, val y)
+        => func<vec4>("min", x, y);
+
+    /// <summary>
+    /// Return the greater of each pair of components.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 max(vec4 x, vec4 y)
+        => func<vec4>("max", x, y);
+
+    /// <summary>
+    /// Return the greater between each component and a value.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 max(vec4 x, val y)
+        => func<vec4>("max", x, y);
+
+    /// <summary>
+    /// Constrain each component between a minimum and a maximum.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 clamp(vec4 x, vec4 min, vec4 max)
+        => func<vec4>("clamp", x, min, max);
+
+    /// <summary>
+    /// Constrain each component between a minimum and a maximum value.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 clamp(vec4 x, val min, val max)
+        => func<vec4>("clamp", x, min, max);
+
+    /// <summary>
+    /// Return 0 for each component less than its edge, otherwise 1.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 step(vec4 edge, vec4 x)
+        => func<vec4>("step", edge, x);
+
+    /// <summary>
+    /// Return 0 for each component less than the edge, otherwise 1.
+    /// Shader Only.
+    /// </summary>
+    public static vec4 step(val edge, vec4 x)
+        => func<vec4>("step", edge, x);
     
     /// <summary>
     /// Return a random value based ona point.
