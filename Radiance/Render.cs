@@ -21,19 +21,20 @@ using Exceptions;
 /// <summary>
 /// A render that unite many similar render callings in only once calling.
 /// </summary>
-public class Render : DynamicObject
+public partial class Render : DynamicObject
 {
     object[] arguments;
     readonly Delegate function;
     readonly int expectedArguments;
-    readonly FeatureMap<CallMatch> map = [];
+    readonly FeatureMap<CallInfo> infos = [];
     record CallInfo(
-        IEnumerable<ShaderDependence[]> ShaderDependences,
+        ArgumentTarget[] Targets,
         RenderContext Context
     );
-    record CallMatch(
-        int[] Depth,
-        CallInfo Info
+    readonly record struct ArgumentTarget(
+        IFloatArgumentDependence? Float,
+        int Component,
+        TextureDependence? Texture
     );
     record BufferUse(IBufferedData Buffer, int Column);
 
@@ -76,45 +77,17 @@ public class Render : DynamicObject
             return null;
         }
 
-        var arguments = DisplayArguments(this.arguments, args);
-        var canExecute = !HasSkipValues(arguments);
-        var inRenderization = Window.Phase is WindowPhase.OnRender;
-        
-        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
-            throw new MissingPolygonException();
-        
-        return (inRenderization, canExecute) switch
+        if (Window.Phase is WindowPhase.OnRender)
         {
-            (true, false) => throw new InvalidCurryPhaseException(),
-            (true, true) => execute(),
-            (false, _) => Curry(this, arguments)
-        };
-
-        object? execute()
-        {
-            var (deps, ctx) = Load(arguments);
-            Invoke(arguments, ctx, deps);
+            GetCall(args).Execute(args);
             return null;
         }
-    }
 
-    /// <summary>
-    /// Load the shader code based on received function.
-    /// </summary>
-    CallInfo Load(object[] args)
-    {
-        ValidateDepths(args);
-        var depths = DiscoverDepths(args);
-        
-        var match = map.Get(depths);
-        if (match is not null)
-            return match.Info;
-        
-        var nonPolyArgs = RemovePolygonParameter(args);
-        var info = AnalisysInvoke(function, nonPolyArgs);
-        
-        map.Add(depths, new(depths, info));
-        return info;
+        var arguments = DisplayArguments(this.arguments, args);
+        if (arguments[0] is not IBufferedData and not SkipCurryingParameter)
+            throw new MissingPolygonException();
+
+        return Curry(this, arguments);
     }
 
     /// <summary>
@@ -297,29 +270,6 @@ public class Render : DynamicObject
     }
 
     /// <summary>
-    /// Call the function passing real data and running the draw pipeline.
-    /// Match the argument with the lasts dependencies.
-    /// </summary>
-    static void Invoke(object[] arguments, RenderContext ctx, IEnumerable<ShaderDependence[]> depsconfig)
-    {
-        if (arguments[0] is not IPolygon)
-            throw new MissingPolygonException();
-        
-        var shaderObjParams = RemovePolygonParameter(arguments);
-        var allDeps = depsconfig.SelectMany(x => x);
-
-        foreach (var (arg, dep) in shaderObjParams.Zip(allDeps))
-        {
-            if (dep is null)
-                continue;
-            
-            dep.UpdateData(arg);
-        }
-
-        ctx?.Render(arguments);
-    }
-    
-    /// <summary>
     /// Call the function using shader objects to analyze your behaviour.
     /// </summary>
     static CallInfo AnalisysInvoke(Delegate function, object[] args)
@@ -327,13 +277,13 @@ public class Render : DynamicObject
         CodeGeneration.AutoVariableName.Reset();
         var objectData = GenerateObjects(function, args);
         var objs = objectData.Select(data => data.obj);
-        var deps = objectData.Select(data => data.dep);
+        var targets = objectData.SelectMany(data => data.targets);
 
         var ctx = RenderContext.OpenContext();
         function.DynamicInvoke([ ..objs ]);
         RenderContext.CloseContext();
 
-        return new CallInfo(deps, ctx);
+        return new CallInfo([ ..targets ], ctx);
     }
 
     /// <summary>
@@ -342,7 +292,7 @@ public class Render : DynamicObject
     /// based on args types and sizes. The args may be a array of float
     /// values or float buffers.
     /// </summary>
-    static (ShaderObject obj, ShaderDependence[] dep)[] GenerateObjects(Delegate function, object[] args)
+    static (ShaderObject obj, ArgumentTarget[] targets)[] GenerateObjects(Delegate function, object[] args)
     {
         var parameters = function.Method.GetParameters();
         var result = new ShaderObject[parameters.Length];
@@ -362,90 +312,97 @@ public class Render : DynamicObject
     /// <summary>
     /// Generate a object based on their use.
     /// </summary>
-    static (ShaderObject obj, ShaderDependence[] dep) GenerateObject(ParameterInfo parameter, object[] arguments, ref int layoutLocations)
+    static (ShaderObject obj, ArgumentTarget[] targets) GenerateObject(ParameterInfo parameter, object[] arguments, ref int layoutLocations)
     {
         var type = parameter.ParameterType;
         var name = parameter.Name!;
         if (type.IsAssignableTo(typeof(val)))
         {
-            var x = ToFloatShaderObject(name, arguments[0], ref layoutLocations);
-            return (x, [ ..x.Dependencies ]);
+            var (x, target) = ToFloatShaderObject(name, arguments[0], ref layoutLocations);
+            return (x, [ target ]);
         }
-        
-        if (type.IsAssignableTo(typeof(vec2)))
-        {
-            var x = ToFloatShaderObject($"{name}1", arguments[0], ref layoutLocations);
-            var y = ToFloatShaderObject($"{name}2", arguments[1], ref layoutLocations);
-            return (
-                Utils.var((x, y), name),
-                [ ..x.Dependencies, ..y.Dependencies ]
-            );
-        }
-        
-        if (type.IsAssignableTo(typeof(vec3)))
-        {
-            var x = ToFloatShaderObject($"{name}1", arguments[0], ref layoutLocations);
-            var y = ToFloatShaderObject($"{name}2", arguments[1], ref layoutLocations);
-            var z = ToFloatShaderObject($"{name}3", arguments[2], ref layoutLocations);
-            return (
-                Utils.var((x, y, z), name),
-                [ ..x.Dependencies, ..y.Dependencies, ..z.Dependencies ]
-            );
-        }
-        
-        if (type.IsAssignableTo(typeof(vec4)))
-        {
-            var x = ToFloatShaderObject($"{name}1", arguments[0], ref layoutLocations);
-            var y = ToFloatShaderObject($"{name}2", arguments[1], ref layoutLocations);
-            var z = ToFloatShaderObject($"{name}3", arguments[2], ref layoutLocations);
-            var w = ToFloatShaderObject($"{name}4", arguments[3], ref layoutLocations);
-            return (
-                Utils.var((x, y, z, w), name),
-                [ ..x.Dependencies, ..y.Dependencies, ..z.Dependencies, ..w.Dependencies ]
-            );
-        }
-        
+
+        if (type.IsAssignableTo(typeof(vec2))
+            || type.IsAssignableTo(typeof(vec3))
+            || type.IsAssignableTo(typeof(vec4)))
+            return ToVectorShaderObject(name, arguments, ref layoutLocations);
+
         if (type.IsAssignableTo(typeof(img)))
         {
-            var x = ToSample2DShaderObject(name);
-            return (x, [ ..x.Dependencies ]);
+            var (x, target) = ToSample2DShaderObject(name);
+            return (x, [ target ]);
         }
-            
+
         throw new UnhandleableArgumentsException(type);
+    }
+
+    /// <summary>
+    /// Generate a vector object. Values become a single vecN uniform and
+    /// buffers become one float attribute per component.
+    /// </summary>
+    static (ShaderObject obj, ArgumentTarget[] targets) ToVectorShaderObject(string name, object[] arguments, ref int layoutLocations)
+    {
+        var size = arguments.Length;
+        if (!arguments.Any(arg => arg is IBufferedData))
+        {
+            var dependence = new UniformVectorDependence(name, size);
+            ShaderObject uniform = size switch
+            {
+                2 => new vec2(name, ShaderOrigin.Global, [ dependence ]),
+                3 => new vec3(name, ShaderOrigin.Global, [ dependence ]),
+                _ => new vec4(name, ShaderOrigin.Global, [ dependence ])
+            };
+            return (uniform, [ ..Enumerable.Range(0, size).Select(i => new ArgumentTarget(dependence, i, null)) ]);
+        }
+
+        var components = new val[size];
+        var targets = new ArgumentTarget[size];
+        for (int i = 0; i < size; i++)
+            (components[i], targets[i]) = ToFloatShaderObject($"{name}{i + 1}", arguments[i], ref layoutLocations);
+
+        ShaderObject vector = size switch
+        {
+            2 => Utils.var((components[0], components[1]), name),
+            3 => Utils.var((components[0], components[1], components[2]), name),
+            _ => Utils.var((components[0], components[1], components[2], components[3]), name)
+        };
+        return (vector, targets);
     }
 
     /// <summary>
     /// Generate a Sampler2DShaderObject object based on their use.
     /// </summary>
-    static img ToSample2DShaderObject(string name)
+    static (img obj, ArgumentTarget target) ToSample2DShaderObject(string name)
     {
-        return new img(
+        var dependence = new TextureDependence(name);
+        var obj = new img(
             name,
             ShaderOrigin.FragmentShader,
-            [ new TextureDependence(name) ]
+            [ dependence ]
         );
+        return (obj, new(null, 0, dependence));
     }
 
     /// <summary>
     /// Generate a FloatShaderObject object based on their use.
     /// </summary>
-    static val ToFloatShaderObject(string name, object argument, ref int layoutLocations)
+    static (val obj, ArgumentTarget target) ToFloatShaderObject(string name, object argument, ref int layoutLocations)
     {
-        var isBuffer = argument is IBufferedData;
-
-        return isBuffer switch {
-
-            true => new val(
-                name, ShaderOrigin.VertexShader, 
+        if (argument is IBufferedData)
+        {
+            var buffer = new val(
+                name, ShaderOrigin.VertexShader,
                 [ new FloatBufferDependence(name, layoutLocations++) ]
-            ),
+            );
+            return (buffer, default);
+        }
 
-            false => new val(
-                name, ShaderOrigin.Global, 
-                [ new UniformFloatDependence(name), ]
-            ),
-
-        };
+        var dependence = new UniformFloatDependence(name);
+        var uniform = new val(
+            name, ShaderOrigin.Global,
+            [ dependence ]
+        );
+        return (uniform, new(dependence, 0, null));
     }
 
     /// <summary>
@@ -492,35 +449,4 @@ public class Render : DynamicObject
     /// </summary>
     static object[] RemoveSkip(object?[] values)
         => values.Where(val => val is not SkipCurryingParameter and not null).ToArray()!;
-    
-    /// <summary>
-    /// Discover the depth of a array of inputs.
-    /// </summary>
-    static int[] DiscoverDepths(object[] inputs) => [
-        ..from input in inputs
-        select input switch
-        {
-            IBufferedData buffer => buffer.Instances,
-            _ => 1
-        }
-    ];
-
-    /// <summary>
-    /// Validate recived object depths.
-    /// </summary>
-    static void ValidateDepths(object[] inputs)
-    {
-        int? dataSize = null;
-        foreach (var input in inputs)
-        {
-            if (input is not IBufferedData buffered)
-                continue;
-            var instances = buffered.Instances;
-            
-            if (dataSize.HasValue && instances != dataSize)
-                throw new InvalidDataDepthsException(buffered, instances, dataSize.Value);
-            
-            dataSize = instances;
-        }
-    }
 }

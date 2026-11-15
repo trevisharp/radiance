@@ -2,8 +2,6 @@
  * Date:    02/12/2024
  */
 using System;
-using System.Threading;
-using System.Collections.Generic;
 
 namespace Radiance.Contexts;
 
@@ -17,27 +15,16 @@ using Implementations;
 /// </summary>
 public class RenderContext
 {   
-    static readonly Dictionary<int, RenderContext> threadMap = [];
-
-    static int GetCurrentThreadId()
-    {
-        var crr = Thread.CurrentThread;
-        var id  = crr.ManagedThreadId;
-        return id;
-    }
+    [ThreadStatic]
+    static RenderContext? current;
 
     /// <summary>
     /// Open a new context for this thread.
     /// </summary>
     public static RenderContext OpenContext()
     {
-        CloseContext();
-
-        var openedContext = new RenderContext();
-        var id = GetCurrentThreadId();
-        threadMap.Add(id, openedContext);
-
-        return openedContext;
+        current = new RenderContext();
+        return current;
     }
 
     /// <summary>
@@ -45,12 +32,7 @@ public class RenderContext
     /// </summary>
     public static void CloseContext()
     {
-        var ctx = GetContext();
-        if (ctx is null)
-            return;
-
-        var id = GetCurrentThreadId();
-        threadMap.Remove(id);
+        current = null;
     }
 
     /// <summary>
@@ -58,9 +40,7 @@ public class RenderContext
     /// </summary>
     public static RenderContext? GetContext()
     {
-        var id = GetCurrentThreadId();
-        return threadMap.TryGetValue(id, out var ctx)
-            ? ctx : null;
+        return current;
     }
 
     /// <summary>
@@ -201,6 +181,7 @@ public class RenderContext
         bool needBounds = draw && decompose;
         bool needPlot = plot && decompose;
 
+        object[] drawArgs = [];
         RenderActions += args =>
         {
             IBufferedData polygon = (needTriangules, needBounds, needPlot, args[0]) switch
@@ -213,7 +194,11 @@ public class RenderContext
                 _ => throw new MissingPolygonException()
             };
             
-            args = [ polygon, ..args[1..] ];
+            if (drawArgs.Length != args.Length)
+                drawArgs = new object[args.Length];
+            Array.Copy(args, drawArgs, args.Length);
+            drawArgs[0] = polygon;
+            args = drawArgs;
 
             initIfNeeded();
             
