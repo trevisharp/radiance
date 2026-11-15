@@ -7,8 +7,26 @@
     <Nullable>enable</Nullable>
   </PropertyGroup>
 
+  <PropertyGroup>
+    <PackageId>Radiance</PackageId>
+    <Authors>Leonardo Trevisan Silio</Authors>
+    <Description>A library to write GPU shaders in C# and draw 2D graphics with OpenGL: polygons, text, textures, animations and instancing.</Description>
+    <PackageLicenseExpression>MIT AND OFL-1.1</PackageLicenseExpression>
+    <PackageReadmeFile>README.md</PackageReadmeFile>
+    <PackageTags>gpu;opengl;shader;glsl;graphics;2d</PackageTags>
+    <RepositoryUrl>https://github.com/trevisharp/radiance</RepositoryUrl>
+    <GenerateDocumentationFile>true</GenerateDocumentationFile>
+    <NoWarn>$(NoWarn);CS1591</NoWarn>
+  </PropertyGroup>
+
   <ItemGroup>
     <EmbeddedResource Include="Fonts\Resources\Roboto-Regular.ttf" LogicalName="Radiance.Roboto-Regular.ttf" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Include="..\README.md" Pack="true" PackagePath="\" />
+    <None Include="..\THIRD-PARTY-NOTICES.md" Pack="true" PackagePath="\" />
+    <None Include="Fonts\Resources\Roboto-OFL.txt" Pack="true" PackagePath="\" />
   </ItemGroup>
 
   <ItemGroup>

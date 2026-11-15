@@ -74,7 +74,7 @@ public static class Window
 
     /// <summary>
     /// Get or Set the color used on Clear operation.
-    /// </summary
+    /// </summary>
     public static Vec4 ClearColor
     {
         get => Current.ClearColor;
