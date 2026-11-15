@@ -85,6 +85,45 @@ Window.CloseOn(Input.Escape);
 Window.Open();
 ```
 
+### Draw only when something changes
+
+By default the window draws frames continuously, as fast as it can. Desktop apps that wait for
+the user can use the `OnDemand` mode: the window sleeps and draws a new frame only on input
+(keyboard, mouse, resize, focus) or when `Window.Invalidate()` is called, from any thread.
+
+```cs
+using System.Threading.Tasks;
+using Radiance;
+using static Radiance.Utils;
+
+var count = 0;
+var square = Polygons.Rect(100, 100, 0, 50, 50);
+var myRender = render((val dx) => {
+    pos += (dx, 0, 0);
+    color = red;
+    fill();
+});
+
+Window.RenderMode = RenderMode.OnDemand;
+
+// Something changed outside of the window events: ask for a new frame.
+_ = Task.Run(async () => {
+    while (true)
+    {
+        await Task.Delay(1000);
+        count++;
+        Window.Invalidate();
+    }
+});
+
+Window.OnRender += () => myRender(square, 10 * count);
+Window.CloseOn(Input.Escape);
+Window.Open();
+```
+
+In `OnDemand` mode, `Window.DeltaTime` is the real time since the last frame, which can be long,
+and animations that use `t` only move when a frame is drawn.
+
 ### Create your polygons
 
 ```cs
