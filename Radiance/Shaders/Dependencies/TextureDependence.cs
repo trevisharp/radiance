@@ -14,6 +14,7 @@ using Primitives;
 /// </summary>
 public class TextureDependence(string textureName) : ShaderDependence
 {
+    public string Name => textureName;
     public Texture? Texture { get; private set; }
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform sampler2D {textureName};");

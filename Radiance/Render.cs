@@ -328,6 +328,7 @@ public class Render : DynamicObject
     /// </summary>
     static CallInfo AnalisysInvoke(Delegate function, object[] args)
     {
+        CodeGeneration.AutoVariableName.Reset();
         var objectData = GenerateObjects(function, args);
         var objs = objectData.Select(data => data.obj);
         var deps = objectData.Select(data => data.dep);

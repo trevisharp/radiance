@@ -8,7 +8,15 @@ namespace Radiance.CodeGeneration;
 /// </summary>
 public static class AutoVariableName
 {
-    static int variableCount = 0;
+    [System.ThreadStatic]
+    static int variableCount;
+
+    /// <summary>
+    /// Restart the variable numbering.
+    /// </summary>
+    public static void Reset()
+        => variableCount = 0;
+
     public static string Next(string type, int count = 4)
     {
         variableCount++;

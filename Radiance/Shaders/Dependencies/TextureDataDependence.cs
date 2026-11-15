@@ -14,9 +14,7 @@ using Primitives;
 /// </summary>
 public class TextureDataDependence(TextureDependence value) : ShaderDependence
 {
-    static int count = 0;
-
-    public readonly string name = $"textureData{count++}";
+    public readonly string name = $"{value.Name}Data";
     public override void AddHeader(StringBuilder sb)
         => sb.AppendLine($"uniform vec2 {name};");
 

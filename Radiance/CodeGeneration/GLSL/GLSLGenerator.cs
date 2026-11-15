@@ -90,7 +90,7 @@ public class GLSLGenerator : ICodeGenerator
         foreach (var dep in fragDeps)
         {
             dep.AddHeader(fragSb);
-            vertStp += dep.AddOperation(ctx);
+            fragStp += dep.AddOperation(ctx);
         }
         
         foreach (var dep in allDeps)
@@ -169,23 +169,45 @@ public class GLSLGenerator : ICodeGenerator
         return new(vertexShader, fragmentShader, config);
     }
 
+    /// <summary>
+    /// Expand the dependencies ordering each one after the ones it needs.
+    /// </summary>
     static List<ShaderDependence> ExpandDeps(List<ShaderDependence> dependences)
     {
-        // TODO: Avaliate dependency cycles.
-        var stack = new Stack<ShaderDependence>();
-        foreach (var dep in dependences)
-            stack.Push(dep);
-        
-        while (stack.Count > 0)
-        {
-            var dep = stack.Pop();
-            dependences.Insert(0, dep);
+        var done = new HashSet<ShaderDependence>(ReferenceEqualityComparer.Instance);
+        var inProgress = new HashSet<ShaderDependence>(ReferenceEqualityComparer.Instance);
+        var ordered = new List<ShaderDependence>();
 
-            var newDeps = dep.AddDependences();
-            foreach (var newDep in newDeps)
-                stack.Push(newDep);
+        foreach (var root in dependences)
+        {
+            if (done.Contains(root))
+                continue;
+
+            var stack = new Stack<(ShaderDependence Dep, IEnumerator<ShaderDependence> Children)>();
+            inProgress.Add(root);
+            stack.Push((root, root.AddDependences().GetEnumerator()));
+
+            while (stack.Count > 0)
+            {
+                var (dep, children) = stack.Peek();
+                if (children.MoveNext())
+                {
+                    var child = children.Current;
+                    if (done.Contains(child) || inProgress.Contains(child))
+                        continue;
+
+                    inProgress.Add(child);
+                    stack.Push((child, child.AddDependences().GetEnumerator()));
+                    continue;
+                }
+
+                stack.Pop();
+                inProgress.Remove(dep);
+                done.Add(dep);
+                ordered.Add(dep);
+            }
         }
 
-        return dependences;
+        return ordered;
     }
 }
